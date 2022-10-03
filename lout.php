@@ -19,5 +19,7 @@ $uid = $_GET['id'];
   unset ($_SESSION['id']);
   unset ($_SESSION['date']); 
   header( "Location: admin.php" );
+  
+ob_flush();
 
 ?>
