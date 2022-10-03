@@ -90,7 +90,7 @@ $eci_num = 0;
 
 $reqid = $row['reqid'];
 
-$app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid")->fetchColumn();
+$app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `status`= 1")->fetchColumn();
 $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `rcdone` =1")->fetchColumn();
 $sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `subdone` =1")->fetchColumn();
 $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `hasinterview` =1")->fetchColumn();
