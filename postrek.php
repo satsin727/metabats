@@ -173,8 +173,18 @@ if($cdta['cid']!= null)
 	$cid = $cdta['cid'];
 	}
 else {
-	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES ('1', :uid, NULL, NULL, NULL, :remail, NULL, NULL, NULL, NULL, '1', 'manual');");
+
+	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+	$query = "select * from users where `uid` = :u";
+	$ins= $conn->prepare($query);
+	$ins->bindValue( ":u", $uid, PDO::PARAM_STR );
+	$ins->execute();
+	$dta = $ins->fetch();
+	$lid= $dta['def_lid'];
+
+	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES (:lid, :uid, NULL, NULL, NULL, :remail, NULL, NULL, NULL, NULL, '1', 'manual');");
 	$cinsertquery->bindValue( ":uid", $uid, PDO::PARAM_INT );
+	$cinsertquery->bindValue( ":lid", $lid, PDO::PARAM_INT );
 	$cinsertquery->bindValue( ":remail", $remail, PDO::PARAM_STR );
 	$cinsertquery->execute();
 	$cid = $conn->lastInsertId();

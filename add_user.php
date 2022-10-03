@@ -128,6 +128,25 @@ else {
 		
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
+
+		$uid=$conn->lastInsertId();
+		$listname = $name."-default";
+		$date = date("Y-m-d H:i:s");
+		$status="1";
+		$total="0";
+		
+		$conni = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$query = "INSERT INTO `lists` (`listid`, `listname`, `uid`, `date`, `status`, `total`) VALUES (NULL,'$listname', '$uid', '$date', '$status', '$total');";
+		$ins= $conni->prepare($query);
+		$ins->execute();
+
+		$def_lid = $conni->lastInsertId();
+
+		$ulid = "UPDATE `users` SET `def_lid` = '$def_lid' WHERE `uid` = '$uid';";
+		$ins= $conn->prepare($ulid);
+		$ins->execute();
+
+
 		header( "Location: admin.php?action=listusers" );
 }
 		}
