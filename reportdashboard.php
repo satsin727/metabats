@@ -30,7 +30,6 @@ require("includes/menu.php");
 				<li class="active">Reports</li>
 			</ol>
 		</div><!--/.row-->
-		
 		<div class="row">
 			<div class="col-lg-12">
 				<h1 class="page-header">ConsultantWise Reports</h1>
@@ -57,10 +56,13 @@ require("includes/menu.php");
         
         <button class="btn">Application Tracker</button>
 		<button class="btn">RC Tracker</button>
-        <button class="btn">Sub Tracker</button>        
+        <button class="btn">Sub Tracker</button>
+        <button class="btn">WTD Application Tracker</button>
+		<button class="btn">WTD RC Tracker</button>
+        <button class="btn">WTD Sub Tracker</button>     
         <button class="btn">MTD Application Tracker</button>
 		<button class="btn">MTD RC Tracker</button>
-        <button class="btn">MTD Sub Tracker</button>   
+        <button class="btn">MTD Sub Tracker</button>
 
         <button class="btn">SM Snapshot</button>
 

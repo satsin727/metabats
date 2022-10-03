@@ -54,7 +54,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['rcid']))
 		{
 			$app_id = $_GET['rcid'];
-			$conn->query("UPDATE `app_data` SET `status` = '0' WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `rcdone` = '0' WHERE `app_id` = $app_id");
 			echo "<script>
 			alert('RC Deleted');
 			window.location.href='admin.php?action=showrc';
@@ -63,7 +63,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['subid']))
 		{
 			$app_id = $_GET['subid'];
-			$conn->query("UPDATE `app_data` SET `status` = '0' WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `subdone` = '0' WHERE `app_id` = $app_id");
 			echo "<script>
 			alert('Sub Deleted');
 			window.location.href='admin.php?action=showsub';

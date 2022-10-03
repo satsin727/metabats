@@ -18,7 +18,8 @@
 		?>
 		<ul class="nav menu">
 			<li class="<?php if($selected=="postreq") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=postreq"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Post Req</a></li>
-			<li class="<?php if($selected=="showreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>My Reqs</a></li>
+			<?php if($dta['level'] == 3)
+{ ?>		<li class="<?php if($selected=="showreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>My Reqs</a></li>  <?php } ?>
 			<li class="<?php if($selected=="showapplications") { echo "active"; } else { echo "parent"; } ?>" >
 						<a href="admin.php?action=showapplications">
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Applications
