@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html class="fa-events-icons-ready"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>Bench ATS - Metahorizon</title>
+  
+  <link rel="stylesheet" media="screen" href="application.css">
+
+  <style>
+    .breadcrumb{
+      margin-left: 30px;
+      margin-right: 30px;
+    }
+    .alert{
+      margin-left: 28px;
+    }
+    .container{
+      margin-left:10px;
+      margin-left:20px;
+      width: auto !important;
+    }
+  </style>
+  
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container" style="padding-left: 20px;">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="index.php">Bench ATS</a>
+
+    </div>
+  </div>
+</div>
+
+
+<div class="container">
+ 
+  <div class="row">
+  <ul class="breadcrumb">
+        <li>
+      <a href="index.php">Home</a> <span class="divider">&gt;</span>
+    </li>
+    <li class="active">Jobs</li>
+  </ul>
+  <div class="span12"><style>
+.search_jobs{
+float:left;
+padding-left:10px;
+}
+</style>
+<?php
+
+if(isset($_GET['id']))
+{
+
+require("../config.php");
+$reqid=$_GET['id'];
+
+$conn=null;
+$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$query = "select * from req where `reqid` = :reqid";
+$ins= $conn->prepare($query);
+$ins->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
+$ins->execute();
+$data = $ins->fetch();
+$queryl = "select * from jd where `reqid` = :reqid";
+$ins1= $conn->prepare($queryl);
+$ins1->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
+$ins1->execute();
+$data1 = $ins1->fetch();
+$query3 = "select * from skill where `sid` = :skillid";
+$ins3= $conn->prepare($query3);
+$ins3->bindValue( ":skillid", $data['skillid'], PDO::PARAM_INT );
+$ins3->execute();
+$data3 = $ins3->fetch();
+
+echo "<h2>".$data3['skillname']." - ".$data['rlocation']." - ".$data['rduration']."</h2><br>";
+echo $data1['rdesc'];
+}
+else
+{
+echo "<script>
+alert('Please select the requirement to view from the list !!!');
+window.location.href='index.php';
+</script>"; 	
+}
+?>
+<!-- span16 --> 
+    <div class="span12">
+<h2></h2>
+<br>
+</div>
+  </div>
+</div>
+
+ 
+</body></html>
