@@ -32,7 +32,7 @@ require("includes/menu.php");
 		</div><!--/.row-->
 		<div class="row">
 			<div class="col-lg-12">
-				<h1 class="page-header">ConsultantWise Reports</h1>
+				<!--<h1 class="page-header">ConsultantWise Reports</h1> -->
 			</div>
 		</div><!--/.row-->
 <style type="text/css">
@@ -40,19 +40,19 @@ require("includes/menu.php");
     background-color: #30a5ff; /* Green */
     border: none;
     color: white;
-    padding: 15px 32px;
+    padding: 15px 15px 15px 15px;
+    margin: 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 25px;
-    width: 33%;
-    height: 150px;
+    font-size: 15px;
+    width: 30%;
+    height: 50px;
     }
 </style>
-        <button class="btn">Realtime Daily App/RC/Sub</button>
+       <a href="admin.php?action=showdailydata"><button class="btn">Realtime Daily App/RC/Sub</button></a>
         <button class="btn">WTD App/RC/Sub</button>
-        <button class="btn">MTD App/RC/Sub</button>        
-        <button class="btn">Cummulative App/RC/Sub</button>
+        <button class="btn">MTD App/RC/Sub</button> 
         
         <button class="btn">Application Tracker</button>
 		<button class="btn">RC Tracker</button>
@@ -64,7 +64,8 @@ require("includes/menu.php");
 		<button class="btn">MTD RC Tracker</button>
         <button class="btn">MTD Sub Tracker</button>
 
-        <button class="btn">SM Snapshot</button>
+        <button class="btn">SM Snapshot</button>               
+        <button class="btn">Cummulative App/RC/Sub</button>
 
 
 	</div>	<!--/.main-->

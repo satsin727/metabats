@@ -65,6 +65,8 @@
 			
 			<?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 { ?>
+<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreports"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Daily Reports</a></li> 
+
 <!--
 <li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>">
 				<a href="#">
@@ -72,18 +74,18 @@
 				</a>
 				<ul class="children collapse" id="sub-item-2">
 					<li>
-						<a class="<?php if($selected=="applications") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=showapplications">
+						<a class="<?php if($selected=="consultantwise") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=showcwise">
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Applications
 						</a>
 					</li>
 					
 					<li>
-						<a class="<?php if($selected=="rc") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=rateconfirmations">
+						<a class="<?php if($selected=="apprcsubeci") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=showsubtracker">
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Rate Confirmations
 						</a>
 					</li>
 					<li>
-						<a class="<?php if($selected=="submissions") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=showsubmissions">
+						<a class="<?php if($selected=="smwisereport") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=showsmwisereport">
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Submissions
 						</a>
 					</li>
@@ -92,10 +94,16 @@
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Interviews
 						</a>
 					</li> 
+					<li>
+						<a class="<?php if($selected=="PO") { echo "active"; } else { echo "parent"; } ?>" href="admin.php?action=po">
+							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Interviews
+						</a>
+					</li> 
 
-				</ul>
+
+				</ul> -->
 </li> 
--->		
+
 <?php } ?> 
 
 <!--			<li class="<?php if($selected=="clientslist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientslist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Clients List</a></li> -->
