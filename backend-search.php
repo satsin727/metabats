@@ -23,7 +23,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 /* Attempt MySQL server connection. Assuming you are running MySQL
 server with default setting (user 'root' with no password) */
 try{
-    $pdo = new PDO("mysql:host=localhost;dbname=new_bats", "root", "");
+    $pdo = new PDO("mysql:host=162.241.80.6;dbname=oejwxwmy_bats", "oejwxwmy_bats", "m3+@h0riz0n!");
     // Set the PDO error mode to exception
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e){
