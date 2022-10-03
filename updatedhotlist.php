@@ -27,11 +27,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 $uid = $dta['uid'];
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
-$query = "select * from consultants where `status`=1";
+	$query = "select * from consultants where `status` = 1 order by cfname asc";
 }
 elseif ($dta['level'] == 3)
 {
-$query = "SELECT * FROM `consultants` INNER JOIN assigned on `consultants`.`cid`=`assigned`.`cid` where `assigned`.`uid` = $uid";}
+$query = "SELECT * FROM `consultants` INNER JOIN assigned on `consultants`.`cid`=`assigned`.`cid` where `assigned`.`uid` = $uid  order by cfname asc";}
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -49,11 +49,11 @@ $conn=null;
 			<div class="col-lg-12">
 				<div class="panel panel-default">
 					<div class="panel-body">
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="uid" data-sortable="true">ID</th>
-						        <th data-field="Consultant Name"  data-sortable="true">Consultant Name</th>
+						        <th data-field="Id">ID</th>
+						        <th data-field="name"  data-sortable="true">Consultant Name</th>
 						        <th data-field="Skill" data-sortable="true">Skill</th>
 						        <th data-field="Location" data-sortable="true">Location</th>
 						        <th data-field="Relocation" data-sortable="true">Relocation</th>

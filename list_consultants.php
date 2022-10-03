@@ -25,7 +25,7 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
 
-$query = "select * from consultants where `status` = 1";
+$query = "select * from consultants where `status` = 1 order by cfname asc";
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -43,10 +43,10 @@ $data = $ins->fetchAll();
 				<div class="panel panel-default">
 					<div class="panel-heading"><a href="admin.php?action=addconsultant"><button name="addauser" class="btn btn-primary">Add a Consultant</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=assignconsultant"><button name="assignconsultant" class="btn btn-primary">Assign Consultant</button></a></div>
 					<div class="panel-body">
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="uid" data-sortable="true">ID</th>
+						        <th data-field="ID">ID</th>
 						        <th data-field="Skill" data-sortable="true">Skill</th>
 						        <th data-field="name"  data-sortable="true">Name</th>
 						        <th data-field="location" data-sortable="true">Location</th>

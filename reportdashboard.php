@@ -33,7 +33,7 @@ require("includes/menu.php");
 		
 		<div class="row">
 			<div class="col-lg-12">
-				<h1 class="page-header">My Reports</h1>
+				<h1 class="page-header">ConsultantWise Reports</h1>
 			</div>
 		</div><!--/.row-->
 <style type="text/css">
@@ -50,10 +50,21 @@ require("includes/menu.php");
     height: 150px;
     }
 </style>
-        <button class="btn">RC & Sub</button>
-        <button class="btn">ECI</button>
-        <button class="btn">PO</button>
-		
+        <button class="btn">Realtime Daily App/RC/Sub</button>
+        <button class="btn">WTD App/RC/Sub</button>
+        <button class="btn">MTD App/RC/Sub</button>        
+        <button class="btn">Cummulative App/RC/Sub</button>
+        
+        <button class="btn">Application Tracker</button>
+		<button class="btn">RC Tracker</button>
+        <button class="btn">Sub Tracker</button>        
+        <button class="btn">MTD Application Tracker</button>
+		<button class="btn">MTD RC Tracker</button>
+        <button class="btn">MTD Sub Tracker</button>   
+
+        <button class="btn">SM Snapshot</button>
+
+
 	</div>	<!--/.main-->
 
 <?php

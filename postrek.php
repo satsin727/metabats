@@ -140,7 +140,7 @@ require("includes/footer.php");
 
 if (isset($_POST['save']))
 {
-	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rrate']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) )
+	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) )
 {
 
 echo "<script>

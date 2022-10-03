@@ -2,7 +2,7 @@
 
 ob_start();
 session_start();
-ini_set( "display_errors", true );
+ini_set( "display_errors", false );
 date_default_timezone_set("America/Chicago");
 //define( "ADMIN_USERNAME", "admin@metahorizon.com" );
 //define( "ADMIN_PASSWORD", "deathburner" );

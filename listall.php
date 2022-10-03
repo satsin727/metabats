@@ -55,7 +55,7 @@ $data = $ins->fetchAll();
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="lid" data-sortable="true">ID</th>
+						        <th data-field="lid">ID</th>
 						        <th data-field="listname"  data-sortable="true">List Name</th>
 						        <th data-field="Manager Name" data-sortable="true">Uploaded by SM</th>
 						        <th data-field="Date" data-sortable="true">Uploaded Date</th>

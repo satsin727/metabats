@@ -264,7 +264,7 @@ if(isset($_POST['save']))
 		$muniversity = "0";
 		$myear = "0";				
 		$nda = $_POST['nda'];
-		$dateadded = date("Y-m-d H:i:s");
+		$dateadded = date("Y-m-d");
 
 
 			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
