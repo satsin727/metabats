@@ -91,7 +91,7 @@ else {
 									$cdata = $ins2->fetchAll();
 									foreach( $cdata as $row2) {
 									?>
-										<option value="<?php echo $row2['cid']; ?>"><?php echo $row2['cfname']; ?></option>
+										<option value="<?php echo $row2['cid']; ?>"><?php echo $row2['cfname']." ".$row2['clname']; ?></option>
 										<?php } ?>
 									</select></td>
 									</div>
@@ -103,10 +103,10 @@ else {
                  </tr>
                  <tr> <td align="left" valign="top">&nbsp;</td>	</tr>
 </form>  
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="uid" data-sortable="true">ID</th>
+						        <th data-field="uid">ID</th>
 						        <th data-field="name"  data-sortable="true">Consultant Name</th>
 						        <th data-field="skill" data-sortable="true">Skill</th>
 						        <th data-field="Manager" data-sortable="true">Assigned Manager</th>
