@@ -106,7 +106,7 @@ $uid = $dta['uid'];
                                                         ?>
                                                 <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
                                                 <td data-search="<?php echo $days; ?>"> <?php echo $days; ?></td>
-                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['row']; ?></td>
+                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['cmvisa']; ?></td>
                                                 <?php
                                                                 $time = strtotime($row['dob']); 
                                                                 $myFormatForView = date("m/d/y", $time); 
