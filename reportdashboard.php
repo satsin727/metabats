@@ -64,7 +64,7 @@ require("includes/menu.php");
 		<button class="btn">MTD RC Tracker</button>
         <button class="btn">MTD Sub Tracker</button>
 
-        <button class="btn">SM Snapshot</button>               
+        <a href="admin.php?action=showsmdata"><button class="btn">SM Snapshot</button> </a>              
         <button class="btn">Cummulative App/RC/Sub</button>
 
 
