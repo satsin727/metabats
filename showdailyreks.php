@@ -52,8 +52,15 @@ $uid = $dta['uid'];
                                         <th data-field="Visa Status" data-sortable="true">Visa Status</th>
                                         <th data-field="dob" data-sortable="true">DOB</th>
                                         <th data-field="byear" data-sortable="true">Graduation Year</th>
-                                        <th colspan="4">Today</th>
-                                        <th colspan="4">Weekly</th>
+                                        <th data-field="dapp" data-sortable="true">App</th>                          
+                                       <th data-field="drc" data-sortable="true">RC</th>                         
+                                       <th data-field="dsub" data-sortable="true">Sub</th> 
+                                       <th data-field="deci" data-sortable="true">ECI</th> 
+
+                                       <th data-field="wapp" data-sortable="true">App</th>                          
+                                       <th data-field="wrc" data-sortable="true">RC</th>                         
+                                       <th data-field="wsub" data-sortable="true">Sub</th> 
+                                       <th data-field="weci" data-sortable="true">ECI</th>
                                         
                 </tr>
                 </thead>
@@ -67,15 +74,8 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td data-field="dapp" data-sortable="true">App</td>                          
-                                       <td data-field="drc" data-sortable="true">RC</td>                         
-                                       <td data-field="dsub" data-sortable="true">Sub</td> 
-                                       <td data-field="deci" data-sortable="true">ECI</td> 
-
-                                       <td data-field="wapp" data-sortable="true">App</td>                          
-                                       <td data-field="wrc" data-sortable="true">RC</td>                         
-                                       <td data-field="wsub" data-sortable="true">Sub</td> 
-                                       <td data-field="weci" data-sortable="true">ECI</td>
+                                      <td colspan="4">Today</td>                          
+                                      <td colspan="4">Week</td>     
                                       </tr>
                   <tbody>
                            <?php
