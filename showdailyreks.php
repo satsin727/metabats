@@ -78,8 +78,7 @@ $uid = $dta['uid'];
                                        <td data-field="wsub" data-sortable="true">Weekly Sub</td> 
                                        <td data-field="weci" data-sortable="true">Weekly ECI</td>
 </tr>
-						   
-<!--
+
                            <?php
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
@@ -162,7 +161,7 @@ $uid = $dta['uid'];
                                                     <?php
                                                 }
                     ?>
--->
+
 
 						   </tbody>
 						</table>
