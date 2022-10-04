@@ -44,7 +44,7 @@ $uid = $dta['uid'];
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="name" data-sort-order="asc">
 						    <thead>
 						    <tr>
-                                        <th data-field="ID">ID</th>
+                                        <th data-field="ID" data-sortable="true">ID</th>
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
                                         <th data-field="dateadded" data-sortable="true">Date Added</th>                               
@@ -65,7 +65,9 @@ $uid = $dta['uid'];
                 </tr>
                 </thead>
 						    
-                                    <tr>
+                                    
+                  <tbody>
+                  <tr>
                                       <td></td>
                                       <td></td>
                                       <td></td>
@@ -76,8 +78,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td colspan="4">Today</td>                          
                                       <td colspan="4">Week</td>     
-                                      </tr>
-                  <tbody>
+                  </tr>
                            <?php
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
