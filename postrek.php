@@ -163,7 +163,7 @@ $nationality = $_POST['nationality'];
 
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from clients where `remail` = :remail";
+$query = "select * from clients where `remail` = :remail and `uid` = $uid";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":remail", $remail, PDO::PARAM_STR );
 $ins->execute();
