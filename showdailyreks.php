@@ -68,15 +68,15 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td data-field="dapp" data-sortable="true">Today App</td>                          
-                                       <td data-field="drc" data-sortable="true">Today RC</td>                         
-                                       <td data-field="dsub" data-sortable="true">Today Sub</td> 
-                                       <td data-field="deci" data-sortable="true">Today ECI</td> 
+                                      <td data-field="dapp" data-sortable="true">App</td>                          
+                                       <td data-field="drc" data-sortable="true">RC</td>                         
+                                       <td data-field="dsub" data-sortable="true">Sub</td> 
+                                       <td data-field="deci" data-sortable="true">ECI</td> 
 
-                                       <td data-field="wapp" data-sortable="true">Weekly App</td>                          
-                                       <td data-field="wrc" data-sortable="true">Weekly RC</td>                         
-                                       <td data-field="wsub" data-sortable="true">Weekly Sub</td> 
-                                       <td data-field="weci" data-sortable="true">Weekly ECI</td>
+                                       <td data-field="wapp" data-sortable="true">App</td>                          
+                                       <td data-field="wrc" data-sortable="true">RC</td>                         
+                                       <td data-field="wsub" data-sortable="true">Sub</td> 
+                                       <td data-field="weci" data-sortable="true">ECI</td>
 </tr>
 
                            <?php
