@@ -56,10 +56,10 @@ $data = $ins->fetchAll();
 						    <tr>
 						        <th data-field="Datetime"  data-sortable="true">Sub Date</th>
 						        <th data-field="id" data-sortable="false">S.no</th>
+						        <th data-field="cname"  data-sortable="true">Consultant</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>								
 						        <th data-field="remail" data-sortable="true">Recruiter Email</th>
-						        <th data-field="cname"  data-sortable="true">Consultant</th>
 						        <th data-field="rate"  data-sortable="true">Rate</th>
 						        <th data-field="client"  data-sortable="true">Client</th>
 						        <th data-field="ECI"  data-sortable="true">ECI's Numbers</th> 
@@ -122,12 +122,12 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     <tr>
 		<td data-search="<?php echo $row['subdate']; ?>"> <?php $time = strtotime($row['subdate']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+		<td data-search="<?php $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']." - ".$dta5['rlocation']; ?></a></td>
     	
 		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
-		<td data-search="<?php $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
-        <td data-search="<?php echo $row['rateperhour']; ?>"> <?php echo $row['rateperhour']; ?></td>
+		 <td data-search="<?php echo $row['rateperhour']; ?>"> <?php echo $row['rateperhour']; ?></td>
 		<td data-search="<?php echo $row['t1ip_name']."/".$dta5["rend_client"]; ?>"> <?php echo $row['t1ip_name']."/".$dta5["rend_client"]; ?></td>
 		<td> <?php echo $eci_num; ?>&nbsp;&nbsp;&nbsp;<a href="ecidetails.php?eciid=<?php echo $app_id; ?>"><button name="ecidetails" class="btn btn-primary">Show ECI Details</button></a></td>
 		<td> <a href="comments.php?ecicom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> 
