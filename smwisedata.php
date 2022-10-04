@@ -82,7 +82,7 @@ $uid = $dta['uid'];
                                                 <td data-search="<?php echo $row['name']; ?>"> <?php echo $row['name']; ?></td>
                                           
                                                 <?php
-                                                $cid = $row['cid'];
+                                                
                                                 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                                                 
                                                 if($dta['level'] == 1 || $dta['level'] == 2)
