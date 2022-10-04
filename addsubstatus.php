@@ -48,17 +48,11 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$sub_status=$_POST['sub_status'];    
 			$appid = $_POST['postid'];
 			
-			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= $appid and `subdone` = 1")->fetchColumn();
-			if($isdual!=0)
-			{
-				echo "<script>alert('Sub already done. Use some brain, there is no price for unused brain.');window.close();</script>"; 
-			}
-			else
-			{
+		
 		//	$qc ="UPDATE `app_data` SET `ars_status` = $ars_status WHERE `app_data`.`app_id` = $postid";
             $conn->query("UPDATE `app_data` SET `subto` = $sub_status WHERE `app_data`.`app_id` = $appid")->execute();
 			echo "<script>alert('Sub Status Updated.');window.close();</script>";}
-		}
+		
 		else{
 			?>
 		<form action="#" method="post">

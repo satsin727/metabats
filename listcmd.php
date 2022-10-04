@@ -138,7 +138,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">	
 									<td width="15%" align="left" valign="top"><label>Location:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="rlocation" class="form-control-in" value="<?php echo $ucdata['companyname']; ?>" placeholder="Location"></td>
+								<td width="90%" align="left" valign="top">	<input name="rlocation" class="form-control-in" value="<?php echo $ucdata['rlocation']; ?>" placeholder="Location"></td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Tier:&nbsp;&nbsp;&nbsp;</label></td>
