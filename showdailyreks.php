@@ -171,7 +171,7 @@ $uid = $dta['uid'];
                     ?>
 
 
-						   </tbody>
+						   
             <tr>
                                       <td></td>
                                       <td></td>
@@ -226,6 +226,7 @@ $uid = $dta['uid'];
 
                                       </tr>
                                               </table>
+                                              </tbody>
 					</div>
 				</div>
 			</div>
