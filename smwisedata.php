@@ -137,12 +137,7 @@ $uid = $dta['uid'];
 
 						   
             <tr>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
+                                      
                                       <td></td>
                                       <td>Total</td>
 <?php
