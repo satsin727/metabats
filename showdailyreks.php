@@ -173,7 +173,7 @@ $uid = $dta['uid'];
 
 						   </tbody>
 						</table>
-            <table style="width:100%; border:1px solid black;">
+            <table style="border:1px solid black;">
             <tr>
                                       <td></td>
                                       <td></td>
@@ -182,7 +182,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td style="width:100%; border:1px solid black;">Total</td>
+                                      <td style="border:1px solid black;">Total</td>
 <?php
 
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
