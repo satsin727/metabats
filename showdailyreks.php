@@ -53,9 +53,9 @@ $uid = $dta['uid'];
                                         <th data-field="dob" >DOB</th>
                                         <th data-field="byear" >Graduation Year</th>-->
                                         
-                                        <th data-field="byear" >App</th>                                
-                                  <!--      <th data-field="byear" >RC</th>       -->                         
-                                    <!--    <th data-field="byear" >Sub</th> -->
+                                          <th data-field="byear" >App</th>  -->                               
+                                       <th data-field="byear" >RC</th>    -->                         
+                                       <th data-field="byear" >Sub</th> 
                                     <!--    <th data-field="byear" >ECI</th> -->
                                     </tr>
 						    </thead>
@@ -87,19 +87,19 @@ $uid = $dta['uid'];
                                                                         ?>
                                                 <td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>
   
-                                                <td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']; echo " "; echo $row['cmname'];echo $row['clname']; ?></td>
+                                                <td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']." ".$row['cmname']." ".$row['clname']; ?></td>
                                               
                                                 <?php
                                                 $cid = $row['cid'];
                                                 $app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1")->fetchColumn();
-                                             //   $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1")->fetchColumn();
-                                             //   $sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1")->fetchColumn();
-                                             //   $eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `eci_date`> CURDATE()")->fetchColumn();
+                                                $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1")->fetchColumn();
+                                                $sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1")->fetchColumn();
+                                              //  $eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `eci_date`> CURDATE()")->fetchColumn();
                                                 ?>
 
                                                 <td> <?php echo $app_num; ?></td>
-                                           <!--     <td> <?php echo $rc_num; ?></td> -->
-                                             <!--   <td> <?php echo $sub_num; ?></td> -->
+                                                <td> <?php echo $rc_num; ?></td> 
+                                               <td> <?php echo $sub_num; ?></td> 
                                               <!--  <td> <?php echo $eci_num; ?></td> -->
                                             </tr>
                                                     <?php
