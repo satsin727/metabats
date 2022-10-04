@@ -53,16 +53,16 @@ $uid = $dta['uid'];
                                         <th data-field="dob" >DOB</th>
                                         <th data-field="byear" >Graduation Year</th>-->
                                         
-                                       <th data-field="app" data-sortable="true">Today App</th>                          
-                                       <th data-field="rc" data-sortable="true">Today RC</th>                         
-                                       <th data-field="sub" data-sortable="true">Today Sub</th> 
-                                       <th data-field="eci" data-sortable="true">Today ECI</th> 
+                                       <th data-field="dapp" data-sortable="true">Today App</th>                          
+                                       <th data-field="drc" data-sortable="true">Today RC</th>                         
+                                       <th data-field="dsub" data-sortable="true">Today Sub</th> 
+                                       <th data-field="deci" data-sortable="true">Today ECI</th> 
 
                                        
-                                       <th data-field="app" data-sortable="true">Weekly App</th>                          
-                                       <th data-field="rc" data-sortable="true">Weekly RC</th>                         
-                                       <th data-field="sub" data-sortable="true">Weekly Sub</th> 
-                                       <th data-field="eci" data-sortable="true">Weekly ECI</th> 
+                                       <th data-field="wapp" data-sortable="true">Weekly App</th>                          
+                                       <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
+                                       <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
+                                       <th data-field="weci" data-sortable="true">Weekly ECI</th> 
                                     </tr>
 						    </thead>
 						   <tbody>
