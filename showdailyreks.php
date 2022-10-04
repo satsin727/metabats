@@ -91,9 +91,11 @@ $uid = $dta['uid'];
                                               
                                                 <?php
                                                 $cid = $row['cid'];
+                                                $conns = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+
                                                 $app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1")->fetchColumn();
-                                                $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1")->fetchColumn();
-                                                $sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1")->fetchColumn();
+                                                $rc_num = $conn2->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1")->fetchColumn();
+                                                $sub_num = $conns->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1")->fetchColumn();
                                               //  $eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `eci_date`> CURDATE()")->fetchColumn();
                                                 ?>
 
