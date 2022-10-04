@@ -82,6 +82,7 @@ $uid = $dta['uid'];
                                                 <td data-search="<?php echo $row['name']; ?>"> <?php echo $row['name']; ?></td>
                                           
                                                 <?php
+                                                $uid = $row['uid'];
                                                 
                                                 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                                                 
