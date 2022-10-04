@@ -435,12 +435,11 @@ foreach( $datav as $row) {
     				<a href ="listcmd.php?do=download&lid=<?php echo $row['listid']; ?>" onClick="return confirm('Are you sure you want to Download ?')">Download List</a>
     				 &nbsp;&nbsp;&nbsp; */ ?>
     		
-    		<a href="listcmd.php?do=editcontact&lid=<?php echo $listid; ?>&id=<?php echo $row['cid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
+    	<td> 	<a href="listcmd.php?do=editcontact&lid=<?php echo $listid; ?>&id=<?php echo $row['cid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
     				 &nbsp;&nbsp;&nbsp;
 					 <?php if($dta['level'] == 1 || $dta['level'] == 2 )
 { 
-	?> <td> 
-    				<a href ="listcmd.php?do=delete&lid=<?php echo $listid; ?>&id=<?php  echo $row['cid']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
+	?>     				<a href ="listcmd.php?do=delete&lid=<?php echo $listid; ?>&id=<?php  echo $row['cid']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
     				 &nbsp;&nbsp;&nbsp;    			
     	</td> <?php } ?>
     </tr>	
