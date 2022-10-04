@@ -169,7 +169,12 @@ $uid = $dta['uid'];
                                                 } 
                                                 
                     ?>
-<tr>
+
+
+						   </tbody>
+						</table>
+            <table>
+            <tr>
                                       <td></td>
                                       <td></td>
                                       <td></td>
@@ -222,9 +227,7 @@ $uid = $dta['uid'];
                                                 <td> <?php echo $wteci_num; ?></td> 
 
                                       </tr>
-
-						   </tbody>
-						</table>
+                                              </table>
 					</div>
 				</div>
 			</div>
