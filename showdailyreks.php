@@ -182,7 +182,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td style="border:1px solid black;">Total</td>
+                                      <td style="width:48.5%; border:1px solid black;">Total</td>
 <?php
 
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -216,15 +216,15 @@ $uid = $dta['uid'];
 
 
 ?>
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $dtapp_num; ?></td>
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $dtrc_num; ?></td> 
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $dtsub_num; ?></td> 
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $dteci_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtapp_num; ?></td>
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtrc_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtsub_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $dteci_num; ?></td> 
 
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $wtapp_num; ?></td>
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $wtrc_num; ?></td> 
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $wtsub_num; ?></td> 
-                                                <td style="width:100%; border:1px solid black;"> <?php echo $wteci_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtapp_num; ?></td>
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtrc_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtsub_num; ?></td> 
+                                                <td style="width:7%; border:1px solid black;"> <?php echo $wteci_num; ?></td> 
 
                                       </tr>
                                               </table>
