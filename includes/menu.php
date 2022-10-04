@@ -63,9 +63,9 @@
 				</a>
 			</li> <?php } ?> 
 			
-			<?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
+			<?php if($dta['level'] == 1 || $dta['level'] == 2 )
 { ?>
-<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreports"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Daily Reports</a></li> 
+<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreports"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>All Reports</a></li> 
 
 <!--
 <li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>">
@@ -104,7 +104,12 @@
 				</ul> -->
 </li> 
 
-<?php } ?> 
+<?php } 
+else { ?>
+	<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showdailydata"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Daily Reports</a></li>  <?php
+}
+
+?> 
 
 <!--			<li class="<?php if($selected=="clientslist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientslist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Clients List</a></li> -->
 <?php if($dta['level'] == 1)
