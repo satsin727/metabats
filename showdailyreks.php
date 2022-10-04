@@ -52,39 +52,29 @@ $uid = $dta['uid'];
                                         <th data-field="Visa Status" data-sortable="true">Visa Status</th>
                                         <th data-field="dob" data-sortable="true">DOB</th>
                                         <th data-field="byear" data-sortable="true">Graduation Year</th>
-                                        <th data-field="dapp" data-sortable="true">App</th>                          
-                                       <th data-field="drc" data-sortable="true">RC</th>                         
-                                       <th data-field="dsub" data-sortable="true">Sub</th> 
-                                       <th data-field="deci" data-sortable="true">ECI</th> 
+                                        
+                                        <th data-field="dapp" data-sortable="true">Today App</th>                          
+                                       <th data-field="drc" data-sortable="true">Today RC</th>                         
+                                       <th data-field="dsub" data-sortable="true">Today Sub</th> 
+                                       <th data-field="deci" data-sortable="true">Today ECI</th> 
 
-                                       <th data-field="wapp" data-sortable="true">App</th>                          
-                                       <th data-field="wrc" data-sortable="true">RC</th>                         
-                                       <th data-field="wsub" data-sortable="true">Sub</th> 
-                                       <th data-field="weci" data-sortable="true">ECI</th>
+                                       <th data-field="wapp" data-sortable="true">Weekly App</th>                          
+                                       <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
+                                       <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
+                                       <th data-field="weci" data-sortable="true">Weekly ECI</th>
                                         
                 </tr>
                 </thead>
 						    
                                     
                   <tbody>
-                  <tr>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td></td>
-                                      <td colspan="4">Today</td>                          
-                                      <td colspan="4">Week</td>     
-                  </tr>
                            <?php
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
                               $query = "select * from consultants where `status` = 1 order by cfname asc";
                               }
-                              else{
+                              else
+                              {
                               $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where B.status =1 and A.uid = $uid order by B.cfname asc";
                               }
                           $ins= $conn->prepare($query);
