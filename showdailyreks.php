@@ -53,9 +53,9 @@ $uid = $dta['uid'];
                                         <th data-field="dob" >DOB</th>
                                         <th data-field="byear" >Graduation Year</th>-->
                                         
-                                          <th data-field="byear" >App</th>  -->                               
-                                       <th data-field="byear" >RC</th>    -->                         
-                                       <th data-field="byear" >Sub</th> 
+                                          <th data-field="app" data-sortable="true">App</th>                          
+                                       <th data-field="rc" data-sortable="true">RC</th>                         
+                                       <th data-field="sub" data-sortable="true">Sub</th> 
                                     <!--    <th data-field="byear" >ECI</th> -->
                                     </tr>
 						    </thead>
