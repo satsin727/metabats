@@ -47,9 +47,9 @@ $uid = $dta['uid'];
                                         <th data-field="ID">ID</th>
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
-                                      <!--  <th data-field="dateadded" data-sortable="true">Date Added</th>     -->                           
-                                       <!-- <th data-field="tenure" >Tenure</th> 
-                                        <th data-field="Visa Status" >Visa Status</th>
+                                        <th data-field="dateadded" data-sortable="true">Date Added</th>                               
+                                        <th data-field="tenure" >Tenure</th> 
+                                     <!--   <th data-field="Visa Status" >Visa Status</th>
                                         <th data-field="dob" >DOB</th>
                                         <th data-field="byear" >Graduation Year</th>-->
                                         
@@ -94,7 +94,15 @@ $uid = $dta['uid'];
                                                 <td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>
   
                                                 <td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']." ".$row['cmname']." ".$row['clname']; ?></td>
-                                              
+                                                        <?php
+                                                                $time = strtotime($row['dateadded']); 
+                                                                $myFormatForView = date("m/d/y", $time); 
+                                                                $todaydate = strtotime(date());
+                                                                $diff = abs($todaydate - $time);
+                                                                $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+                                                        ?>
+                                                <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
+                                                <td data-search="<?php echo $days; ?>"> <?php echo $days; ?></td>
                                                 <?php
                                                 $cid = $row['cid'];
                                                 $conns = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
