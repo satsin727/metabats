@@ -97,7 +97,7 @@ $uid = $dta['uid'];
                                                         <?php
                                                                 $time = strtotime($row['dateadded']); 
                                                                 $myFormatForView = date("m/d/y", $time); 
-                                                                $todaydate = strtotime(date());
+                                                                $todaydate = strtotime(date("Y-m-d H:i:s"));
                                                                 $diff = abs($todaydate - $time);
                                                                 $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
                                                         ?>
