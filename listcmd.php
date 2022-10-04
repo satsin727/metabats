@@ -410,7 +410,7 @@ $datav = $insv->fetchAll();
 						        <th data-field="Location" data-sortable="true">Location</th>
 						        <th data-field="Timezone" data-sortable="true">Timezone</th>
 						        <th data-field="Tier" data-sortable="true">Tier</th>
-						      <?php if($dta['level'] == 1 || $dta['level'] == 2 ) { ?>  
+						      <?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) { ?>  
 						      	<th data-field="cmd" >Actions</th> 
 						      <?php } ?>
 						    </tr>
@@ -434,11 +434,12 @@ foreach( $datav as $row) {
     				 &nbsp;&nbsp;&nbsp;
     				<a href ="listcmd.php?do=download&lid=<?php echo $row['listid']; ?>" onClick="return confirm('Are you sure you want to Download ?')">Download List</a>
     				 &nbsp;&nbsp;&nbsp; */ ?>
-    				<?php if($dta['level'] == 1 || $dta['level'] == 2 )
-{ 
-	?> <td> 
+    		
     		<a href="listcmd.php?do=editcontact&lid=<?php echo $listid; ?>&id=<?php echo $row['cid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
     				 &nbsp;&nbsp;&nbsp;
+					 <?php if($dta['level'] == 1 || $dta['level'] == 2 )
+{ 
+	?> <td> 
     				<a href ="listcmd.php?do=delete&lid=<?php echo $listid; ?>&id=<?php  echo $row['cid']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
     				 &nbsp;&nbsp;&nbsp;    			
     	</td> <?php } ?>
