@@ -48,7 +48,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$sub_status=$_POST['sub_status'];    
 			$appid = $_POST['postid'];
 			
-			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= $app_id and `subdone` = 1")->fetchColumn();
+			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= $appid and `subdone` = 1")->fetchColumn();
 			if($isdual!=0)
 			{
 				echo "<script>alert('Sub already done. Use some brain, there is no price for unused brain.');window.close();</script>"; 
