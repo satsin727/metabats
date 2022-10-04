@@ -99,10 +99,14 @@ $uid = $dta['uid'];
                                                                 $myFormatForView = date("m/d/y", $time); 
                                                                 $todaydate = strtotime(date("Y-m-d H:i:s"));
                                                                 $diff = abs($todaydate - $time);
+                                                                $years = floor($diff / (365*60*60*24));
+                                                                $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+                                                                $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+
                                                                // $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
                                                         ?>
                                                 <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
-                                                <td data-search="<?php echo $diff; ?>"> <?php echo $diff; ?></td>
+                                                <td data-search="<?php echo $days; ?>"> <?php echo $days; ?></td>
                                                 <?php
                                                 $cid = $row['cid'];
                                                 $conns = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
