@@ -172,8 +172,6 @@ $uid = $dta['uid'];
 
 
 						   </tbody>
-						</table>
-            <table style="border:1px solid black;">
             <tr>
                                       <td></td>
                                       <td></td>
@@ -182,7 +180,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td style="width:50%; border:1px solid black;">Total</td>
+                                      <td>Total</td>
 <?php
 
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -216,15 +214,15 @@ $uid = $dta['uid'];
 
 
 ?>
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtapp_num; ?></td>
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtrc_num; ?></td> 
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $dtsub_num; ?></td> 
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $dteci_num; ?></td> 
+                                                <td> <?php echo $dtapp_num; ?></td>
+                                                <td> <?php echo $dtrc_num; ?></td> 
+                                                <td> <?php echo $dtsub_num; ?></td> 
+                                                <td> <?php echo $dteci_num; ?></td> 
 
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtapp_num; ?></td>
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtrc_num; ?></td> 
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $wtsub_num; ?></td> 
-                                                <td style="width:7%; border:1px solid black;"> <?php echo $wteci_num; ?></td> 
+                                                <td> <?php echo $wtapp_num; ?></td>
+                                                <td> <?php echo $wtrc_num; ?></td> 
+                                                <td> <?php echo $wtsub_num; ?></td> 
+                                                <td> <?php echo $wteci_num; ?></td> 
 
                                       </tr>
                                               </table>
