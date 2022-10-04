@@ -41,7 +41,7 @@ $uid = $dta['uid'];
 				<div class="panel panel-default">
 					<div class="panel-heading"><!-- <a href="admin.php?action=postreq"><button name="addauser" class="btn btn-primary">Post Req</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a> --></div>
 					<div class="panel-body">
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
                                         <th data-field="ID">ID</th>
@@ -52,21 +52,34 @@ $uid = $dta['uid'];
                                         <th data-field="Visa Status" >Visa Status</th>
                                         <th data-field="dob" >DOB</th>
                                         <th data-field="byear" >Graduation Year</th>
+                                      <center> <th colspan="4"> Today </th></center>
+
+                                       <th colspan="4"> Weekly </th>
                                         
-                                       <th data-field="dapp" data-sortable="true">Today App</th>                          
-                                       <th data-field="drc" data-sortable="true">Today RC</th>                         
-                                       <th data-field="dsub" data-sortable="true">Today Sub</th> 
-                                       <th data-field="deci" data-sortable="true">Today ECI</th> 
-
-                                       
-                                       <th data-field="wapp" data-sortable="true">Weekly App</th>                          
-                                       <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
-                                       <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
-                                       <th data-field="weci" data-sortable="true">Weekly ECI</th> 
                                     </tr>
-						    </thead>
+                                    </thead>
 						   <tbody>
+                                    <tr>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td></td>
+                                      <td data-field="dapp" data-sortable="true">Today App</td>                          
+                                       <td data-field="drc" data-sortable="true">Today RC</td>                         
+                                       <td data-field="dsub" data-sortable="true">Today Sub</td> 
+                                       <td data-field="deci" data-sortable="true">Today ECI</td> 
 
+                                       <td data-field="wapp" data-sortable="true">Weekly App</td>                          
+                                       <td data-field="wrc" data-sortable="true">Weekly RC</td>                         
+                                       <td data-field="wsub" data-sortable="true">Weekly Sub</td> 
+                                       <td data-field="weci" data-sortable="true">Weekly ECI</td>
+</tr>
+						   
+<!--
                            <?php
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
@@ -149,7 +162,7 @@ $uid = $dta['uid'];
                                                     <?php
                                                 }
                     ?>
-
+-->
 
 						   </tbody>
 						</table>

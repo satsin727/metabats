@@ -829,9 +829,9 @@ h1.page-header {
 
 .fixed-table-container thead th {
 	background: #f7f7f8;
-	border-color: #ddd;
-	color: #5f6468;
-	font-weight: 300;
+	border-color: #161414;
+	color: #000;
+	/*font-weight: 300; */
 	font-size: 16px;
 }
 
@@ -844,8 +844,10 @@ h1.page-header {
 }
 
 .table>thead>tr>th {
-	border-bottom: 1px solid #e6e7e8;
+	border-top: 2px solid #000;
+	border: 2px solid #000;
 	vertical-align: middle;
+	text-align: center;
 	height: 50px;
 }
 
