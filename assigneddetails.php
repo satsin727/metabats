@@ -67,17 +67,24 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<label>Location:&nbsp;<?php echo $cdata['cmlocation'];?> </label><br>
 								<label>Email:&nbsp;<?php echo $cdata['cm_email'];?> </label><br>				
 								<label>Phone:&nbsp;<?php echo $cdata['cm_phonenumber'];?> </label><br>
-								<!-- <label>DOB:&nbsp;<?php // echo $cdata['cm_email'];?> </label><br> -->
+							    <label>DOB:&nbsp;<?php echo $cdata['dob'];?> </label><br> 
 								<label>Skype ID:&nbsp;<?php echo $cdata['cm_email'];?> </label><br>
+								<?php
+								if($cdata['lastssn']!== '0')
+								{ ?>
 								<label>Last 4 SSN:&nbsp;<?php echo $cdata['lastssn'];?> </label><br>
+								<?php } ?>
 								<label>US Work Authorization:&nbsp;<?php echo $cdata['cmvisa'];?> </label><br>				
 								<label>Relocation:&nbsp;<?php echo $cdata['relocation'];?> </label><br>
 								<?php
+														
+								if($cdata['passportnumber']!== '0')
+								{
 								if($dta['level']==1 || $dta['level']==2 )
 								{ ?>
 								<label>Passport Number:&nbsp;<?php echo $cdata['passportnumber'];?> </label><br> 	 	
 								<?php } ?>							
-								
+								<?php } ?>
 								<?php 
 								if($cdata['bachelordegree']!== '0')
 								{ ?>
