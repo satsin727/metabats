@@ -29,8 +29,15 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$data = $conn->query("select * from req where `reqid` = $reqid")->fetch();
 			$client_id = $data['cid'];
 
+			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `uid` = $uid and `consultant_id` = $consultant_id")->fetchColumn();
+			if($isdual!=0)
+			{
+				echo "<script>alert('Application Already Added. Avoid multiple application');window.close();</script>"; 
+			}
+			else
+			{
 			$conn->query("INSERT INTO `app_data` (`uid`, `reqid`, `client_id`, `consultant_id`, `appdate`) VALUES ($uid, $reqid, $client_id, $consultant_id, CURRENT_TIMESTAMP)");
-			echo "<script>alert('Application Added.');window.close();</script>";
+			echo "<script>alert('Application Added.');window.close();</script>"; }
 		}
 		else
 		{

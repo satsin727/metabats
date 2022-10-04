@@ -27,8 +27,18 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$rate = $_POST['rate'];
 			$t1ip_name = $_POST['t1ip_name'];
 //			$ecname = $_POST['ecname'];
+//			$data = $conn->query("select * from app_data where `app_id` = $app_id")->fetch();
+
+
+		$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= $app_id and `rcdone` = 1")->fetchColumn();
+		if($isdual!=0)
+		{
+			echo "<script>alert('RC Already Added. Please focus.');window.close();</script>"; 
+		}
+		else
+		{
 			$conn->query("UPDATE `app_data` SET `rcdone` = '1', `rcdate` = CURRENT_TIMESTAMP, `rateperhour` = $rate, `t1ip_name`= '$t1ip_name', `ars_status` =7 WHERE `app_id` = $app_id");
-			echo "<script>alert('Rate Added.');window.close();</script>";
+			echo "<script>alert('Rate Added.');window.close();</script>"; }
 		}
 		else
 		{
