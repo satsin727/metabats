@@ -133,7 +133,7 @@ $reqid = $row['reqid'];
 		<?php
         if($row['nh_reason']!="0")
         {
-         if($row['nh_reason']==1) { echo "Client no show"; } elseif($row['nh_reason']==2) { echo "Tech issues by Client"; }  elseif($row['nh_reason']==3) { echo "Tech issues by Consultant"; } elseif($row['nh_reason']==4) { echo "Cancelled by consultant"; } elseif($row['nh_reason']==5) { echo "Cancelled by Client"; } elseif($row['nh_reason']==6) { echo "Reason not specified"; }
+         if($row['nh_reason']==1) { echo "Client no show"; } elseif($row['nh_reason']==2) { echo "Tech issues by Client"; }  elseif($row['nh_reason']==3) { echo "Tech issues by Consultant"; } elseif($row['nh_reason']==4) { echo "Cancelled by consultant"; } elseif($row['nh_reason']==5) { echo "Cancelled by US"; } elseif($row['nh_reason']==6) { echo "Reason not specified"; }
         }
 		?>
 		<a href="addecifeedback.php?ecinhid=<?php echo $row['eci_id']; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addecifeedback" class="btn btn-primary">Add Reason</button></a></td> 
