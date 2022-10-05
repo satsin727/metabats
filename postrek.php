@@ -140,7 +140,7 @@ require("includes/footer.php");
 
 if (isset($_POST['save']))
 {
-	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) )
+	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || $_POST['cemail']=="No Match Found")
 {
 
 echo "<script>
@@ -157,7 +157,7 @@ $rend_client = $_POST['rend_client'];
 $rdesc = $_POST['rdesc'];
 $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
-$remail = $_POST['cemail'];
+$remail = trim($_POST['cemail']);
 $ttype = $_POST['ttype'];
 $nationality = $_POST['nationality'];
 
