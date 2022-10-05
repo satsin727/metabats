@@ -43,11 +43,12 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 $uid = $_POST['userid'];
 $cid = $_POST['consultantid'];
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$q= "Select * from assigned where `cid`= $cid and `uid` = $uid;";
+/*$q= "Select * from assigned where `cid`= $cid and `uid` = $uid;";
 $ins= $conn->prepare($q);
 $ins->execute();
-$udata = $ins->fetch();
-if($udata['id'])
+$udata = $ins->fetch();*/
+$ifalreadyassigned = $conn->query("SELECT COUNT(*)from assigned where `cid`= $cid and `uid` = $uid")->fetchColumn();
+if($ifalreadyassigned!=0)
 {
 echo "<script>
 alert('Consultant to this user already assigned.!!!');
