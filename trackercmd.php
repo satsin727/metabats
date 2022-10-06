@@ -201,11 +201,7 @@ foreach( $data as $row) {
 $app_id = $row['app_id'];
 $reqid = $row['reqid'];
 
-$sid = $row['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
-								$ins3= $conn->prepare($q2);
-								$ins3->execute(); 
-								$dta2 = $ins3->fetch();
+
 $cid = $row['client_id'];
 								$q3 = "SELECT * from clients where `cid` = $cid";
 								$ins4= $conn->prepare($q3);
