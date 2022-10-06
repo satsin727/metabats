@@ -201,10 +201,11 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <?php
 $i=1;
 foreach( $data as $row) { 
-
+if($app == 1 || $rc == 1 || $sub == 1)
+{
 $app_id = $row['app_id'];
 $reqid = $row['reqid'];
-
+}
 
 $cid = $row['client_id'];
 								$q3 = "SELECT * from clients where `cid` = $cid";
