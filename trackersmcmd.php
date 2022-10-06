@@ -258,7 +258,7 @@ $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fe
         
         if($app==1) { $date = $row['appdate']; }
         elseif($rc==1) { $date = $row['rcdate'];  }
-        elseif($sub==1) { $date = $row['subdate'];  }
+        elseif($sub==1) { $date = $row['rcdate'];  }
         elseif($eci==1) { $date = $row['eci_date'];  }
         
         
