@@ -155,14 +155,14 @@ $uid = $dta['uid'];
                                                 ?>
 
                                                 <td> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
-                                                <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><td><?php echo $drc_num; ?></td> </a>
-                                                <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><td><?php echo $dsub_num; ?></td></a>
-                                                <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><td> <?php echo $deci_num; ?></td></a>
+                                                <td> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 
-                                                <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><td> <?php echo $wapp_num; ?></td></a>
-                                                <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><td> <?php echo $wrc_num; ?></td> </a>
-                                                <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><td> <?php echo $wsub_num; ?></td></a> 
-                                                <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><td> <?php echo $weci_num; ?></td></a> 
+                                                <td> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
