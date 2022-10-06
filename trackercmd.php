@@ -157,8 +157,6 @@ $skillid = $conn->query("select skill from consultants where cid = $consultantid
 $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
 $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-$ipname = $conn->query("select t1ip_name from app_data where app_id = $eciid")->fetchColumn();
-$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 /*
 $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
 ?>
@@ -224,6 +222,8 @@ $uid = $row['uid'];
 								$ins6->execute(); 
 								$dta5 = $ins6->fetch();
 
+$ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
+$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 	?>
     <tr>
 		<td data-search="<?php 
