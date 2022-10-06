@@ -183,7 +183,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a></div>
+					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a></div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
