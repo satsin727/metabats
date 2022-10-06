@@ -170,7 +170,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
                 elseif($rc==1) { echo "Rate Confirmation Details"; }
                 elseif($sub==1) { echo "Submissions Details"; }
                 elseif($eci==1) { echo "Interview Details"; }
-                ?> - <?php echo $cfname." ".$clname." (".$skill." Consultant)"." with Client - ".$ipname."/".$clientname; ?>
+                ?> - <?php echo $cfname." ".$clname." (".$skill." Consultant)"; ?>
                 </h3></li>
 			</ol>
 </div>
@@ -186,7 +186,8 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						        <th data-field="id" data-sortable="false">S.no</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
-						        <th data-field="remail" data-sortable="true">Recruiter Email</th>
+						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
+                                <th data-field="remail" data-sortable="true">Recruiter Email</th>
 								<th data-field="Status"  data-sortable="true">RC Status</th>
                                 <th data-field="Status"  data-sortable="true">Status</th>
 						        <th data-field="comment"  data-sortable="true">Comment</th>
@@ -238,7 +239,10 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
         <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></td>
-		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
+		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
+		
+        
+        <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
 
 		<td> 
 		<?php
