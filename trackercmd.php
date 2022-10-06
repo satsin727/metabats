@@ -177,13 +177,13 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"><!-- <a href="admin.php?action=postreq"><button name="addauser" class="btn btn-primary">Post Req</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a> --></div>
+					<div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a></div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
+						        <th data-field="id" data-sortable="false">S.no</th>                                
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
-						        <th data-field="id" data-sortable="false">S.no</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
 						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
@@ -223,7 +223,9 @@ $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")-
 $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 	?>
     <tr>
-		<td data-search="<?php 
+		
+    	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+        <td data-search="<?php 
         
         if($app==1) { $date = $row['appdate']; }
         elseif($rc==1) { $date = $row['rcdate'];  }
@@ -232,7 +234,6 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
         
         
         echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
-    	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
         <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></td>
 		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
