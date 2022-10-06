@@ -107,7 +107,7 @@
 <?php } 
 else { ?>
 	<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showdailydata"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Daily Reports</a></li>  
-	<li class="<?php if($selected=="smsnapshots") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showsmdata"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>SM Snapshot</a></li>  
+	<li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showsmdata"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>SM Snapshot</a></li>  
 
 	<?php
 
