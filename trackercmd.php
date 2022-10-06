@@ -202,18 +202,26 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 $i=1;
 foreach( $data as $row) { 
 if($app == 1 || $rc == 1 || $sub == 1)
-{
-$app_id = $row['app_id'];
-$reqid = $row['reqid'];
+    {
+        $app_id = $row['app_id'];
+        $reqid = $row['reqid'];
+        $cid = $row['client_id'];
+        $uid = $row['uid'];	
+    }
+else {
+    $app_id = $row['app_id'];
+    $reqid = $row['req_id'];
+    $cid = $row['t2id'];
+    $uid = $row['sm_id'];	
+}
 
 
-$cid = $row['client_id'];
 								$q3 = "SELECT * from clients where `cid` = $cid";
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
-$uid = $row['uid'];	
+
 								$q4 = "SELECT * from users where `uid` = $uid";
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
@@ -227,7 +235,6 @@ $uid = $row['uid'];
 $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
 $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-}
 	?>
     <tr>
 		
