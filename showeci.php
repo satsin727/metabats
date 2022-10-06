@@ -104,7 +104,7 @@ $reqid = $row['reqid'];
 								$dta5 = $ins6->fetch();
 
 
-$eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `app_id`= $app_id")->fetchColumn();
+$eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `app_id`= $app_id and `eci_happened` = 1")->fetchColumn();
 
   /*	                              
 								$q6 = "SELECT * from eci where `app_id` = $app_id";

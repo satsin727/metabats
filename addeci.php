@@ -37,9 +37,9 @@ if(isset($_POST['saveeci']))
 	$tier = $_POST['tier'];
 	$rtimezon = $_POST['rtimezon'];
 */
-	$eci_date = date('Y-m-d H:i:s', strtotime($_POST['eci_date']));
+	$eci_date = date('Y-m-d', strtotime($_POST['eci_date']));
 	$eci_time = $_POST['eci_time'];
-	$eci_req_date = date('Y-m-d H:i:s', strtotime($_POST['eci_req_date']));
+	$eci_req_date = date('Y-m-d', strtotime($_POST['eci_req_date']));
 	$eci_type = $_POST['eci_type'];
 	$eci_round = $_POST['eci_round'];
 
