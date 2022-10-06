@@ -29,7 +29,7 @@ $uid = $dta['uid'];
 
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
-	$query = "select * from req where status =1 order by datetime desc";
+	$query = "select * from req where status =1 and datetime > CURDATE() order by datetime desc";
 }
 else {
 	$query = "select * from req where status =1 && uid = $uid order by datetime desc";
