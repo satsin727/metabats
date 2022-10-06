@@ -220,7 +220,7 @@ if($app == 1 || $rc == 1 || $sub == 1)
         $cid = $row['client_id'];
         $uid = $row['uid'];	
     }
-else {
+elseif($eci == 1) {
     $app_id = $row['app_id'];
     $reqid = $row['req_id'];
     $cid = $row['t2id'];
