@@ -56,7 +56,8 @@ $data = $ins->fetchAll();
 						    <thead>
 						    <tr>
 						        <th data-field="Datetime"  data-sortable="false">Datetime</th>
-						        <th data-field="id" data-sortable="false">S.no</th>
+						        <th data-field="id" data-sortable="false">S.no</th>								
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
 						        <th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
 						        <th data-field="rfname" data-sortable="true">Business Partner</th>
@@ -82,6 +83,11 @@ $cid = $row['cid'];
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
+$uid = $row['uid'];
+								$q4 = "SELECT * from users where `uid` = $uid";
+								$ins5= $conn->prepare($q4);
+								$ins5->execute(); 
+								$dta4 = $ins5->fetch();
 $app_num = 0;
 $rc_num = 0;
 $sub_num = 0;
@@ -98,6 +104,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     <tr>
 		<td data-search="<?php echo $row['datetime']; ?>"> <?php $time = strtotime($row['datetime']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>  
+		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
 		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
