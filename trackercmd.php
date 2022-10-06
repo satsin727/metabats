@@ -182,7 +182,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="id" data-sortable="false">S.no</th>                                
+						        <th data-field="id">S.no</th>                                
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
