@@ -33,6 +33,10 @@ if(isset($_GET['appcd_id']))
 			{
                 $appcd_id = $_GET['appcd_id'];
             }
+            $app = 0;
+            $rc = 0;
+            $sub = 0;
+            $eci = 0;
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
 		
