@@ -118,15 +118,15 @@ $uid = $dta['uid'];
                                                 
                                                 ?>
 
-                                                <td> <?php echo $dapp_num; ?></td>
-                                                <td> <?php echo $drc_num; ?></td> 
-                                               <td> <?php echo $dsub_num; ?></td> 
-                                                <td> <?php echo $deci_num; ?></td> 
+                                                <td> <a href="trackersmcmd.php?appsd_id=<?php echo $uid?>"><?php echo $dapp_num; ?> </a></td>
+                                                <td> <a href="trackersmcmd.php?rcsd_id=<?php echo $uid?>"><?php echo $drc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsd_id=<?php echo $uid?>"><?php echo $dsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecisd_id=<?php echo $uid?>"><?php echo $deci_num; ?></a></td> 
 
-                                                <td> <?php echo $wapp_num; ?></td>
-                                                <td> <?php echo $wrc_num; ?></td> 
-                                               <td> <?php echo $wsub_num; ?></td> 
-                                                <td> <?php echo $weci_num; ?></td> 
+                                                <td> <a href="trackersmcmd.php?appsw_id=<?php echo $uid?>"><?php echo $wapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?rcsw_id=<?php echo $uid?>"><?php echo $wrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid?>"><?php echo $weci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php

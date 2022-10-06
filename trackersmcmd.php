@@ -29,9 +29,9 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $uid = $sessid;
 
-if(isset($_GET['appcd_id']))
+if(isset($_GET['appsd_id']))
 			{
-                $appcd_id = $_GET['appcd_id'];
+                $appsd_id = $_GET['appsd_id'];
             }
             $app = 0;
             $rc = 0;
@@ -40,116 +40,116 @@ if(isset($_GET['appcd_id']))
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
 		
-        if(isset($_GET['appcd_id']))
+        if(isset($_GET['appsd_id']))
 			{
-                $consultantid = $_GET['appcd_id'];
+                $sm_id = $_GET['appsd_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = CURDATE()";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1 and DATE(appdate) = CURDATE()";
             }
-        if(isset($_GET['rccd_id']))
+        if(isset($_GET['rcsd_id']))
 			{
-                $consultantid = $_GET['rccd_id'];
+                $sm_id = $_GET['rcsd_id'];
                 $rc = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()";
             }
             
-        if(isset($_GET['subcd_id']))
+        if(isset($_GET['subsd_id']))
             {
-                $consultantid = $_GET['subcd_id'];                
+                $sm_id = $_GET['subsd_id'];                
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and DATE(subdate) = CURDATE()";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and DATE(subdate) = CURDATE()";
             }
         
-        if(isset($_GET['ecicd_id']))
+        if(isset($_GET['ecisd_id']))
 			{
-                $consultantid = $_GET['ecicd_id'];
+                $sm_id = $_GET['ecisd_id'];
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()";
             }
         
-        if(isset($_GET['appcw_id']))
+        if(isset($_GET['appsw_id']))
 			{
-                $consultantid = $_GET['appcw_id'];
+                $sm_id = $_GET['appsw_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
             }
         
-        if(isset($_GET['rccw_id']))
+        if(isset($_GET['rcsw_id']))
 			{
-                $consultantid = $_GET['rccw_id'];
+                $sm_id = $_GET['rcsw_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
             }
             
-        if(isset($_GET['subcw_id']))
+        if(isset($_GET['subsw_id']))
 			{
-                $consultantid = $_GET['subcw_id'];
+                $sm_id = $_GET['subsw_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
             }
         
-        if(isset($_GET['ecicw_id']))
+        if(isset($_GET['ecisw_id']))
 			{
-                $consultantid = $_GET['ecicw_id'];                
+                $sm_id = $_GET['ecisw_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
             }
     }
 	else
 	{
-            if(isset($_GET['appcd_id']))
+            if(isset($_GET['appsd_id']))
                 {
-                    $consultantid = $_GET['appcd_id'];
+                    $sm_id = $_GET['appsd_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultantid`= $consultantid and `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()";
                 }
-            if(isset($_GET['rccd_id']))
+            if(isset($_GET['rcsd_id']))
                 {
-                    $consultantid = $_GET['rccd_id'];
+                    $sm_id = $_GET['rcsd_id'];
                     $rc = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `uid` = $uid and `status`= 1 and DATE(rcdate) = CURDATE()";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `uid` = $uid and `status`= 1 and DATE(rcdate) = CURDATE()";
                 }
                 
-            if(isset($_GET['subcd_id']))
+            if(isset($_GET['subsd_id']))
                 {
-                    $consultantid = $_GET['subcd_id'];
+                    $sm_id = $_GET['subsd_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `uid` = $uid and `status`= 1 and DATE(subdate) = CURDATE()";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `uid` = $uid and `status`= 1 and DATE(subdate) = CURDATE()";
                 }
             
-            if(isset($_GET['ecicd_id']))
+            if(isset($_GET['ecisd_id']))
                 {
-                    $consultantid = $_GET['ecicd_id'];
+                    $sm_id = $_GET['ecisd_id'];
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and DATE(eci_date) = CURDATE()";
+                    $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and DATE(eci_date) = CURDATE()";
                 }
             
-            if(isset($_GET['appcw_id']))
+            if(isset($_GET['appsw_id']))
                 {
-                    $consultantid = $_GET['appcw_id'];
+                    $sm_id = $_GET['appsw_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `uid` = $uid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `uid` = $uid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
                 }
             
-            if(isset($_GET['rccw_id']))
+            if(isset($_GET['rcsw_id']))
                 {
-                    $consultantid = $_GET['rccw_id'];
+                    $sm_id = $_GET['rcsw_id'];
                     $rc = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
                 }
                 
-            if(isset($_GET['subcw_id']))
+            if(isset($_GET['subsw_id']))
                 {
-                    $consultantid = $_GET['subcw_id'];
+                    $sm_id = $_GET['subsw_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
                 }
             
-            if(isset($_GET['ecicw_id']))
+            if(isset($_GET['ecisw_id']))
                 {
-                    $consultantid = $_GET['ecicw_id'];
+                    $sm_id = $_GET['ecisw_id'];
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
+                    $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
                 }
     
     }
@@ -157,11 +157,13 @@ $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
+$username = $conn->query("select name from users where uid = $sm_id")->fetchColumn();
+/*
 $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
 $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
 $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-/*
+
 $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
 ?>
 
@@ -169,12 +171,12 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<ol class="breadcrumb">
 				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
-				<li class="active"><h3><?php
+				<li class="active"><h3><?php echo $username; ?> - <?php
                 if($app==1) { echo "Application Details"; }
                 elseif($rc==1) { echo "Rate Confirmation Details"; }
                 elseif($sub==1) { echo "Submissions Details"; }
                 elseif($eci==1) { echo "Interview Details"; }
-                ?> - <?php echo $cfname." ".$clname." (".$skill." Consultant)"; ?>
+                ?>
                 </h3></li>
 			</ol>
 </div>
@@ -188,11 +190,10 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						    <tr>
 						        <th data-field="id">S.no</th>                                
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
-								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">Consultant Name</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
 						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
                                 <th data-field="remail" data-sortable="true">Recruiter Email</th>
-                                
                                 <th data-field="Status"  data-sortable="true">Status</th>
 								<?php
                                 if($app == 1)
@@ -219,13 +220,13 @@ if($app == 1 || $rc == 1 || $sub == 1)
         $app_id = $row['app_id'];
         $reqid = $row['reqid'];
         $cid = $row['client_id'];
-        $uid = $row['uid'];	
+        $consultant_id = $row['consultant_id'];	
     }
 elseif($eci == 1) {
     $app_id = $row['app_id'];
     $reqid = $row['req_id'];
     $cid = $row['t2id'];
-    $uid = $row['sm_id'];	
+    $consultant_id = $row['consultant_id'];	
 }
 
 
@@ -235,7 +236,7 @@ elseif($eci == 1) {
 								$dta3 = $ins4->fetch();
 
 
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = "SELECT * from consultants where `cid` = $consultant_id";
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
@@ -247,7 +248,8 @@ elseif($eci == 1) {
 
 $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
 $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
-
+$skillid = $conn->query("select skill from consultants where cid = $consultant_id")->fetchColumn();
+$skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 	?>
     <tr>
 		
@@ -261,7 +263,7 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
         
         
         echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
-		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
+		<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>	<td data-search="<?php echo $dta4['cfname']; ?>"> <?php echo $dta4['cfname']." ".$dta4['cmname']." ".$dta4['clname']; ?> </td>   <?php } ?>
         <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></a></td>
 		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
 		
@@ -329,9 +331,16 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
         if($row['subdone']==1) { $astatus="Yes"; } else { $astatus="No"; }
         if($row['hasinterview']==1) { $astatus="Yes"; } else { $astatus="No"; }
 		?>
-        <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td> <?php } ?>
+        <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td> <?php } 
+        if($app == 1)
+    { ?>
 		<td> <a href="comments.php?appcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
-    <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
+  <?php  }     elseif($rc ==1)  {  ?> <td> <a href="comments.php?rccom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
+    <?php  }     elseif($sub ==1)  {  ?> <td> <a href="comments.php?subcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
+        <?php  }     elseif($eci ==1)  {  ?>   <td> <a href="comments.php?ecicom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
+            <?php  } ?>
+   
+        <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
   <!--  		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> -->
     				<a href ="appdata_cmd.php?do=delete&appid=<?php echo $row['app_id']; ?>" onClick="return confirm('Are you sure you want to remove this application ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
     	</td><?php } ?>
