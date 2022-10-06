@@ -6,7 +6,6 @@ $sessid = $_SESSION['id'];
 else
 {
 	header( "Location: admin.php" ); 
-
 }
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from users where `uid` = :u";

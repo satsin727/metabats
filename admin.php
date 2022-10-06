@@ -204,8 +204,8 @@ function showapplications() {  $selected = "showapplications"; require( "showapp
 function showrc() {  $selected = "showrc"; require( "showrc.php" ); }
 function showsub() {  $selected = "showsub"; require( "showsub.php" ); }
 function showeci() {  $selected = "showeci"; require( "showeci.php" ); }
-function showdailydata() {  $selected = "showdailydata"; require( "showdailyreks.php" ); }
-function showsmdata() {  $selected = "smsnapshots"; require( "smwisedata.php" ); }
+function showdailydata() {  $selected = "showreports"; require( "showdailyreks.php" ); }
+function showsmdata() {  $selected = "showreports"; require( "smwisedata.php" ); }
 function clientlistdownload()
 {
 if($_SESSION['id'])
