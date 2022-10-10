@@ -53,6 +53,8 @@ $data = $ins->fetchAll();
 						        <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
 						        <th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
+								<th data-field="remail" data-sortable="true">Company Domain</th>
+						        
 						        <th data-field="rrate"  data-sortable="true">Rate</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
@@ -101,7 +103,13 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
-    	<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>   
+    	<?php
+		$companydomain = explode("@",$dta3['remail']);
+		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+		?>
+		<td data-search="<?php echo $companydomain[1]; ?>"> <?php echo $companydomain[1]; ?></a></td> 		
+		<td data-search="<?php echo $clientname; ?>"> <?php echo $clientname; ?></a></td> 
+		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>   
     	<td> App: 
 		<?php 
 		
