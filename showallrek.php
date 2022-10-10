@@ -26,8 +26,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $uid = $dta['uid'];
 
-$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
-//$query = "select * from req where status =1 order by datetime desc";
+//$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+$query = "select * from req where status =1 order by datetime desc";
 
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -110,7 +110,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
     	<?php
-		$companydomain = array_pop(explode('@', $dta3['remail']));
+		$companydomain = array_pop(explode('@', $dta3['remail']));//
 		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 		?>
 		<td data-search="<?php echo $companydomain; ?>"> <?php echo $companydomain;?></a></td> 		
