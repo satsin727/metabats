@@ -141,13 +141,13 @@ require("includes/footer.php");
 if (isset($_POST['save']))
 {
 	function checkemail($str) {
-		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $str)) ? FALSE : TRUE;
+		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", trim($str))) ? FALSE : TRUE;
   }
 	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || !checkemail($_POST['cemail']) )
 {
 
 echo "<script>
-alert(' All correct value is required. Please double check the email and other data. !!!');
+alert(' All correct value is required. Please double check the email and other details !!!');
 </script>";
 }
 else {
