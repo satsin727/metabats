@@ -62,6 +62,12 @@ $uid = $dta['uid'];
                                        <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
                                        <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
                                        <th data-field="weci" data-sortable="true">Weekly ECI</th>
+
+                                       
+                                       <th data-field="wapp" data-sortable="true">Monthly App</th>                          
+                                       <th data-field="wrc" data-sortable="true">Monthly RC</th>                         
+                                       <th data-field="wsub" data-sortable="true">Monthly Sub</th> 
+                                       <th data-field="weci" data-sortable="true">Monthly ECI</th>
                                         
                 </tr>
                 </thead>
@@ -141,7 +147,7 @@ $uid = $dta['uid'];
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y")))-1 )
+                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
                                                     }
@@ -149,7 +155,15 @@ $uid = $dta['uid'];
                                                   $weci_num = $c;
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1")->fetchColumn();
-                                                  }
+                                                  
+                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())-1")->fetchColumn();
+                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())-1")->fetchColumn();
+                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())-1")->fetchColumn();
+                                                
+                                                $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())-1")->fetchColumn();
+                                                
+                                              
+                                              }
                                                 else
                                                 {
                                                  // $uid =  $_SESSION['id'];
@@ -178,6 +192,12 @@ $uid = $dta['uid'];
                                                 <td> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
                                                 <td> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
                                                 <td> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+
+                                                
+                                                <td> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
