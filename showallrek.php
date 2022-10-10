@@ -111,9 +111,11 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
     	<?php
 		//$companydomain = array_pop(explode('@', $dta3['remail']));
+		$email = $dta3['remail'];
+		$domain = substr($email, strpos($email, '@') + 1);		
 		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn(); 
 		?>
-		<td data-search="<?php echo $dta3['remail']; ?>"> <?php echo $dta3['remail'];?></a></td> 		
+		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td> 		
 		<td data-search="<?php echo $clientname; ?>"> <?php echo $clientname; ?></a></td> 
 		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>   
     	<td> App: 
