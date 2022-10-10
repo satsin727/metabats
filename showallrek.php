@@ -26,7 +26,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $uid = $dta['uid'];
 
-$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+//$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+$query = "select * from req where status =1 order by datetime desc";
 
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -54,7 +55,7 @@ $data = $ins->fetchAll();
 						        <th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
 								<th data-field="remail" data-sortable="true">Company Domain</th>
-						        
+						        <th data-field="Client name" data-sortable="true">End Client</th>
 						        <th data-field="rrate"  data-sortable="true">Rate</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
