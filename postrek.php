@@ -147,7 +147,7 @@ if (isset($_POST['save']))
 {
 
 echo "<script>
-alert(' All value is required !!!');
+alert(' All correct value is required. Please double check the email and other data. !!!');
 </script>";
 }
 else {
