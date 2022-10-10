@@ -65,9 +65,11 @@ $data = $ins->fetchAll();
 						   <tbody>
 <?php
 $i=1;
-function checkemail($str) {
-	return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", $str)) ? FALSE : TRUE;
-}
+function checkmail($email) {
+    $find1 = strpos($email, '@');
+    $find2 = strpos($email, '.');
+    return ($find1 !== false && $find2 !== false && $find2 > $find1);
+ } 
 foreach( $data as $row) { 
 
 $sid = $row['skillid'];
@@ -110,7 +112,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<?php
 
 	
-		if(!checkemail($dta3['remail']))
+		if(!checkmail($dta3['remail']))
 		{		
 			$companydomain = "Invalid Email";
 		}
