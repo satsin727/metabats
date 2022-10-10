@@ -2,7 +2,7 @@
 
 ob_start();
 session_start();
-ini_set( "display_errors", true );
+ini_set( "display_errors", false );
 date_default_timezone_set("America/Chicago");
 
 define( "DB_DSN", "mysql:host=localhost;dbname=oejwxwmy_bats" );
