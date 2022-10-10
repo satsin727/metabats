@@ -26,8 +26,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $uid = $dta['uid'];
 
-//$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
-$query = "select * from req where status =1 order by datetime desc";
+$query = "select * from req where status =1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+//$query = "select * from req where status =1 order by datetime desc";
 
 $ins= $conn->prepare($query);
 $ins->execute();
