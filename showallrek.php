@@ -68,7 +68,7 @@ $i=1;
 function checkmail($email) {
     $find1 = strpos($email, '@');
     $find2 = strpos($email, '.');
-    return ($find1 !== false && $find2 !== false && $find2 > $find1);
+    return ($find1 !== false && $find2 !== false);
  } 
 foreach( $data as $row) { 
 
@@ -111,8 +111,11 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
     	<?php
 		//$companydomain = array_pop(explode('@', $dta3['remail']));
+		if(checkmail($dta3['remail']))
+		{
 		$email = $dta3['remail'];
-		$domain = substr($email, strpos($email, '@') + 1);		
+		$domain = substr($email, strpos($email, '@') + 1);	}
+		else { $domain = "Invalid Domain"; }	
 		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn(); 
 		?>
 		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td> 		
