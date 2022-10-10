@@ -111,8 +111,8 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
     	<?php
 
-		if(!checkmail($dta3['remail']))
-		$companydomain = array_pop(explode('@', $dta3['remail']));
+		if(checkmail($dta3['remail'])!=0)
+		{ $companydomain = array_pop(explode('@', $dta3['remail']));}
 		else $companydomain = "Invaild Domain";
 		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 		?>
