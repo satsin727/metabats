@@ -141,7 +141,7 @@ $uid = $dta['uid'];
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
+                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y")))-1 )
                                                     {
                                                       $c++;
                                                     }
