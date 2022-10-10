@@ -133,7 +133,7 @@ $uid = $dta['uid'];
                                                   $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
-                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid";
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 ";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
