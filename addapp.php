@@ -56,7 +56,9 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			}
 			else 
 			{ 
-				$qcid = "select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid =$sessid and B.skill = $skillid"; 
+				$rmid = $conn->query("select rmid from users where uid = $sessid")->fetchColumn();
+				
+				$qcid = "select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid = $rmid and B.skill = $skillid"; 
 			}	
 
 			$cq= $conn->prepare($qcid);
