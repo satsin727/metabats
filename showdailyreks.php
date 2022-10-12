@@ -54,20 +54,20 @@ $uid = $dta['uid'];
                                         <th data-field="byear" data-sortable="true">Graduation Year</th>
                                         
                                         <th data-field="dapp" data-sortable="true">Today App</th>                          
-                                       <th data-field="drc" data-sortable="true">Today RC</th>                         
-                                       <th data-field="dsub" data-sortable="true">Today Sub</th> 
-                                       <th data-field="deci" data-sortable="true">Today ECI</th> 
+                                        <th data-field="drc" data-sortable="true">Today RC</th>                         
+                                        <th data-field="dsub" data-sortable="true">Today Sub</th> 
+                                        <th data-field="deci" data-sortable="true">Today ECI</th> 
 
-                                       <th data-field="wapp" data-sortable="true">Weekly App</th>                          
-                                       <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
-                                       <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
-                                       <th data-field="weci" data-sortable="true">Weekly ECI</th>
+                                        <th data-field="wapp" data-sortable="true">Weekly App</th>                          
+                                        <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
+                                        <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
+                                        <th data-field="weci" data-sortable="true">Weekly ECI</th>
 
-                                       
-                                       <th data-field="mapp" data-sortable="true">Monthly App</th>                          
-                                       <th data-field="mrc" data-sortable="true">Monthly RC</th>                         
-                                       <th data-field="msub" data-sortable="true">Monthly Sub</th> 
-                                       <th data-field="meci" data-sortable="true">Monthly ECI</th>
+                                        
+                                        <th data-field="mapp" data-sortable="true">Monthly App</th>                          
+                                        <th data-field="mrc" data-sortable="true">Monthly RC</th>                         
+                                        <th data-field="msub" data-sortable="true">Monthly Sub</th> 
+                                        <th data-field="meci" data-sortable="true">Monthly ECI</th>
                                         
                 </tr>
                 </thead>
@@ -170,10 +170,10 @@ $uid = $dta['uid'];
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1")->fetchColumn();
                                                   
-                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH(CURDATE())-1")->fetchColumn();
-                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())-1")->fetchColumn();
-                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())-1")->fetchColumn();
-                                                //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
+                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
+                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                                                //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())")->fetchColumn();
                                                 $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1";
                                                 $ins= $conn->prepare($qeci);
                                                 $ins->execute();
