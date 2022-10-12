@@ -71,7 +71,7 @@ else {
 								<td width="30%" align="left" valign="top">	<select name="userid" class="form-control-in">
 									<?php
 									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-									$query = "select * from users where `status` = 1 and `level`= 2";
+									$query = "select * from users where `status` = 1 and `level`= 2 order by name asc";
 									$ins= $conn->prepare($query);
 									$ins->execute();
 									$udata = $ins->fetchAll();
@@ -86,7 +86,7 @@ else {
 
 									<?php
 									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-									$query2 = "select * from consultants where `status` = 1 order by asc";
+									$query2 = "select * from consultants where `status` = 1 order by cfname asc";
 									$ins2= $conn->prepare($query2);
 									$ins2->execute();
 									$cdata = $ins2->fetchAll();
