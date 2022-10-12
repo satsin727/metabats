@@ -339,7 +339,7 @@ $uid = $dta['uid'];
 
                     $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
                     $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
-                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
                     //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
                     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1";
                     $ins= $conn->prepare($qeci);
