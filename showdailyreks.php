@@ -133,13 +133,27 @@ $uid = $dta['uid'];
                                                   $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and DATE(appdate) = CURDATE()")->fetchColumn();
                                                   $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
                                                   $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
-                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1 ";
+                                                  $ins= $conn->prepare($qeci);
+                                                  $ins->execute();
+                                                  $deci = $ins->fetchAll();
+                                                  $c=0;
+                                                  foreach($deci as $ueci)
+                                                  { $a = $ueci['app_id'];
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) )
+                                                    {
+                                                      $c++;
+                                                    }
+                                                  }
+                                                  $deci_num = $c;
+                                                  //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
                                                   
 
                                                   $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
-                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 ";
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
@@ -156,12 +170,24 @@ $uid = $dta['uid'];
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1")->fetchColumn();
                                                   
-                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())-1")->fetchColumn();
-                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())-1")->fetchColumn();
-                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())-1")->fetchColumn();
-                                                
-                                                $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())-1")->fetchColumn();
-                                                
+                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH(CURDATE())-1")->fetchColumn();
+                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())-1")->fetchColumn();
+                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())-1")->fetchColumn();
+                                                //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
+                                                $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1";
+                                                $ins= $conn->prepare($qeci);
+                                                $ins->execute();
+                                                $deci = $ins->fetchAll();
+                                                $c=0;
+                                                foreach($deci as $ueci)
+                                                { $a = $ueci['app_id'];
+                                                  $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                  if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) )
+                                                  {
+                                                    $c++;
+                                                  }
+                                                }
+                                                $meci_num = $c;
                                               
                                               }
                                                 else
@@ -170,14 +196,62 @@ $uid = $dta['uid'];
                                                   $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()")->fetchColumn();
                                                   $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
                                                   $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
-                                                  
+                                                  //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `sm_id` = $uid  and `status` = 1";
+                                                  $ins= $conn->prepare($qeci);
+                                                  $ins->execute();
+                                                  $deci = $ins->fetchAll();
+                                                  $c=0;
+                                                  foreach($deci as $ueci)
+                                                  { $a = $ueci['app_id'];
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) )
+                                                    {
+                                                      $c++;
+                                                    }
+                                                  }
+                                                  $deci_num = $c;
 
                                                   $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
-                                                  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                                                  //$weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
                                                   
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
+                                                  $ins= $conn->prepare($qeci);
+                                                  $ins->execute();
+                                                  $deci = $ins->fetchAll();
+                                                  $c=0;
+                                                  foreach($deci as $ueci)
+                                                  { $a = $ueci['app_id'];
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
+                                                    {
+                                                      $c++;
+                                                    }
+                                                  }
+                                                  $weci_num = $c;
+
+                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
+                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                                                  //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
+                                                  $ins= $conn->prepare($qeci);
+                                                  $ins->execute();
+                                                  $deci = $ins->fetchAll();
+                                                  $c=0;
+                                                  foreach($deci as $ueci)
+                                                  { $a = $ueci['app_id'];
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) )
+                                                    {
+                                                      $c++;
+                                                    }
+                                                  }
+                                                  $meci_num = $c;
+
+
                                                 }                                             
                                                 
                                                 
@@ -225,41 +299,145 @@ $uid = $dta['uid'];
                     $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and DATE(appdate) = CURDATE()")->fetchColumn();
                     $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
                     $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
-                   // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
-                    $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
-                    
+                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
+                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
+                      
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1";
+                                                  $ins= $conn->prepare($qeci);
+                                                  $ins->execute();
+                                                  $deci = $ins->fetchAll();
+                                                  $c=0;
+                                                  foreach($deci as $ueci)
+                                                    { $a = $ueci['app_id'];
+                                                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                      if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) )
+                                                      {
+                                                        $c++;
+                                                      }
+                                                    }
+                                                  $dteci_num = $c;
 
                     $wtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
                     $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
                     $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
-                    $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
-                   // $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                    // $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1";
+                    $ins= $conn->prepare($qeci);
+                    $ins->execute();
+                    $deci = $ins->fetchAll();
+                    $c=0;
+                    foreach($deci as $ueci)
+                    { $a = $ueci['app_id'];
+                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                      if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
+                      {
+                        $c++;
+                      }
                     }
+                    $wteci_num = $c;
+
+                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
+                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                    //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1";
+                    $ins= $conn->prepare($qeci);
+                    $ins->execute();
+                    $deci = $ins->fetchAll();
+                    $c=0;
+                    foreach($deci as $ueci)
+                    { $a = $ueci['app_id'];
+                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                      if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) )
+                      {
+                        $c++;
+                      }
+                    }
+                    $mteci_num = $c;
+                  
+                  
+                  }
                   else
                   {
                     $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()")->fetchColumn();
                     $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
                     $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                    $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
-                    
+                    //$dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
+                    $ins= $conn->prepare($qeci);
+                    $ins->execute();
+                    $deci = $ins->fetchAll();
+                    $c=0;
+                    foreach($deci as $ueci)
+                      { $a = $ueci['app_id'];
+                        $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                        if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) )
+                        {
+                          $c++;
+                        }
+                      }
+                    $dteci_num = $c;
 
                     $wtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
                     $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
                     $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(subdate) = WEEK(CURDATE())")->fetchColumn();
-                    $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
+                  
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
+                    $ins= $conn->prepare($qeci);
+                    $ins->execute();
+                    $deci = $ins->fetchAll();
+                    $c=0;
+                    foreach($deci as $ueci)
+                    { $a = $ueci['app_id'];
+                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                      if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
+                      {
+                        $c++;
+                      }
+                    }
+                    $wteci_num = $c;
+
+                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and `uid` = $uid and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
+                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                    //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())-1")->fetchColumn();
+                    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
+                    $ins= $conn->prepare($qeci);
+                    $ins->execute();
+                    $deci = $ins->fetchAll();
+                    $c=0;
+                    foreach($deci as $ueci)
+                    { $a = $ueci['app_id'];
+                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                      if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) )
+                      {
+                        $c++;
+                      }
+                      }
+                    $mteci_num = $c;
+                  
                   }     
 
 
-?>
-                                                <td> <?php echo $dtapp_num; ?></td>
-                                                <td> <?php echo $dtrc_num; ?></td> 
-                                                <td> <?php echo $dtsub_num; ?></td> 
-                                                <td> <?php echo $dteci_num; ?></td> 
+?> 
+                                                
+                                                <td> <a href="trackercmd.php?appcdt_id=<?php echo $cid; ?>"><?php echo $dtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?rccdt_id=<?php echo $cid; ?>"><?php echo $dtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcdt_id=<?php echo $cid; ?>"><?php echo $dtsub_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?ecicdt_id=<?php echo $cid; ?>"><?php echo $dteci_num; ?></a></td>
 
-                                                <td> <?php echo $wtapp_num; ?></td>
-                                                <td> <?php echo $wtrc_num; ?></td> 
-                                                <td> <?php echo $wtsub_num; ?></td> 
-                                                <td> <?php echo $wteci_num; ?></td> 
+                                                <td> <a href="trackercmd.php?appcwt_id=<?php echo $cid; ?>"><?php echo $wtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?rccwt_id=<?php echo $cid; ?>"><?php echo $wtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcwt_id=<?php echo $cid; ?>"><?php echo $wtsub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?ecicwt_id=<?php echo $cid; ?>"><?php echo $wteci_num; ?></a></td> 
+
+                                                
+                                                <td> <a href="trackercmd.php?appcmt_id=<?php echo $cid; ?>"><?php echo $mtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?rccmt_id=<?php echo $cid; ?>"><?php echo $mtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?subcmt_id=<?php echo $cid; ?>"><?php echo $mtsub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?ecicmt_id=<?php echo $cid; ?>"><?php echo $mteci_num; ?></a></td> 
 
                                       </tr>
                                               </table>
