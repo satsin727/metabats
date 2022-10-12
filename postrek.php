@@ -53,7 +53,7 @@ require("includes/menu.php");
 									<select name="uid" class="form-control-in">
 									<?php
 									
-									if($dta['level'] == 1 || $dta['level'] == 2 )
+									if($dta['level'] == 1 )
 									{
 									$conn2 = null;
 								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
