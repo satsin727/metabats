@@ -86,7 +86,7 @@ else {
 
 									<?php
 									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-									$query2 = "select * from consultants where `status` = 1";
+									$query2 = "select * from consultants where `status` = 1 order by asc";
 									$ins2= $conn->prepare($query2);
 									$ins2->execute();
 									$cdata = $ins2->fetchAll();
