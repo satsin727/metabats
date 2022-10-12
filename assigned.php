@@ -25,13 +25,14 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 $uid = $dta['uid'];
+$rmid = $dta['rmid'];
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
 $query = "select * from assigned";
 }
 elseif ($dta['level'] == 3)
 {
-$query = "select * from assigned where `uid` = $uid"; }
+$query = "select * from assigned where `uid` = $rmid"; }
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
