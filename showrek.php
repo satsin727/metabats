@@ -122,12 +122,12 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		$rqp->execute(); 
 		$crcdata = $rqp->fetchAll();
 
-		$cd_subquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and subdone = 1";
+		$cd_subquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and rcdone = 1 and subdone = 1";
 		$rqp= $conn->prepare($cd_subquery);
 		$rqp->execute(); 
 		$csubdata = $rqp->fetchAll();
 
-		$cd_eciquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and hasinterview = 1";
+		$cd_eciquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and rcdone = 1 and subdone = 1 and hasinterview = 1";
 		$rqp= $conn->prepare($cd_eciquery);
 		$rqp->execute(); 
 		$cecidata = $rqp->fetchAll();
