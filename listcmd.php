@@ -351,7 +351,8 @@ else
 	$txt = "Company Name,Full Name,First Name,Email ID,Phone Number,Location,Timezone,Tier 1/2/IP\n";
 	fwrite($fp, $txt);
 	while ($row = $dins->fetch(PDO::FETCH_ASSOC)) {
-    fputcsv($fp, $row);
+	$lineData = array($row['companyname'],$row['rname'],$row['rfname'],$row['remail'],$row['rphone'],$row['rlocation'],$row['rtimezon'],$row['tier']);
+    fputcsv($fp, $lineData,",");
 }// whilw
 fclose($fp);
 			header('Content-Description: File Transfer');
