@@ -377,7 +377,8 @@ $consultantid = $row['consultant_id'];
 {
     $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
     $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
+    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
     $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
 }
 
