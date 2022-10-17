@@ -40,6 +40,7 @@ $uid = $dta['uid'];
 			<div class="col-lg-12">
 				<div class="panel panel-default">
           <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
+          <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> </div>
           <div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="name" data-sort-order="asc">
 						    <thead>
@@ -75,13 +76,24 @@ $uid = $dta['uid'];
                                     
                   <tbody>
                            <?php
+                           if(isset($_POST['date']))
+                           {
+                            $cdate = $_POST['date'];
+                           }
+                           else
+                           {
+                            $cdate = date("m/d/y");
+                           }
+                           $cdate = strtotime($cdate);
+                           $cdate = date('Y-m-d H:i:s',$cdate);
+
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from consultants order by cfname asc";
+                              $query = "select * from consultants where `status` = 1 order by cfname asc";
                               }
                               else
                               {
-                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = $uid order by B.cfname asc";
+                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where B.status =1 and A.uid = $uid order by B.cfname asc";
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
@@ -130,9 +142,9 @@ $uid = $dta['uid'];
                                                 
                                                 if($dta['level'] == 1 || $dta['level'] == 2)
                                                 {
-                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and DATE(appdate) = CURDATE()")->fetchColumn();
-                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
-                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
+                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and DATE(appdate) = $cdate")->fetchColumn();
+                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = $cdate")->fetchColumn();
+                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(rcdate) = $cdate")->fetchColumn();
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1 ";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
@@ -141,7 +153,7 @@ $uid = $dta['uid'];
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) )
+                                                    if(date("d",strtotime($date)) == date("d",strtotime($cdate)) )
                                                     {
                                                       $c++;
                                                     }
@@ -150,9 +162,9 @@ $uid = $dta['uid'];
                                                   //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
                                                   
 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK(CURDATE())")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())")->fetchColumn();
+                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK($cdate)")->fetchColumn();
+                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK($cdate)")->fetchColumn();
+                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK($cdate)")->fetchColumn();
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
@@ -161,7 +173,7 @@ $uid = $dta['uid'];
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) )
+                                                    if(date("W",strtotime($date)) == date("W",strtotime($cdate)) )
                                                     {
                                                       $c++;
                                                     }
@@ -170,9 +182,9 @@ $uid = $dta['uid'];
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())")->fetchColumn();
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1")->fetchColumn();
                                                   
-                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH(CURDATE())")->fetchColumn();
-                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
-                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())")->fetchColumn();
+                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH($cdate)")->fetchColumn();
+                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH($cdate)")->fetchColumn();
+                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH($cdate)")->fetchColumn();
                                                 //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())")->fetchColumn();
                                                 $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `status` = 1";
                                                 $ins= $conn->prepare($qeci);
@@ -182,7 +194,7 @@ $uid = $dta['uid'];
                                                 foreach($deci as $ueci)
                                                 { $a = $ueci['app_id'];
                                                   $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                  if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) )
+                                                  if(date("m",strtotime($date)) == date("m",strtotime($cdate)) )
                                                   {
                                                     $c++;
                                                   }
@@ -190,6 +202,7 @@ $uid = $dta['uid'];
                                                 $meci_num = $c;
                                               
                                               }
+                                             /*
                                                 else
                                                 {
                                                  // $uid =  $_SESSION['id'];
@@ -252,26 +265,26 @@ $uid = $dta['uid'];
                                                   $meci_num = $c;
 
 
-                                                }                                             
+                                                }          */                                   
                                                 
                                                 
                                                 ?>
 
-                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
-                                                <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
-                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
-                                                <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
+                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="wtrackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
+                                                <td data-search="<?php echo $drc_num; ?>"> <a href="wtrackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
+                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="wtrackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
+                                                <td data-search="<?php echo $deci_num; ?>"> <a href="wtrackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 
-                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
-                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
-                                                <td data-search="<?php echo $wsub_num; ?>"> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td data-search="<?php echo $weci_num; ?>"> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="wtrackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="wtrackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $wsub_num; ?>"> <a href="wtrackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td data-search="<?php echo $weci_num; ?>"> <a href="wtrackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
 
                                                 
-                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="trackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
-                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
-                                                <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
-                                                <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
+                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="wtrackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="wtrackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $msub_num; ?>"> <a href="wtrackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td data-search="<?php echo $meci_num; ?>"> <a href="wtrackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
@@ -280,7 +293,7 @@ $uid = $dta['uid'];
                     ?>
 
 
-						   
+						   <!--
             <tr>
                                       <td></td>
                                       <td></td>
@@ -289,7 +302,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td></td>
                                       <td></td>
-                                      <td>Total</td>
+                                      <td>Total</td> 
 <?php
 
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -358,6 +371,7 @@ $uid = $dta['uid'];
                   
                   
                   }
+                  /*
                   else
                   {
                     $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()")->fetchColumn();
@@ -418,7 +432,7 @@ $uid = $dta['uid'];
                       }
                     $mteci_num = $c;
                   
-                  }     
+                  }     */
 
 
 ?> 
