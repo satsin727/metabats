@@ -177,7 +177,7 @@ if(isset($_POST['update']))
     $consultant_id=$_POST['consultant_id'];		
 
 
-    $inquery = "Update `issues` SET `headline` = $headline, `issuedesc` = $issuedesc, `consultant_id`= $consultant_id where issueid = $issueid";
+    $inquery = "UPDATE issues SET `headline` = '$headline', `issuedesc` = '$issuedesc', `consultant_id`= '$consultant_id' where issueid = '$issueid'";
     $ins= $conn->prepare($inquery);
     $ins->execute();
     header( "Location: admin.php?action=listissues&status=1" );
