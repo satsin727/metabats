@@ -24,7 +24,9 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
-$status = $_GET['status'];
+    if(isset($_GET['status']))
+    { $status = $_GET['status']; }
+    else { $status = 1; }
 $query = "select * from issues where status = $status";
 $ins= $conn->prepare($query);
 $ins->execute();

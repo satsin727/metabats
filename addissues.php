@@ -102,7 +102,7 @@ if(isset($_POST['save']))
 		$inquery = "INSERT INTO `issues` (`headline`, `issuedesc`, `sm_id`, `consultant_id`) VALUES ('$headline', '$issuedesc', '$sm_id', '$consultant_id');";
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
-		header( "Location: admin.php?action=listissues" );
+		header( "Location: admin.php?action=listissues&status=1" );
 		}
 
 }
