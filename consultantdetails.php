@@ -316,7 +316,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																						{
 																									$rname=$_FILES['resume1']['name'];
 																									$rext = strtolower(substr(strrchr($rname, '.'), 1));
-																								if($rext == doc || $rext == docx)
+																								if($rext == "doc" || $rext == "docx")
 																								{
 																									
 																									$date = date("Y-m-d H:i:s");
