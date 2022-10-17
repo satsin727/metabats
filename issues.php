@@ -24,8 +24,8 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
-
-$query = "select * from issues";
+$status = $_GET['status'];
+$query = "select * from issues where status = $status";
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -51,6 +51,7 @@ $data = $ins->fetchAll();
 						        <th data-field="skill" data-sortable="true">Related Skill</th>
 						        <th data-field="name"  data-sortable="true">Related Consultant</th>
 						        <th data-field="Manager" data-sortable="true">Added by Manager</th>
+						        <th data-field="action" data-sortable="true">Actions</th>
 						    </tr>
 						    </thead>
 						   <tbody>
@@ -83,12 +84,19 @@ if(isset($cdata['cid']) && isset($udata['uid']))
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>   
     	<td data-search="<?php echo $cdata['cfname']; ?>"> <?php echo $cdata['cfname']." ".$cdata['clname']; ?></td> 	
     	<td data-search="<?php echo $udata['name']; ?>"> <?php echo $udata['name']; ?></td>  
+        <td> 
+    		<a href="issuecmd.php?do=change&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
+    				 &nbsp;&nbsp;&nbsp; 
+    			<?php if($status==1){ ?>	<a href ="issuecmd.php?do=delete&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Close this issue ?')"><img src="images/b_drop.png" alt="Close" width="16" height="16" border="0" title="Close"/></a> <?php } 
+                else { ?> <a href ="assigncmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
+    				 &nbsp;&nbsp;&nbsp;    			
+    	</td> 
 
     </tr>
     <?php  } 
     else 
     {
-	?>
+	?>      
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
     	<td data-search="<?php echo $row['headline']; ?>"> <?php echo $row['headline']; ?></td>            

@@ -115,7 +115,7 @@ else { ?>
 }
 
 ?> 
-	<li class="<?php if($selected=="showissues") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=listissues"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>List Issues</a></li>  
+	<li class="<?php if($selected=="showissues") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=listissues&status=1"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>List Issues</a></li>  
 
 
 <!--			<li class="<?php if($selected=="clientslist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientslist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Clients List</a></li> -->
