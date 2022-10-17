@@ -367,7 +367,7 @@ fclose($fp);
             ob_clean();
             flush();
 readfile($filename);
-header( "Location: admin.php?action=listall" ); 
+//header( "Location: admin.php?action=listall" ); 
 
 
 }//do download
