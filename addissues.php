@@ -62,7 +62,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3 )
 								<td width="90%" align="left" valign="top">	<select name="consultant_id" class="form-control-in">
 
                                 <?php
-                                $query = "select * from consultant order by cfname asc";
+                                $query = "select * from consultants order by cfname asc";
                                 $ins= $conn->prepare($query);
                                 $ins->execute();
                                 $data = $ins->fetchAll();
