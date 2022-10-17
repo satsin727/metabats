@@ -257,7 +257,12 @@ fclose($fp);
             ob_clean();
             flush();
 readfile($filename);
-header( "Location: admin.php?action=clientslist" ); 
+/*echo "<script>
+alert('$lineData');
+window.location.href='login.php';
+</script>";*/
+
+//header( "Location: admin.php?action=clientslist" ); 
 
 }
 
