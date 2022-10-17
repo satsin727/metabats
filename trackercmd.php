@@ -124,6 +124,87 @@ if(isset($_GET['appcd_id']))
                 $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
+
+
+
+###########################################################################################################################################################################
+###################################################################################################################################################################################
+      
+
+            if(isset($_GET['appcdt_id']))
+            {
+                $app = 1;
+                $query = "SELECT * FROM `app_data` WHERE  `status` = 1 and DATE(appdate) = CURDATE()";
+            }
+            if(isset($_GET['rccdt_id']))
+            {
+                $rc = 1;
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()";
+            }
+
+            if(isset($_GET['subcdt_id']))
+            {               
+                $sub = 1;
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(subdate) = CURDATE()";
+            }
+
+            if(isset($_GET['ecicdt_id']))
+            {
+                $eci = 1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()";
+            }
+
+            if(isset($_GET['appcwt_id']))
+            {
+                $app = 1;
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
+            }
+
+            if(isset($_GET['rccwt_id']))
+            {
+                $rc = 1;                
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
+            }
+
+            if(isset($_GET['subcwt_id']))
+            {
+                $sub = 1;
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
+            }
+
+            if(isset($_GET['ecicwt_id']))
+            {               
+                $eci = 1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
+            if(isset($_GET['appcmt_id']))
+            {
+                $app = 1;
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE())";
+            }
+
+            if(isset($_GET['rccmt_id']))
+            {
+                $rc = 1;                
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())";
+            }
+
+            if(isset($_GET['subcmt_id']))
+            {
+                $sub = 1;
+                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH(CURDATE())";
+            }
+
+            if(isset($_GET['ecicmt_id']))
+            {               
+                $eci = 1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
+
     }
 	else
 	{
