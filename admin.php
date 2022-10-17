@@ -256,10 +256,8 @@ fclose($fp);
             header('Content-Length: ' . filesize($filename));
             ob_clean();
             flush();
-readfile($filename);
-
-exit();
-}
+            readfile($filename);
+            exit();
 /*echo "<script>
 alert('$lineData');
 window.location.href='login.php';
