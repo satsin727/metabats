@@ -71,12 +71,12 @@ if(isset($_GET['do']))
 							<div class="col-lg-12">
 								<div class="panel panel-default">
                                 <div class="panel-heading"> <a href="admin.php?action=listissues&status=1"><button name="back" class="btn btn-primary">Back</button></a>
-                                <br> <b><?php echo $data['headline'];?></b></br>
+                                <br> <h2><b><?php echo $data['headline'];?></b></h2></br></br>
                             
                             </div>
 					
 									<div class="panel-body">
-                                    
+                                
 								
                                 <?php
 
