@@ -48,10 +48,10 @@ $uid = $dta['uid'];
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
                                         <th data-field="dateadded" data-sortable="true">Date Added</th>                               
-                                        <th data-field="tenure" data-sortable="true">Tenure</th> 
-                                        <th data-field="Visa Status" data-sortable="true">Visa Status</th>
-                                        <th data-field="dob" data-sortable="true">DOB</th>
-                                        <th data-field="byear" data-sortable="true">Graduation Year</th>
+                                        <th data-field="tenure" data-sortable="true" data-show-toggle="false">Tenure</th> 
+                                        <th data-field="Visa Status" data-sortable="true" data-show-toggle="false">Visa Status</th>
+                                        <th data-field="dob" data-sortable="true" data-show-toggle="false">DOB</th>
+                                        <th data-field="byear" data-sortable="true" data-show-toggle="false">Graduation Year</th>
                                         
                                         <th data-field="dapp" data-sortable="true">Today App</th>                          
                                         <th data-field="drc" data-sortable="true">Today RC</th>                         
