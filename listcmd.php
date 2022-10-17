@@ -346,6 +346,7 @@ else
 	$listname = $ldata['listname'];
 
 	$date = date("Y-m-d H:i:s");
+	shell_exec("chmod 0777 tmp/");
 	$filename = "tmp/".$listname."_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
 	$fp = fopen("$filename", 'w');
 	$txt = "Company Name,Full Name,First Name,Email ID,Phone Number,Location,Timezone,Tier 1/2/IP\n";
