@@ -82,7 +82,7 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $dta2['headline']; ?></a></td>            
+    	<td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline']; ?></a></td>            
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>   
     	<td data-search="<?php echo $cdata['cfname']; ?>"> <?php echo $cdata['cfname']." ".$cdata['clname']; ?></td> 	
     	<td data-search="<?php echo $udata['name']; ?>"> <?php echo $udata['name']; ?></td>  
@@ -90,7 +90,7 @@ if(isset($cdata['cid']) && isset($udata['uid']))
     		<a href="issuecmd.php?do=edit&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
     				 &nbsp;&nbsp;&nbsp; 
     			<?php if($status==1){ ?>	<a href ="issuecmd.php?do=close&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Close this issue ?')"><img src="images/b_drop.png" alt="Close" width="16" height="16" border="0" title="Close"/></a> <?php } 
-                else { ?> <a href ="assigncmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
+                else { ?> <a href ="issuecmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
     				 &nbsp;&nbsp;&nbsp;    			
     	</td> 
 
@@ -101,17 +101,18 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 	?>      
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $row['headline']; ?>"> <?php echo $row['headline']; ?></td>            
+        <td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline']; ?></a></td>            
     	<td data-search="other">Open Issue</td>   
     	<td data-search="Open Issue">Open Issue</td> 	
     	<td data-search="<?php echo $udata['name']; ?>"> <?php echo $udata['name']; ?></td>  
         <td> 
-    		<a href="issuecmd.php?do=change&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
+    		<a href="issuecmd.php?do=edit&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
     				 &nbsp;&nbsp;&nbsp; 
-    			<?php if($status==1){ ?>	<a href ="issuecmd.php?do=delete&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Close this issue ?')"><img src="images/b_drop.png" alt="Close" width="16" height="16" border="0" title="Close"/></a> <?php } 
-                else { ?> <a href ="assigncmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
+    			<?php if($status==1){ ?>	<a href ="issuecmd.php?do=close&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Close this issue ?')"><img src="images/b_drop.png" alt="Close" width="16" height="16" border="0" title="Close"/></a> <?php } 
+                else { ?> <a href ="issuecmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
     				 &nbsp;&nbsp;&nbsp;    			
     	</td> 
+
     </tr>
     <?php  }
     
