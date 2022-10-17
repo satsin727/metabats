@@ -348,9 +348,9 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">SM</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
-						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
+						        <th data-field="Client"  data-sortable="true">IP/CLient</th>
+                                <th data-field="consultant" data-sortable="true">Consultant</th>
                                 <th data-field="remail" data-sortable="true">Recruiter Email</th>
-                                
                                 <th data-field="Status"  data-sortable="true">Status</th>
 								<?php
                                 if($app == 1)
@@ -372,6 +372,15 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <?php
 $i=1;
 foreach( $data as $row) { 
+$consultantid = $row['consultant_id'];
+    if($total==1)
+{
+    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
+    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+}
+
 if($app == 1 || $rc == 1 || $sub == 1)
     {
         $app_id = $row['app_id'];
@@ -424,6 +433,7 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
 		
         
+        <td data-search="<?php echo $cfname." ".$clname;?>"><?php echo $cfname." ".$cmname." ".$clname;?></td>
         <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
 
 		<td> 
