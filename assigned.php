@@ -76,7 +76,7 @@ $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
 
-if($cdata['cid']!== null && $udata['uid']!== null)
+if(isset($cdata['cid']) && isset($udata['uid']))
 {
 								$sid = $cdata['skill'];
 								$q2 = "select * from skill where `sid` = $sid";
