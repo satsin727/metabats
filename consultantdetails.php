@@ -334,7 +334,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 																								$visaname = $_FILES['visacopy']['name'];
 																								$vext = strtolower(substr(strrchr($visaname, '.'), 1));
-																								if($vext == jpg || $vext == jpeg)
+																								if($vext == "jpg" || $vext == "jpeg" || $vext == "pdf")
 																								{
 																									
 																									$date = date("Y-m-d H:i:s");
@@ -352,7 +352,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 																								$dlname = $_FILES['dlcopy']['name'];
 																								$dext = strtolower(substr(strrchr($dlname, '.'), 1));
-																								if($dext == jpg || $dext == jpeg)
+																								if($dext == "jpg" || $dext == "jpeg")
 																								{
 																									
 																									$date = date("Y-m-d H:i:s");
@@ -371,7 +371,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 																								$stateidname = $_FILES['stateid']['name'];
 																								$sext = strtolower(substr(strrchr($stateidname, '.'), 1));
-																								if($sext == jpg || $sext == jpeg)
+																								if($sext == "jpg" || $sext == "jpeg")
 																								{
 																									
 																									$date = date("Y-m-d H:i:s");
@@ -391,7 +391,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 																								$pcname = $_FILES['passportcopy']['name'];
 																								$pext = strtolower(substr(strrchr($pcname, '.'), 1));
-																								if($pext == jpg || $pext == jpeg)
+																								if($pext == "jpg" || $pext == "jpeg")
 																								{
 																									
 																									$date = date("Y-m-d H:i:s");
