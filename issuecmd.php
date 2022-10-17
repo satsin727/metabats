@@ -145,7 +145,7 @@ $cid = $data['consultant_id'];
                                 $data = $ins->fetchAll();
 
                                 foreach($data as $consultant)
-{                       if($cid == 0)
+{                       if($consultant['cid'] == 0)
      {   ?> <option selected value="0">None - other escalations</option>
     <?php  }
                         elseif($cid == $consultant['cid'])
