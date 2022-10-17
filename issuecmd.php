@@ -132,7 +132,7 @@ $cid = $data['consultant_id'];
 </div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Description:&nbsp;&nbsp;&nbsp;</label></td>
-                                    <td width="90%" align="left" valign="top">	<textarea class="ckeditor" name="issuedesc" ><?php echo $desc['issuedesc'];  ?></textarea> </td>
+                                    <td width="90%" align="left" valign="top">	<textarea class="ckeditor" name="issuedesc" ><?php echo $data['issuedesc'];  ?></textarea> </td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Related to:</label></td>
