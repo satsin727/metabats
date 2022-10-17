@@ -111,8 +111,6 @@ $query = "select * from issues where `issueid` =  $id;";
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetch();
-$conn=null;
-
 $cid = $data['consultant_id'];
 
 ?>
