@@ -91,7 +91,7 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $row['headline']; ?>"> <?php echo $dta2['headline']; ?></td>            
+    	<td data-search="<?php echo $row['headline']; ?>"> <?php echo $row['headline']; ?></td>            
     	<td data-search="other">Open Issue</td>   
     	<td data-search="Open Issue">Open Issue</td> 	
     	<td data-search="<?php echo $udata['name']; ?>"> <?php echo $udata['name']; ?></td>  
