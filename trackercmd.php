@@ -37,6 +37,7 @@ if(isset($_GET['appcd_id']))
             $rc = 0;
             $sub = 0;
             $eci = 0;
+            $total =0;
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
 		
@@ -134,47 +135,55 @@ if(isset($_GET['appcd_id']))
             if(isset($_GET['appcdt_id']))
             {
                 $app = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE  `status` = 1 and DATE(appdate) = CURDATE()";
             }
             if(isset($_GET['rccdt_id']))
             {
-                $rc = 1;
+                $rc = 1;                
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()";
             }
 
             if(isset($_GET['subcdt_id']))
             {               
                 $sub = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(subdate) = CURDATE()";
             }
 
             if(isset($_GET['ecicdt_id']))
             {
                 $eci = 1;
+                $total=1;
                 $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()";
             }
 
             if(isset($_GET['appcwt_id']))
             {
                 $app = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `status` = 1  and WEEK(appdate) = WEEK(CURDATE())";
             }
 
             if(isset($_GET['rccwt_id']))
             {
-                $rc = 1;                
+                $rc = 1;  
+                $total=1;              
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(CURDATE())";
             }
 
             if(isset($_GET['subcwt_id']))
             {
                 $sub = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK(CURDATE())";
             }
 
             if(isset($_GET['ecicwt_id']))
             {               
                 $eci = 1;
+                $total=1;
                 $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK(CURDATE())";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -182,24 +191,28 @@ if(isset($_GET['appcd_id']))
             if(isset($_GET['appcmt_id']))
             {
                 $app = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE())";
             }
 
             if(isset($_GET['rccmt_id']))
             {
-                $rc = 1;                
+                $rc = 1;   
+                $total=1;             
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE())";
             }
 
             if(isset($_GET['subcmt_id']))
             {
                 $sub = 1;
+                $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH(CURDATE())";
             }
 
             if(isset($_GET['ecicmt_id']))
             {               
                 $eci = 1;
+                $total=1;
                 $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -298,10 +311,13 @@ $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
-$skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-$skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-$cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+if($total==0)
+{
+    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
+    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+}
 /*
 $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
 ?>
@@ -315,7 +331,8 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
                 elseif($rc==1) { echo "Rate Confirmation Details"; }
                 elseif($sub==1) { echo "Submissions Details"; }
                 elseif($eci==1) { echo "Interview Details"; }
-                ?> - <?php echo $cfname." ".$clname." (".$skill." Consultant)"; ?>
+                ?> - <?php if($total==0)
+                { echo $cfname." ".$clname." (".$skill." Consultant)"; } else { echo "All Consultants"; } ?>
                 </h3></li>
 			</ol>
 </div>
