@@ -39,7 +39,7 @@ if(isset($_GET['do']))
 	if($do=='close')
 	{
 		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `issues` SET `status` = 0 WHERE `id` = $id";
+		$inquery = "UPDATE `issues` SET `status` = 0 WHERE `issueid` = $id";
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		$conn=null;
@@ -97,7 +97,7 @@ if(isset($_GET['do']))
 	if($do=='reopen')
 	{
 		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `issues` SET `status` = 1 WHERE `id` = $id";
+		$inquery = "UPDATE `issues` SET `status` = 1 WHERE `issueid` = $id";
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		$conn=null;
@@ -143,10 +143,8 @@ $cid = $data['consultant_id'];
                                 $ins= $conn->prepare($query);
                                 $ins->execute();
                                 $data = $ins->fetchAll();
-
                                 foreach($data as $consultant)
 {
-
 ?>
 										<option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
                         <?php } ?>
