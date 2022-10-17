@@ -45,7 +45,7 @@ if(isset($_GET['do']))
 		if(isset($_GET['appid']))
 		{
 			$app_id = $_GET['appid'];
-			$conn->query("UPDATE `app_data` SET `status` = '0' WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `status` = '0', `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id");
 			echo "<script>
 			alert('Application Deleted');
 			window.location.href='admin.php?action=showapplications';
@@ -54,7 +54,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['rcid']))
 		{
 			$app_id = $_GET['rcid'];
-			$conn->query("UPDATE `app_data` SET `rcdone` = '0' WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id and `status` = 1");
 			echo "<script>
 			alert('RC Deleted');
 			window.location.href='admin.php?action=showrc';
@@ -63,7 +63,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['subid']))
 		{
 			$app_id = $_GET['subid'];
-			$conn->query("UPDATE `app_data` SET `subdone` = '0' WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id and `status` = 1");
 			echo "<script>
 			alert('Sub Deleted');
 			window.location.href='admin.php?action=showsub';
@@ -72,7 +72,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['eciid']))
 		{
 			$eci_id = $_GET['eciid'];
-			$conn->query("UPDATE `eci	` SET `status` = '0' WHERE `eci_id` = $eci_id");
+			$conn->query("UPDATE `eci` SET `status` = '0' WHERE `eci_id` = $eci_id");
 			echo "<script>
 			alert('ECI Deleted');
 			window.location.href='admin.php?action=showeci';
