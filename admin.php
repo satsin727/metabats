@@ -89,6 +89,12 @@ switch ( $action ) {
   case 'showsmdata':
         showsmdata();
         break;
+  case 'listissues':
+        listissues();
+        break;
+  case 'addissue':
+        addissue();
+        break;
   default:
     dashboard();
 }
@@ -206,6 +212,8 @@ function showsub() {  $selected = "showsub"; require( "showsub.php" ); }
 function showeci() {  $selected = "showeci"; require( "showeci.php" ); }
 function showdailydata() {  $selected = "showreports"; require( "showdailyreks.php" ); }
 function showsmdata() {  $selected = "showreports"; require( "smwisedata.php" ); }
+function listissues() {  $selected = "showissues"; require( "issues.php" ); }
+function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function clientlistdownload()
 {
 if($_SESSION['id'])

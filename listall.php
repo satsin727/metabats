@@ -29,7 +29,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 $uid = $dta['uid'];
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
-$query = "select * from lists";
+$query = "select * from lists AND `status` = 1";
 }
 elseif ($dta['level'] == 3)
 {	
