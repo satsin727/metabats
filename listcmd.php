@@ -366,7 +366,13 @@ fclose($fp);
             header('Content-Length: ' . filesize($filename));
             ob_clean();
             flush();
-readfile($filename);
+if(readfile($filename))
+			{
+			  echo "<script>
+			alert('File Downloaded');
+			window.location.href='admin.php?action=listall';
+			</script>";
+			}
 //header( "Location: admin.php?action=listall" ); 
 
 

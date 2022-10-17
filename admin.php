@@ -256,7 +256,13 @@ fclose($fp);
             header('Content-Length: ' . filesize($filename));
             ob_clean();
             flush();
-readfile($filename);
+if(readfile($filename))
+{
+  echo "<script>
+alert('File Downloaded');
+window.location.href='login.php';
+</script>";
+}
 /*echo "<script>
 alert('$lineData');
 window.location.href='login.php';
