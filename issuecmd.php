@@ -144,19 +144,12 @@ $cid = $data['consultant_id'];
                                 $ins->execute();
                                 $data = $ins->fetchAll();
 
-                                foreach($data as $consultant)
-{                       if($cid == 0)
-     {   ?> <option selected value="0">None - other escalations</option>
-    <?php  }
-                        if($cid == $consultant['cid'])
-                        { ?>
-                            <option selected value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
-                       <?php
-                        } ?>
-                        <option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
-                        <?php 
-                    } ?>
-									</select></td>
+                                foreach($data as $consultant)                     
+    {
+
+        ?>
+                                                <option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
+                                <?php } ?>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr>
 <input type="hidden" name="issueid" id="issueid" value="<?php echo trim($id); ?>"/> </td> <tr>
 
