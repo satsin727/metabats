@@ -257,21 +257,21 @@ $uid = $dta['uid'];
                                                 
                                                 ?>
 
-                                                <td> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
+                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
+                                                <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
+                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
+                                                <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 
-                                                <td> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $wsub_num; ?>"> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td data-search="<?php echo $weci_num; ?>"> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
 
                                                 
-                                                <td> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
+                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="trackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
