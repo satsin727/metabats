@@ -135,7 +135,7 @@ $cid = $data['consultant_id'];
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Related to:</label></td>
 								<td width="90%" align="left" valign="top">	<select name="consultant_id" class="form-control-in">
-                                <option value="0">None - other escalations</option>
+                                <option <?php if($cid == 0) echo "selected"; ?>value="0">None - other escalations</option>
                                 <?php
                                 $query = "select * from consultants order by cfname asc";
                                 $ins= $conn->prepare($query);
@@ -144,7 +144,7 @@ $cid = $data['consultant_id'];
                                 foreach($data as $consultant)
 {
 ?>
-										<option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
+								<option <?php if($cid == $consultant['cid']) echo "selected"; ?> value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
                         <?php } ?>
 									</select></td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
