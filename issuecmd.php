@@ -137,20 +137,21 @@ $cid = $data['consultant_id'];
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Related to:</label></td>
 								<td width="90%" align="left" valign="top">	<select name="consultant_id" class="form-control-in">
+                                <option value="0">None - other escalations</option>
                                 <?php
-                                
                                 $query = "select * from consultants order by cfname asc";
                                 $ins= $conn->prepare($query);
                                 $ins->execute();
                                 $data = $ins->fetchAll();
 
-                                foreach($data as $consultant)                     
-    {
+                                foreach($data as $consultant)
+{
 
-        ?>
-                                                <option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
-                                <?php } ?>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr>
+?>
+										<option value="<?php echo $consultant['cid']; ?>"><?php echo $consultant['cfname']." ".$consultant['cmname']." ".$consultant['clname']; ?></option>
+                        <?php } ?>
+									</select></td>
+</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <input type="hidden" name="issueid" id="issueid" value="<?php echo trim($id); ?>"/> </td> <tr>
 
    							<td  align="left" ><button type="submit" name="update" class="btn btn-primary">Update</button> </td>					
