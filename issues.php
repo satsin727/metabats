@@ -25,11 +25,10 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
 
-$query = "select * from assigned";
+$query = "select * from issues";
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
-$conn=null;
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
@@ -58,14 +57,14 @@ $conn=null;
 <?php
 $i=1;
 foreach( $data as $row) { 
-$cid=$row['cid'];
-$uid=$row['uid'];
+$cid=$row['consultant_id'];
+$uid=$row['sm_id'];
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from users where `uid` = $uid AND `status` = 1";
+$query = "select * from users where `uid` = $uid";
 $ins= $conn->prepare($query);
 $ins->execute();
 $udata = $ins->fetch();
-$query2 = "select * from consultants where `cid` = $cid AND `status` = 1";
+$query2 = "select * from consultants where `cid` = $cid";
 $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
@@ -77,19 +76,14 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch(); 
-								$conn=null; 
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $cdata['cfname']; ?>"> <?php echo $cdata['cfname']." ".$cdata['clname']; ?></td>
-    	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>    	
+    	<td data-search="<?php echo $row['headline']; ?>"> <?php echo $dta2['headline']; ?></td>            
+    	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>   
+    	<td data-search="<?php echo $cdata['cfname']; ?>"> <?php echo $cdata['cfname']." ".$cdata['clname']; ?></td> 	
     	<td data-search="<?php echo $udata['name']; ?>"> <?php echo $udata['name']; ?></td>  
-    	<td> 
-    		<a href="assigncmd.php?do=change&selected=assign&id=<?php echo $row['id']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
-    				 &nbsp;&nbsp;&nbsp; 
-    				<a href ="assigncmd.php?do=delete&id=<?php  echo $row['id']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
-    				 &nbsp;&nbsp;&nbsp;    			
-    	</td> 
+
     </tr>
     <?php  } //for if
 } //foreach
