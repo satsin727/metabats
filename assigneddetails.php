@@ -141,7 +141,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 							</div><!-- /.col-->
 						</div><!-- /.row -->
 						
-					
+				</div>	
 				<?php 
 
 				}
@@ -164,7 +164,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		}
 
 		?>
-		</div>
+		
 
 		<?php
 		require("includes/footer.php"); 

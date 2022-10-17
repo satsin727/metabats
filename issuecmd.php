@@ -23,7 +23,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 require("includes/header.php");
 require("includes/menu.php");
 
-if($dta['level'] == 1 || $dta['level'] == 2)
+if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
 
@@ -57,7 +57,7 @@ if(isset($_GET['do']))
 						<div class="row">
 							<ol class="breadcrumb">
 								<li><a href=""><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
-								<li class="active">View Issue:<br> <?php echo $data['headline'];?></br></li>
+								<li class="active">View Issue</li>
 							</ol>
 						</div><!--/.row-->
 						
@@ -70,8 +70,13 @@ if(isset($_GET['do']))
 						<div class="row">
 							<div class="col-lg-12">
 								<div class="panel panel-default">
+                                <div class="panel-heading"> <a href="admin.php?action=listissues&status=1"><button name="back" class="btn btn-primary">Back</button></a>
+                                <br> <b><?php echo $data['headline'];?></b></br>
+                            
+                            </div>
+					
 									<div class="panel-body">
-
+                                    
 								
                                 <?php
 
@@ -163,7 +168,15 @@ $cid = $data['consultant_id'];
 </form>  
 <?php
 } //do edit
-	
+
+} //for $do
+else
+{
+    echo "<script>
+alert('Not a valid command.');
+window.location.href='admin.php?action=listissues';
+</script>";
+}	
 if(isset($_POST['update']))
 
 {
@@ -181,18 +194,6 @@ if(isset($_POST['update']))
     header( "Location: admin.php?action=listissues&status=1" );
 
 }
-
-
-	else
-	{
-		echo "<script>
-alert('Not a valid command.');
-window.location.href='admin.php?action=listissues';
-</script>";
-	}
-
-
-} //for $do
 
 } //for admin
 else
