@@ -98,7 +98,7 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 
     </tr>
     <?php  }
-    }
+    
     //for if
 } //foreach
 ?>
