@@ -22,7 +22,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 require("includes/header.php");
 require("includes/menu.php");
 
-if($dta['level'] == 1 || $dta['level'] == 2)
+if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
     if(isset($_GET['status']))
     { $status = $_GET['status']; }
