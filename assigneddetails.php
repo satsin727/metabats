@@ -33,7 +33,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				$ins= $conn->prepare($query);
 				$ins->execute();
 				$data = $ins->fetch();
-				if($data['uid']==$uid || $dta['level'] == 1 || $dta['level'] == 2)
+				if($data['uid']==$uid || $dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 				{
 
 					$cid=$data['cid'];
