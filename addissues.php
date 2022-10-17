@@ -60,7 +60,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3 )
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Related to:</label></td>
 								<td width="90%" align="left" valign="top">	<select name="consultant_id" class="form-control-in">
-
+                                <option value="0">None - other escalations</option>
                                 <?php
                                 $query = "select * from consultants order by cfname asc";
                                 $ins= $conn->prepare($query);
