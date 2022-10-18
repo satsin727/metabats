@@ -2,9 +2,9 @@
 
 ob_start();
 session_start();
-error_reporting(0);
-ini_set( 'display_errors', 0 );
-ini_set('error_reporting', 0 );
+error_reporting(1);
+ini_set( 'display_errors', 1 );
+ini_set('error_reporting', 1 );
 ini_set('session.cookie_lifetime', 60 * 60 * 24 * 365);
 ini_set('session.gc-maxlifetime', 60 * 60 * 24 * 365);
 date_default_timezone_set("America/Chicago");
