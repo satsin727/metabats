@@ -340,10 +340,10 @@ $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fe
         <?php  }     elseif($eci ==1)  {  ?>   <td> <a href="comments.php?ecicom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
             <?php  } ?>
    
-        <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
-  <!--  		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> -->
+     <!--     <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
+  		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> 
     				<a href ="appdata_cmd.php?do=delete&appid=<?php echo $row['app_id']; ?>" onClick="return confirm('Are you sure you want to remove this application ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
-    	</td><?php } ?>
+    	</td><?php } ?> -->
     </tr>			
     <?php
 
