@@ -304,7 +304,7 @@ $uid = $dta['uid'];
                                       <td></td>
                                       <td>Total</td> 
 <?php
-
+/*
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                   
                   if($dta['level'] == 1 || $dta['level'] == 2)
@@ -453,7 +453,7 @@ $uid = $dta['uid'];
                                                 <td> <a href="trackercmd.php?subcmt_id=1"><?php echo $mtsub_num; ?></a></td> 
                                                 <td> <a href="trackercmd.php?ecicmt_id=1"><?php echo $mteci_num; ?></a></td> 
 
-                                      </tr>
+                                      </tr> -->
                                               </table>
                                               </tbody>
 					</div>
