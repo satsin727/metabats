@@ -52,13 +52,13 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 
 			if($dta['level'] ==1 || $dta['level'] == 2)
 			{
-				$qcid = "select * from consultants where status = 1";
+				$qcid = "select * from consultants where status = 1 order by cfname asc";
 			}
 			else 
 			{ 
 				$rmid = $conn->query("select rmid from users where uid = $sessid")->fetchColumn();
 				
-				$qcid = "select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid = $rmid and B.skill = $skillid and B.status = 1"; 
+				$qcid = "select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid = $rmid and B.skill = $skillid and B.status = 1 order by B.cfname asc"; 
 			}	
 
 			$cq= $conn->prepare($qcid);
