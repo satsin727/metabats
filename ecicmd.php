@@ -52,7 +52,7 @@ if(isset($_GET['do']))
 		$ins->execute();
 		$udata = $ins->fetch();
 		$status = $udata['eci_happened'];
-if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
+if($udata['sm_id']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 		{
 			if($status==1) 
 			{ 
