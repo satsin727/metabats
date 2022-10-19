@@ -120,7 +120,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 
 	?>
     <tr>
-		<td data-search="<?php echo $row['eci_req_date']; ?>"> <?php $time = strtotime($row['eci_req_date']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
+		<td data-search="<?php echo $row['subdate']; ?>"> <?php $time = strtotime($row['subdate']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
 		<td data-search="<?php $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
