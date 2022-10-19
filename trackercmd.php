@@ -496,16 +496,15 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 		{
 			echo "Submitted to End Client";
 		}
-        if($app == 1 || $rc == 1 || $sub == 1)
+        if($app == 1 || $rc == 1 || $sub == 1 || $eci == 1)
     {
         $astatus="No";
         if($row['rcdone']==1) { $astatus="Yes"; }
         elseif($row['subdone']==1) { $astatus="Yes"; }
         elseif($row['hasinterview']==1) { $astatus="Yes"; }
-		?>
-        
-        <td data-search="<?php echo $ars_status; ?>"> <?php echo $ars_status; ?></td> <?php } ?>
-        <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td> <?php } ?>
+	} ?>
+        <td data-search="<?php echo $ars_status; ?>"> <?php echo $ars_status; ?></td> 
+        <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td>
 		<td> <a href="comments.php?appcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
     <!--    <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
 		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a>
