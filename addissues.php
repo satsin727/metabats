@@ -99,8 +99,9 @@ if(isset($_POST['save']))
 		$consultant_id=$_POST['consultant_id'];		
 
 
-		$inquery = "INSERT INTO `issues` (`headline`, `issuedesc`, `sm_id`, `consultant_id`) VALUES ('$headline', '$issuedesc', '$sm_id', '$consultant_id');";
+		$inquery = "INSERT INTO `issues` (`headline`, `issuedesc`, `sm_id`, `consultant_id`) VALUES (:headline, '$issuedesc', '$sm_id', '$consultant_id');";
 		$ins= $conn->prepare($inquery);
+		$ins->bindParam(':headline', $headline, PDO::PARAM_STR);
 		$ins->execute();
 		header( "Location: admin.php?action=listissues&status=1" );
 		}
