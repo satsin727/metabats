@@ -122,8 +122,15 @@ $data = $ins->fetchAll();
                                     $status =  "Submitted to End Client";
                                 }
                        
-                        $comment;
-                        $feedback;
+                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id")->fetchColumn();
+                        if(isset($row['feedback']))
+                        {
+                            $feedback = $row['feedback'];
+                        }
+                        else
+                        {
+                            $feedback = "No update";
+                        }
                     
                         $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$client,$status,$comment,$feedback);
                         fputcsv($fp, $lineData,",");
