@@ -193,6 +193,7 @@ if(isset($_GET['appcd_id']))
                 $app = 1;
                 $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE())  order by appdate asc";
+                $download = "app";
             }
 
             if(isset($_GET['rccmt_id']))
@@ -200,6 +201,7 @@ if(isset($_GET['appcd_id']))
                 $rc = 1;   
                 $total=1;             
                 $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE()) order by rcdate asc";
+                $download = "rc";
             }
 
             if(isset($_GET['subcmt_id']))
@@ -207,6 +209,7 @@ if(isset($_GET['appcd_id']))
                 $sub = 1;
                 $total=1;
                 $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH(CURDATE()) order by subdate asc";
+                $download = "sub";
             }
 
             if(isset($_GET['ecicmt_id']))
@@ -214,6 +217,7 @@ if(isset($_GET['appcd_id']))
                 $eci = 1;
                 $total=1;
                 $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())  order by eci_req_date asc";
+                $download = "eci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
 
@@ -341,7 +345,8 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a></div>
+                <div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a></div>
+               <?php if(isset($download)) { ?> <div class="panel-heading"> <a href="trackerdownload.php?download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
