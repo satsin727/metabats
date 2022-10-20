@@ -84,7 +84,7 @@ $data = $ins->fetchAll();
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
                                 if($ars_status == 1)
                                 {
-                                    $status =  "Connected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                    $status =  "Connected";
                                 }
                                 elseif($ars_status == 2)
                                 {
@@ -92,7 +92,7 @@ $data = $ins->fetchAll();
                                 }
                                 elseif($ars_status == 3)
                                 {
-                                    $status =  "Voicemail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                    $status =  "Voicemail;";
                                 }
                                 elseif($ars_status == 4)
                                 {
@@ -100,19 +100,19 @@ $data = $ins->fetchAll();
                                 }
                                 elseif($ars_status == 5)
                                 {
-                                    $status =  "Cancelled&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                    $status =  "Cancelled";
                                 }
                                 elseif($ars_status == 6)
                                 {
-                                    $status =  "Rejected&nbsp;&nbsp;&nbsp;";
+                                    $status =  "Rejected";
                                 }
                                 elseif($ars_status == 7)
                                 {
-                                    $status =  "In-Process&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                    $status =  "In-Process";
                                 }
                                 elseif($ars_status == 8)
                                 {
-                                    $status =  "Got Test&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                                    $status =  "Got Test";
                                 }
                                 elseif($ars_status == 9)
                                 {
@@ -130,7 +130,7 @@ $data = $ins->fetchAll();
                         }
                         else
                         {
-                            $feedback = "No update";
+                            $feedback = "NA";
                         }
                     
                         $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$client,$status,$comment,$feedback);
