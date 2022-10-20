@@ -496,13 +496,14 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 		{
 			echo "Submitted to End Client";
 		}
+        $astatus="No";
         if($app == 1 || $rc == 1 || $sub == 1 || $eci == 1)
     {
-        $astatus="No";
+        
         if($row['rcdone']==1) { $astatus="Yes"; }
         elseif($row['subdone']==1) { $astatus="Yes"; }
         elseif($row['hasinterview']==1) { $astatus="Yes"; }
-	} ?>
+	} ?> </td>
         <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td>
 		<td> <a href="comments.php?appcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> </td> 
     <!--    <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
