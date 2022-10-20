@@ -68,7 +68,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                        <th data-field="drc" data-sortable="true">Today RC</th>                         
                                         <th data-field="dsub" data-sortable="true">Today Sub</th> 
                                         <th data-field="deci" data-sortable="true">Today ECI</th> 
-
+<!--
                                         <th data-field="wapp" data-sortable="true">Weekly App</th>                          
                                         <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
                                         <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
@@ -78,7 +78,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         <th data-field="mapp" data-sortable="true">Monthly App</th>                          
                                         <th data-field="mrc" data-sortable="true">Monthly RC</th>                         
                                         <th data-field="msub" data-sortable="true">Monthly Sub</th> 
-                                        <th data-field="meci" data-sortable="true">Monthly ECI</th>
+                                        <th data-field="meci" data-sortable="true">Monthly ECI</th> -->
                                         
                 </tr>
                 </thead>
@@ -273,7 +273,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $drc_num; ?>"> <a href="wtrackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
                                                 <td data-search="<?php echo $dsub_num; ?>"> <a href="wtrackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
                                                 <td data-search="<?php echo $deci_num; ?>"> <a href="wtrackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
-
+<!--
                                                 <td data-search="<?php echo $wapp_num; ?>"> <a href="wtrackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
                                                 <td data-search="<?php echo $wrc_num; ?>"> <a href="wtrackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
                                                 <td data-search="<?php echo $wsub_num; ?>"> <a href="wtrackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
@@ -283,7 +283,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $mrc_num; ?>"> <a href="wtrackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
                                                 <td data-search="<?php echo $msub_num; ?>"> <a href="wtrackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
                                                 <td data-search="<?php echo $meci_num; ?>"> <a href="wtrackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
-                                          
+                                              -->
                                             </tr>
                                                     <?php
                                                 } 
