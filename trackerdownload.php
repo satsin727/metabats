@@ -309,7 +309,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Rate,Tier,IP/EC,Status,Comment,Feedback\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,Rate,IP/EC,Status,Comment,Feedback\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
