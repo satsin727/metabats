@@ -208,7 +208,22 @@ $data = $ins->fetchAll();
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
+                        if(isset($ipname) && isset($clientname))
+                        {
                         $client = $ipname."/".$clientname;
+                        }
+                        elseif(isset($ipname))
+                        {
+                        $client = $ipname;
+                        }
+                        elseif(isset($clientname))
+                        {
+                        $client = $clientname;
+                        }
+                        else
+                        {
+                        $client = "NA";
+                        }
 
                         
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
@@ -326,7 +341,22 @@ $data = $ins->fetchAll();
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
+                        if(isset($ipname) && isset($clientname))
+                        {
                         $client = $ipname."/".$clientname;
+                        }
+                        elseif(isset($ipname))
+                        {
+                        $client = $ipname;
+                        }
+                        elseif(isset($clientname))
+                        {
+                        $client = $clientname;
+                        }
+                        else
+                        {
+                        $client = "NA";
+                        }
 
                         
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
