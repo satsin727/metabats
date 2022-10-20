@@ -58,11 +58,11 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         <th data-field="ID">ID</th>
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
-                                        <th data-field="dateadded" data-sortable="true">Date Added</th>                               
+                                       <!--  <th data-field="dateadded" data-sortable="true">Date Added</th>                               
                                         <th data-field="tenure" data-sortable="true" data-show-toggle="false">Tenure</th> 
                                         <th data-field="Visa Status" data-sortable="true" data-show-toggle="false">Visa Status</th>
                                         <th data-field="dob" data-sortable="true" data-show-toggle="false">DOB</th>
-                                     <!--   <th data-field="byear" data-sortable="true" data-show-toggle="false">Graduation Year</th> -->
+                                       <th data-field="byear" data-sortable="true" data-show-toggle="false">Graduation Year</th> -->
                                         
                                         <th data-field="dapp" data-sortable="true">Today App</th>                          
                                        <th data-field="drc" data-sortable="true">Today RC</th>                         
@@ -268,21 +268,21 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 
                                                 
                                                 ?>
-
-                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="wtrackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
-                                                <td data-search="<?php echo $drc_num; ?>"> <a href="wtrackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
-                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="wtrackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
-                                                <td data-search="<?php echo $deci_num; ?>"> <a href="wtrackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 <!--
-                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="wtrackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
-                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="wtrackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
-                                                <td data-search="<?php echo $wsub_num; ?>"> <a href="wtrackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td data-search="<?php echo $weci_num; ?>"> <a href="wtrackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
+                                                <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
+                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
+                                                <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 
-                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="wtrackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
-                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="wtrackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
-                                                <td data-search="<?php echo $msub_num; ?>"> <a href="wtrackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
-                                                <td data-search="<?php echo $meci_num; ?>"> <a href="wtrackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
+                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $wsub_num; ?>"> <a href=trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td data-search="<?php echo $weci_num; ?>"> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+
+                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="trackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
                                               -->
                                             </tr>
                                                     <?php
