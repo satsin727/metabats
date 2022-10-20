@@ -305,7 +305,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,Rate,Tier,IP/EC,Status,Comment,Feedback\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Rate,Tier,IP/EC,Status,Comment,Feedback\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -336,6 +336,9 @@ $data = $ins->fetchAll();
                        
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
+
+                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+                        
 
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
@@ -409,7 +412,7 @@ $data = $ins->fetchAll();
                         $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
                         $rate = $row['rateperhour'];
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$layer,$rate,$client,$status,$comment,$feedback);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$status,$comment,$feedback);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
