@@ -116,27 +116,27 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>
   
                                                 <td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']." ".$row['cmname']." ".$row['clname']; ?></td>
-                                                        <?php 
+                                                        <?php /*
                                                                 $time = strtotime($row['dateadded']); 
                                                                 $myFormatForView = date("m/d/y", $time); 
                                                                 $todaydate = strtotime(date("Y-m-d H:i:s"));
                                                                 $diff = abs($todaydate - $time);
                                                                 $years = floor($diff / (365*60*60*24));
                                                                 $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-                                                                $days = floor($diff/ (60*60*24)); 
+                                                                $days = floor($diff/ (60*60*24)); */
 
                                                         ?>
-                                               <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
+                                        <!--       <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
                                                 <td data-search="<?php echo $days; ?>"> <?php echo $days; ?></td>
-                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['cmvisa']; ?></td>
+                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['cmvisa']; ?></td> -->
                                                 <?php 
-                                                                $time = strtotime($row['dob']); 
-                                                                $myFormatForView = date("m/d/y", $time); 
+                                                         //       $time = strtotime($row['dob']); 
+                                                          //      $myFormatForView = date("m/d/y", $time); 
 
                                                 ?>
                                                 
-                                                <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
-                                               <!-- <td data-search="<?php echo $row['byear']; ?>"> <?php echo $row['byear']; ?></td> -->
+                                                <!--  <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
+                                              <td data-search="<?php echo $row['byear']; ?>"> <?php echo $row['byear']; ?></td> -->
                                         
                                                 <?php
                                                 $cid = $row['cid'];
