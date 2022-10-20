@@ -340,24 +340,19 @@ $data = $ins->fetchAll();
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
-
-                        if(isset($ipname) && isset($clientname))
+                        $client = "NA";
+                        if($ipname != "" && $clientname !="")
                         {
                         $client = $ipname."/".$clientname;
-                        }
-                        elseif(isset($ipname))
-                        {
-                        $client = $ipname;
                         }
                         elseif(isset($clientname))
                         {
                         $client = $clientname;
                         }
-                        else
+                        elseif(isset($ipname))
                         {
-                        $client = "NA";
+                        $client = $ipname;
                         }
-
                         
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
                                 if($ars_status == 1)
