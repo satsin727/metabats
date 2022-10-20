@@ -74,12 +74,13 @@ $data = $ins->fetchAll();
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
 
+                                $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
                         $client = $ipname."/".$clientname;
 
-                        $app_id = $row['app_id'];
+                        
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
                                 if($ars_status == 1)
                                 {
