@@ -37,7 +37,7 @@ $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
-				if($download = "app")
+				if($download == "app")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
@@ -151,7 +151,7 @@ $data = $ins->fetchAll();
                     exit();
 				}
 
-                elseif($download = "rc")
+                elseif($download == "rc")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."rc_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
@@ -269,7 +269,7 @@ $data = $ins->fetchAll();
 				}
 
                 
-                elseif($download = "sub")
+                elseif($download == "sub")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
