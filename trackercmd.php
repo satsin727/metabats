@@ -497,11 +497,8 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 			echo "Submitted to End Client";
 		}
         $astatus="No";
-        if($app == 1 || $rc == 1 || $sub == 1 || $eci == 1)
-    {
-        
-        if($row['rcdone']==1) { $astatus="Yes"; }
-        elseif($row['subdone']==1) { $astatus="Yes"; }
+        if($app == 1 && $row['rcdone']==1) { $astatus="Yes"; }
+        elseif($rc == 1 && $row['subdone']==1) { $astatus="Yes"; }
         elseif($row['hasinterview']==1) { $astatus="Yes"; }
 	} ?> </td>
         <td data-search="<?php echo $astatus; ?>"> <?php echo $astatus; ?></td>
