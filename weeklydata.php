@@ -91,11 +91,11 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from consultants where `status` = 1 order by cfname asc";
+                              $query = "select * from consultants order by cfname asc";
                               }
                               else
                               {
-                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where B.status =1 and A.uid = $uid order by B.cfname asc";
+                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = $uid order by B.cfname asc";
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
