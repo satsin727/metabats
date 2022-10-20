@@ -58,7 +58,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         <th data-field="ID">ID</th>
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
-                                     <!--   <th data-field="dateadded" data-sortable="true">Date Added</th>                               
+                                       <!-- <th data-field="dateadded" data-sortable="true">Date Added</th>                               
                                         <th data-field="tenure" data-sortable="true" data-show-toggle="false">Tenure</th> 
                                         <th data-field="Visa Status" data-sortable="true" data-show-toggle="false">Visa Status</th>
                                         <th data-field="dob" data-sortable="true" data-show-toggle="false">DOB</th>
