@@ -24,7 +24,7 @@ $download = $_GET['download'];
 
 if($download == "app")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE()) order by appdate asc";}
+$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE()) order by appdate asc"; }
 elseif($download == "rc")
 {$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE()) order by rcdate asc";}
 elseif($download == "sub")
@@ -78,7 +78,23 @@ $data = $ins->fetchAll();
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
+                       
+                        if(isset($ipname) && isset($clientname))
+                        {
                         $client = $ipname."/".$clientname;
+                        }
+                        elseif(isset($ipname))
+                        {
+                        $client = $ipname;
+                        }
+                        elseif(isset($clientname))
+                        {
+                        $client = $clientname;
+                        }
+                        else
+                        {
+                        $client = "NA";
+                        }
 
                         
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
