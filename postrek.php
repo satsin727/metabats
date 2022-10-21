@@ -171,7 +171,7 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":remail", $remail, PDO::PARAM_STR );
 $ins->execute();
 $cdta = $ins->fetch();
-if($cdta['cid']!= null)
+if(isset($cdta['cid']))
 	{
 	$cid = $cdta['cid'];
 	}
