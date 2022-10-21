@@ -86,7 +86,25 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			$count= $count+1;
 			
 			$insl= $conn->prepare($sql);
+			/*
+
+			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', :companyname, :rname,:rfname,:remail,:rphone,:rlocation,:rtimezon,:tier,'$status','$target')";
 			
+			$count= $count+1;
+			
+			$insl= $conn->prepare($sql);
+
+			$ins1->bindParam(':companyname', $col1, PDO::PARAM_STR);
+			$ins1->bindParam(':rname', $col2, PDO::PARAM_STR);
+			$ins1->bindParam(':rfname', $col3, PDO::PARAM_STR);			
+			$ins1->bindParam(':remail', $col4, PDO::PARAM_STR);
+			$ins1->bindParam(':rphone', $col5, PDO::PARAM_STR);
+			$ins1->bindParam(':rlocation', $col6, PDO::PARAM_STR);
+			$ins1->bindParam(':rtimezon', $col7, PDO::PARAM_STR);
+			$ins1->bindParam(':tier', $col8, PDO::PARAM_STR);
+			*/
+
+
 			$insl->execute();
 			$totalupdatequery ="UPDATE `lists` SET `total` = '$count' WHERE `listid` = '$listid';";
 			$ins= $conn->prepare($totalupdatequery);

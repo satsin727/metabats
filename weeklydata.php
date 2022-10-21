@@ -58,17 +58,17 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         <th data-field="ID">ID</th>
                                         <th data-field="Skill" data-sortable="true">Skill</th>
                                         <th data-field="name"  data-sortable="true">Name</th>
-                                       <!--  <th data-field="dateadded" data-sortable="true">Date Added</th>                               
+                                       <th data-field="dateadded" data-sortable="true">Date Added</th>                               
                                         <th data-field="tenure" data-sortable="true" data-show-toggle="false">Tenure</th> 
                                         <th data-field="Visa Status" data-sortable="true" data-show-toggle="false">Visa Status</th>
                                         <th data-field="dob" data-sortable="true" data-show-toggle="false">DOB</th>
-                                       <th data-field="byear" data-sortable="true" data-show-toggle="false">Graduation Year</th> -->
+                                       <th data-field="byear" data-sortable="true" data-show-toggle="false">Graduation Year</th> 
                                         
                                         <th data-field="dapp" data-sortable="true">Today App</th>                          
                                        <th data-field="drc" data-sortable="true">Today RC</th>                         
                                         <th data-field="dsub" data-sortable="true">Today Sub</th> 
                                         <th data-field="deci" data-sortable="true">Today ECI</th> 
-<!--
+
                                         <th data-field="wapp" data-sortable="true">Weekly App</th>                          
                                         <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
                                         <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
@@ -78,7 +78,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         <th data-field="mapp" data-sortable="true">Monthly App</th>                          
                                         <th data-field="mrc" data-sortable="true">Monthly RC</th>                         
                                         <th data-field="msub" data-sortable="true">Monthly Sub</th> 
-                                        <th data-field="meci" data-sortable="true">Monthly ECI</th> -->
+                                        <th data-field="meci" data-sortable="true">Monthly ECI</th> 
                                         
                 </tr>
                 </thead>
@@ -116,27 +116,27 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>
   
                                                 <td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']." ".$row['cmname']." ".$row['clname']; ?></td>
-                                                        <?php /*
+                                                        <?php 
                                                                 $time = strtotime($row['dateadded']); 
                                                                 $myFormatForView = date("m/d/y", $time); 
                                                                 $todaydate = strtotime(date("Y-m-d H:i:s"));
                                                                 $diff = abs($todaydate - $time);
                                                                 $years = floor($diff / (365*60*60*24));
                                                                 $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
-                                                                $days = floor($diff/ (60*60*24)); */
+                                                                $days = floor($diff/ (60*60*24)); 
 
                                                         ?>
-                                        <!--       <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
+                                               <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
                                                 <td data-search="<?php echo $days; ?>"> <?php echo $days; ?></td>
-                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['cmvisa']; ?></td> -->
+                                                <td data-search="<?php echo $row['cmvisa']; ?>"> <?php echo $row['cmvisa']; ?></td>
                                                 <?php 
-                                                         //       $time = strtotime($row['dob']); 
-                                                          //      $myFormatForView = date("m/d/y", $time); 
+                                                                $time = strtotime($row['dob']); 
+                                                                $myFormatForView = date("m/d/y", $time); 
 
                                                 ?>
                                                 
-                                                <!--  <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
-                                              <td data-search="<?php echo $row['byear']; ?>"> <?php echo $row['byear']; ?></td> -->
+                                                  <td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>
+                                              <td data-search="<?php echo $row['byear']; ?>"> <?php echo $row['byear']; ?></td>
                                         
                                                 <?php
                                                 $cid = $row['cid'];
@@ -273,7 +273,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
                                                 <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
                                                 <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
-<!--
+
                                                 <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
                                                 <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
                                                 <td data-search="<?php echo $wsub_num; ?>"> <a href=trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
@@ -283,7 +283,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
                                                 <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
                                                 <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
-                                              -->
+                                             
                                             </tr>
                                                     <?php
                                                 } 
