@@ -87,16 +87,16 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			
 			$insl= $conn->prepare($sql);
 
-			$ins->bindParam(':companyname', $col1, PDO::PARAM_STR);
-			$ins->bindParam(':rname', $col2, PDO::PARAM_STR);
-			$ins->bindParam(':rfname', $col3, PDO::PARAM_STR);			
-			$ins->bindParam(':remail', $col4, PDO::PARAM_STR);
-			$ins->bindParam(':rphone', $col5, PDO::PARAM_STR);
-			$ins->bindParam(':rlocation', $col6, PDO::PARAM_STR);
-			$ins->bindParam(':rtimezon', $col7, PDO::PARAM_STR);
-			$ins->bindParam(':tier', $col8, PDO::PARAM_STR);
+			$ins1->bindParam(':companyname', $col1, PDO::PARAM_STR);
+			$ins1->bindParam(':rname', $col2, PDO::PARAM_STR);
+			$ins1->bindParam(':rfname', $col3, PDO::PARAM_STR);			
+			$ins1->bindParam(':remail', $col4, PDO::PARAM_STR);
+			$ins1->bindParam(':rphone', $col5, PDO::PARAM_STR);
+			$ins1->bindParam(':rlocation', $col6, PDO::PARAM_STR);
+			$ins1->bindParam(':rtimezon', $col7, PDO::PARAM_STR);
+			$ins1->bindParam(':tier', $col8, PDO::PARAM_STR);
 
-			$insl->execute();
+			$ins1->execute();
 			$totalupdatequery ="UPDATE `lists` SET `total` = '$count' WHERE `listid` = '$listid';";
 			$ins= $conn->prepare($totalupdatequery);
 			$ins->execute(); }
