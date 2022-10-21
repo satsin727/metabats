@@ -81,11 +81,21 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			$rowcounts =  $cinsql->fetchColumn();
 			if($rowcounts == 0)
 			{ 
-			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4','$col5','$col6','$col7','$col8','$status','$target')";
+			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', :companyname, :rname,:rfname,:remail,:rphone,:rlocation,:rtimezon,:tier,'$status','$target')";
 			
 			$count= $count+1;
 			
 			$insl= $conn->prepare($sql);
+
+			$ins->bindParam(':companyname', $col1, PDO::PARAM_STR);
+			$ins->bindParam(':rname', $col2, PDO::PARAM_STR);
+			$ins->bindParam(':rfname', $col3, PDO::PARAM_STR);			
+			$ins->bindParam(':remail', $col4, PDO::PARAM_STR);
+			$ins->bindParam(':rphone', $col5, PDO::PARAM_STR);
+			$ins->bindParam(':rlocation', $col6, PDO::PARAM_STR);
+			$ins->bindParam(':rtimezon', $col7, PDO::PARAM_STR);
+			$ins->bindParam(':tier', $col8, PDO::PARAM_STR);
+
 			$insl->execute();
 			$totalupdatequery ="UPDATE `lists` SET `total` = '$count' WHERE `listid` = '$listid';";
 			$ins= $conn->prepare($totalupdatequery);

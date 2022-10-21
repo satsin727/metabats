@@ -177,8 +177,9 @@ if(isset($_POST['update']))
     $consultant_id=$_POST['consultant_id'];		
 
 
-    $inquery = "UPDATE issues SET `headline` = '$headline', `issuedesc` = '$issuedesc', `consultant_id`= '$consultant_id' where issueid = '$issueid'";
-    $ins= $conn->prepare($inquery);
+    $inquery = "UPDATE issues SET `headline` = :headline, `issuedesc` = '$issuedesc', `consultant_id`= '$consultant_id' where issueid = '$issueid'";
+    $ins= $conn->prepare($inquery);	
+	$ins->bindParam(':headline', $headline, PDO::PARAM_STR);
     $ins->execute();
     header( "Location: admin.php?action=listissues&status=1" );
 
