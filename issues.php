@@ -45,10 +45,10 @@ $data = $ins->fetchAll();
 				<div class="panel panel-default">
 					<div class="panel-heading"><a href="admin.php?action=addissue"><button name="assignconsultant" class="btn btn-primary">Add Issue/Escalations</button></a></div>
 					<div class="panel-body">
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uDs" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="uid" data-sortable="true">ID</th>
+						        <th data-field="uid">ID</th>
 						        <th data-field="headline" data-sortable="true">Issue/Escalations Headline</th>
 						        <th data-field="skill" data-sortable="true">Related Skill</th>
 						        <th data-field="name"  data-sortable="true">Related Consultant</th>
