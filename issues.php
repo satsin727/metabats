@@ -73,6 +73,9 @@ $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
 
+$time = strtotime($row['datetime']); 
+$myFormatForView = date("m/d/y", $time); 
+
 if(isset($cdata['cid']) && isset($udata['uid']))
 {
 								$sid = $cdata['skill'];
@@ -83,12 +86,7 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-		<?php 
 
-$time = strtotime($row['datetime']); 
-$myFormatForView = date("m/d/y", $time); 
-
-?>
 		<td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>   
     	<td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline']; ?></a></td>            
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>   
@@ -109,6 +107,7 @@ $myFormatForView = date("m/d/y", $time);
 	?>      
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+		<td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>   
         <td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline']; ?></a></td>            
     	<td data-search="other">Open Issue</td>   
     	<td data-search="Open Issue">Open Issue</td> 	
