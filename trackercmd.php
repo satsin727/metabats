@@ -216,7 +216,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())  order by eci_req_date asc";
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())  order by eci_req_date asc";
                 $download = "eci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -320,6 +320,7 @@ if($total==0)
     $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
     $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
     $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
     $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
     $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
     $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
