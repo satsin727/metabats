@@ -48,7 +48,8 @@ $data = $ins->fetchAll();
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uDs" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="uid">ID</th>
+						        <th data-field="uid">ID</th>								
+						        <th data-field="date">Date</th>
 						        <th data-field="headline" data-sortable="true">Issue/Escalations Headline</th>
 						        <th data-field="skill" data-sortable="true">Related Skill</th>
 						        <th data-field="name"  data-sortable="true">Related Consultant</th>
@@ -82,6 +83,13 @@ if(isset($cdata['cid']) && isset($udata['uid']))
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+		<?php 
+
+$time = strtotime($row['datetime']); 
+$myFormatForView = date("m/d/y", $time); 
+
+?>
+		<td data-search="<?php echo $myFormatForView; ?>"> <?php echo $myFormatForView; ?></td>   
     	<td data-search="<?php echo $row['headline']; ?>"> <a href ="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline']; ?></a></td>            
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>   
     	<td data-search="<?php echo $cdata['cfname']; ?>"> <?php echo $cdata['cfname']." ".$cdata['clname']; ?></td> 	
