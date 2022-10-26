@@ -27,7 +27,15 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
     if(isset($_GET['status']))
     { $status = $_GET['status']; }
     else { $status = 1; }
-$query = "select * from issues where status = $status order by datetime desc";
+
+	if($dta['level'] == 1 || $dta['level'] == 2)
+	{
+		$query = "select * from issues where status = $status order by datetime desc";
+	}
+	else
+	{
+		$query = "select * from issues where status = $status and sm_id = $sessid order by datetime desc";
+	}
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
