@@ -174,7 +174,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("W",strtotime($date)) == date("W",strtotime($cdate)) )
+                                                    if(date("W",strtotime($date)) == date("W",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)) )
                                                     {
                                                       $c++;
                                                     }
@@ -193,7 +193,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 foreach($deci as $ueci)
                                                 { $a = $ueci['app_id'];
                                                   $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                  if(date("m",strtotime($date)) == date("m",strtotime($cdate)) )
+                                                  if(date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                   {
                                                     $c++;
                                                   }
