@@ -156,7 +156,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
                                                     $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
-                                                    if(date("d",strtotime($date)) == date("d",strtotime($cdate)) )
+                                                    if(date("d",strtotime($date)) == date("d",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                     {
                                                       $c++;
                                                     }
