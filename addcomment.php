@@ -92,9 +92,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			{
 					$end_date = date('Y-m-d', strtotime($_POST['end_date']));
 
-					$eq = "UPDATE `consultants` SET `end_date` = $end_date WHERE `cid` = $com_postid";
-
-					$conn->query("UPDATE `consultants` SET `end_date` = $end_date WHERE `cid` = $com_postid");
+					$conn->query("UPDATE `consultants` SET `end_date` = '$end_date' WHERE `cid` = $com_postid");
 			}
 
 			$qc = "INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, CURRENT_TIMESTAMP);";
