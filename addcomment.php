@@ -100,7 +100,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$insq->bindValue( ":comment", $comment, PDO::PARAM_STR );
 			$insq->execute();
 			if($com_type ==7) {
-			echo "<script>alert('$eq');window.location.href='consultantcmd.php?do=delete&id=$com_postid'</script>";
+			echo "<script>window.location.href='consultantcmd.php?do=delete&id=$com_postid'</script>";
 			}
 			else {
 				echo "<script>alert('Comment Added.');window.close();</script>";
