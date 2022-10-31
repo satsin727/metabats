@@ -1,6 +1,6 @@
 <?php
 require( "config.php" );
-require( "header.php" );
+require( "includes/header.php" );
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
