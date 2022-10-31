@@ -79,7 +79,7 @@ foreach( $data as $row) { ?>
     				 &nbsp;&nbsp;&nbsp;
     				<a href="consultantdetails.php?add=files&id=<?php echo $row['cid']; ?>">Other</a>&nbsp;&nbsp;&nbsp;
 					<a href="consultantcmd.php?do=edit&id=<?php echo $row['cid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a>
-    				<a href ="consultantcmd.php?do=delete&id=<?php echo $row['cid']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
+    				<a href ="addcomment.php?conscom_id=<?php echo $row['cid']; ?>" onClick="return confirm('Are you sure you want to delete ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
     			
     	
     	</td>

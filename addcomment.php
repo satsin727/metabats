@@ -69,6 +69,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$com_type = $_POST['com_type'];
 			$uid = $_POST['uid'];
 			$comment = $_POST['comment'];
+
+
 			if(isset($_POST['isissue'])) { $issue = 1; } else { $issue = 0; }
 			$reqcom_id = 0;
 			$appcom_id = 0;
@@ -85,12 +87,18 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			elseif($com_type == 5) { $ecicom_id = 1; }
 			elseif($com_type == 6) { $pocom_id = 1; }
 			elseif($com_type == 7) { $conscom_id = 1; }
+			if(isset($_POST['end_date']))
+			{
+					$end_time= $_POST['end_date'];
+
+					$conn->query("UPDATE `consultants` SET `end_date` = $end_time WHERE `cid` = $com_postid");
+			}
 
 			$qc = "INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, CURRENT_TIMESTAMP);";
 			$insq= $conn->prepare($qc);
 			$insq->bindValue( ":comment", $comment, PDO::PARAM_STR );
 			$insq->execute();
-			echo "<script>alert('Comment Added.');window.close();</script>";
+			echo "<script>alert('Comment Added.');window.location.href='consultantcmd.php?do=delete&id=$com_postid'</script>";
 		}
 		else{
 			?>
@@ -98,6 +106,12 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			<tr><br><td><label>SM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label> </td>
 				<td><?php echo $dta['name']; ?> </td> <br></tr><br>
 			<tr><td><label>Comment:</label> </td>
+			<?php if($com_type ==7) {
+				?>
+				<td><input name="end_date" id="datepicker"></td>
+
+				<?php
+			 }?>
 				<td> <textarea name="comment" "width: 200px; height: 400px;"></textarea> </td> 
 			</tr>
 				<br> <input type="hidden" name="com_postid" value="<?php echo $com_postid; ?>">
