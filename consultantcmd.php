@@ -51,7 +51,7 @@ if(isset($_GET['do']))
 									$conn=null;
 									echo "<script>
 											alert(' Consultant details deleted.');
-											window.location.href='admin.php?action=listconsultants';
+											window.close();
 											</script>"; 	
 	}
 	
