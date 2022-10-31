@@ -132,6 +132,9 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		<?php
 		}
 
+	
+
+require("includes/footer.php"); 
 }
 else
 { echo "<script>
