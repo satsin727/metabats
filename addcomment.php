@@ -105,13 +105,13 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		<form action="#" method="post">
 			<tr><br><td><label>SM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label> </td>
 				<td><?php echo $dta['name']; ?> </td> <br></tr><br>
-			<tr><td><label>Comment:</label> </td>
+			<tr>
 			<?php if($com_type ==7) {
 				?>
 				<td><input name="end_date" id="datepicker"></td>
 
 				<?php
-			 }?>
+			 }?><td><label>Comment:</label> </td>
 				<td> <textarea name="comment" "width: 200px; height: 400px;"></textarea> </td> 
 			</tr>
 				<br> <input type="hidden" name="com_postid" value="<?php echo $com_postid; ?>">
