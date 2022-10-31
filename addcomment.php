@@ -92,6 +92,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			{
 					$end_date = date('Y-m-d', strtotime($_POST['end_date']));
 
+					$eq = "UPDATE `consultants` SET `end_date` = $end_date WHERE `cid` = $com_postid";
+
 					$conn->query("UPDATE `consultants` SET `end_date` = $end_date WHERE `cid` = $com_postid");
 			}
 
@@ -100,7 +102,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$insq->bindValue( ":comment", $comment, PDO::PARAM_STR );
 			$insq->execute();
 			if($com_type ==7) {
-			echo "<script>alert('Comment Added.');window.location.href='consultantcmd.php?do=delete&id=$com_postid'</script>";
+			echo "<script>alert('$eq');window.location.href='consultantcmd.php?do=delete&id=$com_postid'</script>";
 			}
 			else {
 				echo "<script>alert('Comment Added.');window.close();</script>";
