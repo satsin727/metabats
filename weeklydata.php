@@ -91,11 +91,11 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from consultants where end_date = '0000-00-00' or MONTH(end_date)>= MONTH($cdate) order by cfname asc";
+                              $query = "select * from consultants where end_date = '0000-00-00' or MONTH(end_date)>= MONTH('$cdate') order by cfname asc";
                               }
                               else
                               {
-                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = $uid and end_date = '0000-00-00' or MONTH(end_date)>= MONTH(current_date) order by B.cfname asc";
+                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = $uid and end_date = '0000-00-00' or MONTH(end_date)>= MONTH('$cdate') order by B.cfname asc";
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
