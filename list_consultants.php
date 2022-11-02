@@ -75,7 +75,7 @@ foreach( $data as $row) { ?>
 								$dta2 = $ins2->fetch(); 
 								$conn2=null; ?>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>
-    	<td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']; echo " "; echo $row['cmname'];echo $row['clname']; ?></td>
+    	<td data-search="<?php echo $row['cfname']; ?>"> <?php echo $row['cfname']; echo " "; echo $row['cmname'];echo " ";echo $row['clname']; ?></td>
     	<td data-search="<?php echo $row['colocation']; ?>"> <?php echo $row['colocation']; ?></td>
     	<td data-search="<?php echo $row['covisa']; ?>"> <?php echo $row['covisa']; ?></td>
     	<td> 
