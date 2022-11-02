@@ -25,7 +25,7 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
 
-	if(isset($status))
+	if(isset($_GET['status']))
 	{
 		$status = $_GET['status'];
 	}
