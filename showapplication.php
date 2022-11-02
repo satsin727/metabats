@@ -28,11 +28,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 $uid = $dta['uid'];
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 order by appdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-2 order by appdate desc";
 	}
 	else
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and rcdone= 0  and subdone= 0 order by appdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and rcdone= 0  and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-2 order by appdate desc";
 	}
 $ins= $conn->prepare($query);
 $ins->execute();
