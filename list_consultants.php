@@ -25,7 +25,13 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
 
-$query = "select * from consultants order by cfname asc";
+	if(isset($status))
+	{
+		$status = $_GET['status'];
+	}
+	else { $status = 1; }
+
+$query = "select * from consultants where status = $status order by cfname asc";
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
