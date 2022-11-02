@@ -32,7 +32,7 @@ if($dta['level'] == 1)
 	$query = "select * from req where status =1 and datetime > CURDATE() order by datetime desc";
 }
 else {
-	$query = "select * from req where status =1 && uid = $uid order by datetime desc";
+	$query = "select * from req where status =1 && uid = $uid order datetime > CURDATE()-7 by datetime desc";
 }
 
 $ins= $conn->prepare($query);
