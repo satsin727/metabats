@@ -85,7 +85,8 @@ foreach( $data as $row) { ?>
     				 &nbsp;&nbsp;&nbsp;
     				<a href="consultantdetails.php?add=files&id=<?php echo $row['cid']; ?>">Other</a>&nbsp;&nbsp;&nbsp;
 					<a href="consultantcmd.php?do=edit&id=<?php echo $row['cid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a>
-    				<a href ="addcomment.php?conscom_id=<?php echo $row['cid']; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
+    				<?php if($dta['level'] == 1)
+{ ?> <a href ="addcomment.php?conscom_id=<?php echo $row['cid']; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a> <?php } ?>
     			
     	
     	</td>
