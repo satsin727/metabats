@@ -141,7 +141,9 @@ require("includes/footer.php");
 if (isset($_POST['save']))
 {
 	function checkemail($str) {
-		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", trim(strtolower($str)))) ? FALSE : TRUE;
+
+		$str = strtolower($str);
+		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z0-9]{2,9}$/ix", trim(strtolower($str)))) ? FALSE : TRUE;
   }
 	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || !checkemail(strtolower($_POST['cemail'])) ) 
 {
