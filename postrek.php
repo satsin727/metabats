@@ -141,9 +141,9 @@ require("includes/footer.php");
 if (isset($_POST['save']))
 {
 	function checkemail($str) {
-		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", trim($str))) ? FALSE : TRUE;
+		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", trim(strtolower($str)))) ? FALSE : TRUE;
   }
-	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || !checkemail(strtolower($_POST['cemail'])) )
+	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) )  //!checkemail(strtolower($_POST['cemail']))
 {
 
 echo "<script>
@@ -160,7 +160,7 @@ $rend_client = $_POST['rend_client'];
 $rdesc = $_POST['rdesc'];
 $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
-$remail = trim($_POST['cemail']);
+$remail = trim(strtolower($_POST['cemail']));
 $ttype = $_POST['ttype'];
 $nationality = $_POST['nationality'];
 
