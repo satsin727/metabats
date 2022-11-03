@@ -143,9 +143,8 @@ if (isset($_POST['save']))
 	function checkemail($str) {
 		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z]{2,6}$/ix", trim(strtolower($str)))) ? FALSE : TRUE;
   }
-	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) )  //!checkemail(strtolower($_POST['cemail']))
+	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || !checkemail(strtolower($_POST['cemail'])) ) 
 {
-
 echo "<script>
 alert(' All correct value is required. Please double check the email and other details !!!');
 </script>";
