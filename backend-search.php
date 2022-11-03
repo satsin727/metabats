@@ -34,7 +34,7 @@ try{
 try{
     if(isset($_REQUEST["term"])){
         // create prepared statement
-        $sql = "SELECT DISTINCT * FROM clients WHERE remail LIKE :term";
+        $sql = "SELECT DISTINCT remail FROM clients WHERE remail LIKE :term";
         $stmt = $pdo->prepare($sql);
         $term = $_REQUEST["term"] . '%';
         // bind parameters to statement
