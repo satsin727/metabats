@@ -24,7 +24,7 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
-$uid = $dta['uid'];
+$uid = $dta['rmid'];
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
 	$query = "select * from consultants where `status` = 1 order by cfname asc";
