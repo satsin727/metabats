@@ -65,11 +65,11 @@ $uid = $dta['uid'];
                            <?php
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from users where `level` > 1  order by name asc";
+                              $query = "select * from users where `level` > 1 and status = 1 order by name asc";
                               }
                               else
                               {
-                              $query = "select * from users where `uid` = $uid order by name asc";
+                              $query = "select * from users where `uid` = $uid and status = 1 order by name asc";
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
