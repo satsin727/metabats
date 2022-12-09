@@ -268,7 +268,7 @@ if(isset($_POST['save']))
 
 
 			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		 $query = "select * from consultants where `lastssn` = $lastssn";
+		 $query = "select * from consultants where `co_email` = $co_email";
 		 $ins= $conn->prepare($query);
 		 $ins->execute();
 		 $dta = $ins->fetch();
