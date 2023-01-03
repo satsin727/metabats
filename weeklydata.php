@@ -91,7 +91,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from consultants where (end_date = '0000-00-00' or (MONTH(end_date)>= MONTH('$cdate') AND YEAR(end_date)>= YEAR('$cdate')) order by cfname asc";
+                              $query = "select * from consultants where (end_date = '0000-00-00' or (MONTH(end_date)>= MONTH('$cdate') AND YEAR(end_date)>= YEAR('$cdate')) ) order by cfname asc";
                               }
                               else
                               {
