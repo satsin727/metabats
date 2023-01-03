@@ -138,7 +138,7 @@ window.location.href='lout.php?id="."$rid"."';
       {
 
       // Login successful: Create a session and redirect to the admin homepage
-      $date = date("Y-m-d H:i:s");
+      $date = date("Y-m-d");
       $_SESSION['username'] = md5(md5($u).$date);
       $_SESSION['id']= $dta['uid'];
       $_SESSION['date'] = $date ; 
