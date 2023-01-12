@@ -29,7 +29,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and WEEK(datetime) >= WEEK(current_date)-1  order by datetime desc";
+		$query = "select * from req where status =1 and uid = $smid and  datetime > CURDATE() order by datetime desc";
 	}
 	else
 	{
