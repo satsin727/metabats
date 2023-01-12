@@ -237,11 +237,11 @@ $ins->execute();
 $dta = $ins->fetch();
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
-  $dsql="SELECT Distinct `uid`,`companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients`  where `status` = 1 group by `remail`";
+  $dsql="SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.status = 1 group by A.remail";
 }
 else
 {
-  $dsql="SELECT Distinct `uid`,`companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` where `uid` = $sessid AND `status` = 1 group by `remail`";
+  $dsql="SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.uid = $sessid A.status = 1 group by A.remail";
 }
   $connd = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
   $dins= $connd->prepare($dsql);
@@ -252,11 +252,10 @@ else
   $fp = fopen("$filename", 'w');
   $txt = "Company Name,Full Name,First Name,Email ID,Phone Number,Location,Timezone,Tier 1/2/IP,SM\n";
   fwrite($fp, $txt);
+  //$smname = $conn->query("SELECT name FROM `users` WHERE uid = $sessid")->fetchColumn();
   while($row = $dins->fetch(PDO::FETCH_ASSOC)) {
  //   $lineData = $row['companyname'].",".$row['rname'].",".$row['rfname'].",".$row['remail'].",".$row['rphone'].",".$row['rlocation'].",".$row['rtimezon'].",".$row['tier']."\n";
-    $smid = $dins['uid'];
-    $smname = $conn->query("SELECT name FROM `users` WHERE uid = $smid")->fetchColumn();
-    $lineData = array($row['companyname'],$row['rname'],$row['rfname'],$row['remail'],$row['rphone'],$row['rlocation'],$row['rtimezon'],$row['tier'],$smname);
+    $lineData = array($row['companyname'],$row['rname'],$row['rfname'],$row['remail'],$row['rphone'],$row['rlocation'],$row['rtimezon'],$row['tier'],$row['name']);
     fputcsv($fp, $lineData,",");
 }// whilw
 fclose($fp);
