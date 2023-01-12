@@ -267,13 +267,16 @@ if(isset($_POST['save']))
 		$dateadded = date("Y-m-d");
 
 
-			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		if(isset($co_email ))
+		{
 		 $query = "select * from consultants where `co_email` = $co_email";
 		 $ins= $conn->prepare($query);
 		 $ins->execute();
 		 $dta = $ins->fetch();
+		}
 
-		 if($dta['cid'])
+		 if(isset($dta['cid']))
 		 {
 echo "<script>
 alert('This Consultant already exist in Database. Please check with Admin.');
