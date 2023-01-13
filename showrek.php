@@ -24,7 +24,7 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
-	$uid = $dta['uid'];
+	$smid=$dta['uid'];
 
 	if(isset($_GET['smid']))
 	{
@@ -33,7 +33,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	}
 	else
 	{
-		$smid=$dta['uid'];
+		
 		if($dta['level'] == 1)
 		{
 			$query = "select * from req where status =1 and datetime > CURDATE() order by datetime desc";
