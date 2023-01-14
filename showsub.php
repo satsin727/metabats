@@ -29,22 +29,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and TO_DAYS(curdate()) - TO_DAYS(A.subdate) <= 30 order by subdate desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and TO_DAYS(curdate()) - TO_DAYS(A.subdate) <= 30 order by subdate desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and TO_DAYS(curdate()) - TO_DAYS(A.subdate) <= 30 order by subdate desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and TO_DAYS(curdate()) - TO_DAYS(A.subdate) <= 30 order by subdate desc";
 		}
 	}
 
