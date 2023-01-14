@@ -40,7 +40,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req A LEFT JOIN users B ON A.uid = B.uid where A.status =1 and B.rmid= $uid and WEEK(datetime) >= WEEK(current_date)-1  order by datetime desc";
+			$query = "select * from req A LEFT JOIN users B ON A.uid = B.uid where A.status =1 and B.rmid= $uid and datetime >= CURDATE()-1  order by datetime desc";
 		}
 		if($dta['level'] == 3)
 		{
