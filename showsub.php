@@ -24,16 +24,30 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
+	$smid=$dta['uid'];
 
-$uid = $dta['uid'];
-	if($dta['level'] == 1 || $dta['level'] == 2)
+	if(isset($_GET['smid']))
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1 order by rcdate desc";
+		$smid=$_GET['smid'];
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
 	}
 	else
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and subdone= 1 order by rcdate desc";
+		
+		if($dta['level'] == 1)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+		}
+		if($dta['level'] == 2)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+		}
+		if($dta['level'] == 3)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and subdone= 1  and A.subdate >= CURDATE()-30 order by subdate desc";
+		}
 	}
+
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -116,8 +130,8 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     <tr>
 		<td data-search="<?php echo $row['subdate']; ?>"> <?php $time = strtotime($row['subdate']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
-		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
+		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showsub&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
+		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $dta5['rlocation']; ?>"> <?php echo $dta5['rlocation']; ?></td>
 		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
 		<td data-search="<?php $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
