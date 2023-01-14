@@ -32,22 +32,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 1 and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by rcdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and A.rcdate >= CURDATE()-7 order by rcdate desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 1 and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by rcdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and A.rcdate >= CURDATE()-7 order by rcdate desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 1 and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by rcdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and A.rcdate >= CURDATE()-7 order by rcdate desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 1 and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by rcdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and A.rcdate >= CURDATE()-7 order by rcdate desc";
 		}
 	}
 
