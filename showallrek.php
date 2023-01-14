@@ -24,15 +24,31 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
-$uid = $dta['uid'];
-	if($dta['level'] == 3 )
+
+	$smid=$dta['uid'];
+
+	if(isset($_GET['smid']))
 	{
-		$query = "select * from req where status = 1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+		$smid=$_GET['smid'];
+		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
 	}
 	else
 	{
-		$query = "select * from req where status = 1 and DATE(datetime) = DATE(CURDATE()) order by datetime desc";
+		
+		if($dta['level'] == 1)
+		{
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE(CURDATE()) order by datetime desc";
+		}
+		if($dta['level'] == 2)
+		{
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE(CURDATE()) order by datetime desc";
+		}
+		if($dta['level'] == 3)
+		{
+			$query = "select * from req where status = 1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime des";
+		}
 	}
+
 //$query = "select * from req where status =1 order by datetime desc";
 
 $ins= $conn->prepare($query);
@@ -112,8 +128,8 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     <tr>
 		<td data-search="<?php echo $row['datetime']; ?>"> <?php $time = strtotime($row['datetime']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td data-search="<?php echo $dta4['name']; ?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta4['name']; ?>\n<?php echo"Email: ".$dta4['email']; ?>\n')"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
-		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>" target="_blank"><?php echo $dta2['skillname']; ?></a></td>
+    	<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showallreqs&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
+		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
     	<?php
 		//$companydomain = array_pop(explode('@', $dta3['remail']));
