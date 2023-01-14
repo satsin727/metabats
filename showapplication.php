@@ -25,15 +25,31 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
-$uid = $dta['uid'];
-	if($dta['level'] == 1 || $dta['level'] == 2)
+
+	$smid=$dta['uid'];
+
+	if(isset($_GET['smid']))
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by appdate desc";
+		$smid=$_GET['smid'];
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
 	}
 	else
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and rcdone= 0  and subdone= 0 and WEEK(appdate) >= WEEK(current_date)-1 order by appdate desc";
+		
+		if($dta['level'] == 1)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
+		}
+		if($dta['level'] == 2)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
+		}
+		if($dta['level'] == 3)
+		{
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
+		}
 	}
+
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
