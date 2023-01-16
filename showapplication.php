@@ -42,7 +42,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
+			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner JOIN users AS C ON A.uid = C.uid where A.status =1 and C.rmid = $smid and rcdone= 0  and subdone= 0 and appdate >= CURDATE()-1 order by appdate desc";
 		}
 		if($dta['level'] == 3)
 		{
