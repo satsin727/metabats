@@ -58,7 +58,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || 	$dta['level'] == 2 )
 			ini_set('auto_detect_line_endings',TRUE);
 			$handle = fopen($target,'r');
 while ( ($data = fgetcsv($handle) ) !== FALSE ) {
-				$status = 1;
+			$status = 1;
 			$col1 = $data[0];
             $col2 = $data[1];
 			$col3 = $data[2];
@@ -108,8 +108,16 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			$insl->execute();
 			$totalupdatequery ="UPDATE `lists` SET `total` = '$count' WHERE `listid` = '$listid';";
 			$ins= $conn->prepare($totalupdatequery);
-			$ins->execute(); }
-		}
+			$ins->execute(); 
+			}
+			else
+			{
+				$sql = "UPDATE clients SET uid = '$userid', `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
+				$insl= $conn->prepare($sql);
+				$insl->execute();
+			}
+
+			}
 			$conn = null;	
 
 } //end while
