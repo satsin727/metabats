@@ -31,22 +31,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 30 order by appdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) < 1 order by appdate desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 30 order by appdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 7 order by appdate desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner JOIN users AS C ON A.uid = C.uid where A.status =1 and C.rmid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 30 order by appdate desc";
+			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner JOIN users AS C ON A.uid = C.uid where A.status =1 and C.rmid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 7 order by appdate desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 30 order by appdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(appdate) <= 7 order by appdate desc";
 		}
 	}
 
