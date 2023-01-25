@@ -218,7 +218,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		<a href="addcomment.php?subcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addcomment" class="btn btn-primary">Add Comment</button></a></td> 
     <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
   <!--  		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> -->
-    				<a href ="appdata_cmd.php?do=delete&eciid=<?php echo $row['app_id']; ?>" onClick="return confirm('Are you sure you want to remove this submission ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
+    				<a href ="appdata_cmd.php?do=delete&subid=<?php echo $row['app_id']; ?>" onClick="return confirm('Are you sure you want to remove this submission ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
     	</td><?php } ?>
     </tr>			
     <?php
