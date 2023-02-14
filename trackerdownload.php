@@ -42,7 +42,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,Status,Comment,Feedback\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,RC Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -150,8 +150,16 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         }
+                        if($row['rcdone']==1)
+                        {
+                            $rcdone = "Yes";
+                        }
+                        else
+                        {
+                            $rcdone = "No";
+                        }
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$status,$comment,$feedback);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
@@ -174,7 +182,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."rc_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Rate,Tier,IP/EC,Status,Comment,Feedback\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Rate,Tier,IP/EC,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -281,11 +289,19 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         }
+                        if($row['subdone']==1)
+                        {
+                            $subdone = "Yes";
+                        }
+                        else
+                        {
+                            $subdone = "No";
+                        }
 
                         $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
                         $rate = $row['rateperhour'];
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$status,$comment,$feedback);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
@@ -309,7 +325,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,Rate,IP/EC,Status,Comment,Feedback\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,Rate,IP/EC,ECI Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -412,11 +428,20 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         }
+                        if($row['hasinterview']==1)
+                        {
+                            $hasinterview = "Yes";
+                        }
+                        else
+                        {
+                            $hasinterview = "No";
+                        }
+
 
                         $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
                         $rate = $row['rateperhour'];
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$status,$comment,$feedback);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$hasinterview,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
