@@ -208,10 +208,13 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		elseif($ars_status == 10)
 		{
 			echo "Submitted to End Client";
-		}
+		}  
 
 		?>
-		<a href="addstatus.php?subid=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addstatus" class="btn btn-primary">Update Status</button></a></td> 
+		<a
+		                    .
+							<!-- p;  /// \\\\\
+							                                            l  href="addstatus.php?subid=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addstatus" class="btn btn-primary">Update Status</button></a></td>  -->
 
 		<td> <a href="addeci.php?subid=<?php echo $app_id; ?>"><button name="addsub" class="btn btn-primary">Add ECI</button></a></td> 
 		<td> <a href="comments.php?subcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> 
