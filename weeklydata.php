@@ -148,14 +148,14 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and DATE(appdate) = '$cdate'")->fetchColumn();
                                                   $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = '$cdate'")->fetchColumn();
                                                   $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(rcdate) = '$cdate'")->fetchColumn();
-                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3  and `status` = 1 ";
+                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` = 1 and `eci_round` = 3  and `status` = 1 ";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
                                                     if(date("d",strtotime($date)) == date("d",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                     {
                                                       $c++;
@@ -173,7 +173,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
                                                     if(date("W",strtotime($date)) == date("W",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)) )
                                                     {
                                                       $c++;
@@ -192,7 +192,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 $c=0;
                                                 foreach($deci as $ueci)
                                                 { $a = $ueci['app_id'];
-                                                  $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a")->fetchColumn();
+                                                  $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
                                                   if(date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                   {
                                                     $c++;
