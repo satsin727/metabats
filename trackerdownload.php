@@ -154,7 +154,7 @@ $data = $ins->fetchAll();
                             $rcdone = "Yes";
                             $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
                         }
-                        elseif($row['subdone']==1)
+                        elseif($row['rcdone']==1 and $row['subdone']==1)
                         {
                             $subdone = "Yes";
                             $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
@@ -162,6 +162,7 @@ $data = $ins->fetchAll();
                         else
                         {
                             $rcdone = "No";
+                            $subdone = "No";
                         }
                     
                         $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
