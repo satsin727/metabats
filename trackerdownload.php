@@ -161,6 +161,10 @@ $data = $ins->fetchAll();
                                 $subdone = "Yes";
                                 $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
                             }
+                            if($comment=="")
+                            {
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                            }
                         }
                         else
                         {
