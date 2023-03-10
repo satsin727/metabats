@@ -42,7 +42,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,RC Status,Status,Comment\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -140,8 +140,7 @@ $data = $ins->fetchAll();
                                 {
                                     $status =  "Submitted to End Client";
                                 }
-                       
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id")->fetchColumn();
+                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -150,16 +149,22 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         }
-                        if($row['rcdone']==1)
+                        if($row['rcdone']==1 and $row['subdone']==0)
                         {
                             $rcdone = "Yes";
+                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
+                        }
+                        elseif($row['subdone']==1)
+                        {
+                            $subdone = "Yes";
+                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
                         }
                         else
                         {
                             $rcdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$status,$comment);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
@@ -280,7 +285,7 @@ $data = $ins->fetchAll();
                                     $status =  "Submitted to End Client";
                                 }
                        
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id")->fetchColumn();
+                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -292,6 +297,7 @@ $data = $ins->fetchAll();
                         if($row['subdone']==1)
                         {
                             $subdone = "Yes";
+                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
                         }
                         else
                         {
@@ -419,7 +425,7 @@ $data = $ins->fetchAll();
                                     $status =  "Submitted to End Client";
                                 }
                        
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id")->fetchColumn();
+                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
