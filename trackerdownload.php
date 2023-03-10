@@ -149,17 +149,18 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         }
-                        if($row['rcdone']==1 and $row['subdone']==0)
+                        if($row['rcdone']==1)
                         {
                             $rcdone = "Yes";
-                            $subdone = "No";
-                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
-                        }
-                        elseif($row['rcdone']==1 and $row['subdone']==1)
-                        {   
-                            $rcdone = "Yes";
-                            $subdone = "Yes";
-                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                            if($row['subdone']==0)
+                            {
+                                $subdone = "No";
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();    
+                            }
+                            else {
+                                $subdone = "Yes";
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                            }
                         }
                         else
                         {
