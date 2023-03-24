@@ -1,6 +1,6 @@
 <?php
 require( "config.php" );
-if($_SESSION['id'])
+if(isset($_SESSION['id']))
 {
 $sessid = $_SESSION['id'];
 }

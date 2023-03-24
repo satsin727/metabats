@@ -32,6 +32,7 @@ if(isset($_GET['do']))
 {
 	$do="foobar";
 	$do=$_GET['do'];	
+	$currentdatetime =date('Y-m-d H:i:s');
 	?>
 	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
 		<div class="row">
@@ -84,7 +85,7 @@ if(isset($_GET['do']))
 	elseif($do=='addsub')
 	{
 			$app_id = $_GET['rcid'];
-			$conn->query("UPDATE `app_data` SET `subdone` = '1', `subdate` = CURRENT_TIMESTAMP, `subto` = 1, `ars_status` =7 WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `subdone` = '1', `subdate` = '$currentdatetime', `subto` = 1, `ars_status` =7 WHERE `app_id` = $app_id");
 			echo "<script>
 			alert('Sub Added');
 			window.location.href='admin.php?action=showrc';

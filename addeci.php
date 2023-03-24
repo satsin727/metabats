@@ -59,10 +59,10 @@ if(isset($_POST['saveeci']))
 	$consultant_id = $data['consultant_id'];
 	$skill_id = $data['skill'];
 	$sm_id = $data['uid'];
-
+	$currentdatetime =date('Y-m-d H:i:s');
 
 //	$query = "INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, '$eci_type', '$eci_date', '$eci_time', '$eci_req_date', $eci_round, '0', NULL, NULL, 1, '', CURRENT_TIMESTAMP)";
-	$conn->query("INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, '$eci_type', '$eci_date', '$eci_time', '$eci_req_date', $eci_round, '0', NULL, NULL, 1, '', CURRENT_TIMESTAMP)");
+	$conn->query("INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, '$eci_type', '$eci_date', '$eci_time', '$eci_req_date', $eci_round, '0', NULL, NULL, 1, '', '$currentdatetime')");
 
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{

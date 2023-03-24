@@ -26,6 +26,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$app_id = $_POST['app_id'];
 			$rate = $_POST['rate'];
 			$t1ip_name = $_POST['t1ip_name'];
+			$currentdatetime =date('Y-m-d H:i:s');
 //			$ecname = $_POST['ecname'];
 //			$data = $conn->query("select * from app_data where `app_id` = $app_id")->fetch();
 
@@ -37,7 +38,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		}
 		else
 		{
-			$conn->query("UPDATE `app_data` SET `rcdone` = '1', `rcdate` = CURRENT_TIMESTAMP, `rateperhour` = $rate, `t1ip_name`= '$t1ip_name', `ars_status` =7 WHERE `app_id` = $app_id");
+			$conn->query("UPDATE `app_data` SET `rcdone` = '1', `rcdate` = '$currentdatetime', `rateperhour` = $rate, `t1ip_name`= '$t1ip_name', `ars_status` =7 WHERE `app_id` = $app_id");
 			echo "<script>alert('Rate Added.');window.close();</script>"; }
 		}
 		else

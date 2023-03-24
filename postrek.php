@@ -164,7 +164,7 @@ $uid = $_POST['uid'];
 $remail = trim(strtolower($_POST['cemail']));
 $ttype = $_POST['ttype'];
 $nationality = $_POST['nationality'];
-
+$currentdatetime =date('Y-m-d H:i:s');
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from clients where `remail` = :remail";
@@ -196,7 +196,7 @@ else {
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
- $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :ttype, :nationality, CURRENT_TIMESTAMP);");
+ $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :ttype, :nationality, '$currentdatetime');");
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":cid", $cid, PDO::PARAM_INT );
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
