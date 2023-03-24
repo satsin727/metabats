@@ -13,7 +13,7 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
-
+$curdate =date('Y-m-d');
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
@@ -30,22 +30,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK('$curdate') order by datetime desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE(CURDATE()) order by datetime desc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE(CURDATE()) order by datetime desc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from req where status = 1 and WEEK(datetime) = WEEK(CURDATE()) order by datetime desc";
+			$query = "select * from req where status = 1 and WEEK(datetime) = WEEK('$curdate') order by datetime desc";
 		}
 	}
 
