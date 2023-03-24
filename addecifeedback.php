@@ -16,7 +16,7 @@ $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
 
-
+$currentdatetime =date('Y-m-d H:i:s');
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
 
@@ -30,7 +30,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			if(isset($_POST['cf']))
 			{
 				$cfeedback = $_POST['cfeedback'];
-				$conn->query("UPDATE `eci` SET `eci_client_feedback` = '$cfeedback', `eci_cfeedback_datetime` = CURRENT_TIMESTAMP WHERE `eci_id` = $eci_id");
+				$conn->query("UPDATE `eci` SET `eci_client_feedback` = '$cfeedback', `eci_cfeedback_datetime` = '$currentdatetime' WHERE `eci_id` = $eci_id");
 				echo "<script>alert('Client feedback added.');window.close();</script>";
 			}
 			elseif(isset($_POST['uf']))

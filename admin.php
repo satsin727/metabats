@@ -220,7 +220,7 @@ function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "weeklydata.php" ); }
 function clientlistdownload()
 {
-if($_SESSION['id'])
+if(isset($_SESSION['id']))
 {
 $sessid = $_SESSION['id'];
 }

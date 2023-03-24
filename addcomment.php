@@ -66,6 +66,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 
 		if(isset($_POST['addcomment']))
 		{	
+			$currentdatetime =date('Y-m-d H:i:s');
 			$com_postid = $_POST['com_postid'];
 			$com_type = $_POST['com_type'];
 			$uid = $_POST['uid'];
@@ -94,8 +95,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 
 					$conn->query("UPDATE `consultants` SET `end_date` = '$end_date' WHERE `cid` = $com_postid");
 			}
-
-			$qc = "INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, CURRENT_TIMESTAMP);";
+			
+			$qc = "INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, '$currentdatetime');";
 			$insq= $conn->prepare($qc);
 			$insq->bindValue( ":comment", $comment, PDO::PARAM_STR );
 			$insq->execute();

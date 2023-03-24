@@ -27,7 +27,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 //			$rate = $_POST['rate'];
 			$consultant_id = $_POST['cid'];
 			$data = $conn->query("select * from req where `reqid` = $reqid")->fetch();
-			$client_id = $data['cid'];
+			$client_id = $data['cid'];	
+			$currentdatetime =date('Y-m-d H:i:s');
 
 			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `uid` = $uid and `consultant_id` = $consultant_id")->fetchColumn();
 			if($isdual!=0)
@@ -36,7 +37,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			}
 			else
 			{
-			$conn->query("INSERT INTO `app_data` (`uid`, `reqid`, `client_id`, `consultant_id`, `appdate`) VALUES ($uid, $reqid, $client_id, $consultant_id, CURRENT_TIMESTAMP)");
+			$conn->query("INSERT INTO `app_data` (`uid`, `reqid`, `client_id`, `consultant_id`, `appdate`) VALUES ($uid, $reqid, $client_id, $consultant_id, '$currentdatetime')");
 			echo "<script>alert('Application Added.');window.close();</script>"; }
 		}
 		else
