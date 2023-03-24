@@ -14,7 +14,7 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
-
+$curdate =date('Y-m-d');
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
@@ -32,22 +32,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
+		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner Join users as C  ON A.uid = C.uid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and C.rmid = $smid and TO_DAYS(curdate()) - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
+			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner Join users as C  ON A.uid = C.uid where A.status =1 and A.rcdone= 1 and A.subdone= 0 and C.rmid = $smid and TO_DAYS('$curdate') - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and TO_DAYS(curdate()) - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
+			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and A.uid = $smid and A.rcdone= 1 and A.subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(A.rcdate) <= 7 order by rcdate desc";
 		}
 	}
 

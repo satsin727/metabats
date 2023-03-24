@@ -14,7 +14,7 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
-
+$curdate =date('Y-m-d');
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
@@ -29,22 +29,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and TO_DAYS(curdate()) - TO_DAYS(datetime) <= 1 order by datetime desc";
+		$query = "select * from req where status =1 and uid = $smid and TO_DAYS('$curdate') - TO_DAYS(datetime) <= 1 order by datetime desc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from req where status =1 and TO_DAYS(curdate()) - TO_DAYS(datetime) < 1 order by datetime desc";
+			$query = "select * from req where status =1 and TO_DAYS('$curdate') - TO_DAYS(datetime) < 1 order by datetime desc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req A LEFT JOIN users B ON A.uid = B.uid where A.status =1 and B.rmid= $smid and TO_DAYS(curdate()) - TO_DAYS(datetime) <= 1 order by datetime desc";
+			$query = "select * from req A LEFT JOIN users B ON A.uid = B.uid where A.status =1 and B.rmid= $smid and TO_DAYS('$curdate') - TO_DAYS(datetime) <= 1 order by datetime desc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from req where status =1 and uid = $smid and TO_DAYS(curdate()) - TO_DAYS(datetime) <= 1 order by datetime desc";
+			$query = "select * from req where status =1 and uid = $smid and TO_DAYS('$curdate') - TO_DAYS(datetime) <= 1 order by datetime desc";
 		}
 	}
 

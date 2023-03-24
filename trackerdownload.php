@@ -16,6 +16,7 @@ $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
 $conn=null; 
+$curdate =date('Y-m-d');
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
@@ -24,13 +25,13 @@ $download = $_GET['download'];
 
 if($download == "app")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH(CURDATE()) order by appdate asc"; }
+$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH('$curdate') order by appdate asc"; }
 elseif($download == "rc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(CURDATE()) order by rcdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') order by rcdate asc";}
 elseif($download == "sub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH(CURDATE()) order by subdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') order by subdate asc";}
 elseif($download == "eci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH(CURDATE())  order by eci_req_date asc";}
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')  order by eci_req_date asc";}
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
