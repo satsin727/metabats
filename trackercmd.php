@@ -221,6 +221,15 @@ if(isset($_GET['appcd_id']))
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
 
+            if(isset($_GET['ecicmy_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $download = "eci";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
 
     }
 	else
