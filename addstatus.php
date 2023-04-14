@@ -69,7 +69,9 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                 <option value="2" <?php if($ars_status ==2) { echo "selected"; } ?>>Not Connected</option>
                 <option value="3" <?php if($ars_status ==3) { echo "selected"; } ?>>Voicemail</option>
                 <option value="4" <?php if($ars_status ==4) { echo "selected"; } ?>>No Response</option>
+				<option value="6" <?php if($ars_status ==6) { echo "selected"; } ?>>Rejected</option>
                 <option value="7" <?php if($ars_status ==7) { echo "selected"; } ?>>In-Process</option>
+				
             <?php
 			}
 			elseif(isset($_GET['rcid']))
