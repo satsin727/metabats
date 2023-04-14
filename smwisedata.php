@@ -96,18 +96,18 @@ $uid = $dta['uid'];
                                                   $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1 and DATE(appdate) = DATE('$curdate')")->fetchColumn();
                                                   $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
                                                   $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
+                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
                                                   
 
                                                   $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and WEEK(appdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
+                                                  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
                                                   
                                                   $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
                                                   $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
                                                   $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
-                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
+                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
                                                   
                                                 
                                                 }
@@ -117,18 +117,18 @@ $uid = $dta['uid'];
                                                   $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1 and `uid` = $uid and DATE(appdate) = DATE('$curdate')")->fetchColumn();
                                                   $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
                                                   $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
+                                                  $deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
                                                   
 
                                                   $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
+                                                  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
                                                   
                                                   $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
                                                   $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
                                                   $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
-                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
+                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
                                                   
                                                 }                                             
                                                 
