@@ -250,7 +250,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						        <th data-field="Role"  data-sortable="true">Role</th>							
 						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
                                 <th data-field="remail" data-sortable="true">Recruiter Email</th>
-                                <th data-field="Status"  data-sortable="true">Status</th>
+                                <th data-field="arsstatus"  data-sortable="true">Status</th>
 								<?php
                                 if($app == 1)
                                 { ?>
