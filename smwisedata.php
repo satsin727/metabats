@@ -98,7 +98,14 @@ $uid = $dta['uid'];
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
-                                                  }
+                                                  
+                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
+                                                  
+                                                
+                                                }
                                                 else
                                                 {
                                                  // $uid =  $_SESSION['id'];
@@ -112,6 +119,11 @@ $uid = $dta['uid'];
                                                   $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                                                   $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
+                                                  
+                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `sm_id`= $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
                                                   
                                                 }                                             
                                                 
@@ -127,6 +139,11 @@ $uid = $dta['uid'];
                                                 <td> <a href="trackersmcmd.php?rcsw_id=<?php echo $uid?>"><?php echo $wrc_num; ?></a></td> 
                                                <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid?>"><?php echo $wsub_num; ?></a></td> 
                                                 <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid?>"><?php echo $weci_num; ?></a></td> 
+                                                
+                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid?>"><?php echo $mapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?rcsm_id=<?php echo $uid?>"><?php echo $mrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsm_id=<?php echo $uid?>"><?php echo $msub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecism_id=<?php echo $uid?>"><?php echo $meci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
