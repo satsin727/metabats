@@ -68,6 +68,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                 <option value="2" <?php if($sub_status ==2) { echo "selected"; } ?>>Submitted to T1</option>
                 <option value="3" <?php if($sub_status ==3) { echo "selected"; } ?>>Submitted to IP</option>
                 <option value="4" <?php if($sub_status ==4) { echo "selected"; } ?>>Submitted to EC</option>
+                <option value="6" <?php if($sub_status ==6) { echo "selected"; } ?>>Rejected</option>
                 <option value="7" <?php if($sub_status ==7) { echo "selected"; } ?>>In-Process<br></option>
 									
 									</select>
