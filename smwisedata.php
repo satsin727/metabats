@@ -57,10 +57,10 @@ $uid = $dta['uid'];
                                        <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
                                        <th data-field="weci" data-sortable="true">Weekly ECI</th>
 
-                                       <th data-field="wapp" data-sortable="true">Monthly App</th>                          
-                                       <th data-field="wrc" data-sortable="true">Monthly RC</th>                         
-                                       <th data-field="wsub" data-sortable="true">Monthly Sub</th> 
-                                       <th data-field="weci" data-sortable="true">Monthly ECI</th>
+                                       <th data-field="mapp" data-sortable="true">Monthly App</th>                          
+                                       <th data-field="mrc" data-sortable="true">Monthly RC</th>                         
+                                       <th data-field="msub" data-sortable="true">Monthly Sub</th> 
+                                       <th data-field="meci" data-sortable="true">Monthly ECI</th>
                                         
                 </tr>
                 </thead>
