@@ -66,6 +66,7 @@ require("includes/menu.php");
 
         <a href="admin.php?action=showsmdata"><button class="btn">SM Snapshot</button> </a>              
         <button class="btn">Cummulative App/RC/Sub</button>
+        <button class="btn">Skill Wise Req/App/RC/Sub/ECI</button>
 
 
 	</div>	<!--/.main-->
