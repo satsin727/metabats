@@ -56,6 +56,11 @@ $uid = $dta['uid'];
                                        <th data-field="wrc" data-sortable="true">Weekly RC</th>                         
                                        <th data-field="wsub" data-sortable="true">Weekly Sub</th> 
                                        <th data-field="weci" data-sortable="true">Weekly ECI</th>
+
+                                       <th data-field="wapp" data-sortable="true">Monthly App</th>                          
+                                       <th data-field="wrc" data-sortable="true">Monthly RC</th>                         
+                                       <th data-field="wsub" data-sortable="true">Monthly Sub</th> 
+                                       <th data-field="weci" data-sortable="true">Monthly ECI</th>
                                         
                 </tr>
                 </thead>
@@ -175,6 +180,13 @@ $uid = $dta['uid'];
                     $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                     $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                     $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
+                  
+                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
+                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                    $mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
+                  
+                  
                   }
                   else
                   {
@@ -189,6 +201,13 @@ $uid = $dta['uid'];
                     $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                     $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
                     $wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
+                 
+                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = $uid and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
+                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `uid` = $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                    $mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `uid` = $uid and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
+                  
+                 
                   }     
 
 
@@ -202,6 +221,11 @@ $uid = $dta['uid'];
                                                 <td> <?php echo $wtrc_num; ?></td> 
                                                 <td> <?php echo $wtsub_num; ?></td> 
                                                 <td> <?php echo $wteci_num; ?></td> 
+
+                                                <td> <?php echo $mtapp_num; ?></td>
+                                                <td> <?php echo $mtrc_num; ?></td> 
+                                                <td> <?php echo $mtsub_num; ?></td> 
+                                                <td> <?php echo $mteci_num; ?></td> 
 
                                       </tr>
                                               </table>
