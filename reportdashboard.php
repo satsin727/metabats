@@ -53,7 +53,6 @@ require("includes/menu.php");
        <a href="admin.php?action=showdailydata"><button class="btn">Realtime Daily App/RC/Sub</button></a>
        <a href="admin.php?action=showwtddata"><button class="btn">WTD App/RC/Sub</button></a>
         <button class="btn">MTD App/RC/Sub</button> 
-        
         <button class="btn">Application Tracker</button>
 		<button class="btn">RC Tracker</button>
         <button class="btn">Sub Tracker</button>
