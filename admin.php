@@ -98,7 +98,7 @@ switch ( $action ) {
   case 'showwtddata':
         showwtd();
         break;
-  case 'showwtddata':
+  case 'showmtd':
         showmtd();
         break;
   default:
