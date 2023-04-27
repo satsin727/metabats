@@ -89,7 +89,7 @@ foreach( $data as $row)
         $y= date("y",strtotime($cdate));
         ?>
         <tr>
-                    <td><?php echo $row['skillname']; ?></td></a>
+                    <td><?php echo $row['skillname']; ?></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
@@ -98,6 +98,34 @@ foreach( $data as $row)
         <?php 
 
 } ?>
+
+<?php
+ $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
+    $ins= $conn->prepare($qeci);
+    $ins->execute();
+    $deci = $ins->fetchAll();
+    $c=0;
+    foreach($deci as $ueci)
+    { $a = $ueci['app_id'];
+    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+    if( date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
+    {
+        $c++;
+    }
+    }
+ $mteci = $c;
+
+?>
+        <tr>
+                    <td>Total:</td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
+        </tr>
 
 
 		
