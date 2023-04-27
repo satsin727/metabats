@@ -98,6 +98,9 @@ switch ( $action ) {
   case 'showwtddata':
         showwtd();
         break;
+  case 'showwtddata':
+        showmtd();
+        break;
   default:
     dashboard();
 }
@@ -218,6 +221,7 @@ function showsmdata() {  $selected = "showreports"; require( "smwisedata.php" );
 function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "weeklydata.php" ); }
+function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
 function clientlistdownload()
 {
 if(isset($_SESSION['id']))
