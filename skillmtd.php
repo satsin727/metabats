@@ -90,10 +90,10 @@ foreach( $data as $row)
         ?>
         <tr>
                     <td><?php echo $row['skillname']; ?></td></a>
-                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><td><?php echo $app; ?></td></a>
-                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><td><?php echo $rc; ?></td></a>
-                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><td><?php echo $sub; ?></td></a>
-                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><td><?php echo $eci; ?></td></a>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
+                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
         </tr>
         <?php 
 
