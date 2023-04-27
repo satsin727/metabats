@@ -3,6 +3,8 @@
 //MTD consultant wise Data
 
 <?php
+
+/*
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -29,7 +31,7 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
     $uid = $dta['uid'];
-
+*/
     if(isset($_POST['date']))
     {
         $cdate = $_POST['date'];
@@ -90,6 +92,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 
 <?php
+
+/*
 }
 else
 {
@@ -105,5 +109,7 @@ else
 alert('Not Authorised to view this page, Not a valid session. Your IP address has been recorded for review. Please Log-in again to view this page !!!');
 window.location.href='login.php';
 </script>";   }
+
+*/
 
 ?>
