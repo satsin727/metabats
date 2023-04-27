@@ -71,7 +71,6 @@ foreach( $data as $row)
     $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    //$eci = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and hasinterview =1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
         $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
         $ins= $conn->prepare($qeci);
         $ins->execute();
@@ -86,14 +85,16 @@ foreach( $data as $row)
         }
         }
         $eci = $c; 
+        $m= date("m",strtotime($cdate));
+        $y= date("y",strtotime($cdate));
         ?>
         <tr>
-                    <td><?php echo $row['skillname']; ?></td>
-                    <td><?php echo $app; ?></td>
-                    <td><?php echo $rc; ?></td>
-                    <td><?php echo $sub; ?></td>
-                    <td><?php echo $eci; ?></td> 
-                </tr>
+                    <td><?php echo $row['skillname']; ?></td></a>
+                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><td><?php echo $app; ?></td></a>
+                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><td><?php echo $rc; ?></td></a>
+                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><td><?php echo $sub; ?></td></a>
+                    <a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><td><?php echo $eci; ?></td></a>
+        </tr>
         <?php 
 
 } ?>
