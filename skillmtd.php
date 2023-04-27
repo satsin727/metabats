@@ -1,9 +1,8 @@
+<?php
+
 //MTD Skill wise Data
 
 //MTD consultant wise Data
-
-<?php
-
 /*
 if($_SESSION['id'])
 {
@@ -28,10 +27,12 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 require("includes/header.php");
 require("includes/menu.php");
 
-if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
+if($dta['level'] == 1 || $dta['level'] == 2)
 {
     $uid = $dta['uid'];
 */
+require("includes/header.php");
+
     if(isset($_POST['date']))
     {
         $cdate = $_POST['date'];
@@ -43,10 +44,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
     $cdate = strtotime($cdate);
     $cdate = date('Y-m-d H:i:s',$cdate);
 ?>
-
+<td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
 <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
     <thead>
 		 <tr>
+            <th>Skill</th>
             <th>App</th>
 			<th>RC</th>
 			<th>Sub</th>
