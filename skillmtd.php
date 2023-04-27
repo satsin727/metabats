@@ -44,6 +44,14 @@ require("includes/header.php");
     $cdate = strtotime($cdate);
     $cdate = date('Y-m-d H:i:s',$cdate);
 ?>
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+<div class="row">
+			<ol class="breadcrumb">
+				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
+				<li class="active"><h3><?php echo "Monthly Reports for ".date('F, Y',$cdate); ?>
+                </h3></li>
+			</ol>
+</div>
 <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
 <br>
 <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
