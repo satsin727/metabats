@@ -52,7 +52,20 @@ require("includes/header.php");
                 </h3></li>
 			</ol>
 </div>
-<td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
+<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+                <div class="panel-heading"> 
+                <div class="panel-body">
+
+
+<div class="row">
+			<div class="col-lg-12">
+			<div class="panel panel-default">
+            <!-- <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div> -->
+            <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
+            <div class="panel-body">
+
 <br>
 <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
 
@@ -141,7 +154,10 @@ foreach( $data as $row)
 </table>
 
 <p>&nbsp;</p>
-
+</div>
+</div>
+</div>
+</div>
 <?php
 
 
