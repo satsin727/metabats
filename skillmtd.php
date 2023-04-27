@@ -48,7 +48,7 @@ require("includes/header.php");
 <div class="row">
 			<ol class="breadcrumb">
 				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
-				<li class="active"><h3><?php echo "Monthly Reports for ".date('F, Y',$cdate); ?>
+				<li class="active"><h3><?php echo "Monthly Reports for ".date('F, Y',strtotime($cdate)); ?>
                 </h3></li>
 			</ol>
 </div>
