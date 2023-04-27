@@ -86,7 +86,7 @@ foreach( $data as $row)
         }
         $eci = $c; 
         $m= date("m",strtotime($cdate));
-        $y= date("y",strtotime($cdate));
+        $y= date("Y",strtotime($cdate));
         ?>
         <tr>
                     <td><?php echo $row['skillname']; ?></td>
