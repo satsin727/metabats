@@ -67,9 +67,9 @@ foreach( $data as $row)
 {
 
     $skill = $row['sid'];
-    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     /*//$eci = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and hasinterview =1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
         $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
         $ins= $conn->prepare($qeci);
