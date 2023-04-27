@@ -45,8 +45,9 @@ require("includes/header.php");
     $cdate = date('Y-m-d H:i:s',$cdate);
 ?>
 <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
-<table border="1" cellpadding="1" cellspacing="1" style="width:500px">
 <br>
+<table border="1" cellpadding="1" cellspacing="1" style="width:500px">
+
     <thead>
 		 <tr>
             <th>Skill</th>
@@ -55,39 +56,50 @@ require("includes/header.php");
 			<th>Sub</th>
 			<th>ECI</th>
         </tr>
-
     <tbody>
-        
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-			<td>&nbsp;</td>
-		</tr>
+        <?php
+$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$q = "select * from skill";
+$ins= $conn->prepare($query);
+$ins->execute();
+$data = $ins->fetchAll();
+
+foreach( $data as $row) 
+{
+
+    $skill = $row['sid'];
+    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    //$eci = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and rcdone = 1 and subdone = 1 and hasinterview =1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(end_date) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+        $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
+        $ins= $conn->prepare($qeci);
+        $ins->execute();
+        $deci = $ins->fetchAll();
+        $c=0;
+        foreach($deci as $ueci)
+        { $a = $ueci['app_id'];
+        $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+        if( date("m",strtotime($date)) == date("m",$cdate)  && date("y",strtotime($date)) == date("y",$cdate) )
+        {
+            $c++;
+        }
+        }
+        $eci = $c;
+        ?>
+        <tr>
+                    <td><?php echo $row['skillname']; ?></td>
+                    <td><?php echo $app; ?></td>
+                    <td><?php echo $rc; ?></td>
+                    <td><?php echo $sub; ?></td>
+                    <td><?php echo $eci; ?></td>
+                </tr>
+        <?php 
+
+} ?>
+
+
+		
 	</tbody>
 </table>
 
@@ -118,7 +130,7 @@ require("includes/header.php");
 		$(window).on('resize', function () {
 		  if ($(window).width() <= 767) $('#sidebar-collapse').collapse('hide')
 		})
-</script>	
+	</script>	
 <?php
 
 /*
