@@ -59,7 +59,7 @@ require("includes/header.php");
         <?php
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $q = "select * from skill";
-$ins= $conn->prepare($query);
+$ins= $conn->prepare($q);
 $ins->execute();
 $data = $ins->fetchAll();
 
