@@ -208,7 +208,7 @@ if(isset($_GET['appcd_id']))
             {
                 $sub = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') order by subdate asc";
+                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') order by subdate asc";
                 $download = "sub";
             }
 
