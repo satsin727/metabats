@@ -82,7 +82,7 @@ $data = $ins->fetchAll();
                 elseif($rc==1) { echo "Rate Confirmation Details"; }
                 elseif($sub==1) { echo "Submissions Details"; }
                 elseif($eci==1) { echo "Interview Details"; }
-                ?> - <?php echo "All Consultants"; ?>
+                ?><?php echo "All Consultants"; ?>
                 </h3></li>
 			</ol>
 </div>
