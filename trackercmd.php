@@ -356,7 +356,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 			<div class="col-lg-12">
 				<div class="panel panel-default">
                 <div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a>
-               <?php if(isset($download) && ($dta['level'] == 1 || $dta['level'] == 1) ) { ?> <a href="trackerdownload.php?download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
+               <?php if(isset($download) && ($dta['level'] == 1 || $dta['level'] == 2) ) { ?> <a href="trackerdownload.php?download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
