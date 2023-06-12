@@ -74,6 +74,10 @@ $data = $ins->fetchAll();
 
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
+                        $jdtext = str_replace('â€¢Â', '', $jdtext);
+                        $jdtext = str_replace('Â', '', $jdtext);                        
+                        $jdtext = str_replace('â', '', $jdtext);
+                        $jdtext = str_replace('â€“', '', $jdtext);
                         
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
