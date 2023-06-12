@@ -73,8 +73,8 @@ $data = $ins->fetchAll();
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
 
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
-                        require('includes/html2text/html2text.php');
-                        $jdtext = convert_html_to_text($jd);
+                        $jdtext = html_entity_decode($str);
+                        
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                         $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
