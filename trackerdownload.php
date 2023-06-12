@@ -203,7 +203,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."rc_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Rate,Tier,IP/EC,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,Job Description,BP Email,BP Phone,Rate,Tier,IP/EC,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -231,9 +231,15 @@ $data = $ins->fetchAll();
                         
                                 $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                      
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
-                                $cid = $row['client_id'];
+                        $jdtext = str_replace('â€¢Â', '', $jdtext);
+                        $jdtext = str_replace('Â', '', $jdtext);                        
+                        $jdtext = str_replace('â', '', $jdtext);
+                        $jdtext = str_replace('â€“', '', $jdtext);
+                        
+                            $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                         $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
                         
@@ -324,7 +330,7 @@ $data = $ins->fetchAll();
                         $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
                         $rate = $row['rateperhour'];
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$layer,$rate,$client,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
