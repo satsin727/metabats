@@ -43,7 +43,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Tier,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Tier,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -71,7 +71,10 @@ $data = $ins->fetchAll();
                         
                                 $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
-                       
+
+                        $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                        require('includes/html2text/html2text.php');
+                        $jdtext = convert_html_to_text($jd);
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                         $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
@@ -173,7 +176,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
