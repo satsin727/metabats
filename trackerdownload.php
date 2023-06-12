@@ -73,7 +73,7 @@ $data = $ins->fetchAll();
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
 
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
-                        $jdtext = html_entity_decode($str);
+                        $jdtext = html_entity_decode($jd);
                         
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
