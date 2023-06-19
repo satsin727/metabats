@@ -87,14 +87,18 @@ $data = $ins->fetchAll();
                         
                                 $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
-                        $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
+                                $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
+                                $udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
+                                $utime = strtotime($udate);
+                                $cur_date = date("dmy", $utime); 
+                                $curweek = date("W", $utime); 
+                                $ureq_id = "W".$curweek.$cur_date."-".$ureq_id;
 
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
-                        $jdtext = str_replace('â€¢Â', '', $jdtext);
                         $jdtext = str_replace('Â', '', $jdtext);                        
                         $jdtext = str_replace('â', '', $jdtext);
-                        $jdtext = str_replace('â€“', '', $jdtext);
+                        $jdtext = str_replace('€', '', $jdtext);
                         
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
