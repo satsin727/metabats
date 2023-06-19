@@ -133,7 +133,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     <tr>
 		<td data-search="<?php echo $row['datetime']; ?>"> <?php $time = strtotime($row['datetime']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-		<td> <?php echo $ureq_id; ?><a href="reqnoedit.php?do=editreqid&rid=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a></td>
+		<td> <?php echo $ureq_id; ?><a target="_blank" href="reqnoedit.php?do=editreqid&rid=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a></td>
     	<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showallreqs&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
