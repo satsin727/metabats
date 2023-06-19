@@ -65,6 +65,9 @@ switch ( $action ) {
   case 'showreqs':
     showreqs();
     break;
+  case 'showteamreqs':
+    showteamreqs();
+    break;
   case 'showreports':
     showreports();
     break;
@@ -211,6 +214,7 @@ function showreports() {  $selected = "showreports"; require( "reportdashboard.p
 //function rc() {  $selected = "rc"; require( "rateconfirmation.php" ); }
 function postreq() {  $selected = "postreq"; require( "postrek.php" ); }
 function showreqs() {  $selected = "showreqs"; require( "showrek.php" ); }
+function showteamreqs() {  $selected = "showteamreqs"; require( "showrek_teamreqs.php" ); }
 function showallreqs() {  $selected = "showallreqs"; require( "showallrek.php" ); }
 function showapplications() {  $selected = "showapplications"; require( "showapplication.php" ); }
 function showrc() {  $selected = "showrc"; require( "showrc.php" ); }
