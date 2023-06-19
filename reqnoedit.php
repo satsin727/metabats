@@ -54,7 +54,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			<tr>
 			<br><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 			<br><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="button">
-		<button type="buuton" name="update">Update</button> </td>
+		<button type="button" name="update">Update</button> </td>
 			</tr>
 		</form>
 
