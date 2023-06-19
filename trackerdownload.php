@@ -23,22 +23,38 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 
 $download = $_GET['download'];
 
-if($download == "app")
+if($download == "mapp")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH('$curdate') order by appdate asc"; }
-elseif($download == "rc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') order by rcdate asc";}
-elseif($download == "sub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') order by subdate asc";}
-elseif($download == "eci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')  order by eci_req_date asc";}
+$query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
+elseif($download == "mrc")
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+elseif($download == "msub")
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+elseif($download == "meci")
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')  and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+elseif($download == "wapp")
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and WEEK(appdate) = WEEK('$curdate')  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+elseif($download == "wrc")
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+elseif($download == "wsub")
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+elseif($download == "weci")
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+elseif($download == "dapp")
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+elseif($download == "drc")
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+elseif($download == "dsub")
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')  and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+elseif($download == "deci")
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";}
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
-				if($download == "app")
+				if($download == "mapp" || $download == "wapp" || $download == "dapp")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
@@ -198,7 +214,7 @@ $data = $ins->fetchAll();
                     exit();
 				}
 
-                elseif($download == "rc")
+                elseif($download == "mrc" || $download == "wrc" || $download == "drc")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."rc_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
@@ -349,7 +365,7 @@ $data = $ins->fetchAll();
 				}
 
                 
-                elseif($download == "sub")
+                elseif($download == "msub" || $download == "wrc" || $download == "drc")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
