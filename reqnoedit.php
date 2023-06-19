@@ -44,7 +44,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			?>
 		<form action="#" method="post">
 			<tr><br><td><label>Req ID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label> </td>
-				<td><input name="req_id" class="form-control-in" placeholder="<?php echo $req_id; ?>" value="<?php echo $req_id; ?>"></td> <br></tr><br>
+				<td><input name="ureq_id" class="form-control-in" placeholder="<?php echo $req_id; ?>" value="<?php echo $req_id; ?>"></td> <br></tr><br>
 			</tr>
 				<br> <input type="hidden" name="rid" value="<?php echo $reqid; ?>">
 			<tr>
