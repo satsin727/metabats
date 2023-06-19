@@ -95,9 +95,14 @@ function checkmail($email) {
  } 
 foreach( $data as $row) { 
 
-$curdate =date('dmy');
-$curweek =date('W');
-$ureq_id = "W".$curweek.$curdate."-".$row['ureq_id'];
+$reqid = $row['reqid'];
+
+	$udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
+	$utime = strtotime($udate);
+	$cur_date = date("dmy", $utime); 
+	$curweek = date("W", $utime); 
+	$ureq_id = "W".$curweek.$cur_date."-".$row['ureq_id'];
+
 
 $sid = $row['skillid'];
 								$q2 = "select * from skill where `sid` = $sid";
@@ -122,7 +127,7 @@ $rc_num = 0;
 $sub_num = 0;
 $eci_num = 0;
 
-$reqid = $row['reqid'];
+
 
 $app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `status`= 1")->fetchColumn();
 $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `rcdone` =1")->fetchColumn();
