@@ -59,7 +59,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Tier,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -87,6 +87,7 @@ $data = $ins->fetchAll();
                         
                                 $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                        $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
 
                         $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
@@ -196,7 +197,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
