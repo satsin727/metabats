@@ -73,7 +73,6 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
         $ins= $conn->prepare($query);
         $ins->bindValue( ":u", $ureq_id, PDO::PARAM_STR );
         $ins->execute();
-        $dta = $ins->fetch();
 
     }
 
