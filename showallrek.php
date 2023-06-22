@@ -35,7 +35,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	elseif(isset($_GET['sid']))
 	{
 		$sid=$_GET['sid'];
-		$query = "select * from req where status =1 and skillid = $sid and  WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+		$query = "select * from req where status =1 and skillid = $sid and DATE(datetime) = DATE('$curdate') order by datetime asc";
 	}
 	else
 	{
