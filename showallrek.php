@@ -30,22 +30,27 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK('$curdate') order by datetime desc";
+		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+	}
+	elseif(isset($_GET['sid']))
+	{
+		$sid=$_GET['sid'];
+		$query = "select * from req where status =1 and skillid = $sid and  WEEK(datetime) = WEEK('$curdate') order by datetime asc";
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from req where status = 1 and WEEK(datetime) = WEEK('$curdate') order by datetime desc";
+			$query = "select * from req where status = 1 and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
 		}
 	}
 
@@ -66,7 +71,7 @@ $data = $ins->fetchAll();
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <!-- <a href="reqsdownload.php"><button name="downloadreks" class="btn btn-primary">Download Reqs</button></a> --></div>
+					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a> </div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
