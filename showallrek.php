@@ -40,7 +40,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
 		$sid=$_GET['sid'];
 		$query = "select * from req where status =1 and skillid = $sid and DATE(datetime) = DATE('$curdate') order by datetime asc";
-		if($_GET['showweekly']==1)
+		if($showweekly==1)
 		{
 			$query = "select * from req where status =1  and skillid = $sid and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
 		}
@@ -51,7 +51,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		if($dta['level'] == 1 )
 		{
 			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";
-			if($_GET['showweekly']==1)
+			if($showweekly==1)
 			{
 				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
 			}
@@ -59,7 +59,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		if($dta['level'] == 2)
 		{
 			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";			
-			if($_GET['showweekly']==1)
+			if($showweekly==1)
 			{
 				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
 			}
