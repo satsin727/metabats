@@ -22,7 +22,22 @@ require("includes/header.php");
 require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
-{
+{	
+
+	if(isset($_POST['date']))
+	{
+		$cdate = $_POST['date'];
+		$olddate = 1;
+		$cdate = strtotime($cdate);
+		$curdate =date('Y-m-d',$cdate);
+	}
+	else
+	{
+		$cdate = date("m/d/y");
+	}
+		$cdate = strtotime($cdate);
+		$cdate = date('Y-m-d H:i:s',$cdate);
+	
     $showweekly=0;
 	if(isset($_GET['showweekly']))
 	{
@@ -87,6 +102,7 @@ $data = $ins->fetchAll();
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
+				<div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
 					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a> </div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
