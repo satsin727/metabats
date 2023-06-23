@@ -33,9 +33,9 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	}
 	else
 	{
-		$cdate = date("m/d/y");
-	}
+		$cdate = date("m/d/y");		
 		$cdate = strtotime($cdate);
+	}
 		$cdate = date('Y-m-d H:i:s',$cdate);
 	
     $showweekly=0;
