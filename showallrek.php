@@ -31,6 +31,10 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		$cdate = strtotime($cdate);
 		$curdate =date('Y-m-d',$cdate);
 	}
+	else
+	{
+		$curdate =date('Y-m-d');
+	}
 	
     $showweekly=0;
 	if(isset($_GET['showweekly']))
