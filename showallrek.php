@@ -23,7 +23,7 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {	
-
+	$olddate = 0;
 	if(isset($_POST['date']))
 	{
 		$cdate = $_POST['date'];
