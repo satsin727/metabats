@@ -23,7 +23,11 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
-
+    $showweekly=0;
+	if(isset($_GET['showweekly']))
+	{
+		$showweekly=1;
+	}
 
 	$smid=$dta['uid'];
 
@@ -36,17 +40,29 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
 		$sid=$_GET['sid'];
 		$query = "select * from req where status =1 and skillid = $sid and DATE(datetime) = DATE('$curdate') order by datetime asc";
+		if($_GET['showweekly']==1)
+		{
+			$query = "select * from req where status =1  and skillid = $sid and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+		}
 	}
 	else
 	{
 		
-		if($dta['level'] == 1)
+		if($dta['level'] == 1 )
 		{
 			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";
+			if($_GET['showweekly']==1)
+			{
+				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+			}
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime asc";			
+			if($_GET['showweekly']==1)
+			{
+				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+			}
 		}
 		if($dta['level'] == 3)
 		{
