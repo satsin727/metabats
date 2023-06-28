@@ -63,7 +63,7 @@ $data = $ins->fetchAll();
 
 
                         //posted by SM
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where ureq_id = $ureq_id and datetime > $curdate";
+                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = $ureq_id and B.datetime > $curdate";
                         $sins= $conn->prepare($sm_query);
                         $sins->execute();
                         $smdata = $sins->fetchAll();
