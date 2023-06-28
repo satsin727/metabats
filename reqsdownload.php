@@ -101,7 +101,7 @@ $data = $ins->fetchAll();
                                 {
                                     $uid = $comment['uid'];
                                     $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
-                                    $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime'];
+                                    $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
                                 }
                                 
 
