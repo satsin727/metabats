@@ -36,7 +36,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,SM,BP Email,End Client, Utilization Status,Total RC,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -116,7 +116,7 @@ $data = $ins->fetchAll();
                                 $reqstatus = "Unutilized";
                             }
  
-                        $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
+                        //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
                         $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$clientname,$reqstatus,$totalrc,$comments);
                         fputcsv($fp, $lineData,",");
                     }// for
