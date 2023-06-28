@@ -76,22 +76,22 @@ $data = $ins->fetchAll();
                                 $smname = $smname.$sep.$conn->query("SELECT * from users where `uid` = $uid")->fetchColumn();
 
                                */
-                                $uid = $sm['A.uid'];
+                                $uid = $sm['uid'];
                                 $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
 
-                                    $consultantid = $sm['A.consultant_id'];
+                                    $consultantid = $sm['consultant_id'];
 
                                     $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
 
-                                $cid = $sm['A.client_id'];
+                                $cid = $sm['client_id'];
                                 $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
 
-                                $rcdone = $sm['A.rcdone'];
-                                $subdone = $sm['A.subdone'];
+                                $rcdone = $sm['rcdone'];
+                                $subdone = $sm['subdone'];
 
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
-                                $appid = $sm['A.app_id'];
+                                $appid = $sm['app_id'];
                                     $com_query = "select * from comments where com_postid = $appid";
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
