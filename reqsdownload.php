@@ -43,9 +43,9 @@ $data = $ins->fetchAll();
                         $i = $i+1;
                                 
                                 $time = strtotime($row['datetime']); 
-                                $curdate = date("dmy", $time); 
+                                $cur_date = date("dmy", $time); 
                                 $curweek = date("W", $time); 
-                                $req_id = "W".$curweek.$curdate."-".$row['ureq_id'];
+                                $req_id = "W".$curweek.$cur_date."-".$row['ureq_id'];
                         $date = date("m/d/y", $time);
 
                         $ureq_id = $row['ureq_id'];
