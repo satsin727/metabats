@@ -25,7 +25,7 @@ $download = $_GET['download'];
 
 if($download == "allreqs")
 {
-$query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) = MONTH('$curdate') order by datetime desc"; 
+$query = "SELECT DISTINCT ureq_id FROM `req` WHERE `status` = 1  and DATE(datetime) = DATE('$curdate') order by ureq_id asc"; 
 }
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -38,148 +38,88 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,Job Description,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,SM,BP Email,End Client, Utilization Status,Total RC,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
                         $i = $i+1;
 
                                 $time = strtotime($row['datetime']); 
+                                $curdate = date("dmy", $time); 
+                                $curweek = date("W", $time); 
+                                $req_id = "W".$curweek.$curdate."-".$row['ureq_id'];
                         $date = date("m/d/y", $time);
 
-                                $uid = $row['uid'];
-                                $q4 = "SELECT * from users where `uid` = $uid";
-								$ins5= $conn->prepare($q4);
-								$ins5->execute(); 
-								$dta4 = $ins5->fetch();
-                        $sm = $dta4['name'];
-
-                          
-                        $cid = $row['cid'];
-                                $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                                $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
-                        
-/*
-                                $consultantid = $row['consultant_id'];
-                                $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-                                $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-                                $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-                                
-                        $consultantname = $cfname." ".$cmname." ".$clname; */
-
-                                $skillid = $row['skillid'];
+                        $ureq_id = $row['ureq_id'];
+                            $skillid = $row['skillid'];
                         $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-                        
-                        $jobtype = $row['jobtype'];
+                            $jobtype = $row['jobtype'];
                         if($jobtype == 1) { $job = "Contract";} else { $job = "Contract to hire"; }
-                        
-                        $skillid = $row['skillid'];
-                                $reqid = $row['reqid'];
+                            $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
 
-                        $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
-                        $jdtext = strip_tags(html_entity_decode($jd));
-                        $jdtext2 = str_replace('Â', '', $jdtext);                        
-                        $jdtext3 = str_replace('â', '', $jdtext2);
-                        $jdtext4 = str_replace('€', '', $jdtext3);
-                      
-                                $app_id = $row['app_id'];
-                        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
+                            $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                        $jdtext = strip_tags($jd);
+
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-                       
-                        if(isset($ipname) && isset($clientname))
-                        {
-                        $client = $ipname."/".$clientname;
-                        }
-                        elseif(isset($ipname))
-                        {
-                        $client = $ipname;
-                        }
-                        elseif(isset($clientname))
-                        {
-                        $client = $clientname;
-                        }
-                        else
-                        {
-                        $client = "NA";
-                        }
 
-                        
-                                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
-                                if($ars_status == 1)
-                                {
-                                    $status =  "Connected";
-                                }
-                                elseif($ars_status == 2)
-                                {
-                                    $status =  "Not Connected";
-                                }
-                                elseif($ars_status == 3)
-                                {
-                                    $status =  "Voicemail;";
-                                }
-                                elseif($ars_status == 4)
-                                {
-                                    $status =  "No Response";
-                                }
-                                elseif($ars_status == 5)
-                                {
-                                    $status =  "Cancelled";
-                                }
-                                elseif($ars_status == 6)
-                                {
-                                    $status =  "Rejected";
-                                }
-                                elseif($ars_status == 7)
-                                {
-                                    $status =  "In-Process";
-                                }
-                                elseif($ars_status == 8)
-                                {
-                                    $status =  "Got Test";
-                                }
-                                elseif($ars_status == 9)
-                                {
-                                    $status =  "Got Screening";
-                                }
-                                elseif($ars_status == 10)
-                                {
-                                    $status =  "Submitted to End Client";
-                                }
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
-                        if(isset($row['feedback']))
-                        {
-                            $feedback = $row['feedback'];
-                        }
-                        else
-                        {
-                            $feedback = "NA";
-                        }
-                        if($row['rcdone']==1)
-                        {
-                            $rcdone = "Yes";
-                            if($row['subdone']==0)
+                        //posted by SM
+                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where ureq_id = $ureq_id and datetime > $curdate";
+                        $sins= $conn->prepare($sm_query);
+                        $sins->execute();
+                        $smdata = $sins->fetchAll();
+                        $appdata = "";
+                        $comments = "";
+                            foreach ($smdata as $sm)
                             {
-                                $subdone = "No";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();    
+                               /* $uid = $sm['B.uid'];
+                            if(isset($smname)) { $sep = "\n"; }
+                                $smname = $smname.$sep.$conn->query("SELECT * from users where `uid` = $uid")->fetchColumn();
+
+                               */
+                                $uid = $sm['A.uid'];
+                                $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+
+                                    $consultantid = $sm['A.consultant_id'];
+
+                                    $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+
+                                $cid = $sm['A.client_id'];
+                                $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
+
+                                $rcdone = $sm['A.rcdone'];
+                                $subdone = $sm['A.subdone'];
+
+                                $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
+                            
+                                $appid = $sm['A.app_id'];
+                                    $com_query = "select * from comments where com_postid = $appid";
+                                    $cins= $conn->prepare($com_query);
+                                    $cins->execute();
+                                    $commentdata = $cins->fetchAll();
+
+                                foreach($commentdata as $comment)
+                                {
+                                    $uid = $comment['uid'];
+                                    $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                    $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime'];
+                                }
+                                
+
+                            }
+                        
+                            $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where ureq_id = $ureq_id and rcdone = 1 datetime > $curdate") ;
+                            if($totalrc>0)
+                            {
+                                $reqstatus = "Utilized";
                             }
                             else {
-                                $subdone = "Yes";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                                $reqstatus = "Unutilized";
                             }
-                            if($comment=="")
-                            {
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
-                            }
-                        }
-                        else
-                        {
-                            $rcdone = "No";
-                            $subdone = "No";
-                        }
-                    
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$jdtext4,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+ 
+                        $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
+                        $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$clientname,$reqstatus,$totalrc,$comments);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);

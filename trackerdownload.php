@@ -169,6 +169,38 @@ $data = $ins->fetchAll();
                                 {
                                     $status =  "Submitted to End Client";
                                 }
+                                elseif($ars_status == 11)
+                                {
+                                    $status =  "Rejected - Bad Profile";
+                                }
+                                elseif($ars_status == 12)
+                                {
+                                    $status =  "Rejected - Senior Requirement";
+                                }
+                                elseif($ars_status == 13)
+                                {
+                                    $status =  "Rejected - Local candidate needed";
+                                }
+                                elseif($ars_status == 14)
+                                {
+                                    $status =  "Rejected - Position went onhold";
+                                }
+                                elseif($ars_status == 15)
+                                {
+                                    $status =  "Rejected - Day 1 Onsite Required";
+                                }
+                                elseif($ars_status == 16)
+                                {
+                                    $status =  "Rejected - Low Rate";
+                                }
+                                elseif($ars_status == 17)
+                                {
+                                    $status =  "Rejected - Consultant Response";
+                                }
+                                elseif($ars_status == 18)
+                                {
+                                    $status =  "Rejected - Due to Linkedin";
+                                }
                         $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
                         if(isset($row['feedback']))
                         {

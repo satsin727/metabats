@@ -68,9 +68,16 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                 <option value="1" <?php if($ars_status ==1) { echo "selected"; } ?>>Connected</option>
                 <option value="2" <?php if($ars_status ==2) { echo "selected"; } ?>>Not Connected</option>
                 <option value="3" <?php if($ars_status ==3) { echo "selected"; } ?>>Voicemail</option>
-                <option value="4" <?php if($ars_status ==4) { echo "selected"; } ?>>No Response</option>
-				<option value="6" <?php if($ars_status ==6) { echo "selected"; } ?>>Rejected</option>
-                <option value="7" <?php if($ars_status ==7) { echo "selected"; } ?>>In-Process</option>
+                <option value="4" <?php if($ars_status ==4) { echo "selected"; } ?>>Connected and No Response</option>
+				<option value="6" <?php if($ars_status ==6) { echo "selected"; } ?>>Rejected - Other</option>
+				<option value="11" <?php if($ars_status ==11) { echo "selected"; } ?>>Rejected - Bad Profile</option>
+                <option value="12" <?php if($ars_status ==12) { echo "selected"; } ?>>Rejected - Senior Requirement</option>
+				<option value="13" <?php if($ars_status ==13) { echo "selected"; } ?>>Rejected - Local candidate needed</option>				
+				<option value="14" <?php if($ars_status ==14) { echo "selected"; } ?>>Rejected - Position went onhold</option>				
+				<option value="15" <?php if($ars_status ==15) { echo "selected"; } ?>>Rejected - Day 1 Onsite Required</option>			
+				<option value="16" <?php if($ars_status ==16) { echo "selected"; } ?>>Rejected - Low Rate</option>				
+				<option value="11" <?php if($ars_status ==18) { echo "selected"; } ?>>Rejected - Due to Linkedin</option>
+				
 				
             <?php
 			}
@@ -83,6 +90,9 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                 <option value="5" <?php if($ars_status ==5) { echo "selected"; } ?>>Cancelled</option>
                 <option value="6" <?php if($ars_status ==6) { echo "selected"; } ?>>Rejected</option>
                 <option value="7" <?php if($ars_status ==7) { echo "selected"; } ?>>In-Process</option>
+				<option value="14" <?php if($ars_status ==14) { echo "selected"; } ?>>Rejected - Position went onhold</option>				
+				<option value="11" <?php if($ars_status ==11) { echo "selected"; } ?>>Rejected - Bad Profile</option>				
+				<option value="11" <?php if($ars_status ==17) { echo "selected"; } ?>>Rejected - Consultant Response</option>
             <?php
 			}
 			elseif(isset($_GET['subid']))
