@@ -26,15 +26,13 @@ $download = $_GET['download'];
 if($download == "allreqs")
 {
 $query = "SELECT DISTINCT ureq_id FROM `req` WHERE `status` = 1  and DATE(datetime) = DATE('$curdate') order by ureq_id asc"; 
-}
+
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
-				if($download == "app")
-				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
@@ -135,13 +133,8 @@ $data = $ins->fetchAll();
                     flush();
                     readfile($filename);
                     exit();
-				}
 
-
-?>
-</div>
-
-<?php
+}
 
 }
 else
