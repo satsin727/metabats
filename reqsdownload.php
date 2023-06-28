@@ -25,7 +25,7 @@ $download = $_GET['download'];
 
 if($download == "allreqs")
 {
-$query = "SELECT DISTINCT ureq_id FROM `req` WHERE `status` = 1  and DATE(datetime) = DATE('$curdate') order by ureq_id asc"; 
+$query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') GROUP BY (ureq_id)"; 
 
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -41,7 +41,7 @@ $data = $ins->fetchAll();
                     $i = 0;
                     foreach($data as $row) {
                         $i = $i+1;
-
+                                
                                 $time = strtotime($row['datetime']); 
                                 $curdate = date("dmy", $time); 
                                 $curweek = date("W", $time); 
