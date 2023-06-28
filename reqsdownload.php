@@ -58,7 +58,7 @@ $data = $ins->fetchAll();
 
                             $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags($jd);
-                        $jdtext = html_entity_decode($jd);
+                        $jdtext = htmlspecialchars_decode($jdtext);
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
