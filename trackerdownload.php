@@ -258,7 +258,7 @@ $data = $ins->fetchAll();
                 elseif($download == "yapp" || $download == "allapp" )
 				{
 					$date = date("Y-m-d H:i:s");
-                    $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
+                    $filename = "tmp/"."allapp_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
                     $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,BP_SM,Client,RC Status,Sub Status\n";
                     fwrite($fp, $txt);
@@ -288,13 +288,13 @@ $data = $ins->fetchAll();
                         
                                 $reqid = $row['reqid'];
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
-                                $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
+                        /*        $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
                                 $udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
                                 $utime = strtotime($udate);
                                 $cur_date = date("dmy", $utime); 
                                 $curweek = date("W", $utime); 
                                 $ureq_id = "W".$curweek.$cur_date."-".$ureq_id;
-                        
+                        */
                                 $cid = $row['client_id'];
                         
                         $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
@@ -305,8 +305,7 @@ $data = $ins->fetchAll();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
                         $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
                         $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn();
-                        $bpsm = $conn->query("SELECT `name` from users where `uid` = $bpuid")->fetchColumn();                       
-
+                        $bpsm = $conn->query("SELECT name from users where `uid` = $bpuid")->fetchColumn();                       
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
@@ -329,7 +328,7 @@ $data = $ins->fetchAll();
                         $client = "NA";
                         }
 
-                        
+                        /*
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
                                 if($ars_status == 1)
                                 {
@@ -411,7 +410,7 @@ $data = $ins->fetchAll();
                         else
                         {
                             $feedback = "NA";
-                        }
+                        } */
                         if($row['rcdone']==1)
                         {
                             $rcdone = "Yes";
