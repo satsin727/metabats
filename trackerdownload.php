@@ -255,12 +255,12 @@ $data = $ins->fetchAll();
                     exit();
 				}
 
-                elseif($download == "yapp")
+                elseif($download == "yapp" || $download == "allapp" )
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,Tier,BP_SM,Client,RC Status,Sub Status\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,BP_SM,Client,RC Status,Sub Status\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
