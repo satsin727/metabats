@@ -107,7 +107,7 @@ $data = $ins->fetchAll();
 						    <thead>
 						    <tr>
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
-						        <th data-field="id" data-sortable="true">S.no</th>
+						        <th data-field="id" data-sortable="false">S.no</th>
 								<th data-field="Reqid"  data-sortable="true">Req ID</th>
 						        <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
 								<th data-field="Role"  data-sortable="true">Skill</th>	
