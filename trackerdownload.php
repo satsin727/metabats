@@ -260,7 +260,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allapp_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,Client,RC Status,Sub Status\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,BP_SM,Client,RC Status,Sub Status\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -304,8 +304,8 @@ $data = $ins->fetchAll();
                         $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
                         $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
-                       // $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn();
-                       // $bpsm = $conn->query("SELECT name from users where `uid` = $bpuid")->fetchColumn();                       
+                        $bpuid = $conn->query("SELECT `uid` from clients where `cid` = $cid")->fetchColumn();
+                        $bpsm = $conn->query("SELECT name from users where `uid` = $bpuid")->fetchColumn();                       
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
@@ -434,7 +434,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     //S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,Tier,BP_SM,Client,RC Status,Sub Status
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$client,$rcdone,$subdone);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$client,$rcdone,$subdone);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
