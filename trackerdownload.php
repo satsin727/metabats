@@ -321,7 +321,6 @@ $data = $ins->fetchAll();
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-                        echo $bpuid;
                        
                         if(isset($ipname) && isset($clientname))
                         {
@@ -423,10 +422,45 @@ $data = $ins->fetchAll();
                         {
                             $feedback = "NA";
                         } */
-                       
-                    
+                        if($row['rcdone']==1)
+                        {
+                            $rcdone = "Yes";
+                            if($row['subdone']==0)
+                            {
+                                $subdone = "No";
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();    
+                            }
+                            else {
+                                $subdone = "Yes";
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                            }
+                            if($comment=="")
+                            {
+                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                            }
+                        }
+                        else
+                        {
+                            $rcdone = "No";
+                            $subdone = "No";
+                        }
+                    //S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,Tier,BP_SM,Client,RC Status,Sub Status
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$client,$rcdone,$subdone);
+                        fputcsv($fp, $lineData,",");
                     }// for
-                    
+                    fclose($fp);
+                    header('Content-Description: File Transfer');
+                    header('Content-Type: application/octet-stream');
+                    header('Content-Disposition: attachment; filename='.basename($filename));
+                    header('Content-Transfer-Encoding: binary');
+                    header('Expires: 0');
+                    header('Cache-Control: must-revalidate');
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($filename));
+                    ob_clean();
+                    flush();
+                    readfile($filename);
+                    exit();
 				}
                 elseif($download == "mrc" || $download == "wrc" || $download == "drc")
 				{
