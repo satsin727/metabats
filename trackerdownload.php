@@ -316,12 +316,7 @@ $data = $ins->fetchAll();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
                         $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
                         $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn(); 
-
-                            $smq = "SELECT * from users where `uid` = $bpuid";
-                            $pq= $conn->prepare($smq);
-                            $pq->execute(); 
-                            $smdata = $pq->fetch();
-                        $bpsm = $smdata['name'];                       
+                        $bpsm = $conn->query("SELECT uname from users where `uid` = $bpuid")->fetchColumn();                      
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
