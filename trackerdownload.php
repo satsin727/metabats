@@ -316,7 +316,7 @@ $data = $ins->fetchAll();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
                         $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
                         $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn(); 
-                        $bpsm = $conn->query("SELECT username from users where `uid` = $bpuid")->fetchColumn();                      
+                        $bpsm = $conn->query('SELECT username from users where `uid` = $bpuid')->fetchColumn();                      
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
