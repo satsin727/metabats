@@ -301,25 +301,26 @@ $data = $ins->fetchAll();
                                 $pq1= $conn->prepare($cq);
                                 $pq1->execute(); 
                                 $cdata = $pq1->fetchAll();
-                        $bpcompany = $cdata['companyname'];
+                      /*  $bpcompany = $cdata['companyname'];
                         $bpname = $cdata['rname'];
                         $bpemail = $cdata['remail'];
                         $bpphone = $cdata['rphone'];
                         $bplocation = $cdata['rlocation'];
                         $bptier = $cdata['tier'];
-                        $bptimezone = $cdata['rtimezon'];
-                     /*   $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
+                        $bptimezone = $cdata['rtimezon']; */
+                        $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
+                        $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                         $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();                        
                         $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
-                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    */
-                        $bpuid = $cdata['uid'];
+                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
+                        $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn(); 
 
                             $smq = "SELECT * from users where `uid` = $bpuid";
                             $pq= $conn->prepare($smq);
                             $pq->execute(); 
-                            $smdata = $pq->fetchAll();
+                            $smdata = $pq->fetch();
                         $bpsm = $smdata['name'];                       
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
