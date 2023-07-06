@@ -228,6 +228,14 @@ if(isset($_GET['appcd_id']))
                 $download = "meci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
+            if(isset($_GET['ecicyt_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 order by eci_req_date asc";
+                $download = "teci";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
 
             if(isset($_GET['ecicmy_id']))
             {               
