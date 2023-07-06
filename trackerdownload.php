@@ -52,6 +52,10 @@ elseif($download == "yapp")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1  and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "allapp")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1 order by appdate asc"; }
+elseif($download == "yeci")
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
+elseif($download == "yteci")
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 order by eci_req_date asc"; }
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
