@@ -469,8 +469,13 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
 		
         
-        <td data-search="<?php echo $cfname." ".$clname;?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Marketing Number: ".$cmnumber; ?>\n\n<?php echo "Personal Number: ".$conumber; ?>\n\n')"><?php echo $cfname." ".$cmname." ".$clname;?></a></td>
-        <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
+        <td data-search="<?php echo $cfname." ".$clname;?>"><a href="#" onClick="alert('\n\n\n\n<?php echo "Marketing Number: ".$cmnumber; ?>\n\n<?php echo "Personal Number: ".$conumber; ?>\n\n')"><?php echo $cfname." ".$cmname." ".$clname;?></a></td>   
+        <?php if($eci==1) { ?>
+        <td data-search="<?php echo $dta3['companyname']; ?>"><?php echo $dta3['companyname']; ?></td>      
+        <td data-search="<?php echo $dta3['rname']; ?>"><?php echo $dta3['rname']; ?></td> 
+        <td data-search="<?php echo $dta3['remail']; ?>"> <?php echo $dta3['remail']; ?></td> 
+        <td data-search="<?php echo $dta3['rphone']; ?>"><?php echo $dta3['rphone']; ?></td> <?php } else { ?>
+        <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> <?php } ?>
 
 		<td> 
 		<?php
