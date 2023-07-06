@@ -429,7 +429,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     //S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,Tier,BP_SM,Client,RC Status,Sub Status
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$client,$rcdone,$subdone);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$clientname,$rcdone,$subdone);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
