@@ -42,7 +42,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,BP Email, BP Phone,End Client, Utilization Status,Total RC,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,BP contact,End Client, Utilization Status,Total RC,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -75,6 +75,7 @@ $data = $ins->fetchAll();
                         $sins->execute();
                         $smdata = $sins->fetchAll();
                         $appdata = "";
+                        $bpcontact = "";
                         $comments = "";
                             foreach ($smdata as $sm)
                             {
@@ -93,6 +94,8 @@ $data = $ins->fetchAll();
                                 $cid = $sm['client_id'];
                                 $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                                 $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+
+                                $bpcontact = $bpcontact.$bpemail."/".$bpphone."\n";
 
                                 $rcdone = $sm['rcdone'];
                                 $subdone = $sm['subdone'];
@@ -125,7 +128,7 @@ $data = $ins->fetchAll();
                             }
  
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
-                        $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$bpemail,$bpphone,$clientname,$reqstatus,$totalrc,$comments);
+                        $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
