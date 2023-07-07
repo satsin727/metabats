@@ -25,7 +25,13 @@ $download = $_GET['download'];
 
 if($download == "allreqs")
 {
-$query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') GROUP BY (ureq_id)"; 
+if($_GET['showweekly']==1)
+{
+    $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') GROUP BY (ureq_id)"; 
+}
+else {
+    $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') GROUP BY (ureq_id)"; 
+}
 
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
