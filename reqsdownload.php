@@ -33,6 +33,10 @@ else {
     $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') GROUP BY (ureq_id)"; 
 }
 
+if($_GET['showunique']==1)
+{
+    $unique = 1; 
+}
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
@@ -52,6 +56,14 @@ $data = $ins->fetchAll();
                                 $cur_date = date("dmy", $time); 
                                 $curweek = date("W", $time); 
                                 $req_id = "W".$curweek.$cur_date."-".$row['ureq_id'];
+                                $u_req_id = "W".$curweek.$cur_date."-".$row['ureq_id'];
+                                $reqid_length = strlen($u_req_id);
+
+                        if($unique==1 & $reqid_length>20)
+                        {
+                                $u_req_id = $row['ureq_id'];
+                        }
+                                
                         $date = date("m/d/y", $time);
 
                         $ureq_id = $row['ureq_id'];
@@ -126,10 +138,20 @@ $data = $ins->fetchAll();
                             else {
                                 $reqstatus = "Unutilized";
                             }
- 
+                        if($unique==1)
+                        {
+                            $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
+                            fputcsv($fp, $lineData,",");
+                        }
+                        else
+                        {
+                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
+                            fputcsv($fp, $lineData,",");
+                        }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
-                        $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
-                        fputcsv($fp, $lineData,",");
+                        
+
+
                     }// for
                     fclose($fp);
                     header('Content-Description: File Transfer');
