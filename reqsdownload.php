@@ -22,27 +22,26 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
 
 $download = $_GET['download'];
-
-if($download == "allreqs")
-{
-if($_GET['showweekly']==1)
-{
-    $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
-}
-elseif($_GET['showmonthly']==1)
-{
-    $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
-}
-}
-else {
-    $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
-}
-
 if($_GET['showunique']==1)
 {
     $unique = 1; 
 }
 
+if($download == "allreqs")
+{
+    if($_GET['showweekly']==1)
+    {
+        $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+    }
+    elseif($_GET['showmonthly']==1)
+    {
+        $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+    }
+    else {
+        $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+    }
+   
+}
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
 $ins->execute();
