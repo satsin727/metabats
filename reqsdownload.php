@@ -33,7 +33,7 @@ if($download == "allreqs")
     {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
     }
-    elseif($_GET['showmonthly']==1)
+    else if($_GET['showmonthly']==1)
     {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
     }
