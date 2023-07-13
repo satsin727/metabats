@@ -203,6 +203,13 @@ if(isset($_GET['appcd_id']))
                 $query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH('$curdate')  order by appdate asc";
                 $download = "mapp";
             }
+            if(isset($_GET['appcyt_id']))
+            {
+                $app = 1;
+                $total=1;
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and YEAR(appdate) = YEAR('$curdate')  order by appdate asc";
+                $download = "yapp";
+            }
 
             if(isset($_GET['rccmt_id']))
             {
