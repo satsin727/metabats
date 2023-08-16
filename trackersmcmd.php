@@ -218,9 +218,9 @@ $username = $conn->query("select name from users where uid = $sm_id")->fetchColu
 $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
 $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();*/
 
-$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
+$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); 
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
@@ -246,7 +246,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 						    <tr>
 						        <th data-field="id">S.no</th>                                
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
-								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>   <th data-field="name" data-sortable="true">Consultant Name</th> <?php }	?> 
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>   <th data-field="name" data-sortable="true">Consultant Name</th> <?php }	?> 
 						        <th data-field="Role"  data-sortable="true">Role</th>							
 						        <th data-field="Client"  data-sortable="true">IP/CLient</th>	
                                 <th data-field="remail" data-sortable="true">Recruiter Email</th>
@@ -316,7 +316,6 @@ $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fe
         elseif($rc==1) { $date = $row['rcdate'];  }
         elseif($sub==1) { $date = $row['rcdate'];  }
         elseif($eci==1) { $date = $row['eci_date'];  }
-        
         
         echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>	<td data-search="<?php echo $dta4['cfname']; ?>"> <?php echo $dta4['cfname']." ".$dta4['cmname']." ".$dta4['clname']; ?> </td>   <?php } ?>
