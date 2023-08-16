@@ -218,9 +218,9 @@ $username = $conn->query("select name from users where uid = $sm_id")->fetchColu
 $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
 $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();*/
+$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
 
-$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); 
+$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
@@ -319,7 +319,7 @@ $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fe
         
         echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>	<td data-search="<?php echo $dta4['cfname']; ?>"> <?php echo $dta4['cfname']." ".$dta4['cmname']." ".$dta4['clname']; ?> </td>   <?php } ?>
-        <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></a></td>
+        <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <a id="various3" href="leads/view.php?id=<?php if($eci=1) { echo $row['req_id']; } else { echo $row['reqid']; } ?>"><?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></a></td>
 		<td data-search="<?php echo $ipname."/".$clientname; ?>"> <?php if(empty($ipname)) { echo $clientname; } else { echo $ipname."/".$clientname; } ?></td>
 		
         
