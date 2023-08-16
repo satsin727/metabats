@@ -349,13 +349,13 @@ $data = $ins->fetchAll();
 
 if($total==0)
 {
-    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetch();
-    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetch();
-    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetch();
-    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetch();
-    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetch();
-    $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetch();
-    $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetch();
+    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
+    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
+    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+    $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+    $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
 }
 /*
 $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
