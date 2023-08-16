@@ -209,9 +209,9 @@ if(isset($_GET['appsd_id']))
             }
     
     }
-$ins= $conn->prepare($query);
-$ins->execute();
-$data = $ins->fetchAll();
+$ind= $conn->prepare($query);
+$ind->execute();
+$data = $ind->fetchAll();
 
 $username = $conn->query("select name from users where uid = $sm_id")->fetchColumn();
 /*
