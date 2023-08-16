@@ -37,7 +37,7 @@ if(isset($_GET['appsd_id']))
             $rc = 0;
             $sub = 0;
             $eci = 0;
-	if($dta['level'] == 1 || $dta['level'] == 2)
+	if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
 		
         if(isset($_GET['appsd_id']))
@@ -184,31 +184,31 @@ if(isset($_GET['appsd_id']))
             {
                 $sm_id = $_GET['appsm_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and `sm_id` = $uid  and MONTH(appdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and `uid` = $uid  and MONTH(appdate) = MONTH('$curdate')";
             }
         
              if(isset($_GET['rcsm_id']))
             {
                 $sm_id = $_GET['rcsm_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and `sm_id` = $uid  and MONTH(rcdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and `uid` = $uid  and MONTH(rcdate) = MONTH('$curdate')";
             }
             
             if(isset($_GET['subsm_id']))
             {
                 $sm_id = $_GET['subsm_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1  and `sm_id` = $uid and MONTH(subdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1  and `uid` = $uid and MONTH(subdate) = MONTH('$curdate')";
             }
         
             if(isset($_GET['ecism_id']))
             {
                 $sm_id = $_GET['ecism_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `sm_id` = $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')";
             }
     
-    }
+    } 
 $ind= $conn->prepare($query);
 $ind->execute();
 $data = $ind->fetchAll();
