@@ -150,6 +150,8 @@ foreach( $data as $row)
 <p>&nbsp;</p>
 <br>
 <br>
+<?php echo "<h2> Daily Data</h2>"; ?>
+
 <br>
 <br>
 <table border="1" cellpadding="1" cellspacing="1" style="width:500px">
