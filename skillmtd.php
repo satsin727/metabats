@@ -1,6 +1,6 @@
 <?php
 
-//MTD Skill wise Data
+//MTD Skill wise Data - test mode
 
 //MTD consultant wise Data
 
