@@ -84,8 +84,8 @@ foreach( $data as $row)
 
     $skill = $row['sid'];
     $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
         $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
         $ins= $conn->prepare($qeci);
         $ins->execute();
@@ -116,8 +116,8 @@ foreach( $data as $row)
 
 <?php
  $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
@@ -173,8 +173,8 @@ foreach( $data as $row)
 
     $skill = $row['sid'];
     $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
         $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
         $ins= $conn->prepare($qeci);
         $ins->execute();
@@ -205,8 +205,8 @@ foreach( $data as $row)
 
 <?php
  $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
@@ -263,8 +263,8 @@ foreach( $data as $row)
 
     $skill = $row['sid'];
     $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
         $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
         $ins= $conn->prepare($qeci);
         $ins->execute();
@@ -295,8 +295,8 @@ foreach( $data as $row)
 
 <?php
  $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
