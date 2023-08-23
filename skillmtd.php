@@ -213,6 +213,9 @@ foreach( $data as $row)
 } ?>
 
 <?php
+    $treqs = $conn->query("select COUNT(distinct ureq_id) from req where status = 1 and ( DATE(datetime) = DATE('$cdate') AND MONTH(datetime) = MONTH('$cdate') AND YEAR(datetime) = YEAR('$cdate') ) order by datetime asc")->fetchColumn();
+    $tworked = $conn->query("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 AND B.rcdone =1 and ( DATE(A.datetime) = DATE('$cdate') AND MONTH(A.datetime) = MONTH('$cdate') AND YEAR(A.datetime) = YEAR('$cdate') ) order by A.datetime asc")->fetchColumn();
+  
  $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
  $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
  $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
@@ -234,6 +237,8 @@ foreach( $data as $row)
 ?>
         <tr>
                     <td>Total:</td>
+                    <td><?php echo $treqs; ?></a></td>
+                    <td><?php echo $tworked; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
