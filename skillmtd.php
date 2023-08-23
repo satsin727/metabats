@@ -155,6 +155,8 @@ foreach( $data as $row)
     <thead>
 		 <tr>
             <th>Skill</th>
+            <th>Reqs</th>
+            <th>worked</th>
             <th>App</th>
 			<th>RC</th>
 			<th>Sub</th>            
@@ -172,6 +174,9 @@ foreach( $data as $row)
 {
 
     $skill = $row['sid'];
+    $reqs = $conn->query("select COUNT(distinct ureq_id) from req where status = 1 and skillid = $skill and ( DATE(datetime) = DATE('$cdate') AND MONTH(datetime) = MONTH('$cdate') AND YEAR(datetime) = YEAR('$cdate') ) order by datetime asc")->fetchColumn();
+    $worked = $conn->query("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 and A.skillid = $skill AND B.rcdone =1 and ( DATE(A.datetime) = DATE('$cdate') AND MONTH(A.datetime) = MONTH('$cdate') AND YEAR(A.datetime) = YEAR('$cdate') ) order by A.datetime asc")->fetchColumn();
+    
     $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
     $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
@@ -193,7 +198,11 @@ foreach( $data as $row)
         $y= date("Y",strtotime($cdate));
         ?>
         <tr>
+
                     <td><?php echo $row['skillname']; ?></td>
+                    
+                    <td><?php echo $reqs; ?></a></td>
+                    <td><?php echo $worked; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
                     <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
