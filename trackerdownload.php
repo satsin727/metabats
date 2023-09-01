@@ -25,7 +25,7 @@ $download = $_GET['download'];
 
 if($download == "mapp")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate')-1 and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
+$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
 elseif($download == "mrc")
 {$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
 elseif($download == "msub")
