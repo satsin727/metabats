@@ -115,6 +115,7 @@ $data = $ins->fetchAll();
 								<th data-field="remail" data-sortable="true">Company Domain</th>
 						        <th data-field="Client name" data-sortable="true">End Client</th>
 						        <th data-field="rrate"  data-sortable="true">Rate</th>
+						        <th data-field="reqstatus"  data-sortable="true">Status</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
 						        <th data-field="action" data-sortable="true">Action</th> <?php } ?>
@@ -190,7 +191,33 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		?>
 		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td> 		
 		<td data-search="<?php echo $clientname; ?>"> <?php echo $clientname; ?></a></td> 
-		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>   
+		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>
+		
+		<?php
+		if($row['reqstatus']==1)
+		{
+			$reqstatus = "Rejected";
+		}
+		else if($row['reqstatus']==2)
+		{
+			$reqstatus = "Closed";
+		}
+		else if($row['reqstatus']==3)
+		{
+			$reqstatus = "not Connected";
+		}
+		else if($row['reqstatus']==4)
+		{
+			$reqstatus = "Open";
+		}
+		else if($row['reqstatus']==5)
+		{
+			$reqstatus = "In process";
+		}
+
+?>
+		<td data-search="<?php echo $reqstatus; ?>"> <?php echo $reqstatus; ?></td> 
+
     	<td> App: 
 		<?php 
 		
@@ -247,8 +274,12 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     		<a href="reqcmd.php?do=edit&id=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a>
     				<a href ="reqcmd.php?do=delete&id=<?php echo $row['reqid']; ?>" onClick="return confirm('Are you sure you want to remove this req ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
 					<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>					<a href="addapp.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addapp" class="btn btn-primary">Add Application</button></a> <?php } ?>
+	
+	
 					<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>					<a href="addreqstatus.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add status</button></a> <?php } ?>
-    	</td><?php } ?>
+   
+	
+				</td><?php } ?>
     </tr>
     <?php
 }
