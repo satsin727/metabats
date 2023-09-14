@@ -126,7 +126,7 @@ $data = $ins->fetchAll();
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				    
 						        <th data-field="action" data-sortable="true" data-visible="false">Edit Action</th> <?php } ?>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> 				    
-						        <th data-field="action" data-sortable="true">Req Action</th> <?php } ?>
+						        <th data-field="reqaction" data-sortable="true">Req Action</th> <?php } ?>
 						    </tr>
 						    </thead>
 						   <tbody>
