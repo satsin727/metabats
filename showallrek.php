@@ -283,7 +283,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 					<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>					<a href="addapp.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addapp" class="btn btn-primary">Add Application</button></a> <?php } ?>
 	
 	
-					<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>					<a href="addreqstatus.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add status</button></a> <?php } ?>
+					<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>					<a href="addreqstatus.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add Req status</button></a> <?php } ?>
    
 	
 				</td><?php } ?>
