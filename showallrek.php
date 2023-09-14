@@ -117,7 +117,9 @@ $data = $ins->fetchAll();
 						        <th data-field="rrate"  data-sortable="true">Rate</th>
 						        <th data-field="reqstatus"  data-sortable="true">Status</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
-								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
+						         <?php } ?>
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> 				    
 						        <th data-field="action" data-sortable="true">Action</th> <?php } ?>
 						    </tr>
 						    </thead>
