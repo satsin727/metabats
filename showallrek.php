@@ -221,7 +221,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		}
 
 ?>
-		<td data-search="<?php echo $reqstatus; ?>"> <font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></td> 
+		<td data-search="<?php echo $reqstatus; ?>"> <b><h4><font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></h4></b></td> 
 
     	<td> App: 
 		<?php 
