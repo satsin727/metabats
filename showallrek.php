@@ -123,8 +123,10 @@ $data = $ins->fetchAll();
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				        <th data-field="Comment"  data-sortable="true" data-visible="false">Comment</th> 
 						         <?php } ?>
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				    
+						        <th data-field="action" data-sortable="true" data-visible="false">Edit Action</th> <?php } ?>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> 				    
-						        <th data-field="action" data-sortable="true" data-visible="false">Action</th> <?php } ?>
+						        <th data-field="action" data-sortable="true">Req Action</th> <?php } ?>
 						    </tr>
 						    </thead>
 						   <tbody>
@@ -285,11 +287,12 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     		<a href="reqcmd.php?do=edit&id=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a>
     				<a href ="reqcmd.php?do=delete&id=<?php echo $row['reqid']; ?>" onClick="return confirm('Are you sure you want to remove this req ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a> <?php } ?>
 					<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>					<a href="addapp.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addapp" class="btn btn-primary">Add Application</button></a> <?php } ?>
-	
-	
-					<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>					<a href="addreqstatus.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add Req status</button></a> <?php } ?>
    
 	</td>
+	<td> <?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>					
+		<a href="addreqstatus.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add Req status</button></a> 
+		<?php } ?>
+   	</td>
     </tr>
     <?php
 }
