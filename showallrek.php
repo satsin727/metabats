@@ -110,7 +110,7 @@ $data = $ins->fetchAll();
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
+						        <th data-field="Datetime"  data-sortable="true" data-visible="false">Datetime</th>
 						        <th data-field="id" data-sortable="false">S.no</th>
 								<th data-field="Reqid"  data-sortable="true">Req ID</th>
 						        <?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
@@ -118,13 +118,13 @@ $data = $ins->fetchAll();
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
 								<th data-field="remail" data-sortable="true">Company Domain</th>
 						        <th data-field="Client name" data-sortable="true">End Client</th>
-						        <th data-field="rrate"  data-sortable="true">Rate</th>
+						        <th data-field="rrate"  data-sortable="true" data-visible="false">Rate</th>
 						        <th data-field="reqstatus"  data-sortable="true">Status</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
-								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				        <th data-field="Comment"  data-sortable="true">Comment</th> 
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				        <th data-field="Comment"  data-sortable="true" data-visible="false">Comment</th> 
 						         <?php } ?>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> 				    
-						        <th data-field="action" data-sortable="true">Action</th> <?php } ?>
+						        <th data-field="action" data-sortable="true" data-visible="false">Action</th> <?php } ?>
 						    </tr>
 						    </thead>
 						   <tbody>
