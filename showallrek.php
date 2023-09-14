@@ -196,27 +196,32 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		<?php
 		if($row['reqstatus']==1)
 		{
+			$reqcolour = "red";
 			$reqstatus = "Rejected";
 		}
 		else if($row['reqstatus']==2)
 		{
+			$reqcolour = "orange";
 			$reqstatus = "Closed";
 		}
 		else if($row['reqstatus']==3)
 		{
+			$reqcolour = "blue";
 			$reqstatus = "not Connected";
 		}
 		else if($row['reqstatus']==4)
 		{
+			$reqcolour = "green";
 			$reqstatus = "Open";
 		}
 		else if($row['reqstatus']==5)
 		{
+			$reqcolour = "green";
 			$reqstatus = "In process";
 		}
 
 ?>
-		<td data-search="<?php echo $reqstatus; ?>"> <?php echo $reqstatus; ?></td> 
+		<td data-search="<?php echo $reqstatus; ?>" style="background-color: <?php echo $reqcolour; ?>"> <?php echo $reqstatus; ?></td> 
 
     	<td> App: 
 		<?php 
