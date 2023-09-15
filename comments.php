@@ -94,7 +94,7 @@ if($com_type==1)
 
 	foreach($rdata as $comment)
 	{	
-		$app_id = $rdata['app_id'];
+		$app_id = $comment['app_id'];
 		$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = $app_id) and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
 		$ins= $conn->prepare($query);
 		$ins->execute();
