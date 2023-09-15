@@ -47,7 +47,12 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+		$query = "select * from req where status =1 and uid = $smid and  DATE(datetime) = DATE('$curdate') order by datetime asc";
+		if($showweekly==1)
+		{
+			$query = "select * from req where status =1 and uid = $smid and  WEEK(datetime) = WEEK('$curdate') order by datetime asc";
+		}
+	
 	}
 	elseif(isset($_GET['sid']))
 	{
