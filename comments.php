@@ -87,7 +87,7 @@ if($com_type==1)
 		echo $row['comment']."\n<br><br>";
 	}
 
-	$rquery = "select app_id from app_data where `reqid` = $com_postid";
+	$rquery = "select * from app_data where `reqid` = $com_postid";
 	$rins= $conn->prepare($rquery);
 	$rins->execute();
 	$rdata = $rins->fetchAll();
@@ -95,7 +95,7 @@ if($com_type==1)
 	foreach($rdata as $comment)
 	{	
 		$app_id = $rdata['app_id'];
-		$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_postid` = $app_id and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
+		$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = $app_id) and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$data = $ins->fetchAll();
