@@ -66,16 +66,18 @@ $data = $ins->fetchAll();
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
 						    <tr>
-						        <th data-field="Datetime"  data-sortable="false">Datetime</th>
+						        <th data-field="Datetime"  data-sortable="false"  data-visible="false" >Datetime</th>
 						        <th data-field="id" data-sortable="false">S.no</th>								
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <th data-field="smname" data-sortable="true">SM</th> <?php } ?>
 						        <th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
 						        <th data-field="rfname" data-sortable="true">Business Partner</th>
-						        <th data-field="rrate"  data-sortable="true">Rate</th>
+						        <th data-field="rrate"  data-sortable="true"  data-visible="false">Rate</th>
+						        <th data-field="reqstatus"  data-sortable="true">Status</th>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 						        <th data-field="Comment"  data-sortable="true">Comment</th>
 						        <th data-field="action" data-sortable="true">Action</th>
+						        <th data-field="reqaction" data-sortable="true">Req status</th>
 						    </tr>
 						    </thead>
 						   <tbody>
@@ -120,6 +122,36 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
 		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
     	<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>   
+		<?php
+		if($row['reqstatus']==1)
+		{
+			$reqcolour = "red";
+			$reqstatus = "Rejected";
+		}
+		else if($row['reqstatus']==2)
+		{
+			$reqcolour = "orange";
+			$reqstatus = "Closed";
+		}
+		else if($row['reqstatus']==3)
+		{
+			$reqcolour = "blue";
+			$reqstatus = "Not Connected";
+		}
+		else if($row['reqstatus']==4)
+		{
+			$reqcolour = "green";
+			$reqstatus = "Open";
+		}
+		else if($row['reqstatus']==5)
+		{
+			$reqcolour = "green";
+			$reqstatus = "In process";
+		}
+
+?>
+		<td data-search="<?php echo $reqstatus; ?>"> <b><h4><font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></h4></b></td> 
+
     	<td> App: 
 		<?php 
 		
@@ -177,6 +209,9 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     		<?php  } if($dta['level'] == 1 || $dta['level'] == 2) {	?> 		<a href ="reqcmd.php?do=delete&id=<?php echo $row['reqid']; ?>" onClick="return confirm('Are you sure you want to remove this req ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
 					<?php } ?>	<a href="addapp.php?reqid=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addapp" class="btn btn-primary">Add Application</button></a>
     	</td>
+		<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>		<td>			
+		<a href="addreqstatus.php?reqid=<?php echo $row['reqid']; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addreqstatus" class="btn btn-primary">Add Req status</button></a> 
+		</td><?php } ?>
     </tr>
     <?php
 }
