@@ -264,7 +264,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allapp_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,BP_SM,Client,RC Status,Sub Status\n";
+                    $txt = "S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,BP_SM,Client,RC Status,Sub Status,Status,Comment,Feedback\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -327,7 +327,7 @@ $data = $ins->fetchAll();
 
                        
 
-                        /*
+                    
                                 $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
                                 if($ars_status == 1)
                                 {
@@ -402,6 +402,22 @@ $data = $ins->fetchAll();
                                     $status =  "Rejected - Due to Linkedin";
                                 }
                         $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                        /*
+                        $appid = $row['app_id'];
+                                    $com_query = "select * from comments where com_postid = $appid";
+                                    $cins= $conn->prepare($com_query);
+                                    $cins->execute();
+                                    $commentdata = $cins->fetchAll();
+
+                                foreach($commentdata as $comment)
+                                {
+                                    $uid = $comment['uid'];
+                                    $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                    $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
+                                }
+                                
+                        */
+                        
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -409,7 +425,7 @@ $data = $ins->fetchAll();
                         else
                         {
                             $feedback = "NA";
-                        } */
+                        }
                         if($row['rcdone']==1)
                         {
                             $rcdone = "Yes";
@@ -433,7 +449,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     //S.no,Date,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,Tier,BP_SM,Client,RC Status,Sub Status
-                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$clientname,$rcdone,$subdone);
+                        $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$bpsm,$clientname,$rcdone,$subdone,$status,$comment,$feedback);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
@@ -559,6 +575,38 @@ $data = $ins->fetchAll();
                                 elseif($ars_status == 10)
                                 {
                                     $status =  "Submitted to End Client";
+                                }
+                                elseif($ars_status == 11)
+                                {
+                                    $status =  "Rejected - Bad Profile";
+                                }
+                                elseif($ars_status == 12)
+                                {
+                                    $status =  "Rejected - Senior Requirement";
+                                }
+                                elseif($ars_status == 13)
+                                {
+                                    $status =  "Rejected - Local candidate needed";
+                                }
+                                elseif($ars_status == 14)
+                                {
+                                    $status =  "Rejected - Position went onhold";
+                                }
+                                elseif($ars_status == 15)
+                                {
+                                    $status =  "Rejected - Day 1 Onsite Required";
+                                }
+                                elseif($ars_status == 16)
+                                {
+                                    $status =  "Rejected - Low Rate";
+                                }
+                                elseif($ars_status == 17)
+                                {
+                                    $status =  "Rejected - Consultant Response";
+                                }
+                                elseif($ars_status == 18)
+                                {
+                                    $status =  "Rejected - Due to Linkedin";
                                 }
                        
                         $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
@@ -699,6 +747,38 @@ $data = $ins->fetchAll();
                                 elseif($ars_status == 10)
                                 {
                                     $status =  "Submitted to End Client";
+                                }
+                                elseif($ars_status == 11)
+                                {
+                                    $status =  "Rejected - Bad Profile";
+                                }
+                                elseif($ars_status == 12)
+                                {
+                                    $status =  "Rejected - Senior Requirement";
+                                }
+                                elseif($ars_status == 13)
+                                {
+                                    $status =  "Rejected - Local candidate needed";
+                                }
+                                elseif($ars_status == 14)
+                                {
+                                    $status =  "Rejected - Position went onhold";
+                                }
+                                elseif($ars_status == 15)
+                                {
+                                    $status =  "Rejected - Day 1 Onsite Required";
+                                }
+                                elseif($ars_status == 16)
+                                {
+                                    $status =  "Rejected - Low Rate";
+                                }
+                                elseif($ars_status == 17)
+                                {
+                                    $status =  "Rejected - Consultant Response";
+                                }
+                                elseif($ars_status == 18)
+                                {
+                                    $status =  "Rejected - Due to Linkedin";
                                 }
                        
                         $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
