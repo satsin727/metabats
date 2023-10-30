@@ -41,7 +41,7 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			
 			}
 
-            echo "upload complete."
+            echo "upload complete.";
         }
 
         else{
