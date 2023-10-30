@@ -58,7 +58,7 @@ elseif($download == "yapp")
 elseif($download == "allapp")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1 order by appdate asc"; }
 elseif($download == "monthlyapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate') order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "yeci")
 {$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
 elseif($download == "yteci")

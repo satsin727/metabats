@@ -15,7 +15,13 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
-$curdate =date('Y-m-d');
+$curdate =date('Y-m-d'); //2023-10-30
+
+if(isset($_GET['date']))
+{
+    $curdate =$_GET['date'];
+}
+
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
