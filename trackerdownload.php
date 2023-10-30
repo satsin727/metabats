@@ -57,8 +57,8 @@ elseif($download == "yapp")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1  and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "allapp")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1 order by appdate asc"; }
-elseif($download == "monthlyapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+elseif($download == "yrc")
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1 and  `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "yeci")
 {$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
 elseif($download == "yteci")
@@ -266,7 +266,7 @@ $data = $ins->fetchAll();
                     exit();
 				}
 
-                elseif($download == "yapp" || $download == "allapp" || $download == "monthlyapp")
+                elseif($download == "yapp" || $download == "allapp" || $download == "yrc")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allapp_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
