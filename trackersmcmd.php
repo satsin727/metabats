@@ -71,56 +71,56 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsw_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and WEEK(appdate) = WEEK('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsw_id']))
 			{
                 $sm_id = $_GET['rcsw_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
             
         if(isset($_GET['subsw_id']))
 			{
                 $sm_id = $_GET['subsw_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['ecisw_id']))
 			{
                 $sm_id = $_GET['ecisw_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
        
        if(isset($_GET['appsm_id']))
 			{
                 $sm_id = $_GET['appsm_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and MONTH(appdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsm_id']))
 			{
                 $sm_id = $_GET['rcsm_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
             
         if(isset($_GET['subsm_id']))
 			{
                 $sm_id = $_GET['subsm_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['ecism_id']))
 			{
                 $sm_id = $_GET['ecism_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
     }
 	else
@@ -156,56 +156,56 @@ if(isset($_GET['appsd_id']))
                 {
                     $sm_id = $_GET['appsw_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `uid` = $uid and `status` = 1  and WEEK(appdate) = WEEK('$curdate')";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `uid` = $uid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
                 }
             
             if(isset($_GET['rcsw_id']))
                 {
                     $sm_id = $_GET['rcsw_id'];
                     $rc = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
                 }
                 
             if(isset($_GET['subsw_id']))
                 {
                     $sm_id = $_GET['subsw_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(subdate) = WEEK('$curdate')";
+                    $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and YEAR(subdate) = YEAR('$curdate')";
                 }
             
             if(isset($_GET['ecisw_id']))
                 {
                     $sm_id = $_GET['ecisw_id'];
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')";
+                    $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
                 }
             
             if(isset($_GET['appsm_id']))
             {
                 $sm_id = $_GET['appsm_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and `uid` = $uid  and MONTH(appdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and `uid` = $uid  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
         
              if(isset($_GET['rcsm_id']))
             {
                 $sm_id = $_GET['rcsm_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and `uid` = $uid  and MONTH(rcdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and `uid` = $uid  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
             
             if(isset($_GET['subsm_id']))
             {
                 $sm_id = $_GET['subsm_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1  and `uid` = $uid and MONTH(subdate) = MONTH('$curdate')";
+                $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1  and `uid` = $uid and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
         
             if(isset($_GET['ecism_id']))
             {
                 $sm_id = $_GET['ecism_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `sm_id` = $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')";
+                $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `sm_id` = $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
     
     } 
