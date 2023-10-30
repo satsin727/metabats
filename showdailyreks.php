@@ -150,9 +150,9 @@ $uid = $dta['uid'];
                                                   //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = '$curdate'")->fetchColumn();
                                                   
 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
+                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
@@ -170,9 +170,9 @@ $uid = $dta['uid'];
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
                                                 //  $weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1")->fetchColumn();
                                                   
-                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
-                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
-                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
                                                 //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')")->fetchColumn();
                                                 $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1";
                                                 $ins= $conn->prepare($qeci);
@@ -212,9 +212,9 @@ $uid = $dta['uid'];
                                                   }
                                                   $deci_num = $c;
 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate')")->fetchColumn();
+                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
                                                   //$weci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate')")->fetchColumn();
                                                   
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid";
@@ -232,9 +232,9 @@ $uid = $dta['uid'];
                                                   }
                                                   $weci_num = $c;
 
-                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and MONTH(appdate) = MONTH('$curdate')")->fetchColumn();
-                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
-                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate')")->fetchColumn();
+                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
                                                   //$meci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')-1")->fetchColumn();
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1  and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid";
                                                   $ins= $conn->prepare($qeci);
