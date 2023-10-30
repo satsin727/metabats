@@ -1,4 +1,10 @@
 <?php
+
+ob_start();
+session_start();
+error_reporting(1);
+ini_set( 'display_errors', 1 );
+ini_set('error_reporting', 1 );
 date_default_timezone_set("America/Chicago");
 
 define( "DB_DSN", "mysql:host=localhost;dbname=oejwxwmy_bats" );
@@ -48,7 +54,7 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
             echo "upload complete.";
         }
         else
-        {
+        { ?>
             <form action="#" method="post" target="_blank" enctype="multipart/form-data" name="form" id="form">
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <tr>
@@ -61,7 +67,7 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 
    							<td  align="left" ><button type="submit" name="submit" class="btn btn-primary">Import</button> </td>					
                  </tr>
-        }
+     <?php   }
 
 
 
