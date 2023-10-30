@@ -1,5 +1,9 @@
 <?php
-require( "config.php" );
+date_default_timezone_set("America/Chicago");
+
+define( "DB_DSN", "mysql:host=localhost;dbname=oejwxwmy_bats" );
+define( "DB_USERNAME", "oejwxwmy_bats" );
+define( "DB_PASSWORD", "m3+@h0riz0n!" );
 
 if(isset($_POST['submit']))
 			{ 
@@ -43,8 +47,8 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 
             echo "upload complete.";
         }
-
-        else{
+        else
+        {
             <form action="#" method="post" target="_blank" enctype="multipart/form-data" name="form" id="form">
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
 <tr>
