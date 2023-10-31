@@ -42,7 +42,8 @@ if($download == "allreqs")
     {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
     }
-    else {
+    else 
+    {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
     }
 
