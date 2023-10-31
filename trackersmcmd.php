@@ -125,28 +125,28 @@ if(isset($_GET['appsd_id']))
        
             if(isset($_GET['appsy_id']))
 			{
-                $sm_id = $_GET['appsm_id'];
+                $sm_id = $_GET['appsy_id'];
                 $app = 1;
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsy_id']))
 			{
-                $sm_id = $_GET['rcsm_id'];
+                $sm_id = $_GET['rcsy_id'];
                 $rc = 1;                
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
             }
             
         if(isset($_GET['subsy_id']))
 			{
-                $sm_id = $_GET['subsm_id'];
+                $sm_id = $_GET['subsy_id'];
                 $sub = 1;
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['ecisy_id']))
 			{
-                $sm_id = $_GET['ecism_id'];                
+                $sm_id = $_GET['ecisy_id'];                
                 $eci = 1;
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
             }
