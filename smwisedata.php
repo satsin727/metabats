@@ -35,7 +35,7 @@ else
 {
     $curdate = date("m/d/y");
 }
-$cdacurdatete = strtotime($curdate);
+$curdate = strtotime($curdate);
 $curdate = date('Y-m-d H:i:s',$curdate);
 
 ?>
