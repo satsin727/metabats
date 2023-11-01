@@ -38,10 +38,12 @@ if($download == "allreqs")
 {
     if($_GET['showweekly']==1)
     {
+        $weekly=1;
         $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
     }
     else if($_GET['showmonthly']==1)
     {
+        $monthly=1;
         $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
     }
     else 
@@ -93,7 +95,13 @@ $data = $ins->fetchAll();
 
 
                         //posted by SM
+                        if($weekly==1 OR $monthly==1)
+                        {
+                            $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and B.status=1 ";
+                        }
+                        else{
                         $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and B.status=1 ";
+                        }
                         $sins= $conn->prepare($sm_query);
                         $sins->execute();
                         $smdata = $sins->fetchAll();
@@ -142,8 +150,19 @@ $data = $ins->fetchAll();
                                 
 
                             }
-                        
-                            $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1")->fetchColumn();
+                            if($weekly==1)
+                            {
+                                $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1 and WEEK(A.rcdate) = WEEK($curdate)")->fetchColumn();
+                            }
+                            elseif($monthly==1){
+                                $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1 and MONTH(A.rcdate) = MONTH($curdate)")->fetchColumn();
+                            }
+                            else
+                            {
+                                $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1")->fetchColumn();
+                            }
+                            
+
                             if($totalrc>0)
                             {
                                 $reqstatus = "Utilized";
