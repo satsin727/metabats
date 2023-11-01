@@ -57,7 +57,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,BP contact,End Client, Utilization Status,Total RC,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -123,6 +123,8 @@ $data = $ins->fetchAll();
                                 $rcdone = $sm['rcdone'];
                                 $subdone = $sm['subdone'];
 
+                                $t1ip= $sm['t1ip_name'];
+
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
@@ -149,16 +151,17 @@ $data = $ins->fetchAll();
                             else {
                                 $reqstatus = "Unutilized";
                             }
-                        if($unique==1)
+                     /*   if($unique==1)
                         {
                             $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
                             fputcsv($fp, $lineData,",");
                         }
                         else
-                        {
-                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
+                        { */
+                            //S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment
+                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$reqstatus,$totalrc,$comments);
                             fputcsv($fp, $lineData,",");
-                        }
+                       // }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
                         
 
