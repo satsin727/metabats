@@ -121,6 +121,8 @@ function login() {
     $code = base64_encode($baseemail); 
     $phash = md5($mdemail.$code); 
     $uhash = md5($u);
+  
+$conn=null;
   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
  $query = "select * from users where `username` = :u";
  $ins= $conn->prepare($query);
