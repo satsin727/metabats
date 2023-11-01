@@ -143,7 +143,7 @@ $data = $ins->fetchAll();
 
                             }
                         
-                            $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.rcdone = 1 and B.datetime > '$curdate' ")->fetchColumn();
+                            $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1")->fetchColumn();
                             if($totalrc>0)
                             {
                                 $reqstatus = "Utilized";
