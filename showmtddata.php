@@ -34,14 +34,14 @@ $uid = $dta['uid'];
 
 if(isset($_POST['date']))
 {
- $cdate = $_POST['date'];
+ $curdate = $_POST['date'];
 }
 else
 {
- $cdate = date("m/d/y");
+ $curdate = date("m/d/y");
 }
-$cdate = strtotime($cdate);
-$cdate = date('Y-m-d H:i:s',$cdate);
+$curdate = strtotime($curdate);
+$curdate = date('Y-m-d H:i:s',$curdate);
 
 ?>
 
@@ -56,7 +56,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 			<div class="col-lg-12">
 				<div class="panel panel-default">
           <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
-          <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
+          <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($curdate)); ?> </div>
                     <div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="name" data-sort-order="asc">
 						    <thead>
