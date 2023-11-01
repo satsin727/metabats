@@ -150,9 +150,17 @@ $data = $ins->fetchAll();
                                 
 
                             }
-                            
+                            if($weekly==1)
+                            {
+                                $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1 and WEEK(A.rcdate) = WEEK('$curdate')")->fetchColumn();
+                            }
+                            elseif($monthly==1){
+                                $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1 and MONTH(A.rcdate) = MONTH('$curdate')")->fetchColumn();
+                            }
+                            else
+                            {
                                 $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1")->fetchColumn();
-
+                            }
                             
 
                             if($totalrc>0)
