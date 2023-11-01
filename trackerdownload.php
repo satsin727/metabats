@@ -61,8 +61,11 @@ elseif($download == "yrc")
 {$query = "SELECT * FROM `app_data` WHERE `status` = 1 and  `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "yeci")
 {$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
-elseif($download == "yteci")
+elseif($download == "teci")
 {$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 order by eci_req_date asc"; }
+elseif($download == "ysub")
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
@@ -266,7 +269,7 @@ $data = $ins->fetchAll();
                     exit();
 				}
 
-                elseif($download == "yapp" || $download == "allapp" || $download == "yrc")
+                elseif($download == "yapp" || $download == "allapp" || $download == "yrc" || $download == "ysub")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allapp_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
@@ -657,7 +660,7 @@ $data = $ins->fetchAll();
 				}
 
                 
-                elseif($download == "msub" || $download == "wrc" || $download == "drc")
+                elseif($download == "msub" || $download == "wsub" || $download == "dsub")
 				{
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."sub_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
