@@ -375,7 +375,7 @@ $curdate = date('Y-m-d H:i:s',$curdate);
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetch();
+                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
                       if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
