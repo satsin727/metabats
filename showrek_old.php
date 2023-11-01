@@ -8,6 +8,9 @@ else
 	header( "Location: admin.php" ); 
 
 }
+
+
+$conn=null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);

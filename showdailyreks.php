@@ -323,6 +323,7 @@ $uid = $dta['uid'];
                                       <td>Total</td>
 <?php
 
+$conn=null;
                   $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                   
                   if($dta['level'] == 1 || $dta['level'] == 2)
@@ -505,6 +506,9 @@ $uid = $dta['uid'];
 
 </div>
 <?php
+
+
+$conn=null;
 
 }
 else

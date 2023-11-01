@@ -10,6 +10,8 @@ else
 
 }
 $uid = $_GET['id'];
+
+$conn=null;
  $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
  $q4 = "UPDATE `users` set `sess` = \"0\" where `uid` = :id ";
  $lout= $conn->prepare($q4);
