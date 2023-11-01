@@ -224,7 +224,7 @@ function showdailydata() {  $selected = "showreports"; require( "showdailyreks.p
 function showsmdata() {  $selected = "showsmdata"; require( "smwisedata.php" ); }
 function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
-function showwtd() {  $selected = "showreports"; require( "weeklydata.php" ); }
+function showwtd() {  $selected = "showreports"; require( "showmtddata.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
 function clientlistdownload()
 {
