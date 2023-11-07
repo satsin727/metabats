@@ -97,10 +97,11 @@ $data = $ins->fetchAll();
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
                         {
-                            $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1 ";
+                            $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1";
                         }
+                
                         else{
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 ";
+                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate')";
                         }
                         $sins= $conn->prepare($sm_query);
                         $sins->execute();
