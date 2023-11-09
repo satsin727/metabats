@@ -109,6 +109,9 @@ $data = $ins->fetchAll();
                         $appdata = "";
                         $bpcontact = "";
                         $comments = "";
+                        $totalrc = 0;
+                        $totalsub = 0;
+                
                             foreach ($smdata as $sm)
                             {
                                /* $uid = $sm['B.uid'];
@@ -130,7 +133,16 @@ $data = $ins->fetchAll();
                                 $bpcontact = $bpcontact.$bpemail."/".$bpphone."\n";
 
                                 $rcdone = $sm['rcdone'];
+
+                                if($rcdone==1)
+                                {
+                                    $totalrc =$totalrc+1;
+                                }
                                 $subdone = $sm['subdone'];
+                                if($subdone==1)
+                                {
+                                    $totalsub =$totalsub+1;
+                                }
 
                                 $t1ip= $sm['t1ip_name'];
 
@@ -151,6 +163,7 @@ $data = $ins->fetchAll();
                                 
 
                             }
+                            /*
                             if($weekly==1)
                             {
                                 $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1 and WEEK(A.rcdate) = WEEK('$curdate')")->fetchColumn();
@@ -162,7 +175,7 @@ $data = $ins->fetchAll();
                             {
                                 $totalrc = $conn->query("select count(*) from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.rcdone = 1 and B.status =1")->fetchColumn();
                             }
-                            
+                            */
 
                             if($totalrc>0)
                             {
