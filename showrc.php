@@ -18,6 +18,11 @@ $ins->execute();
 $dta = $ins->fetch();
 $curdate =date('Y-m-d');
 
+if(isset($_GET['date']))
+{
+    $curdate = $_GET['date'];
+}
+
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
 

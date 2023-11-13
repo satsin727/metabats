@@ -63,7 +63,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Req Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -96,6 +96,27 @@ $data = $ins->fetchAll();
                         $jdtext = str_replace('&nbsp;', '', $jdtext);
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+
+                        if($row['reqstatus']==1)
+                        {
+                            $reqstatus = "Rejected";
+                        }
+                        else if($row['reqstatus']==2)
+                        {
+                            $reqstatus = "Closed";
+                        }
+                        else if($row['reqstatus']==3)
+                        {
+                            $reqstatus = "Not Connected";
+                        }
+                        else if($row['reqstatus']==4)
+                        {
+                            $reqstatus = "Open";
+                        }
+                        else if($row['reqstatus']==5)
+                        {
+                            $reqstatus = "In process";
+                        }
 
 
                         //posted by SM
@@ -183,10 +204,10 @@ $data = $ins->fetchAll();
 
                             if($totalrc>0)
                             {
-                                $reqstatus = "Utilized";
+                                $status = "Utilized";
                             }
                             else {
-                                $reqstatus = "Unutilized";
+                                $status = "Unutilized";
                             }
                      /*   if($unique==1)
                         {
@@ -196,7 +217,7 @@ $data = $ins->fetchAll();
                         else
                         { */
                             //S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment
-                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$reqstatus,$totalrc,$comments);
+                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$reqstatus,$comments);
                             fputcsv($fp, $lineData,",");
                        // }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
