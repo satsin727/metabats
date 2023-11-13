@@ -112,7 +112,15 @@ $data = $ins->fetchAll();
 			<div class="col-lg-12">
 				<div class="panel panel-default">
 				<div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></form></td>  </div>
-					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<?php if($dta['level'] == 2 || $dta['level'] == 1) { ?><a target ="_blank" href="reqsdownload.php?download=allreqs<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showweekly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showmonthly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php } ?></div>
+					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<?php if($dta['level'] == 2 || $dta['level'] == 1) { ?><a target ="_blank" href="reqsdownload.php?download=allreqs<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showweekly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showmonthly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php } ?>
+				
+					<?php if($dta['level'] == 3) { ?>
+						<a target ="_blank" href="smreqsdownload.php?download=allreqs
+						<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="smreqsdownload.php?download=allreqs&showweekly=1&showunique=1
+						<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="smreqsdownload.php?download=allreqs&showmonthly=1&showunique=1
+						<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php } ?>
+				
+				</div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
@@ -191,7 +199,8 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
 		<td> <?php echo $ureq_id; ?><a target="_blank" href="reqnoedit.php?do=editreqid&rid=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a></td>
     	<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showallreqs&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
-		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
+		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="le
+		ads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
 
 		
