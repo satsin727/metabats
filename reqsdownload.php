@@ -59,9 +59,10 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Req Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
+                    $level=0;
                     foreach($data as $row) {
                         $i = $i+1;
                                 
@@ -160,6 +161,47 @@ $data = $ins->fetchAll();
                                     $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
                                     $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
                                 }
+
+                                if($row['reqstatus']==1)
+                                {
+                                    if($level<=1) 
+                                    { 
+                                        $level = 1; 
+                                        $reqstatus = "Rejected";
+                                    }
+                                }
+                                else if($row['reqstatus']==2)
+                                {
+                                    if($level<=3) 
+                                    {
+                                         $level = 3; 
+                                         $reqstatus = "Closed";
+                                    } 
+                                }
+                                else if($row['reqstatus']==3)
+                                {
+                                    if($level<=2) 
+                                    { 
+                                        $level = 2; 
+                                        $reqstatus = "Not Connected"; 
+                                    }
+                                }
+                                else if($row['reqstatus']==4)
+                                {
+                                    if($level<=4) 
+                                    { 
+                                        $level = 4; 
+                                        $reqstatus = "Open";
+                                    }
+                                }
+                                else if($row['reqstatus']==5)
+                                {
+                                    if($level<=5) 
+                                    { 
+                                        $level = 5;
+                                        $reqstatus = "In process";
+                                    }
+                                }
                                 
 
                             }
@@ -179,14 +221,14 @@ $data = $ins->fetchAll();
 
                             if($totalrc>0)
                             {
-                                $reqstatus = "Utilized";
+                                $status = "Utilized";
                             }
                             else {
-                                $reqstatus = "Unutilized";
+                                $status = "Unutilized";
                             }
                      /*   if($unique==1)
                         {
-                            $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$reqstatus,$totalrc,$comments);
+                            $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$status,$totalrc,$reqstatus,$comments);
                             fputcsv($fp, $lineData,",");
                         }
                         else
