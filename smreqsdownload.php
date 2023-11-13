@@ -97,27 +97,6 @@ $data = $ins->fetchAll();
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-                        if($row['reqstatus']==1)
-                        {
-                            $reqstatus = "Rejected";
-                        }
-                        else if($row['reqstatus']==2)
-                        {
-                            $reqstatus = "Closed";
-                        }
-                        else if($row['reqstatus']==3)
-                        {
-                            $reqstatus = "Not Connected";
-                        }
-                        else if($row['reqstatus']==4)
-                        {
-                            $reqstatus = "Open";
-                        }
-                        else if($row['reqstatus']==5)
-                        {
-                            $reqstatus = "In process";
-                        }
-
 
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
@@ -168,6 +147,29 @@ $data = $ins->fetchAll();
                                 {
                                     $totalsub =$totalsub+1;
                                 }
+
+                                
+                        if($sm['reqstatus']==1)
+                        {
+                            $reqstatus = "Rejected";
+                        }
+                        else if($sm['reqstatus']==2)
+                        {
+                            $reqstatus = "Closed";
+                        }
+                        else if($sm['reqstatus']==3)
+                        {
+                            $reqstatus = "Not Connected";
+                        }
+                        else if($sm['reqstatus']==4)
+                        {
+                            $reqstatus = "Open";
+                        }
+                        else if($row['reqstatus']==5)
+                        {
+                            $reqstatus = "In process";
+                        }
+
 
                                 $t1ip= $sm['t1ip_name'];
 
