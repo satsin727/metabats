@@ -60,7 +60,6 @@ if(isset($_GET['do']))
 	elseif($do=='qupdate')
 	{
 		$conn = null;
-		//$qstatus = $_GET['qstatus'];
 		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 		$inquery = "UPDATE `req` SET `qualified` = '1' WHERE `reqid` = $reqid";
 									$ins= $conn->prepare($inquery);
@@ -68,14 +67,13 @@ if(isset($_GET['do']))
 									$conn=null;
 									echo "<script>
 											alert('Changed to Qualified');
-											window.location.href='admin.php?action=showreqs';
+											window.location.href='admin.php?action=showallreqs';
 											</script>"; 	
 	}
 
 	elseif($do=='nqupdate')
 	{
 		$conn = null;
-		//$qstatus = $_GET['qstatus'];
 		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 		$inquery = "UPDATE `req` SET `qualified` = '0' WHERE `reqid` = $reqid";
 									$ins= $conn->prepare($inquery);
@@ -83,7 +81,7 @@ if(isset($_GET['do']))
 									$conn=null;
 									echo "<script>
 											alert('Changed to Not Qualified');
-											window.location.href='admin.php?action=showreqs';
+											window.location.href='admin.php?action=showallreqs';
 											</script>"; 	
 	}
 	
