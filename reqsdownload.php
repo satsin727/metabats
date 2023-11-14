@@ -164,9 +164,9 @@ $data = $ins->fetchAll();
 
                                 if($row['reqstatus']==1)
                                 {
-                                    if($level<=1) 
+                                    if($level<=2) 
                                     { 
-                                        $level = 1; 
+                                        $level = 2; 
                                         $reqstatus = "Rejected";
                                     }
                                 }
@@ -180,9 +180,9 @@ $data = $ins->fetchAll();
                                 }
                                 else if($row['reqstatus']==3)
                                 {
-                                    if($level<=2) 
+                                    if($level<=1) 
                                     { 
-                                        $level = 2; 
+                                        $level = 1; 
                                         $reqstatus = "Not Connected"; 
                                     }
                                 }
