@@ -34,7 +34,7 @@ if(isset($_GET['do']))
 {
 	$userid=$dta['uid'];
 	$do=$_GET['do'];	
-	if(isset($_GET['id'])
+	if(isset($_GET['id']))
 	{
 		$reqid=$_GET['id'];
 	}
