@@ -84,6 +84,19 @@ if(isset($_GET['do']))
 											window.location.href='admin.php?action=showallreqs';
 											</script>"; 	
 	}
+	elseif($do=='qallupdate')
+	{
+		$conn = null;
+		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$inquery = "update req as a right join app_data as b on a.reqid = b.reqid  set a.qualified = 1 where b.rcdone = 1";
+									$ins= $conn->prepare($inquery);
+									$ins->execute();
+									$conn=null;
+									echo "<script>
+											alert('Status provided');
+											window.location.href='admin.php?action=showallreqs';
+											</script>"; 	
+	}
 	
 	elseif($do=='edit')
 	{ 
