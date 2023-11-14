@@ -134,7 +134,8 @@ $data = $ins->fetchAll();
 								<th data-field="remail" data-sortable="true">Company Domain</th>
 						        <th data-field="Client name" data-sortable="true">End Client</th>
 						        <th data-field="rrate"  data-sortable="true" data-visible="false">Rate</th>
-						        <th data-field="reqstatus"  data-sortable="true">Status</th>
+						        <th data-field="reqstatus"  data-sortable="true">Status</th>			
+						        <?php   if($dta['level'] == 1) { ?> <th data-field="qualified"  data-sortable="true">qualified</th> <?php } ?>
 						        <th data-field="ServiceStatus"  data-sortable="true">Service Status</th>
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?> 				        <th data-field="Comment"  data-sortable="true" data-visible="true">Comment</th> 
 						         <?php } ?>
@@ -246,6 +247,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 
 ?>
 		<td data-search="<?php echo $reqstatus; ?>"> <b><h4><font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></h4></b></td> 
+		<?php   if($dta['level'] == 1) { ?>	<td data-search="<?php if($row['qualified'==1]) { echo "Qualified"; } else { echo "Not Qualified"; } ?>"> <a href="reqcmd.php?do=<?php if($row['qualified'==1]) { echo "nqupdate"; } else { echo "qupdate"; } ?>&reqid=<?php echo $row['reqid']; ?>"><?php if($row['qualified'==1]) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a></td> <?php } ?>
 
     	<td> App: 
 		<?php 
