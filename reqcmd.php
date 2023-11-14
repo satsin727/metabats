@@ -34,7 +34,10 @@ if(isset($_GET['do']))
 {
 	$userid=$dta['uid'];
 	$do=$_GET['do'];	
-	$reqid=$_GET['id'];
+	if(isset($_GET['id'])
+	{
+		$reqid=$_GET['id'];
+	}
 	?>
 	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
 		<div class="row">
