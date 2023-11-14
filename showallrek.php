@@ -247,7 +247,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 
 ?>
 		<td data-search="<?php echo $reqstatus; ?>"> <b><h4><font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></h4></b></td> 
-		<?php   if($dta['level'] == 1) { ?>	<td data-search="<?php if($row['qualified'==1]) { echo "Qualified"; } else { echo "Not Qualified"; } ?>"> <a href="reqcmd.php?do=<?php if($row['qualified'==1]) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $row['reqid']; ?>"><?php if($row['qualified'==1]) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a></td> <?php } ?>
+		<?php   if($dta['level'] == 1) { ?>	<td data-search="<?php if($row['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?>"> <a href="reqcmd.php?do=<?php if($row['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $row['reqid']; ?> target="_blank""><?php if($row['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a></td> <?php } ?>
 
     	<td> App: 
 		<?php 
