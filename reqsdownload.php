@@ -234,7 +234,7 @@ $data = $ins->fetchAll();
                         else
                         { */
                             //S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment
-                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$reqstatus,$totalrc,$comments);
+                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$reqstatus,$comments);
                             fputcsv($fp, $lineData,",");
                        // }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
