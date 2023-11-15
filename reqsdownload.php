@@ -59,10 +59,11 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Req Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Qualified,Req Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     $level=0;
+                    $value=0;
                     foreach($data as $row) {
                         $i = $i+1;
                                 
@@ -202,7 +203,14 @@ $data = $ins->fetchAll();
                                         $reqstatus = "In process";
                                     }
                                 }
-                                
+                                if($row['qualified']==1)
+                                {
+                                    if($value==0) 
+                                    { 
+                                        $value = 1; 
+                                        $qualified = "Qualified";
+                                    }
+                                }
 
                             }
                             /*
@@ -226,6 +234,10 @@ $data = $ins->fetchAll();
                             else {
                                 $status = "Unutilized";
                             }
+                            if($value==0)
+                            {
+                                $qualified = "Not Qualified";
+                            }
                      /*   if($unique==1)
                         {
                             $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$status,$totalrc,$reqstatus,$comments);
@@ -234,7 +246,7 @@ $data = $ins->fetchAll();
                         else
                         { */
                             //S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment
-                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$reqstatus,$comments);
+                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$qualified,$reqstatus,$comments);
                             fputcsv($fp, $lineData,",");
                        // }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
