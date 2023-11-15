@@ -95,6 +95,15 @@ $data = $ins->fetchAll();
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
+                        if($row['qualified']==1)
+                        {
+                            if($value==0) 
+                            { 
+                                $value = 1; 
+                                $qualified = "Qualified";
+                            }
+                        }
+
 
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
@@ -203,16 +212,10 @@ $data = $ins->fetchAll();
                                         $reqstatus = "In process";
                                     }
                                 }
-                                if($row['qualified']==1)
-                                {
-                                    if($value==0) 
-                                    { 
-                                        $value = 1; 
-                                        $qualified = "Qualified";
-                                    }
-                                }
+                                
 
                             }
+                           
                             /*
                             if($weekly==1)
                             {
