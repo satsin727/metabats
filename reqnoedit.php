@@ -59,18 +59,15 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$ins3->bindValue( ":skillid", $data['skillid'], PDO::PARAM_INT );
 			$ins3->execute();
 			$data3 = $ins3->fetch();
-
-
-		
 			?>
 		<form action="#" method="post">
 			<tr><br><td><label>Req ID:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label> </td>
-				<td><input name="ureq_id" class="form-control-in" placeholder="<?php echo $req_id; ?>" value="<?php echo $data['ureq_id']; ?>"></td> <br></tr><br>
+				<td><input name="ureq_id" class="form-control-in" placeholder="<?php echo $req_id; ?>" value="<?php echo $data['ureq_id']; ?>"></td> </tr>
 			</tr>
 				<br> <input type="hidden" name="rid" value="<?php echo $reqid; ?>">
 
 			<tr>
-			<br><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="button">
+			<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="button">
 		<button type="submit" name="update">Update</button> </td>
 			</tr>
 		</form>
