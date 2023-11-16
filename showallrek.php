@@ -188,6 +188,7 @@ $reqid = $row['reqid'];
 
 
 	$conn = null;
+	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
 	$udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
 	$utime = strtotime($udate);
