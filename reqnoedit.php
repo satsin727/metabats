@@ -42,6 +42,25 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 
             $req_id = "W".$curweek.$curdate."-".$data['ureq_id'];
 
+			$conn=null;
+			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+			$query = "select * from req where `reqid` = :reqid";
+			$ins= $conn->prepare($query);
+			$ins->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
+			$ins->execute();
+			$data = $ins->fetch();
+			$queryl = "select * from jd where `reqid` = :reqid";
+			$ins1= $conn->prepare($queryl);
+			$ins1->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
+			$ins1->execute();
+			$data1 = $ins1->fetch();
+			$query3 = "select * from skill where `sid` = :skillid";
+			$ins3= $conn->prepare($query3);
+			$ins3->bindValue( ":skillid", $data['skillid'], PDO::PARAM_INT );
+			$ins3->execute();
+			$data3 = $ins3->fetch();
+
+
 		
 			?>
 		<form action="#" method="post">
@@ -60,8 +79,16 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			</tr>
 		</form>
 
+		<tr>
+
+
+
 
 		<?php
+
+			echo "<h2>".$data3['skillname']." - ".$data['rlocation']." - ".$data['rduration']."</h2><br>";
+			echo $data1['rdesc'];
+
 		}
     }
     if(isset($_POST['update']))
