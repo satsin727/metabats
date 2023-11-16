@@ -68,22 +68,14 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				<td><input name="ureq_id" class="form-control-in" placeholder="<?php echo $req_id; ?>" value="<?php echo $data['ureq_id']; ?>"></td> <br></tr><br>
 			</tr>
 				<br> <input type="hidden" name="rid" value="<?php echo $reqid; ?>">
+
 			<tr>
-				<br>
-				<br>
-								</tr>
-			<tr>
-			<br><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
 			<br><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td><td class="button">
 		<button type="submit" name="update">Update</button> </td>
 			</tr>
 		</form>
 
 		<tr>
-
-
-
-
 		<?php
 
 			echo "<h2>".$data3['skillname']." - ".$data['rlocation']." - ".$data['rduration']."</h2><br>";
