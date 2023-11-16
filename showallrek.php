@@ -186,6 +186,9 @@ foreach( $data as $row) {
 
 $reqid = $row['reqid'];
 
+
+	$conn = null;
+
 	$udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
 	$utime = strtotime($udate);
 	$cur_date = date("dmy", $utime); 
