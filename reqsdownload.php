@@ -253,7 +253,7 @@ $data = $ins->fetchAll();
                             {
                                 $qualified = "Not Qualified";
                             }
-                            $value==0; //re-intialization
+                            $value=0; //re-intialization
                      /*   if($unique==1)
                         {
                             $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$status,$totalrc,$reqstatus,$comments);
