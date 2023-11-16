@@ -95,15 +95,7 @@ $data = $ins->fetchAll();
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-                        if($row['qualified']==1)
-                        {
-                            if($value==0) 
-                            { 
-                                $value = 1; 
-                                $qualified = "Qualified";
-                            }
-                        }
-
+                       
 
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
@@ -212,9 +204,29 @@ $data = $ins->fetchAll();
                                         $reqstatus = "In process";
                                     }
                                 }
+
+                                if($row['qualified']==1)
+                                {
+                                    if($value==0) 
+                                    { 
+                                        $value = 1; 
+                                        $qualified = "Qualified";
+                                    }
+                                }
+                              /*  else if($row['qualified']==0)
+                                {
+                                    if($value==1) 
+                                    { 
+                                        $value = 0; 
+                                        $qualified = "Not Qualified";
+                                    }
+                                } */
+        
                                 
 
                             }
+
+                           
                            
                             /*
                             if($weekly==1)
@@ -241,6 +253,7 @@ $data = $ins->fetchAll();
                             {
                                 $qualified = "Not Qualified";
                             }
+                            $value==0; //re-intialization
                      /*   if($unique==1)
                         {
                             $lineData = array($i,$date,$u_req_id,$skill,$location,$jdtext,$appdata,$bpcontact,$clientname,$status,$totalrc,$reqstatus,$comments);
