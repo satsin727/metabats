@@ -58,6 +58,15 @@ if(isset($_GET['id']))
 {
 
 require("../config.php");
+
+$conn=null;
+$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$query = "select * from users where `uid` = :u";
+$ins= $conn->prepare($query);
+$ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
+$ins->execute();
+$dta = $ins->fetch();
+
 $reqid=$_GET['id'];
 
 $conn=null;
@@ -84,7 +93,7 @@ $data3 = $ins3->fetch();
 
       <?php   
       
-      if($_SESSION['username'] == 1) 
+      if($dta['level'] == 1) 
       { 
          if($row['qualified']==1) 
          { echo "Qualified"; } 
@@ -113,7 +122,7 @@ $data3 = $ins3->fetch();
 <td>
 <?php
 
-if($_SESSION['username'] == 1) 
+if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
                     $conn=null;
                     $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
