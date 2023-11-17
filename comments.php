@@ -76,6 +76,7 @@ elseif(isset($_GET['conscom_id']))
 
 if($com_type==1)
 {
+	$conn=null;
 	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 	$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = $com_type and `com_postid` = $com_postid order by datetime desc";
 	$ins= $conn->prepare($query);
