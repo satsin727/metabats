@@ -79,6 +79,30 @@ $ins3->execute();
 $data3 = $ins3->fetch();
 ?>
 <table>
+  <tr>
+      <td>
+
+      <?php   
+      
+      if($dta['level'] == 1) 
+      { 
+         if($row['qualified']==1) 
+         { echo "Qualified"; } 
+         else { echo "Not Qualified"; } ?>
+         <a href="../reqcmd.php?do=<?php if($row['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $row['reqid']; ?>" target="_blank"><?php if($row['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
+         
+        <?php 
+      } ?>
+
+
+      </td>
+  </tr>
+  <tr>
+      <td>
+            <br><br>
+      </td>
+  </tr>
+
 <tr>
       <td>
             <?php
@@ -88,6 +112,9 @@ $data3 = $ins3->fetch();
       </td>
 <td>
 <?php
+
+if($dta['level'] == 1 || $dta['level'] == 2) 
+      { 
                     $conn=null;
                     $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                     $query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = 1 and `com_postid` = $reqid order by datetime desc";
@@ -125,11 +152,14 @@ $data3 = $ins3->fetch();
                         echo $row['comment']."\n<br><br>";
                       }
                     }
+        }
 
 ?>
 </td>
 </tr>
+
 <?php
+
 }
 else
 {
