@@ -68,10 +68,7 @@ if(isset($_GET['do']))
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
-									echo "<script>
-											alert('Changed to Qualified');
-											window.location.href='admin.php?action=showallreqs';
-											</script>"; 	
+									echo "Changed to Qualified";	
 	}
 
 	elseif($do=='nqupdate')
@@ -82,10 +79,8 @@ if(isset($_GET['do']))
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
-									echo "<script>
-											alert('Changed to Not Qualified');
-											window.location.href='admin.php?action=showallreqs';
-											</script>"; 	
+									
+									echo "Changed to Not Qualified";		
 	}
 	elseif($do=='qallupdate')
 	{
@@ -95,10 +90,7 @@ if(isset($_GET['do']))
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
-									echo "<script>
-											alert('Status provided');
-											window.location.href='admin.php?action=showallreqs';
-											</script>"; 	
+									echo "Status provided";	
 	}
 	
 	elseif($do=='edit')
