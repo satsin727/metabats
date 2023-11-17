@@ -100,10 +100,10 @@ $data3 = $ins3->fetch();
       
       if($dta['level'] == 1) 
       { 
-         if($row['qualified']==1) 
+         if($data['qualified']==1) 
          { echo "Qualified"; } 
          else { echo "Not Qualified"; } ?>
-         <a href="../reqcmd.php?do=<?php if($row['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $row['reqid']; ?>" target="_blank"><?php if($row['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
+         <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
          
         <?php 
       } ?>
