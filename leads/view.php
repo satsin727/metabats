@@ -84,7 +84,7 @@ $data3 = $ins3->fetch();
 
       <?php   
       
-      if($dta['level'] == 1) 
+      if($_SESSION['username'] == 1) 
       { 
          if($row['qualified']==1) 
          { echo "Qualified"; } 
@@ -113,7 +113,7 @@ $data3 = $ins3->fetch();
 <td>
 <?php
 
-if($dta['level'] == 1 || $dta['level'] == 2) 
+if($_SESSION['username'] == 1) 
       { 
                     $conn=null;
                     $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
