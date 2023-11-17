@@ -59,6 +59,11 @@ if(isset($_GET['id']))
 
 require("../config.php");
 
+if($_SESSION['id'])
+{
+$sessid = $_SESSION['id'];
+}
+
 $conn=null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from users where `uid` = :u";
