@@ -17,6 +17,7 @@ if(!isset($_SESSION['username'])){
 $_SESSION['username']=0;
 }
 
+$conn=null;
 /*
 function checkEmail($email) {
     $find1 = strpos($email, '@');
