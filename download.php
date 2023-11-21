@@ -143,6 +143,9 @@ $l=$dta['clname'];
 
 <?php
 
+
+$conn = null;
+
 }
 else
 { echo "<script>
