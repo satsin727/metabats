@@ -127,6 +127,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		<?php
 		}
 
+		$conn = null;
+
 }
 else
 { echo "<script>

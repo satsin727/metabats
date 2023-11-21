@@ -200,6 +200,7 @@ window.location.href='admin.php';
 </div>
 
 <?php
+		$conn = null;
 require("includes/footer.php"); 
 }
 else

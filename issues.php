@@ -154,6 +154,7 @@ alert('You Need to be Admin/Manager to view this page.');
 window.location.href='admin.php';
 </script>"; 
 }
+$conn = null;
 require("includes/footer.php"); 
 }
 else
