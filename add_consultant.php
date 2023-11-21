@@ -297,6 +297,7 @@ window.location.href='admin.php?action=listconsultants';
 </script>";
 }
 		}
+		$conn=null;
 
 }
 else

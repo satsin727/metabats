@@ -134,6 +134,8 @@ else {
 }
 		}
 
+		$conn=null;
+
 }
 else
 {

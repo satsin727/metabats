@@ -84,6 +84,7 @@ if(isset($_POST['save']))
 		header( "Location: admin.php?action=listall" );
 
 		}
+		$conn=null;
 
 }
 else
