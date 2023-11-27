@@ -19,11 +19,13 @@ $ins->execute();
 $dta = $ins->fetch();
 $curdate =date('Y-m-d'); //2023-10-30
 
-if(isset($_GET['date']))
-{
-    $curdate =$_GET['date'];
-}
-
+if(isset($_POST['date']))
+	{
+		$cdate = $_POST['date'];
+		$olddate = 1;
+		$cdate = strtotime($cdate);
+		$curdate =date('Y-m-d',$cdate);
+	}
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
