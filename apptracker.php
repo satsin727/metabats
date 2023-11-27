@@ -24,11 +24,6 @@ if(isset($_GET['date']))
     $curdate =$_GET['date'];
 }
 
-if(isset($_POST['date']))
-{
-    $curdate =$_POST['date'];
-}
-
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
