@@ -55,9 +55,9 @@ require("includes/menu.php");
        <a href="admin.php?action=showdailydata"><button class="btn">Realtime Daily App/RC/Sub</button></a>
        <a href="admin.php?action=showwtddata"><button class="btn">WTD App/RC/Sub</button></a>
        <a href="admin.php?action=showmtd"><button class="btn">Monthly Report</button></a>
-        <button class="btn">Application Tracker</button>
-		<button class="btn">RC Tracker</button>
-        <button class="btn">Sub Tracker</button>
+       <a href="apptracker.php?appcdt_id=1"><button class="btn">Application Tracker</button></a>
+       <a href="rctracker.php?rccdt_id=1"><button class="btn">RC Tracker</button></a>
+       <a href="subtracker.php?subcdt_id=1"><button class="btn">Sub Tracker</button></a>
         <button class="btn">WTD Application Tracker</button>
 		<button class="btn">WTD RC Tracker</button>
         <button class="btn">WTD Sub Tracker</button>     
