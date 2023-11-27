@@ -19,7 +19,7 @@ $ins->execute();
 $dta = $ins->fetch();
 $curdate =date('Y-m-d'); //2023-10-30
 
-if(isset($_GET['date']))
+if(isset($_GET['date']) || isset($_POST['date']))
 {
     $curdate =$_GET['date'];
 }
