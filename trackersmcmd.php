@@ -240,7 +240,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a> &nbsp;&nbsp;&nbsp;
                     <a target ="_blank" href="trackersmdownload.php?download=<?php 
                     
                     echo $download."&smid=".$sm_id;
@@ -248,7 +248,7 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
                     if($olddate==1) { echo "&date=".$curdate; } 
                     
                     
-                    ?>"><button name="download" class="btn btn-primary">Download it!</button>
+                    ?>"><button name="download" class="btn btn-primary">Download it!</button></a>
                   
                   <!--
                     <?php if($dta['level'] == 3) {  /*?>
