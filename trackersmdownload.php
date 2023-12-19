@@ -24,51 +24,53 @@ if(isset($_GET['date']))
 {
     $curdate =$_GET['date'];
 }
+$uid = $dta['uid'];
+$smid = $_GET['smid'];
 
-if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'] && ($dta['level'] == 1 || $dta['level'] == 2) )
+if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'] && $uid == $smid)
 {
 
 $download = $_GET['download'];
 
 if($download == "mapp")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
+$query = "SELECT * FROM `app_data` WHERE `status` = 1 and`uid`= $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
 elseif($download == "mrc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
 elseif($download == "msub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1  and`uid`= $uid and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
 elseif($download == "meci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate')  and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= $uid and MONTH(eci_date) = MONTH('$curdate')  and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
 elseif($download == "wapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "wrc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
 elseif($download == "wsub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
 elseif($download == "weci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid  and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
 elseif($download == "dapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "drc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
 elseif($download == "dsub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')  and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')  and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
 elseif($download == "deci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";}
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and DATE(eci_date) = DATE('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";}
 elseif($download == "yapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "allapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1 order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= $uid order by appdate asc"; }
 elseif($download == "yrc")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1 and  `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= $uid and  `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
 elseif($download == "yeci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
 elseif($download == "teci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 order by eci_req_date asc"; }
+{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 order by eci_req_date asc"; }
 elseif($download == "ysub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
 
-
+$conn = null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
 $ins->execute();

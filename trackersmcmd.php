@@ -19,6 +19,22 @@ $ins->execute();
 $dta = $ins->fetch();
 $curdate =date('Y-m-d');
 
+$olddate=0;
+if(isset($_POST['date']))
+{
+    $cdate = $_POST['date'];
+    $olddate = 1;
+    $cdate = strtotime($cdate);
+    $curdate =date('Y-m-d',$cdate);
+}
+elseif(isset($_GET['date']))
+{
+    $curdate =date('Y-m-d');
+}
+else {
+    $curdate =date('Y-m-d');
+}
+
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
 
@@ -35,10 +51,16 @@ if(isset($_GET['appsd_id']))
 			{
                 $appsd_id = $_GET['appsd_id'];
             }
+           
             $app = 0;
             $rc = 0;
             $sub = 0;
-            $eci = 0;
+            $eci = 0;            
+            $daily = 0;        
+            $weekly = 0;
+            $monthly = 0;
+            $yearly = 0;
+            $download = "dapp";
 	if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
 		
@@ -46,12 +68,16 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsd_id'];
                 $app = 1;
+                $daily = 1;                
+                $download = "dapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1 and DATE(appdate) = DATE('$curdate')";
             }
         if(isset($_GET['rcsd_id']))
 			{
                 $sm_id = $_GET['rcsd_id'];
                 $rc = 1;
+                $daily = 1;
+                $download = "drc";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')";
             }
             
@@ -59,6 +85,8 @@ if(isset($_GET['appsd_id']))
             {
                 $sm_id = $_GET['subsd_id'];                
                 $sub = 1;
+                $daily = 1;
+                $download = "dsub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')";
             }
         
@@ -66,6 +94,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['ecisd_id'];
                 $eci = 1;
+                $daily = 1;
+                $download = "deci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate')";
             }
         
@@ -73,13 +103,17 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsw_id'];
                 $app = 1;
+                $weekly = 1;
+                $download = "wapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsw_id']))
 			{
                 $sm_id = $_GET['rcsw_id'];
-                $rc = 1;                
+                $rc = 1;   
+                $weekly = 1;  
+                $download = "wrc";           
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
             
@@ -87,6 +121,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['subsw_id'];
                 $sub = 1;
+                $weekly = 1;
+                $download = "wsub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
         
@@ -94,6 +130,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['ecisw_id'];                
                 $eci = 1;
+                $weekly = 1;
+                $download = "weci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
        
@@ -101,13 +139,17 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsm_id'];
                 $app = 1;
+                $monthly = 1;                
+                $download = "mapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsm_id']))
 			{
                 $sm_id = $_GET['rcsm_id'];
-                $rc = 1;                
+                $rc = 1;       
+                $monthly = 1;    
+                $download = "mrc";     
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
             
@@ -115,6 +157,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['subsm_id'];
                 $sub = 1;
+                $monthly = 1;
+                $download = "msub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
         
@@ -122,6 +166,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['ecism_id'];                
                 $eci = 1;
+                $monthly = 1;
+                $download = "meci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
        
@@ -129,13 +175,17 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsy_id'];
                 $app = 1;
+                $yearly = 1;
+                $download = "yapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and YEAR(appdate) = YEAR('$curdate')";
             }
         
         if(isset($_GET['rcsy_id']))
 			{
                 $sm_id = $_GET['rcsy_id'];
-                $rc = 1;                
+                $rc = 1;     
+                $yearly = 1;        
+                $download = "yrc";   
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
             }
             
@@ -143,6 +193,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['subsy_id'];
                 $sub = 1;
+                $yearly = 1;
+                $download = "ysub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate')";
             }
         
@@ -150,6 +202,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['ecisy_id'];                
                 $eci = 1;
+                $yearly = 1;
+                $download = "yeci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
             }
 
@@ -186,7 +240,26 @@ $reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetch
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a></div>
+					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a target ="_blank" href="trackersmdownload.php?download=<?php 
+                    
+                    echo $download."&smid=".$sm_id;
+
+                    if($olddate==1) { echo "&date=".$curdate; } 
+                    
+                    
+                    ?>"><button name="download" class="btn btn-primary">Download it!</button>
+                  
+                  <!--
+                    <?php if($dta['level'] == 3) {  /*?>
+						<a target ="_blank" href="smreqsdownload.php?download=allreqs
+						<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="smreqsdownload.php?download=allreqs&showweekly=1&showunique=1
+						<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="smreqsdownload.php?download=allreqs&showmonthly=1&showunique=1
+                    <?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php */ } ?> -->
+				
+				    </div>
+        
+
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
