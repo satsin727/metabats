@@ -230,8 +230,12 @@ $conn=null;
 if(isset($_POST['update']))
 
 {
+	function checkemail($str) {
 
-if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) )
+		$str = strtolower($str);
+		return (!preg_match("/^([a-z0-9\+_\-]+)(\.[a-z0-9\+_\-]+)*@([a-z0-9\-]+\.)+[a-z0-9]{2,9}$/ix", trim(strtolower($str)))) ? FALSE : TRUE;
+  }
+	if ( empty($_POST['jobtype']) || empty($_POST['rlocation']) || empty($_POST['rduration']) || empty($_POST['rdesc']) || empty($_POST['skillid']) || empty($_POST['cemail']) || !checkemail(strtolower($_POST['cemail'])) ) 
 {
 
 echo "<script>
@@ -249,9 +253,7 @@ $rdesc = $_POST['rdesc'];
 $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
 $reqid = $_POST['reqid'];
-$remail = $_POST['cemail'];
-
-$conn= null;
+$remail = trim(strtolower($_POST['cemail']));
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from clients where `remail` = :remail";
