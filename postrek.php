@@ -119,6 +119,32 @@ require("includes/menu.php");
 
 <tr>
 <div class="form-group">
+								<td width="15%" align="left" valign="top"><label>Requirement Source:&nbsp;&nbsp;&nbsp;</label>
+								<td width="85%" align="left" valign="top">	
+									<select name="req_source" class="form-control-in">
+										<option value="1">Inbox</option>										
+           								<option value="2">Posting</option>										
+           								<option value="3">Cold Calls</option>																				
+           								<option value="4">AMC</option>																				
+           								<option value="5">Prohires</option>																				
+           								<option value="6">Google Groups</option>																				
+           								<option value="7">LinkedIn</option>										
+           								<option value="8">Job Portal - Dice</option>										
+           								<option value="9">Job Portal - Techfetch</option>										
+           								<option value="10">Job Portal - SimplyHired</option>										
+           								<option value="11">Job Portal - Careerbuilder</option>										
+           								<option value="12">Job Portal - Ziprecruiter</option>										
+           								<option value="13">Job Portal - Monster</option>										
+           								<option value="14">Job Portal - other</option>																				
+           								<option value="15">Company Websites</option>																				
+           								<option value="16">I-Labor</option>																				
+           								<option value="17">Other</option>
+									</select>
+								</td>
+</div></tr><tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr>
+
+<tr>
+<div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Job Description:&nbsp;&nbsp;&nbsp;</label></td>
 								<td width="90%" align="left" valign="top">	<textarea class="ckeditor" name="rdesc" ></textarea> </td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> 
@@ -165,6 +191,7 @@ $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
 $remail = trim(strtolower($_POST['cemail']));
 $ttype = $_POST['ttype'];
+$req_source = $_POST['req_source'];
 $nationality = $_POST['nationality'];
 $currentdatetime =date('Y-m-d H:i:s');
 $conn= null;
@@ -198,7 +225,7 @@ else {
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
- $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :ttype, :nationality, '$currentdatetime');");
+ $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `req_source`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :req_source, :ttype, :nationality, '$currentdatetime');");
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":cid", $cid, PDO::PARAM_INT );
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
@@ -207,6 +234,7 @@ $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
  $que->bindValue( ":rrate", $rrate, PDO::PARAM_INT );
  $que->bindValue( ":rend_client", $rend_client, PDO::PARAM_STR );
  $que->bindValue( ":skillid", $skillid, PDO::PARAM_INT );
+ $que->bindValue( ":req_source", $req_source, PDO::PARAM_INT );
  $que->bindValue( ":ttype", $ttype, PDO::PARAM_INT );
  $que->bindValue( ":nationality", $nationality, PDO::PARAM_INT );
  $que->execute();
