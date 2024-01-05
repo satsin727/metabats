@@ -25,6 +25,26 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
+  $olddate = 0;
+	if(isset($_POST['date']))
+	{
+		$cdate = $_POST['date'];
+		$olddate = 1;
+		$cdate = strtotime($cdate);
+		$curdate =date('Y-m-d',$cdate);
+	}
+  elseif(isset($_GET['date']))
+	{
+		$cdate = $_GET['date'];
+		$olddate = 1;
+		$cdate = strtotime($cdate);
+		$curdate =date('Y-m-d',$cdate);
+	}
+	else
+	{
+		$curdate =date('Y-m-d');
+	}
+
 $uid = $dta['uid'];
 
 ?>
@@ -39,6 +59,7 @@ $uid = $dta['uid'];
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
+        <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></form></td>  </div>
           <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
           <div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="name" data-sort-order="asc">
