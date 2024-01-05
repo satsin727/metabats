@@ -78,7 +78,7 @@ $uid = $dta['uid'];
 			<div class="col-lg-12">
 				<div class="panel panel-default">
         <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></form></td>  </div>
-          <div class="panel-heading"> <a target ="_blank" href="admin.php?action=showdailydata&showweekly=1&showmonthly=1&showyearly=1"><button name="alldata" class="btn btn-primary">Show Weekly and Monthly data</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
+          <div class="panel-heading"> <a target ="_blank" href="admin.php?action=showdailydata&showweekly=1&showmonthly=1&showyearly=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="alldata" class="btn btn-primary">Show Weekly and Monthly data</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
           <div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="name" data-sort-order="asc">
 						    <thead>
