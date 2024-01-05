@@ -40,7 +40,7 @@ if(isset($_GET['showmonthly']))
 	}
 if(isset($_GET['showyearly']))
 	{
-		$monthly = 1;
+		$yearly = 1;
 	}
 
   
