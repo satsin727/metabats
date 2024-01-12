@@ -9,7 +9,7 @@ Version 1.0
 body {
 	background: #fff;
 	padding-top: 50px;
-	color: #5f6468;
+	color: #000000;
 }
 
 p {
@@ -21,7 +21,7 @@ a, a:hover, a:focus {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	color: #5f6468;
+	color: #000000;
 }
 
 h1 {
@@ -46,13 +46,13 @@ h3, h4 {
 	color: #9fadbb;
 }
 
-.color-gray { color: #5f6468; }
+.color-gray { color: #000000; }
 .color-blue { color: #20659b; }
 .color-teal { color: #1ebfae; }
 .color-orange { color: #ffb53e; }
 .color-red { color: #f9243f; }
 
-.bg-primary .glyphicon-remove { color: #5f6468;}
+.bg-primary .glyphicon-remove { color: #000000;}
 .bg-primary .glyphicon-remove:hover { color: #ef4040;}
 
 .no-padding {
@@ -419,7 +419,7 @@ a.bg-danger:hover {
 	color: #9fadbb;
 }
 .widget-right .large {
-	color: #5f6468;
+	color: #000000;
 }
 
 .panel-blue .widget-left { background: #20659b; color: #fff; }
@@ -436,7 +436,7 @@ a.bg-danger:hover {
 .jumbotron {
 	background: #fff;
 	border-bottom: 1px solid #eee;
-	color: #5f6468;
+	color: #000000;
 }
 
 /*Tabs*/
@@ -750,7 +750,7 @@ h1.page-header {
 	padding: 0;
 	margin: -15px;
 	background: #fff;
-	color: #5f6468;
+	color: #000000;
 }
 
 #checkbox {
