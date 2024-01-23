@@ -127,13 +127,15 @@ $data3 = $ins3->fetch();
         <td>
 
         <?php
-        if($data['qualified']==1) 
-        { echo "Change Status:"; } 
-        else { echo "Change Status:"; } ?>
+            if($data['qualified']==1) 
+            { echo "Change Status:"; } 
+            else { echo "Change Status:"; 
+        } 
+        
+        ?>
         <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
 
-        ?>
-        
+
         </td>
 </tr>
 <tr>   
@@ -169,6 +171,9 @@ $data3 = $ins3->fetch();
             ?>
         </td>
       </tr>
+      </td>
+      <td>
+          &nbsp;
       </td>
 </tr>
 <tr>
