@@ -240,14 +240,16 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 
 		
     	<?php
-		//$companydomain = array_pop(explode('@', $dta3['remail']));
-		if(checkmail($dta3['remail']))
-		{
-		$email = $dta3['remail'];
-		$domain = substr($email, strpos($email, '@') + 1);	}
-		else { $domain = "Invalid Domain"; }	
-		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn(); 
+		
+		$domain = $dta3['remail'];
+		
+		if($dta['level'] == 3) {
+		$domain = substr($email, strpos($email, '@') + 1);
+		}
+		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+
 		?>
+
 		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td> 		
 		<td data-search="<?php echo $clientname; ?>"> <?php echo $clientname; ?></a></td> 
 		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>
