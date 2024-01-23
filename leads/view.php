@@ -107,17 +107,15 @@ $data3 = $ins3->fetch();
          
         <?php 
       } 
+      </td>
       if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
 
 
-      ?>
+        <td>
 
+        <?php
 
-      </td>
- 
-      <td>
-            <?php
           $time = strtotime($data['datetime']); 
           $myFormatForView = date("m/d/y g:i A", $time); 
         echo "<br>Date: ".$myFormatForView;
@@ -125,7 +123,7 @@ $data3 = $ins3->fetch();
         echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
           $cur_date = date("dmy", $time); 
           $curweek = date("W", $time); 
-	      echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
+	 //     echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
           $cid = $data['cid'];
         echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
         echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
@@ -133,8 +131,10 @@ $data3 = $ins3->fetch();
         echo "<br>End Client: "."$".$data['rend_client'];
           if($data['ttype']) == 1 { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
-          ?>
-      </td>
+        ?>
+
+        </td>
+      
   </tr>
 
 <tr>
