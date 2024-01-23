@@ -97,6 +97,10 @@ $data3 = $ins3->fetch();
       <td>
 
       <?php   
+      $rquery = "select * from app_data where `reqid` = $reqid";
+      $rins= $conn->prepare($rquery);
+      $rins->execute();
+      $rdata = $rins->fetchAll();
       
       if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
@@ -126,8 +130,6 @@ $data3 = $ins3->fetch();
         else { echo "Change Status:"; } ?>
         <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
 
-        }
-        ?>
 
         </td>
 </tr>
@@ -136,10 +138,7 @@ $data3 = $ins3->fetch();
     <tr>
         <td>
         <?php
-          $rquery = "select * from app_data where `reqid` = $reqid";
-          $rins= $conn->prepare($rquery);
-          $rins->execute();
-          $rdata = $rins->fetchAll();
+          
           echo "<b>Applied consultant:</b><br>";
           foreach($rdata as $row)
           {
@@ -162,6 +161,7 @@ $data3 = $ins3->fetch();
                 echo "<br>";
               }
             }
+          }
 
             ?>
         </td>
