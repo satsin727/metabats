@@ -127,8 +127,8 @@ $data3 = $ins3->fetch();
           $cid = $data['cid'];
    //     echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
     //    echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
-        echo "<br>Rate: "."$".$data['rrate'];
-        echo "<br>End Client: "."$".$data['rend_client'];
+        echo "<br>Rate: "."R".$data['rrate']."/hr";
+        echo "<br>End Client: ".$data['rend_client'];
           if($data['ttype'] == 1 ) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
         ?>
