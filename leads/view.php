@@ -92,7 +92,7 @@ $ins3->bindValue( ":skillid", $data['skillid'], PDO::PARAM_INT );
 $ins3->execute();
 $data3 = $ins3->fetch();
 ?>
-<table>
+<table style="border: 1px solid black;">
   <tr>
       <td>
 
