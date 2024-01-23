@@ -19,11 +19,9 @@
     }
 
   table, th, tr {
-    border: 1px solid black;
     width: -webkit-fill-available;
   }
   td {
-    border: 1px solid black;
     width: 50%;
     margin:30px;    
   }
