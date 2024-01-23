@@ -98,20 +98,18 @@ $data3 = $ins3->fetch();
 
       <?php   
       
-      if($dta['level'] == 1) 
+      if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
          if($data['qualified']==1) 
          { echo "Change Status:"; } 
          else { echo "Change Status:"; } ?>
          <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
          
-        <?php 
-      } 
+       ?>
+
+
       </td>
-      if($dta['level'] == 1 || $dta['level'] == 2) 
-      { 
-
-
+     
         <td>
 
         <?php
@@ -129,8 +127,9 @@ $data3 = $ins3->fetch();
     //    echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
         echo "<br>Rate: "."R".$data['rrate']."/hr";
         echo "<br>End Client: ".$data['rend_client'];
-          if($data['ttype'] == 1 ) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
+          if($data['ttype'] == 1) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
+        }
         ?>
 
         </td>
@@ -140,6 +139,9 @@ $data3 = $ins3->fetch();
 <tr>
       <td>
             <?php
+if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) 
+{ 
+
             echo "<h2>".$data3['skillname']." - ".$data['rlocation']." - ".$data['rduration']."</h2><br>";
             echo $data1['rdesc'];
             ?>
