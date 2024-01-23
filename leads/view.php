@@ -101,7 +101,7 @@ $data3 = $ins3->fetch();
       $rins= $conn->prepare($rquery);
       $rins->execute();
       $rdata = $rins->fetchAll();
-      
+
       if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
 
@@ -120,6 +120,8 @@ $data3 = $ins3->fetch();
         echo "<br>End Client: ".$data['rend_client'];
           if($data['ttype'] == 1) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
+          ?>
+
       </td>
      
         <td>
@@ -130,7 +132,8 @@ $data3 = $ins3->fetch();
         else { echo "Change Status:"; } ?>
         <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
 
-
+        ?>
+        
         </td>
 </tr>
 <tr>   
