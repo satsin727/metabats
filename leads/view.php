@@ -17,6 +17,11 @@
       margin-left:20px;
       width: auto !important;
     }
+
+    table, th, tr, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
   </style>
   
 </head>
@@ -92,7 +97,7 @@ $ins3->bindValue( ":skillid", $data['skillid'], PDO::PARAM_INT );
 $ins3->execute();
 $data3 = $ins3->fetch();
 ?>
-<table style="border: 1px solid black;">
+<table>
   <tr>
       <td>
 
