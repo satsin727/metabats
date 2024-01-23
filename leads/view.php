@@ -23,6 +23,11 @@
     border-collapse: collapse;
     width: -webkit-fill-available;
   }
+  td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 50%;
+  }
   </style>
   
 </head>
@@ -58,6 +63,7 @@ float:left;
 padding-left:10px;
 }
 </style>
+</div>
 
 <!-- span16 --> 
 <div class="span12">
