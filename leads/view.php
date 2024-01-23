@@ -118,14 +118,14 @@ $data3 = $ins3->fetch();
           $myFormatForView = date("m/d/y g:i A", $time); 
         echo "<br>Date: ".$myFormatForView;
           $uid = $data['uid'];
-    //    echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
+        echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
           $cur_date = date("dmy", $time); 
           $curweek = date("W", $time); 
-	 //     echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
+	      echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
           $cid = $data['cid'];
-   //     echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
-    //    echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
-        echo "<br>Rate: "."R".$data['rrate']."/hr";
+        echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
+        echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
+        echo "<br>Rate: "."$".$data['rrate']."/hr";
         echo "<br>End Client: ".$data['rend_client'];
           if($data['ttype'] == 1) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
