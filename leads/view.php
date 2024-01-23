@@ -19,6 +19,7 @@
     }
 
   table, th, tr {
+    margin:30px;
     width: -webkit-fill-available;
   }
   td {
