@@ -18,9 +18,10 @@
       width: auto !important;
     }
 
-  table, th, tr, td {
+  table, th, tr {
     border: 1px solid black;
     border-collapse: collapse;
+    width: -webkit-fill-available;
   }
   </style>
   
@@ -57,6 +58,15 @@ float:left;
 padding-left:10px;
 }
 </style>
+
+<!-- span16 --> 
+<div class="span12">
+<h2></h2>
+<br>
+</div>
+  </div>
+</div>
+
 <?php
 
 if(isset($_GET['id']))
@@ -244,13 +254,6 @@ window.location.href='index.php';
 </script>"; 	
 }
 ?>
-<!-- span16 --> 
-    <div class="span12">
-<h2></h2>
-<br>
-</div>
-  </div>
-</div>
 
  
 </body></html>
