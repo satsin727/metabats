@@ -100,19 +100,8 @@ $data3 = $ins3->fetch();
       
       if($dta['level'] == 1 || $dta['level'] == 2) 
       { 
-         if($data['qualified']==1) 
-         { echo "Change Status:"; } 
-         else { echo "Change Status:"; } ?>
-         <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
-         
 
-      </td>
-     
-        <td>
-
-        <?php
-
-          $time = strtotime($data['datetime']); 
+        $time = strtotime($data['datetime']); 
           $myFormatForView = date("m/d/y g:i A", $time); 
         echo "<br>Date: ".$myFormatForView;
           $uid = $data['uid'];
@@ -127,6 +116,16 @@ $data3 = $ins3->fetch();
         echo "<br>End Client: ".$data['rend_client'];
           if($data['ttype'] == 1) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
 
+      </td>
+     
+        <td>
+
+        <?php
+        if($data['qualified']==1) 
+        { echo "Change Status:"; } 
+        else { echo "Change Status:"; } ?>
+        <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
+
         }
         ?>
 
@@ -134,6 +133,8 @@ $data3 = $ins3->fetch();
 </tr>
 <tr>   
     <td>
+    <tr>
+        <td>
         <?php
           $rquery = "select * from app_data where `reqid` = $reqid";
           $rins= $conn->prepare($rquery);
@@ -148,24 +149,25 @@ $data3 = $ins3->fetch();
           }
 
         ?>
-    </td>
-    <td>
-      <?php
-    echo "<b>RC consultants:</b><br>";
-      foreach($rdata as $row)
-      {
-        if($row['rcdone']==1)
-        {
-          $consultant_id = $row['consultant_id'];
-          echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
-          echo "<br>";
-        }
-      }
+        </td>
+        <td>
+            <?php
+          echo "<b>RC consultants:</b><br>";
+            foreach($rdata as $row)
+            {
+              if($row['rcdone']==1)
+              {
+                $consultant_id = $row['consultant_id'];
+                echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
+                echo "<br>";
+              }
+            }
 
-      ?>
-    </td>
-
-    </tr>
+            ?>
+        </td>
+      </tr>
+      </td>
+</tr>
 <tr>
       <td>
             <?php
