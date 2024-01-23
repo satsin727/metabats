@@ -106,14 +106,34 @@ $data3 = $ins3->fetch();
          <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
          
         <?php 
-      } ?>
+      } 
+      if($dta['level'] == 1 || $dta['level'] == 2) 
+      { 
+
+
+      ?>
 
 
       </td>
-  </tr>
-  <tr>
+ 
       <td>
-            <br><br>
+            <?php
+          $time = strtotime($data['datetime']); 
+          $myFormatForView = date("m/d/y g:i A", $time); 
+        echo "<br>Date: ".$myFormatForView;
+          $uid = $data['uid'];
+        echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
+          $cur_date = date("dmy", $time); 
+          $curweek = date("W", $time); 
+	      echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
+          $cid = $data['cid'];
+        echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
+        echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
+        echo "<br>Rate: "."$".$data['rrate'];
+        echo "<br>End Client: "."$".$data['rend_client'];
+          if($data['ttype']) == 1 { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
+
+          ?>
       </td>
   </tr>
 
@@ -127,8 +147,7 @@ $data3 = $ins3->fetch();
 <td>
 <?php
 
-if($dta['level'] == 1 || $dta['level'] == 2) 
-      { 
+
                     $conn=null;
                     $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
                     $query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = 1 and `com_postid` = $reqid order by datetime desc";
@@ -151,6 +170,7 @@ if($dta['level'] == 1 || $dta['level'] == 2)
                     foreach($rdata as $comment)
                     {	
                       $app_id = $comment['app_id'];
+                      
                       $query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = $app_id) and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
                       $ins= $conn->prepare($query);
                       $ins->execute();
