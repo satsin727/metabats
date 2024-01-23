@@ -18,10 +18,10 @@
       width: auto !important;
     }
 
-    table, th, tr, td {
-  border: 1px solid black;
-  border-collapse: collapse;
-}
+  table, th, tr, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
   </style>
   
 </head>
