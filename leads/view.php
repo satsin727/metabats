@@ -105,8 +105,6 @@ $data3 = $ins3->fetch();
          else { echo "Change Status:"; } ?>
          <a href="../reqcmd.php?do=<?php if($data['qualified']==1) { echo "nqupdate"; } else { echo "qupdate"; } ?>&id=<?php echo $data['reqid']; ?>" target="_blank"><?php if($data['qualified']==1) { echo "Qualified"; } else { echo "Not Qualified"; } ?></a>
          
-       ?>
-
 
       </td>
      
@@ -121,7 +119,7 @@ $data3 = $ins3->fetch();
         echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
           $cur_date = date("dmy", $time); 
           $curweek = date("W", $time); 
-	  //    echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
+	      echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']; //."<a target=/"_blank/" href=/"reqnoedit.php?do=editreqid&rid=".$data['reqid']."/"><img src=/"images/b_edit.png/" alt=/"Edit/" width=/"16/" height=/"16/" border=/"0/" title=/"Edit/"</a>";
           $cid = $data['cid'];
         echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
         echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
