@@ -133,7 +133,35 @@ $data3 = $ins3->fetch();
         </td>
       
   </tr>
+<td>
+    <?php
+      $rquery = "select * from app_data where `reqid` = $reqid";
+      $rins= $conn->prepare($rquery);
+      $rins->execute();
+      $rdata = $rins->fetchAll();
+      echo "<b>Applied consultant:<b>"
+      foreach($rdata as $row)
+      {
+        $consultant_id = $row['consultant_id'];
+        echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
+      }
 
+    ?>
+</td>
+    <td>
+      <?php
+    echo "<b>RC consultants:<b>"
+      foreach($rdata as $row)
+      {
+        if($row['rcdone']==1)
+        {
+          $consultant_id = $row['consultant_id'];
+          echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
+        }
+      }
+
+      ?>
+    </td>
 <tr>
       <td>
             <?php
@@ -162,10 +190,6 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                       echo $row['comment']."\n<br><br>";
                     }
 
-                    $rquery = "select * from app_data where `reqid` = $reqid";
-                    $rins= $conn->prepare($rquery);
-                    $rins->execute();
-                    $rdata = $rins->fetchAll();
 
                     foreach($rdata as $comment)
                     {	
