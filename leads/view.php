@@ -132,14 +132,13 @@ $data3 = $ins3->fetch();
 
         </td>
       
-  </tr>
 <td>
     <?php
       $rquery = "select * from app_data where `reqid` = $reqid";
       $rins= $conn->prepare($rquery);
       $rins->execute();
       $rdata = $rins->fetchAll();
-      echo "<b>Applied consultant:<b>"
+      echo "<b>Applied consultant:</b>";
       foreach($rdata as $row)
       {
         $consultant_id = $row['consultant_id'];
@@ -150,7 +149,7 @@ $data3 = $ins3->fetch();
 </td>
     <td>
       <?php
-    echo "<b>RC consultants:<b>"
+    echo "<b>RC consultants:</b>";
       foreach($rdata as $row)
       {
         if($row['rcdone']==1)
@@ -162,6 +161,8 @@ $data3 = $ins3->fetch();
 
       ?>
     </td>
+
+    </tr>
 <tr>
       <td>
             <?php
