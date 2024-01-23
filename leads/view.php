@@ -144,7 +144,7 @@ $data3 = $ins3->fetch();
           {
             $consultant_id = $row['consultant_id'];
             echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
-            echo <br>;
+            echo "<br>";
           }
 
         ?>
@@ -158,7 +158,7 @@ $data3 = $ins3->fetch();
         {
           $consultant_id = $row['consultant_id'];
           echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
-          echo <br>;
+          echo "<br>";
         }
       }
 
