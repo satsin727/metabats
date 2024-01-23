@@ -334,7 +334,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 
 		
 		?> 
-		<a href="#" onClick="alert('\n\n\n\n<?php echo $c_app_names; ?>')"><?php echo $app_num; ?></a> RC: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_rc_names; ?>')"><?php echo $rc_num; ?></a> Sub: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_sub_names; ?>')"><?php echo $sub_num; ?></a> ECI: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_eci_names; ?>')"><?php echo $eci_num; ?></a></td>
+		<a href="#" onClick="alert('\n\n\n\n<?php echo $c_app_names; ?>'); return false;"><?php echo $app_num; ?></a> RC: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_rc_names; ?>'); return false;"><?php echo $rc_num; ?></a> Sub: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_sub_names; ?>'); return false;"><?php echo $sub_num; ?></a> ECI: <a href="#" onClick="alert('\n\n\n\n<?php echo $c_eci_names; ?>'); return false;"><?php echo $eci_num; ?></a></td>
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> 	<td> <a href="comments.php?reqcom_id=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> 
 		<a href="addcomment.php?reqcom_id=<?php echo $reqid; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><img src="images/add.png" alt="add comment" width="16" height="16" border="0" title="add" /></a></td>     		<?php } ?>
 		 <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> 	<td>
