@@ -20,12 +20,10 @@
 
   table, th, tr {
     border: 1px solid black;
-    border-collapse: collapse;
     width: -webkit-fill-available;
   }
   td {
     border: 1px solid black;
-    border-collapse: collapse;
     width: 50%;
   }
   </style>
