@@ -161,7 +161,8 @@ $data = $ins->fetchAll();
 						        <?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
 								<th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
-								<th data-field="remail" data-sortable="true">Company Domain</th>
+								<th data-field="domain" data-sortable="true">Company Domain</th>								
+								<?php   if($dta['level'] == 1 || $dta['level'] == 2 ) {	?>  <th data-field="remail" data-sortable="true" data-visible="false">Email</th><?php } ?>
 						        <th data-field="Client name" data-sortable="true">End Client</th>
 						        <th data-field="rrate"  data-sortable="true" data-visible="false">Rate</th>
 						        <th data-field="reqstatus"  data-sortable="true">Status</th>			
@@ -241,16 +242,22 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		
     	<?php
 		
-		$domain = $dta3['remail'];
+		$email = $dta3['remail'];
 		
-		if($dta['level'] == 3) {
 		$domain = substr($email, strpos($email, '@') + 1);
-		}
+		
 		$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
 		?>
 
-		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td> 		
+		<td data-search="<?php echo $domain; ?>"> <?php echo $domain; ?></a></td>
+		<?php
+		if($dta['level'] == 1 || $dta['level'] == 2) {
+			?>
+		<td data-search="<?php echo $email; ?>"> <?php echo $email; ?></a></td>
+			<?php
+		}
+		 	?>	
 		<td data-search="<?php echo $clientname; ?>"> <?php echo $clientname; ?></a></td> 
 		<td data-search="<?php echo $row['rrate']; ?>"> <?php echo $row['rrate']; ?></td>
 		
