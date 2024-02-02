@@ -68,7 +68,7 @@ elseif($download == "teci")
 elseif($download == "ysub")
 {$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
 elseif($download == "mspapp")
-{$query = "SELECT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid  WHERE A.status = 1  and B.skillid = 10 and MONTH(A.appdate) = MONTH('$curdate') and YEAR(A.appdate) = YEAR('$curdate') order by A.appdate asc"; }
+{$query = "SELECT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid  WHERE A.status = 1  and B.skill = 10 and MONTH(A.appdate) = MONTH('$curdate') and YEAR(A.appdate) = YEAR('$curdate') order by A.appdate asc"; }
 
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
