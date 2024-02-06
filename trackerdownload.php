@@ -70,6 +70,7 @@ elseif($download == "ysub")
 elseif($download == "mspapp")
 {$query = "SELECT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid  WHERE A.status = 1  and B.skill = 10 and MONTH(A.appdate) = MONTH('$curdate') and YEAR(A.appdate) = YEAR('$curdate') order by A.appdate asc"; }
 
+//SELECT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid  WHERE A.status = 1  and B.skill = 10 and MONTH(A.appdate) = MONTH('2024-01-31') and YEAR(A.appdate) = YEAR('2024-01-31') order by A.appdate asc
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
