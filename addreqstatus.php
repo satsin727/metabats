@@ -51,6 +51,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				<option value="1">Rejected</option>
                 <option value="2">Closed</option>
                 <option value="3">Not connected</option>
+                <option value="6">No Number</option>
                 <option value="4">Open</option>
                 <option value="5">In-Process</option>
 				</select>
