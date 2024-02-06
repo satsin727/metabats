@@ -330,7 +330,7 @@ echo "<script>
 elseif($do=='download')
 {
 
-if($dta['level'] == 1 || $dta['level'] == 2 )
+if($dta['level'] == 1 || $dta['level'] == 2)
 {
 	$dsql="SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = '$listid' AND `status` = 1";
 }
@@ -338,12 +338,12 @@ else
 {
 	$dsql="SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = '$listid' AND `uid` = '$userid' AND `status` = 1";
 }
-	$connd = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-	$dins= $connd->prepare($dsql);
+	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+	$dins= $conn->prepare($dsql);
 	$dins->execute();
 
 	$lnquery ="SELECT * FROM `lists` WHERE `listid` = '$listid' AND `status` = 1";
-	$lins=$connd->prepare($lnquery);
+	$lins=$conn->prepare($lnquery);
 	$lins->execute();
 	$ldata=$lins->fetch();
 	$listname = $ldata['listname'];
