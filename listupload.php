@@ -99,18 +99,10 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			}
 			else
 			{
-
-				if($dta['level'] == 1)
-				{
 					$sql = "UPDATE clients SET `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
 					$insl= $conn->prepare($sql);
-					$insl->execute();	
-				}
-				else {
-					$sql = "UPDATE clients SET uid = '$userid', `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
-					$insl= $conn->prepare($sql);
 					$insl->execute();
-				}
+
 			}
 
 			}
