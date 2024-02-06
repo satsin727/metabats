@@ -18,6 +18,7 @@ $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
 $userid=$dta['uid'];
+$conn=null;
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
@@ -98,9 +99,18 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			}
 			else
 			{
-				$sql = "UPDATE clients SET uid = '$userid', `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
-				$insl= $conn->prepare($sql);
-				$insl->execute();
+
+				if($dta['level'] == 1)
+				{
+					$sql = "UPDATE clients SET `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
+					$insl= $conn->prepare($sql);
+					$insl->execute();	
+				}
+				else {
+					$sql = "UPDATE clients SET uid = '$userid', `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
+					$insl= $conn->prepare($sql);
+					$insl->execute();
+				}
 			}
 
 			}
