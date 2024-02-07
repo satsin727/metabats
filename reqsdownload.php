@@ -204,6 +204,14 @@ $data = $ins->fetchAll();
                                         $reqstatus = "In process";
                                     }
                                 }
+                                else if($row['reqstatus']==6)
+                                {
+                                    if($level<=6) 
+                                    { 
+                                        $level = 6;
+                                        $reqstatus = "No Number";
+                                    }
+                                }
 
                                 if($row['qualified']==1)
                                 {
