@@ -155,6 +155,11 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 			$reqcolour = "brown";
 			$reqstatus = "No number";
 		}
+		else if($row['reqstatus']==7)
+		{
+			$reqcolour = "brown";
+			$reqstatus = "No status";
+		}
 
 ?>
 		<td data-search="<?php echo $reqstatus; ?>"> <b><h4><font color="<?php echo $reqcolour; ?>"><?php echo $reqstatus; ?></font></h4></b></td> 
