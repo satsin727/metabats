@@ -220,7 +220,7 @@ function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "showmtddata.php" ); }
 
-function uploadcallinglist() {  $selected = "calling"; require( "uploadcalllist.php" ); }
+function uploadcallinglist() {  $selected = "calling"; require( "updatecalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
 function clientlistdownload()
 {
