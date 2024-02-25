@@ -39,7 +39,7 @@ require("includes/menu.php");
 		
 	</div>	<!--/.main-->
 
-	<a href="admin.php?=action=updatecallinglist><button>Upload Calling list</button></a>
+	<a href="admin.php?action=updatecallinglist"><button>Upload Calling list</button></a>
 
 <?php
 require("includes/footer.php"); 
