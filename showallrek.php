@@ -295,7 +295,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
 		}
 		else if($row['reqstatus']==7)
 		{
-			$reqcolour = "brown";
+			$reqcolour = "indigo";
 			$reqstatus = "No status";
 		}
 
