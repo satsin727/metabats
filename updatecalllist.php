@@ -56,6 +56,11 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
             }
         
         $rphone = $data[5];
+        $rphone = str_replace(' ', '', strtolower($rphone));        
+        $rphone = str_replace('(', '', strtolower($rphone));               
+        $rphone = str_replace(')', '', strtolower($rphone));               
+        $rphone = str_replace('-', '', strtolower($rphone));               
+        $rphone = str_replace('ext', 'x', strtolower($rphone));
         $date = $data[6];
             $ddate = strtotime($date);
             $dialed_date =date('Y-m-d',$ddate);

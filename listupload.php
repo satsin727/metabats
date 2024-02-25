@@ -72,6 +72,11 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
   			$status = 0;
 			}
 			$col5 = $data[4];
+			$rphone = str_replace(' ', '', strtolower($col5));        
+			$rphone = str_replace('(', '', strtolower($rphone));               
+			$rphone = str_replace(')', '', strtolower($rphone));               
+			$rphone = str_replace('-', '', strtolower($rphone));               
+			$rphone = str_replace('ext', 'x', strtolower($rphone));
             $col6 = $data[5];
             $col7 = $data[6];
 			$col8 = $data[7];
@@ -84,7 +89,7 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			$rowcounts =  $cinsql->fetchColumn();
 			if($rowcounts == 0)
 			{ 
-			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4','$col5','$col6','$col7','$col8','$status','$target')";
+			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4','$rphone','$col6','$col7','$col8','$status','$target')";
 			
 			$count= $count+1;
 			
@@ -99,7 +104,7 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			}
 			else
 			{
-					$sql = "UPDATE clients SET `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$col5' where remail = '$col4'";
+					$sql = "UPDATE clients SET `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$rphone' where remail = '$col4'";
 					$insl= $conn->prepare($sql);
 					$insl->execute();
 
