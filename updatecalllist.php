@@ -43,20 +43,23 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
     $handle = fopen($target,'r');
     while ( ($data = fgetcsv($handle) ) !== FALSE ) {
         $status = 1;
-        //$sno = $data[0];
-        $companyname = $data[1];
-        $rname = $data[2];
+      //  $sn0 = $data[0];
+        $smname = $data[1];
+        $companyname = $data[2];
+        $rname = $data[3];
         //$rfname = $data[2];
-        $col4 = trim(trim($data[3],"\'\"[]~`;:\t%")," ");    
-        if (!filter_var($col4, FILTER_VALIDATE_EMAIL)) 
-        {
-          $col4 = "Invalid Email Address";
-          $status = 0;
-        }
-        $date = $data[4];
+        $col4 = trim(trim($data[4],"\'\"[]~`;:\t%")," ");    
+            if (!filter_var($col4, FILTER_VALIDATE_EMAIL)) 
+            {
+            $col4 = "Invalid Email Address";
+            $status = 0;
+            }
+        
+        $rphone = $data[5];
+        $date = $data[6];
             $ddate = strtotime($date);
             $dialed_date =date('Y-m-d',$ddate);
-        $condata = str_replace(' ', '', strtolower($data[5]));
+        $condata = str_replace(' ', '', strtolower($data[7]));
         if($condata =="connected")
             {
                 $connected = 1;
@@ -64,10 +67,19 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
             else {
                 $connected = 0;
             }
-        $comment = $data[6];
-        $special_notes = $data[7];
+        $comment = $data[8];
+        $special_notes = $data[9];
 
-        if($status!=0)
+        if($dta['level'] == 1 || $dta['level'] == 2)
+        {
+            $smname = str_replace(' ', '', $data[1]);
+            $userid = $conn->query("SELECT uid FROM `users` WHERE `name` = '$smname'")->fetchColumn();
+            $listid = $conn->query("SELECT def_lid FROM `users` WHERE `uid` = '$userid'")->fetchColumn();
+
+        }
+
+
+        if($status!=0 && $userid != null)
         {
             
             $rowcounts =  $conn->query("SELECT COUNT(*) FROM `clients` WHERE `remail` = '$col4'")->fetchColumn();
@@ -93,7 +105,51 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
      } 
      $conn = null;	
 
+     echo "<script>
+    alert('Calling List Successfully Uploaded.');
+    window.location.href='admin.php?action=listall';
+    </script>";
+
     }
+    else{
+
+        require("includes/header.php");
+        $selected = "calling";
+        require("includes/menu.php");
+        ?>
+
+<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+							<div class="panel-body">	
+
+					<form action="" method="post" target="_blank" enctype="multipart/form-data" name="form" id="form">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+		<div class="form-group">
+		<td width="10%" align="left" valign="top"><label>Upload Calling list</label></td>
+		<td width="25%" align="left" valign="top"><input name="file" type="file" id="csv">
+		<p class="help-block">Upload only in .csv file only.</p></td>
+</div> 
+</tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
+
+   							<td  align="left" ><button type="submit" name="submit" class="btn btn-primary">Import</button> </td>					
+                 </tr>
+                 </table>
+
+</form>
+						
+				</div></div>
+			</div><!-- /.col-->
+		</div><!-- /.row -->
+
+
+<?php
+
+    }
+
+
+
 }
 else
 { echo "<script>
