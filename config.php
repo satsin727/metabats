@@ -9,9 +9,9 @@ ini_set('session.cookie_lifetime', 60 * 60 * 24 * 365);
 ini_set('session.gc-maxlifetime', 60 * 60 * 24 * 365);
 date_default_timezone_set("America/Chicago");
 
-define( "DB_DSN", "mysql:host=localhost;dbname=oejwxwmy_bats" );
-define( "DB_USERNAME", "oejwxwmy_bats" );
-define( "DB_PASSWORD", "m3+@h0riz0n!" );
+define( "DB_DSN", "mysql:host=localhost;dbname=" );
+define( "DB_USERNAME", "" );
+define( "DB_PASSWORD", "" );
 
 if(!isset($_SESSION['username'])){
 $_SESSION['username']=0;
