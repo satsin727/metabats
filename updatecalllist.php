@@ -24,6 +24,19 @@ $userid = $dta['uid'];
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 {
 
+    require("includes/header.php");
+    $selected = "calling";
+    require("includes/menu.php");
+    ?>
+
+
+<div class="row">
+			<div class="col-lg-12">
+				<div class="panel panel-default">
+							<div class="panel-body">	
+
+<?php
+
     if(isset($_POST['submit']))
     { 
 
@@ -118,15 +131,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
     }
     else{
 
-        require("includes/header.php");
-        $selected = "calling";
-        require("includes/menu.php");
-        ?>
 
-<div class="row">
-			<div class="col-lg-12">
-				<div class="panel panel-default">
-							<div class="panel-body">	
+        ?>
 
 					<form action="" method="post" target="_blank" enctype="multipart/form-data" name="form" id="form">
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -143,17 +149,20 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                  </table>
 
 </form>
-						
-				</div></div>
-			</div><!-- /.col-->
-		</div><!-- /.row -->
-
 
 <?php
 
     }
 
+?>
 
+						
+</div></div>
+			</div><!-- /.col-->
+		</div><!-- /.row -->
+
+
+        <?php
 
 }
 else
