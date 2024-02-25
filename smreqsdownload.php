@@ -52,7 +52,7 @@ if($download == "allreqs")
     }
     else 
     {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and `uid` = $smid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+        $query = "SELECT * FROM `req` WHERE `status` = 1  and `uid` = $smid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
     }
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
