@@ -36,10 +36,12 @@ require("includes/menu.php");
 				<h1 class="page-header">Welcome to Metahorizon Bench ATS</h1>
 			</div>
 		</div><!--/.row-->
+
+		
+	<a href="admin.php?action=updatecallinglist" target="_blank"><button>Upload Calling list</button></a>
 		
 	</div>	<!--/.main-->
 
-	<a href="admin.php?action=updatecallinglist" target="_blank"><button>Upload Calling list</button></a>
 
 <?php
 require("includes/footer.php"); 
