@@ -104,6 +104,9 @@ switch ( $action ) {
   case 'showmtd':
         showmtd();
         break;
+  case 'uploadcallinglist':
+        uploadcallinglist();
+        break;
   default:
     dashboard();
 }
@@ -131,7 +134,7 @@ $conn=null;
  $dta = $ins->fetch();
  
  $rid =$dta['uid'];
-if($dta['sess']!= 0 )
+/*if($dta['sess']!= 0 )
 
 {
    echo "<script>
@@ -139,12 +142,11 @@ alert('Another session is going on !!! Logging in will destroy all remaining ses
 window.location.href='lout.php?id="."$rid"."';
 </script>";
    
- } else {
+ } else { */
     if ( $uhash == $dta['uhash'] && $phash == $dta['password'] ) {
 
       if($dta['status']==1)
       {
-
       // Login successful: Create a session and redirect to the admin homepage
       $date = date("Y-m-d");
       $_SESSION['username'] = md5(md5($u).$date);
@@ -155,31 +157,21 @@ window.location.href='lout.php?id="."$rid"."';
       $inssess= $conn->prepare($q2);
       $inssess->execute();
       header( "Location: admin.php" );
-}
-
-else {
-
-    echo "<script>
-alert('Your account is disabled. !!!');
-window.location.href='login.php';
-</script>";
-}
-    } else {
-
+      }
+      else {
+      echo "<script>
+      alert('Your account is disabled. !!!');
+      window.location.href='login.php';
+      </script>";
+      }
+    }
+    else {
       // Login failed: display an error message to the user
       echo "<script>
-alert('Wrong Login Credentials !!!');
-window.location.href='login.php';
-</script>";
-
-
-    }
-
-
-  }
-
+      alert('Wrong Login Credentials !!!');
+      window.location.href='login.php';
+      </script>"; }
   } else {
-
     // User has not posted the login form yet: display the form
     require( "login.php" );
   }
@@ -227,6 +219,8 @@ function showsmdata() {  $selected = "showsmdata"; require( "smwisedata.php" ); 
 function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "showmtddata.php" ); }
+
+function uploadcallinglist() {  $selected = "calling"; require( "uploadcalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
 function clientlistdownload()
 {
