@@ -277,7 +277,7 @@ $conn= null;
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
- $que= $conn->prepare("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `remail` = '$remail', `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = $reqid");
+ $que= $conn->prepare("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `cid` = '$cid', `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = $reqid");
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
  $que->bindValue( ":rlocation", $rlocation, PDO::PARAM_STR );
