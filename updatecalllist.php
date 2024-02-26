@@ -145,7 +145,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 					<form action="" method="post" target="_blank" enctype="multipart/form-data" name="form" id="form">
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
 
-  <tr><a href="files/sample.csv"><button>Download Sample!</button></a></tr>
+  <tr><a href="files/sample.csv"><button>Download Sample!</button></a></tr><br><br><br>
+  
 <tr>
 		<div class="form-group">
 		<td width="10%" align="left" valign="top"><label>Upload Calling list</label></td>
