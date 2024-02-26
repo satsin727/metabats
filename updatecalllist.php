@@ -75,6 +75,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
             $status = 0;
             }
         
+        $domain = substr($col4, strpos($col4, '@') + 1);      
         $rphone = $data[5];
         $rphone = str_replace(' ', '', strtolower($rphone));        
         $rphone = str_replace('(', '', strtolower($rphone));               
@@ -110,8 +111,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
             $rowcounts =  $conn->query("SELECT COUNT(*) FROM `clients` WHERE `remail` = '$col4'")->fetchColumn();
             if($rowcounts == 0)
             { 
-                $sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `rphone`,`status`) 
-                values (Null, '$listid', '$userid', '$companyname','$rname','$col4','$rphone','$status')";
+                $sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `domain`, `rphone`,`status`) 
+                values (Null, '$listid', '$userid', '$companyname','$rname','$col4','$domain','$rphone','$status')";
                 $insl= $conn->prepare($sql);
                 $insl->execute();
             }
