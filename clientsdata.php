@@ -47,7 +47,7 @@ if($dta['level'] == 1 || $dta['level'] == 2)
                                 <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
                                     <thead>
                                     <tr>
-                                        <th data-field="id" data-sortable="false">S.no</th>
+                                        <th data-field="id" data-sortable="true">S.no</th>
                                         <th data-field="domain"  data-sortable="true">Domain</th>
                                         <th data-field="contacts" data-sortable="true">Contacts</th>
                                     </tr>
