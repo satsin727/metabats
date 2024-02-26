@@ -190,6 +190,7 @@ $rdesc = $_POST['rdesc'];
 $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
 $remail = trim(strtolower($_POST['cemail']));
+$domain = substr($remail, strpos($remail, '@') + 1);
 $ttype = $_POST['ttype'];
 $req_source = $_POST['req_source'];
 $nationality = $_POST['nationality'];
@@ -215,7 +216,7 @@ else {
 	$dta = $ins->fetch();
 	$lid= $dta['def_lid'];
 
-	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES (:lid, :uid, NULL, NULL, NULL, :remail, NULL, NULL, NULL, NULL, '1', 'manual');");
+	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES (:lid, :uid, NULL, NULL, NULL, :remail, '$domain', NULL, NULL, NULL, NULL, '1', 'manual');");
 	$cinsertquery->bindValue( ":uid", $uid, PDO::PARAM_INT );
 	$cinsertquery->bindValue( ":lid", $lid, PDO::PARAM_INT );
 	$cinsertquery->bindValue( ":remail", $remail, PDO::PARAM_STR );
