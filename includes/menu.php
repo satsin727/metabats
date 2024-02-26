@@ -77,6 +77,8 @@
 <?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 { ?> <li class="<?php if($selected=="clientslist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientslist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>My Clients</a></li> <?php } ?>
 
+<?php if($dta['level'] == 1 || $dta['level'] == 2 )
+{ ?> <li class="<?php if($selected=="clientsdata") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientsdata"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Clients data</a></li> <?php } ?>
 
 <li class="<?php if($selected=="showallreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showallreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>All Reqs</a></li>
 

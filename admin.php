@@ -107,6 +107,9 @@ switch ( $action ) {
   case 'uploadcallinglist':
         uploadcallinglist();
         break;
+  case 'clientsdata':
+        clientsdata();
+        break;
   default:
     dashboard();
 }
@@ -219,6 +222,8 @@ function showsmdata() {  $selected = "showsmdata"; require( "smwisedata.php" ); 
 function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "showmtddata.php" ); }
+
+function clientsdata() {  $selected = "clientsdata"; require( "clientsdata.php" ); }
 
 function uploadcallinglist() {  $selected = "calling"; require( "updatecalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
