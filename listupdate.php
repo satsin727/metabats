@@ -56,6 +56,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || 	$dta['level'] == 2 )
 			$col1 = $_POST['companyname'];
             $col2 = $_POST['rname'];
 			$col3 = trim(trim($_POST['remail'],"\'\"[]~`;:\t%")," ");
+			$domain = substr($col3, strpos($col3, '@') + 1);
             $col4 = $_POST['rphone'];
 			$col5 = $_POST['rlocation'];
             $col6 = $_POST['rtimezon'];
@@ -71,7 +72,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || 	$dta['level'] == 2 )
 			{
 				$col3 = $udata['remail'];
 			}
-			$sql = "UPDATE `clients` SET `companyname` = '$col1', `rname` = '$col2', `remail` = '$col3', `rphone` = '$col4', `rlocation` = '$col5', `rtimezon` = '$col6', `tier` = '$col7', `rfname` = '$col8' WHERE `cid` = :cid;";
+			$sql = "UPDATE `clients` SET `companyname` = '$col1', `rname` = '$col2', `remail` = '$col3', `domain` = $domain, `rphone` = '$col4', `rlocation` = '$col5', `rtimezon` = '$col6', `tier` = '$col7', `rfname` = '$col8' WHERE `cid` = :cid;";
 			$insl= $conn->prepare($sql);
 			$insl->bindValue( ":cid", $cid, PDO::PARAM_INT );
 			$insl->execute();

@@ -254,6 +254,7 @@ $skillid = $_POST['skillid'];
 $uid = $_POST['uid'];
 $reqid = $_POST['reqid'];
 $remail = trim(strtolower($_POST['cemail']));
+$domain = substr($remail, strpos($remail, '@') + 1);
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from clients where `remail` = :remail";
@@ -266,7 +267,7 @@ if($cdta['cid']!= null)
 	$cid = $cdta['cid'];
 	}
 else {
-	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES ('1', :uid, NULL, NULL, NULL, :remail, NULL, NULL, NULL, NULL, '1', 'manual');");
+	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES ('1', :uid, NULL, NULL, NULL, :remail, '$domain', NULL, NULL, NULL, NULL, '1', 'manual');");
 	$cinsertquery->bindValue( ":uid", $uid, PDO::PARAM_INT );
 	$cinsertquery->bindValue( ":remail", $remail, PDO::PARAM_STR );
 	$cinsertquery->execute();
@@ -276,7 +277,7 @@ $conn= null;
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
- $que= $conn->prepare("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = $reqid");
+ $que= $conn->prepare("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `remail` = '$remail', `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = $reqid");
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
  $que->bindValue( ":rlocation", $rlocation, PDO::PARAM_STR );

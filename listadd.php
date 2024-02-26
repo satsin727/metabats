@@ -54,6 +54,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || 	$dta['level'] == 2 )
   			$col3 = "Invalid Email Address";
   			$status = 0;
 			}
+			$domain = substr($col3, strpos($col3, '@') + 1);
 			$col4 = $_POST['rphone'];
 			$col5 = $_POST['rlocation'];
             $col6 = $_POST['rtimezon'];
@@ -68,7 +69,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || 	$dta['level'] == 2 )
 			$rowcounts =  $cinsql->fetchColumn();
 			if($rowcounts == 0)
 			{ 
-			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `rfname` , `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4','$col5','$col6','$col7','$col8','$status','$target')";
+			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `rfname` , `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3', '$domain','$col4','$col5','$col6','$col7','$col8','$status','$target')";
 			if($status!=0)
 			{
 			$count= $count+1;

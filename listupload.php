@@ -83,13 +83,14 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 			if($status!=0)
 			{
+			$domain = substr($col4, strpos($col4, '@') + 1);
 			$csql = "SELECT COUNT(*) FROM `clients` WHERE `lid` = '$listid' AND `uid` = '$userid' AND `status` = 1 AND `remail` LIKE '$col4'";
 			$cinsql = $conn->prepare($csql);
 			$cinsql->execute();
 			$rowcounts =  $cinsql->fetchColumn();
 			if($rowcounts == 0)
 			{ 
-			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4','$rphone','$col6','$col7','$col8','$status','$target')";
+			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4', '$domain','$rphone','$col6','$col7','$col8','$status','$target')";
 			
 			$count= $count+1;
 			
