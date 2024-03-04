@@ -187,7 +187,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $wsub; ?></td>
                                     <?php 
-                                        $weci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and WEEK(B.eci_date) = WEEK('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
+                                        $weci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and WEEK(B.eci_date) = WEEK('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $weci; ?></td>
                                 </tr>
@@ -206,7 +206,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $msub; ?></td>
                                     <?php 
-                                        $meci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and MONTH(B.eci_date) = MONTH('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
+                                        $meci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and MONTH(B.eci_date) = MONTH('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $meci; ?></td>
                                 </tr>
@@ -225,7 +225,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $ysub; ?></td>
                                     <?php 
-                                        $yeci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
+                                        $yeci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $yeci; ?></td>
                                 </tr>
@@ -244,7 +244,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $csub; ?></td>
                                     <?php 
-                                        $ceci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid  and `A.status` = 1 ")->fetchColumn();
+                                        $ceci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid  and A.status = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $ceci; ?></td>
                                 </tr>
