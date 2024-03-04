@@ -72,7 +72,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 							    <label>DOB:&nbsp;<?php echo $cdata['dob'];?> </label><br> 
 								<label>Skype ID:&nbsp;<?php echo $cdata['cm_email'];?> </label><br>
 								<?php
-								if($cdata['lastssn']!== '0')
+								if($cdata['lastssn']!== '0' && isset($cdata['lastssn']))
 								{ ?>
 								<label>Last 4 SSN:&nbsp;<?php echo $cdata['lastssn'];?> </label><br>
 								<?php } ?>
@@ -80,7 +80,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<label>Relocation:&nbsp;<?php echo $cdata['relocation'];?> </label><br>
 								<?php
 														
-								if($cdata['passportnumber']!== '0')
+								if($cdata['passportnumber']!== '0' && isset($cdata['passportnumber']) )
 								{
 								if($dta['level']==1 || $dta['level']==2 )
 								{ ?>
@@ -88,7 +88,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<?php } ?>							
 								<?php } ?>
 								<?php 
-								if($cdata['bachelordegree']!== '0')
+								if($cdata['bachelordegree']!== '0' && isset($cdata['bachelordegree']))
 								{ ?>
 								<br>
 								<label>Education Details:&nbsp;</label><br>			
@@ -103,33 +103,33 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<?php } ?>
 
 								<?php 
-								if($cdata['linkedin']!== '0')
+								if($cdata['linkedin']!== '0' && isset($cdata['linkedin']))
 								{ ?>		
 								<label>Linkedin:&nbsp;<?php echo $cdata['linkedin'];?> </label><br>
 								<?php } ?>
 								<?php 
-								if($cdata['resume']!== '0')
+								if($cdata['resume']!== '0' && isset($cdata['resume']))
 								{ ?>
 								<label>Resume:&nbsp;</label> <a href="download.php?resume=<?php echo $cdata['resume']; ?>&cid=<?php echo $cdata['cid']; ?>"><?php  echo $cdata['cfname']." Resume"; ?></a><br>
 								<?php } ?>
 								
 								<?php 
-								if($cdata['visacopy']!== '0')
+								if($cdata['visacopy']!== '0' && isset($cdata['visacopy']))
 								{ ?>
 								<label>Visa:&nbsp;</label> <a href="download.php?visacopy=<?php echo $cdata['visacopy']; ?>&cid=<?php echo $cdata['cid']; ?>"><?php  echo $cdata['cfname']." Visacopy"; ?></a><br>
 								<?php } ?>
 								<?php 
-								if($cdata['dlcopy']!== '0')
+								if($cdata['dlcopy']!== '0' && isset($cdata['dlcopy']))
 								{ ?>
 								<label>DL:&nbsp;</label> <a href="download.php?dlcopy=<?php echo $cdata['dlcopy']; ?>&cid=<?php echo $cdata['cid']; ?>"><?php  echo $cdata['cfname']." DL copy"; ?></a><br>
 								<?php } ?>
 								<?php
-								if($cdata['stateid']!== '0')
+								if($cdata['stateid']!== '0' && isset($cdata['stateid']))
 								{ ?>
 								<label>State ID:&nbsp;</label> <a href="download.php?stateid=<?php echo $cdata['stateid']; ?>&cid=<?php echo $cdata['cid']; ?>"><?php  echo $cdata['cfname']." State ID copy"; ?></a><br>
 								<?php } ?>				
 								<?php 
-								if($cdata['passportcopy']!== '0')
+								if($cdata['passportcopy']!== '0' && isset($cdata['passportcopy']))
 								{ ?>
 								<label>Passport:&nbsp;</label> <a href="download.php?passportcopy=<?php echo $cdata['passportcopy']; ?>&cid=<?php echo $cdata['cid']; ?>"><?php  echo $cdata['cfname']." passportcopy"; ?></a><br>
 								<?php } ?>				
