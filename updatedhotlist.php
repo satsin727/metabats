@@ -82,7 +82,7 @@ $sid = $row['skill'];
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>    	
     	<td data-search="<?php echo $row['cmlocation']; ?>"> <?php echo $row['cmlocation']; ?></td> 	
     	<td data-search="<?php echo $row['relocation']; ?>"> <?php echo $row['relocation']; ?></td>     
-    	<td> <a href=""><button>View Details</button></a></td>      	
+    	<td> <a href="consultantdata.php?id=<?php echo $row['cid']; ?>"><button>View Details</button></a></td>      	
 
     </tr>
     <?php  //for if
