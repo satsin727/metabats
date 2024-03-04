@@ -143,7 +143,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<label>Posting Password:&nbsp;<?php echo $cdata['cp_password'];?> </label><br>
                             </td>
                             <td width = "100%">
-                            <table data-toggle="table"  data-show-refresh="true" data-show-toggle="false" data-show-columns="true" data-search="false" data-select-item-name="#" data-pagination="flase" data-sort-name="#" data-sort-order="asc">
+                            <table data-toggle="table"  data-show-refresh="fasle" data-show-toggle="false" data-show-columns="false" data-search="false" data-select-item-name="#" data-pagination="false" data-sort-name="#" data-sort-order="asc">
                                 <thead>
                                 <tr>
                                     <th>Time</th>
