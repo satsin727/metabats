@@ -24,11 +24,10 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 require("includes/header.php");
 require("includes/menu.php");
 echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
-<div class="col-lg-12">
+		<div class="col-lg-12">
 				<div class="panel panel-default">
-			<div class="panel-heading"><a href="admin.php?action=clientlistdownload"><button name="Download" class="btn btn-primary">Download</button></a></div>
-
-';
+				<div class="panel-heading"><a href="admin.php?action=listall"><button name="clientslist" class="btn btn-primary">Clients list</button></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="admin.php?action=clientlistdownload"><button name="Download" class="btn btn-primary">Download</button></a></div>
+	';
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
