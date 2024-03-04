@@ -59,6 +59,7 @@ $conn=null;
 						        <th data-field="Skill" data-sortable="true">Skill</th>
 						        <th data-field="Location" data-sortable="true">Location</th>
 						        <th data-field="Relocation" data-sortable="true">Relocation</th>
+						        <th data-field="Consultant Data" data-sortable="true">Consultant Data</th>
 						    </tr>
 						    </thead>
 						   <tbody>
@@ -77,10 +78,11 @@ $sid = $row['skill'];
 	?>
     <tr>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
+    	<td data-search="<?php echo $row['cfname']." ".$row['clname']; ?>"> <a href="assigneddetails.php?id=<?php echo $row['cid']; ?>"><?php echo $row['cfname']." ".$row['clname']; ?></a></td>
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>    	
     	<td data-search="<?php echo $row['cmlocation']; ?>"> <?php echo $row['cmlocation']; ?></td> 	
-    	<td data-search="<?php echo $row['relocation']; ?>"> <?php echo $row['relocation']; ?></td>       	
+    	<td data-search="<?php echo $row['relocation']; ?>"> <?php echo $row['relocation']; ?></td>     
+    	<td> <a href=""><button>View Details</button></a></td>      	
 
     </tr>
     <?php  //for if
