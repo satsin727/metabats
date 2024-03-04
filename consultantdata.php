@@ -17,6 +17,7 @@ $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
 $ins->execute();
 $dta = $ins->fetch();
+$curdate =date('Y-m-d');
 $conn=null;
 
 if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
@@ -25,6 +26,19 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		require("includes/header.php");
 		$selected = "assigned";
 		require("includes/menu.php");
+
+        $olddate = 0;
+        if(isset($_POST['date']))
+        {
+            $cdate = $_POST['date'];
+            $olddate = 1;
+            $cdate = strtotime($cdate);
+            $curdate =date('Y-m-d',$cdate);
+        }
+        else
+        {
+            $curdate =date('Y-m-d');
+        }
 
 		if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		{
@@ -129,6 +143,35 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<label>Posting Password:&nbsp;<?php echo $cdata['cp_password'];?> </label><br>
                             </td>
                             <td width = "100%">
+                                <table>
+                                <tr>
+                                    <th>S.no</th>
+                                    <th>App</th>                                    
+                                    <th>RC</th>
+                                    <th>Sub</th>
+                                    <th>ECI</th>
+                                </tr>
+                                <tr>
+                                    <td>Daily</td>
+                                    <?php 
+                                        $dapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid")->fetchColumn();
+                                    ?>
+                                    <td><?php echo $dapp; ?></td>
+                                    <?php 
+                                        $drc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1")->fetchColumn();
+                                    ?>
+                                    <td><?php echo $drc; ?></td>
+                                    <?php 
+                                        $dsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1")->fetchColumn();
+                                    ?>
+                                    <td><?php echo $dsub; ?></td>
+                                    <?php 
+                                        $deci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid")->fetchColumn();
+                                    ?>
+                                    <td><?php echo $deci; ?></td>
+                                </tr>
+                                    
+                                </table>
                             </td>
 
 				</form>
