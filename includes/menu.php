@@ -46,8 +46,9 @@
 		<ul class="nav menu">
 			<li class="<?php if($selected=="postreq") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=postreq"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Post Req</a></li>
 			<?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
-{ ?>		<li class="<?php if($selected=="showreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>My Reqs</a></li> 
-			<li class="<?php if($selected=="showteamreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showteamreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Team Reqs</a></li>  <?php } ?>
+{ ?>		<li class="<?php if($selected=="showreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>My Reqs</a></li> <?php } ?>
+				<?php if($dta['level'] == 2)
+{ ?> <li class="<?php if($selected=="showteamreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showteamreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Team Reqs</a></li>  <?php } ?>
 			
 			<li class="<?php if($selected=="showapplications") { echo "active"; } else { echo "parent"; } ?>" >
 						<a href="admin.php?action=showapplications">
@@ -69,7 +70,8 @@
 							<svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>Interviews
 						</a>
 			</li>
-			<li class="<?php if($selected=="assigned") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=assigned"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>My Consultants</a></li>
+			<?php if($dta['level'] == 3)
+{ ?> 			<li class="<?php if($selected=="assigned") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=assigned"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>My Consultants</a></li> <?php } ?>
 			<li class="<?php if($selected=="updatedhotlist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=updatedhotlist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Updated Hotlist</a></li>
 <?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 { ?> <li class="<?php if($selected=="listall") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=listall"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Add Client</a></li> <?php } ?>
@@ -86,7 +88,7 @@
 -->
 <?php if($dta['level'] == 1 || $dta['level'] == 2)
 { ?>
-			<li class="<?php if($selected=="assign") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=assign"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Assign Consultants</a></li> 
+	<!--		<li class="<?php if($selected=="assign") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=assign"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Assign Consultants</a></li>  -->
 
 			<li class="<?php if($selected=="listconsultants") { echo "active"; } else { echo "parent"; } ?>">
 				<a href="admin.php?action=listconsultants">

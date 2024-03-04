@@ -24,7 +24,7 @@ if(isset($_SESSION['username']))
 <script type="text/javascript" src="js/jquery.fancybox-1.3.4.js"></script>
 <link rel="stylesheet" type="text/css" href="css/jquery.fancybox-1.3.4.css" media="screen" />
 
-<script src="js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.0/js/dataTables.js"></script>
 <script src="js/dataTables.bootstrap.min.js"></script>
 <!-- <link rel="stylesheet" href="css/bootstrap-datepicker.css">
 <script src="js/bootstrap-datepicker.js"></script> -->
