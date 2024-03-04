@@ -143,14 +143,16 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<label>Posting Password:&nbsp;<?php echo $cdata['cp_password'];?> </label><br>
                             </td>
                             <td width = "100%">
-                                <table>
+                            <table data-toggle="table"  data-show-refresh="true" data-show-toggle="false" data-show-columns="true" data-search="false" data-select-item-name="#" data-pagination="flase" data-sort-name="#" data-sort-order="asc">
+                                <thead>
                                 <tr>
-                                    <th>S.no</th>
+                                    <th>Time</th>
                                     <th>App</th>                                    
                                     <th>RC</th>
                                     <th>Sub</th>
                                     <th>ECI</th>
                                 </tr>
+                                </thead>
                                 <tr>
                                     <td>Daily</td>
                                     <?php 
@@ -158,11 +160,11 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $dapp; ?></td>
                                     <?php 
-                                        $drc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1")->fetchColumn();
+                                        $drc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0")->fetchColumn();
                                     ?>
                                     <td><?php echo $drc; ?></td>
                                     <?php 
-                                        $dsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1")->fetchColumn();
+                                        $dsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1")->fetchColumn();
                                     ?>
                                     <td><?php echo $dsub; ?></td>
                                     <?php 
@@ -170,6 +172,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     ?>
                                     <td><?php echo $deci; ?></td>
                                 </tr>
+                                
                                     
                                 </table>
                             </td>
