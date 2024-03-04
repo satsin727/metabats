@@ -29,20 +29,11 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		{
 				$uid = $dta['uid'];
-				$id = $_GET['id'];
-				$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-				$query = "select * from assigned where `id` = $id";
-				$ins= $conn->prepare($query);
-				$ins->execute();
-				$data = $ins->fetch();
-				if($data['uid']==$uid || $dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
-				{
-
-					$cid=$data['cid'];
-					$query2 = "select * from consultants where `cid` = $cid";
-					$ins2= $conn->prepare($query2);
-					$ins2->execute();
-					$cdata = $ins2->fetch();
+				$cid = $_GET['id'];
+                $query2 = "select * from consultants where `cid` = $cid";
+                $ins2= $conn->prepare($query2);
+                $ins2->execute();
+				$cdata = $ins2->fetch();
 				?>
 
 
@@ -149,15 +140,6 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				</div>	
 				<?php 
 
-				}
-
-				else
-				{
-					echo "<script>
-				alert('You are not assigned to view this consultant details.');
-				window.location.href='admin.php?action=assigned';
-				</script>"; 
-				}
 
 		} //for admin/manager
 		else
