@@ -96,7 +96,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								<?php } ?>
 								
 								<?php 
-								if($cdata['masterdegree']!== '0' || isset($cdata['masterdegree']) )
+								if($cdata['masterdegree']!== '0' && isset($cdata['masterdegree']) )
 								{ ?>
 								<br>		
 								<label>Master's:&nbsp;<?php echo $cdata['masterdegree']." from ".$cdata['muniversity']." in ".$cdata['myear'];?> </label><br>
