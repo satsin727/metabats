@@ -156,95 +156,95 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                 <tr>
                                     <td>Daily</td>
                                     <?php 
-                                        $dapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and DATE(appdate) = DATE('$curdate')")->fetchColumn();
+                                        $dapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and DATE(appdate) = DATE('$curdate') and `status` = 1")->fetchColumn();
                                     ?>
                                     <td><?php echo $dapp; ?></td>
                                     <?php 
-                                        $drc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0  and DATE(appdate) = DATE('$curdate')")->fetchColumn();
+                                        $drc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and DATE(appdate) = DATE('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $drc; ?></td>
                                     <?php 
-                                        $dsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and DATE(appdate) = DATE('$curdate')")->fetchColumn();
+                                        $dsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and DATE(appdate) = DATE('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $dsub; ?></td>
                                     <?php 
-                                        $deci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and DATE(B.eci_date) = DATE('$curdate') ")->fetchColumn();
+                                        $deci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and DATE(B.eci_date) = DATE('$curdate') and A.status = 1")->fetchColumn();
                                     ?>
                                     <td><?php echo $deci; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Weekly</td>
                                     <?php 
-                                        $wapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $wapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $wapp; ?></td>
                                     <?php 
-                                        $wrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0 and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $wrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $wrc; ?></td>
                                     <?php 
-                                        $wsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $wsub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $wsub; ?></td>
                                     <?php 
-                                        $weci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and WEEK(B.eci_date) = WEEK('$curdate') and YEAR(B.eci_date) = YEAR('$curdate')")->fetchColumn();
+                                        $weci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and WEEK(B.eci_date) = WEEK('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $weci; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Monthly</td>
                                     <?php 
-                                        $mapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $mapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $mapp; ?></td>
                                     <?php 
-                                        $mrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $mrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $mrc; ?></td>
                                     <?php 
-                                        $msub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $msub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $msub; ?></td>
                                     <?php 
-                                        $meci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and MONTH(B.eci_date) = MONTH('$curdate') and YEAR(B.eci_date) = YEAR('$curdate')")->fetchColumn();
+                                        $meci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and MONTH(B.eci_date) = MONTH('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $meci; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Yearly</td>
                                     <?php 
-                                        $yapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $yapp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $yapp; ?></td>
                                     <?php 
-                                        $yrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0 and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $yrc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $yrc; ?></td>
                                     <?php 
-                                        $ysub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
+                                        $ysub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $ysub; ?></td>
                                     <?php 
-                                        $yeci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and YEAR(B.eci_date) = YEAR('$curdate')")->fetchColumn();
+                                        $yeci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid and YEAR(B.eci_date) = YEAR('$curdate') and `A.status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $yeci; ?></td>
                                 </tr>
                                 <tr>
                                     <td>Total till date</td>
                                     <?php 
-                                        $capp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid")->fetchColumn();
+                                        $capp = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $capp; ?></td>
                                     <?php 
-                                        $crc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 0")->fetchColumn();
+                                        $crc = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $crc; ?></td>
                                     <?php 
-                                        $csub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1")->fetchColumn();
+                                        $csub = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `subdone` = 1 and `rcdone` = 1 and `status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $csub; ?></td>
                                     <?php 
-                                        $ceci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid")->fetchColumn();
+                                        $ceci = $conn->query("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$cid  and `A.status` = 1 ")->fetchColumn();
                                     ?>
                                     <td><?php echo $ceci; ?></td>
                                 </tr>
