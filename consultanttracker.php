@@ -491,7 +491,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         $ins->execute();
         $data = $ins->fetchAll();
         ?>
-
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
@@ -640,6 +640,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		</div>
 	</div>
 </div>
+</div>
 
 <?php
 
@@ -660,7 +661,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         $ins->execute();
         $data = $ins->fetchAll();
         ?>
-
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
@@ -709,6 +710,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 			</div>
 		</div>
 	</div>
+</div>
 </div>
 
 <?php
