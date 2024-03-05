@@ -191,7 +191,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             if(isset($_GET['rccall_id']))
                 {
                     $consultantid = $_GET['rccall_id'];
-                    $app = 1;
+                    $rc = 1;
                     $download = "allrc"; 
                     $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status` = 1";
                 }
@@ -199,7 +199,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             if(isset($_GET['subcall_id']))
                 {
                     $consultantid = $_GET['subcall_id'];
-                    $app = 1;
+                    $sub = 1;
                     $download = "allsub"; 
                     $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1  and `subdone` = 1 and `status` = 1";
                 }
