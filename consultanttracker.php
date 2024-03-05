@@ -645,7 +645,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['noteid'];
             $all = 1;
             $download = "allissues";
-            $query = "select * from issues where consultant_id = $consultantid and status= 1";
+            $query = "select * from issues where consultant_id = $consultantid order by datetime desc";
         }
         
         $ins= $conn->prepare($query);
