@@ -455,37 +455,37 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
         $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
         $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-        /*
+        
         if(isset($_GET['appissues']))
         {
             $consultantid = $_GET['appissues'];
             $app = 1;
-            $download = "dapp";
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+            $download = "appissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.appcom_id = 1 order by A.datetime desc";
         }    
         if(isset($_GET['rcissues']))
         {
             $consultantid = $_GET['rcissues'];
             $rc = 1;
-            $download = "dapp";
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
-        }
+            $download = "rcissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.rccom_id = 1 order by A.datetime desc";
+       }
 
         if(isset($_GET['subissues']))
         {
             $consultantid = $_GET['subissues'];
             $sub = 1;
-            $download = "dapp";
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
-        }
+            $download = "subissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.subcom_id = 1 order by A.datetime desc";
+       }
 
         if(isset($_GET['eciissues']))
         {
             $consultantid = $_GET['eciissues'];
             $eci = 1;
-            $download = "dapp";
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
-        }    */  
+            $download = "eciissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.ecicom_id = 1 order by A.datetime desc";
+       }  
         
         $ins= $conn->prepare($query);
         $ins->execute();
