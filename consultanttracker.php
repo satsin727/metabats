@@ -560,7 +560,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
                     
                     ?>
-
+                    <tr>
                     <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
                     <td data-search="<?php echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView; if($eci==1) { echo " ".$eci_time; } ?></td>
                     <td data-order="<?php if($app==1) { $commenttype = "Application"; } elseif($rc==1) {$commenttype = "Rate Confirmation"; }  elseif($sub==1) {$commenttype = "Submission"; }  elseif($eci==1) {$commenttype = "Interview"; } ?>"> <?php echo $commenttype;  ?></td>
@@ -625,6 +625,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
                 ?> </td>
                 <td data-order="<?php echo $row['comment']; ?>"> <?php echo $row['comment']; ?></td>
+                </tr>
                 
 <?php
                 } //foreach loop 
