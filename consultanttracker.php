@@ -667,6 +667,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     <th data-field="datetime"  data-sortable="true">Date time</th>								
                     <th data-field="comment"  data-sortable="true">Comment Subject</th>
                     <th data-field="name" data-sortable="true">Posted by</th>
+                    <th data-field="action" data-sortable="true">Actions</th>
                 </tr>
                 </thead>
             <tbody>
@@ -677,9 +678,15 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
                     <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
                     <td data-search="<?php $date = $row['datetime']; $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView;  ?>"><?php echo $myFormatForView;  ?></td>
-                    <td data-search="<?php echo $row['headline']; ?>"><?php echo $row['headline'];  ?></td>
+                    <td data-search="<?php echo $row['headline']; ?>"><a href="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline'];  ?></a></td>
                     <td data-search="<?php $smid = $row['sm_id']; $smname = $conn->query("SELECT name FROM `users` WHERE `uid`= $smid")->fetchColumn(); echo $smname; ?>"><?php echo $smname;  ?></td>
-                    
+                    <td> 
+                    <a href="issuecmd.php?do=edit&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
+                            &nbsp;&nbsp;&nbsp; 
+                        <?php if($status==1){ ?>	<a href ="issuecmd.php?do=close&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Close this issue ?')"><img src="images/b_drop.png" alt="Close" width="16" height="16" border="0" title="Close"/></a> <?php } 
+                        else { ?> <a href ="issuecmd.php?do=reopen&id=<?php  echo $row['issueid']; ?>" onClick="return confirm('Are you sure you want to Re-Open this issue ?')"><img src="#" alt="Re-Open" width="16" height="16" border="0" title="Reopen"/></a> <?php } ?>
+                            &nbsp;&nbsp;&nbsp;    			
+    	</td> 
                 </tr>
 <?php
                 } //foreach loop 
