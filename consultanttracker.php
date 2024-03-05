@@ -442,7 +442,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         <?php
 
     }
-    if($do=="getissues")
+    elseif($do=="getissues")
     {
 
         if(isset($_GET['allissues']))
@@ -643,7 +643,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 <?php
 
     } //do case
-    if($do =="getnotes")
+    elseif($do =="getnotes")
     {
 
         if(isset($_GET['noteid']))
