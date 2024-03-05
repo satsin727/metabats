@@ -442,6 +442,277 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         <?php
 
     }
+    if($do ="getissues")
+    {
+
+        if(isset($_GET['allissues']))
+        {
+            $consultantid = $_GET['allissues'];
+            $all = 1;
+            $download = "allissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1)";
+        }
+        $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
+        $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
+        $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+        /*
+        if(isset($_GET['appissues']))
+        {
+            $consultantid = $_GET['appissues'];
+            $app = 1;
+            $download = "dapp";
+            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+        }    
+        if(isset($_GET['rcissues']))
+        {
+            $consultantid = $_GET['rcissues'];
+            $rc = 1;
+            $download = "dapp";
+            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+        }
+
+        if(isset($_GET['subissues']))
+        {
+            $consultantid = $_GET['subissues'];
+            $sub = 1;
+            $download = "dapp";
+            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+        }
+
+        if(isset($_GET['eciissues']))
+        {
+            $consultantid = $_GET['eciissues'];
+            $eci = 1;
+            $download = "dapp";
+            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+        }    */  
+        
+        $ins= $conn->prepare($query);
+        $ins->execute();
+        $data = $ins->fetchAll();
+        ?>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?>
+			</div>
+			<div class="panel-body">
+
+            <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+                <thead>
+                <tr>
+                    <th data-field="id">S.no</th>
+                    <th data-field="datetime"  data-sortable="true">Date time</th>                        
+                    <th data-field="ctype"  data-sortable="true">Comment Type</th>                            
+                    <th data-field="Job Decription"  data-sortable="true">Role</th>
+                    <th data-field="name" data-sortable="true">SM</th>                    
+                    <th data-field="remail" data-sortable="true">Recruiter Email</th>                  
+                    <th data-field="arsstatus"  data-sortable="true">Status</th>								
+                    <th data-field="comment"  data-sortable="true">Comment</th>
+                </tr>
+                </thead>
+            <tbody>
+            <?php
+                $i=1;
+                foreach( $data as $row) { 
+
+                    if($row['appcom_id']==1) { $date = $row['appdate']; $app = 1;}
+                    elseif($row['rccom_id']==1) { $date = $row['rcdate']; $rc=1; }
+                    elseif($row['subcom_id']==1) { $date = $row['rcdate'];  $sub=1;}
+                    elseif($row['ecicom_id']==1) { $date = $row['eci_date']; $eci = 1; $eci_time = $row['eci_time'];  }
+
+                        $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
+                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+
+                        if($app == 1 || $rc == 1 || $sub == 1)
+                        {
+                            $app_id = $row['app_id'];
+                            $reqid = $row['reqid'];
+                            $cid = $row['client_id'];
+                            $uid = $row['uid'];	
+                        }
+                    elseif($eci == 1) {
+                        $app_id = $row['app_id'];
+                        $reqid = $row['req_id'];
+                        $cid = $row['t2id'];
+                        $uid = $row['sm_id'];	
+                    }
+            
+            
+                                                    $q3 = "SELECT * from clients where `cid` = $cid";
+                                                    $ins4= $conn->prepare($q3);
+                                                    $ins4->execute(); 
+                                                    $dta3 = $ins4->fetch();
+            
+            
+                                                    $q4 = "SELECT * from users where `uid` = $uid";
+                                                    $ins5= $conn->prepare($q4);
+                                                    $ins5->execute(); 
+                                                    $dta4 = $ins5->fetch();
+            
+                                                    $q5 = "SELECT * from req where `reqid` = $reqid";
+                                                    $ins6= $conn->prepare($q5);
+                                                    $ins6->execute(); 
+                                                    $dta5 = $ins6->fetch();
+            
+                    $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
+                    $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                    
+                    ?>
+
+                    <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+                    <td data-search="<?php echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView; if($eci==1) { echo " ".$eci_time; } ?></td>
+                    <td data-order="<?php if($app==1) { $commenttype = "Application"; } elseif($rc==1) {$commenttype = "Rate Confirmation"; }  elseif($sub==1) {$commenttype = "Submission"; }  elseif($eci==1) {$commenttype = "Interview"; } ?>"> <?php echo $commenttype;  ?></td>
+                    <td data-search="<?php echo $skill." ".$dta5['rlocation']; ?>"> <a id="various3" href="leads/view.php?id=<?php echo $reqid; ?>" target="_blank"><?php echo $skill." - ".$dta5['rlocation']." - ".$dta5['rduration']; ?></a></td>
+                    <td data-search="<?php echo $dta4['name']; ?>"><?php echo $dta4['name']; ?> </td>
+                    <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Phone: ".$dta3['rphone']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td>
+                    <td> 
+                    <?php
+                    $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                    /*
+                            <option value="1">Connected</option>
+                    <option value="2">Not Connected</option>
+                    <option value="3">Voicemail</option>
+                    <option value="4">No Response</option>
+                    <option value="5">Cancelled = Pulled Back</option>
+                    <option value="6">Rejected</option>
+                    <option value="7">In-Process</option>
+                    <option value="8">Got Test</option>
+                    <option value="9">Got Screening</option>
+                    <option value="10">Submitted to End Client</option>
+                    */
+                    if($ars_status == 1)
+                    {
+                        echo "Connected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 2)
+                    {
+                        echo "Not Connected";
+                    }
+                    elseif($ars_status == 3)
+                    {
+                        echo "Voicemail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 4)
+                    {
+                        echo "No Response";
+                    }
+                    elseif($ars_status == 5)
+                    {
+                        echo "Cancelled&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 6)
+                    {
+                        echo "Rejected&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 7)
+                    {
+                        echo "In-Process&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 8)
+                    {
+                        echo "Got Test&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+                    }
+                    elseif($ars_status == 9)
+                    {
+                        echo "Got Screening";
+                    }
+                    elseif($ars_status == 10)
+                    {
+                        echo "Submitted to End Client";
+                    }
+
+                ?> </td>
+                <td data-order="<?php echo $row['comment']; ?>"> <?php echo $row['comment']; ?></td>
+                
+<?php
+                } //foreach loop 
+                ?>
+
+             
+            </tbody>
+            </table>
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+
+    } //do case
+    if($do ="getnotes")
+    {
+
+        if(isset($_GET['noteid']))
+        {
+            $consultantid = $_GET['noteid'];
+            $all = 1;
+            $download = "allissues";
+            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1)";
+        }
+        
+        
+        $ins= $conn->prepare($query);
+        $ins->execute();
+        $data = $ins->fetchAll();
+        ?>
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading"> 
+			</div>
+			<div class="panel-body">
+
+            <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+                <thead>
+                <tr>
+                    <th data-field="id">S.no</th>
+                    <th data-field="datetime"  data-sortable="true">Date time</th>                              
+                    <th data-field="Job Decription"  data-sortable="true">Role</th>
+                    <th data-field="name" data-sortable="true">SM</th>                    
+                    <th data-field="remail" data-sortable="true">Recruiter Email</th>
+                    <th data-field="ctype"  data-sortable="true">Comment Type</th>                    
+                    <th data-field="arsstatus"  data-sortable="true">Status</th>								
+                    <th data-field="comment"  data-sortable="true">Comment</th>
+                </tr>
+                </thead>
+            <tbody>
+            <?php
+                $i=1;
+                foreach( $data as $row) { ?>
+
+                    <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
+                    <td data-search="<?php 
+                
+                if($row['appcom_id']==1) { $date = $row['appdate']; $app = 1;}
+                elseif($row['rccom_id']==1) { $date = $row['rcdate']; $rc=1; }
+                elseif($row['subcom_id']==1) { $date = $row['rcdate'];  $sub=1;}
+                elseif($row['ecicom_id']==1) { $date = $row['eci_date']; $eci = 1; $eci_time = $row['eci_time'];  }
+                echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView; if($eci==1) { echo " ".$eci_time; } ?></td>
+
+
+                
+
+<?php
+                } //foreach loop 
+                ?>
+             
+            </tbody>
+            </table>
+
+
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php
+
+    } //do case
 
 }
 else
