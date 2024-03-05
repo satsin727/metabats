@@ -40,7 +40,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         }
 
 
-    if($do = "getdata")
+    if($do == "getdata")
     {
                     $uid = $sessid;
                     $app = 0;
@@ -442,7 +442,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         <?php
 
     }
-    if($do ="getissues")
+    if($do=="getissues")
     {
 
         if(isset($_GET['allissues']))
@@ -643,7 +643,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 <?php
 
     } //do case
-    if($do ="getnotes")
+    if($do =="getnotes")
     {
 
         if(isset($_GET['noteid']))
