@@ -497,7 +497,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	<div class="col-lg-12">
 		<div class="panel panel-default">
 			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?><br> <a href="consultanttracker.php?do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">ECI issues</button></a>&nbsp;&nbsp;&nbsp;<br><br>
-        </div>
+            </div>
 			<div class="panel-body">
 
             <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
@@ -645,7 +645,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['noteid'];
             $all = 1;
             $download = "allissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1)";
+            $query = "select * from issues consultant_id = $consultantid and status= 1)";
         }
         
         
@@ -665,32 +665,23 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                 <thead>
                 <tr>
                     <th data-field="id">S.no</th>
-                    <th data-field="datetime"  data-sortable="true">Date time</th>                              
-                    <th data-field="Job Decription"  data-sortable="true">Role</th>
-                    <th data-field="name" data-sortable="true">SM</th>                    
-                    <th data-field="remail" data-sortable="true">Recruiter Email</th>
-                    <th data-field="ctype"  data-sortable="true">Comment Type</th>                    
-                    <th data-field="arsstatus"  data-sortable="true">Status</th>								
-                    <th data-field="comment"  data-sortable="true">Comment</th>
+                    <th data-field="datetime"  data-sortable="true">Date time</th>								
+                    <th data-field="comment"  data-sortable="true">Comment Subject</th>
+                    <th data-field="name" data-sortable="true">Posted by</th>
                 </tr>
                 </thead>
             <tbody>
             <?php
                 $i=1;
                 foreach( $data as $row) { ?>
+                <tr>
 
                     <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-                    <td data-search="<?php 
-                
-                if($row['appcom_id']==1) { $date = $row['appdate']; $app = 1;}
-                elseif($row['rccom_id']==1) { $date = $row['rcdate']; $rc=1; }
-                elseif($row['subcom_id']==1) { $date = $row['rcdate'];  $sub=1;}
-                elseif($row['ecicom_id']==1) { $date = $row['eci_date']; $eci = 1; $eci_time = $row['eci_time'];  }
-                echo $date; ?>"> <?php $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView; if($eci==1) { echo " ".$eci_time; } ?></td>
-
-
-                
-
+                    <td data-search="<?php $date = $row['datetime']; $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView;  ?>"><?php echo $myFormatForView;  ?></td>
+                    <td data-search="<?php echo $row['headline']; ?>"><?php echo $row['headline'];  ?></td>
+                    <td data-search="<?php $smid = $row['sm_id']; $smname = $conn->query("SELECT name FROM `users` WHERE `uid`= $smid")->fetchColumn(); echo $smname; ?>"><?php echo $smname;  ?></td>
+                    
+                </tr>
 <?php
                 } //foreach loop 
                 ?>
