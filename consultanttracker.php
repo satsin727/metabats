@@ -647,7 +647,10 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $download = "allissues";
             $query = "select * from issues where consultant_id = $consultantid order by datetime desc";
         }
-        
+        $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
+        $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
+        $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+
         $ins= $conn->prepare($query);
         $ins->execute();
         $data = $ins->fetchAll();
@@ -656,7 +659,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-			<div class="panel-heading"> 
+        <div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." Notes"; ?>
 			</div>
 			<div class="panel-body">
 
