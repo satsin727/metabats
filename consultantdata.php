@@ -252,6 +252,14 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     
                                 </table>
                             </td>
+                        <tr>
+                            <td>
+                                <a href="consultanttracker.php?do=getissues&allissues=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Submission Issues</button></a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="consultanttracker.php?do=getnotes&noteid=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Highlighted Notes</button></a>
+
+                            </td>
+                        </tr>
+                        </table>
 
 				</form>
 										
