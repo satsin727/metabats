@@ -452,10 +452,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $download = "allissues";
             $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1) order by A.datetime desc";
         }
-        $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-        $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-        $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-        
+     
         if(isset($_GET['appissues']))
         {
             $consultantid = $_GET['appissues'];
@@ -486,6 +483,10 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $download = "eciissues";
             $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.ecicom_id = 1 order by A.datetime desc";
        }  
+       $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
+       $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
+       $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+       
         
         $ins= $conn->prepare($query);
         $ins->execute();
