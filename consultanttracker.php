@@ -528,36 +528,27 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
                         $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
 
-                        if($app == 1 || $rc == 1 || $sub == 1)
-                        {
-                            $app_id = $row['app_id'];
-                            $reqid = $row['reqid'];
-                            $cid = $row['client_id'];
-                            $uid = $row['uid'];	
-                        }
-                    elseif($eci == 1) {
+                        
                         $app_id = $row['app_id'];
-                        $reqid = $row['req_id'];
-                        $cid = $row['t2id'];
-                        $uid = $row['sm_id'];	
-                    }
-            
-            
-                                                    $q3 = "SELECT * from clients where `cid` = $cid";
-                                                    $ins4= $conn->prepare($q3);
-                                                    $ins4->execute(); 
-                                                    $dta3 = $ins4->fetch();
-            
-            
-                                                    $q4 = "SELECT * from users where `uid` = $uid";
-                                                    $ins5= $conn->prepare($q4);
-                                                    $ins5->execute(); 
-                                                    $dta4 = $ins5->fetch();
-            
-                                                    $q5 = "SELECT * from req where `reqid` = $reqid";
-                                                    $ins6= $conn->prepare($q5);
-                                                    $ins6->execute(); 
-                                                    $dta5 = $ins6->fetch();
+                        $reqid = $row['reqid'];
+                        $cid = $row['client_id'];
+                        $uid = $row['uid'];	
+                       
+        
+                        $q3 = "SELECT * from clients where `cid` = $cid";
+                        $ins4= $conn->prepare($q3);
+                        $ins4->execute(); 
+                        $dta3 = $ins4->fetch();
+
+                        $q4 = "SELECT * from users where `uid` = $uid";
+                        $ins5= $conn->prepare($q4);
+                        $ins5->execute(); 
+                        $dta4 = $ins5->fetch();
+
+                        $q5 = "SELECT * from req where `reqid` = $reqid";
+                        $ins6= $conn->prepare($q5);
+                        $ins6->execute(); 
+                        $dta5 = $ins6->fetch();
             
                     $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
                     $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
