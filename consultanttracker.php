@@ -496,7 +496,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?><br> <a href="consultanttracker.php?do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button>App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button>RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button>Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button>ECI issues</button></a>&nbsp;&nbsp;&nbsp;<br><br>
+			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?><br> <a href="consultanttracker.php?do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">ECI issues</button></a>&nbsp;&nbsp;&nbsp;<br><br>
         </div>
 			<div class="panel-body">
 
