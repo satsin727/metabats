@@ -498,6 +498,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		<div class="panel panel-default">
 			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?>
 			</div>
+            <div class="panel-heading"> <br><a href="consultanttracker.php?do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button>App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button>RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button>Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button>ECI issues</button></a>&nbsp;&nbsp;&nbsp;
+        </div>
 			<div class="panel-body">
 
             <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
