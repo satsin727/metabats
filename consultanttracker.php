@@ -673,7 +673,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             <tbody>
             <?php
                 $i=1;
-                foreach( $data as $row) { ?>
+               
+                foreach( $data as $row) { 
+                    $status = $row['status'];
+                    ?>
+                 
                 <tr>
 
                     <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
