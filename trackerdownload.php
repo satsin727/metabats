@@ -82,7 +82,8 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
+                   // $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -117,11 +118,11 @@ $data = $ins->fetchAll();
                                 $curweek = date("W", $utime); 
                                 $ureq_id = "W".$curweek.$cur_date."-".$ureq_id;
 
-                        $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                       /* $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
                         $jdtext = str_replace('Â', '', $jdtext);                        
                         $jdtext = str_replace('â', '', $jdtext);
-                        $jdtext = str_replace('€', '', $jdtext);
+                        $jdtext = str_replace('€', '', $jdtext);*/
                         
                                 $cid = $row['client_id'];
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
@@ -256,7 +257,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
