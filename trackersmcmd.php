@@ -20,14 +20,15 @@ $dta = $ins->fetch();
 $curdate =date('Y-m-d');
 
 $olddate=0;
-if(isset($_POST['date']))
+/*if(isset($_POST['date']))
 {
     $cdate = $_POST['date'];
     $olddate = 1;
     $cdate = strtotime($cdate);
     $curdate =date('Y-m-d',$cdate);
 }
-else if(isset($_GET['date']))
+else */ 
+if(isset($_GET['date']))
 {
 	$olddate = 1;
     $curdate =date('Y-m-d');
