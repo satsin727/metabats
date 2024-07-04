@@ -27,7 +27,7 @@ if(isset($_POST['date']))
     $cdate = strtotime($cdate);
     $curdate =date('Y-m-d',$cdate);
 }
-elseif(isset($_GET['date']))
+else if(isset($_GET['date']))
 {
     $curdate =date('Y-m-d');
 }
