@@ -33,7 +33,8 @@ $uid = $dta['uid'];
 if(isset($_POST['date']))
 {
     $curdate = $_POST['date'];
-	$curdate =date('Y-m-d',$curdate);
+	$curdate = strtotime($curdate);
+	$curdate = date('Y-m-d',$curdate);
 	$olddate = 1;
 }
 else
