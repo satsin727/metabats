@@ -29,6 +29,7 @@ if(isset($_POST['date']))
 }
 else if(isset($_GET['date']))
 {
+	$olddate=1;
     $curdate = $_GET['date'];
 }
 else {
