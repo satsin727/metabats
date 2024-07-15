@@ -70,14 +70,14 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	elseif(isset($_GET['sid']))
 	{
 		$sid=$_GET['sid'];
-		$query = "select * from req where status =1 and skillid = $sid and DATE(datetime) = DATE('$curdate') order by datetime asc";
+		$query = "select * from req where status =1 and skillid = $sid and DATE(datetime) = DATE('$curdate') and uid != 77 order by datetime asc";
 		if($showweekly==1)
 		{
-			$query = "select * from req where status =1  and skillid = $sid and WEEK(datetime) = WEEK('$curdate') and  YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+			$query = "select * from req where status =1  and skillid = $sid and WEEK(datetime) = WEEK('$curdate') and  YEAR(datetime) = YEAR('$curdate') and uid != 77 order by datetime asc";
 		}
 		if($showmonthly==1)
 		{
-			$query = "select * from req where status =1 and skillid = $sid and  MONTH(datetime) = MONTH('$curdate')  and  YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+			$query = "select * from req where status =1 and skillid = $sid and  MONTH(datetime) = MONTH('$curdate')  and  YEAR(datetime) = YEAR('$curdate') and uid != 77 order by datetime asc";
 		}
 	}
 	else
