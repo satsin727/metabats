@@ -85,27 +85,27 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		
 		if($dta['level'] == 1 )
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') and uid != 77 order by datetime desc";
 			if($showweekly==1)
 			{
-				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') and  YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') and  YEAR(datetime) = YEAR('$curdate')  and uid != 77  order by datetime asc";
 			}
 			if($showmonthly==1)
 			{
-				$query = "select * from req where status =1 and  MONTH(datetime) = MONTH('$curdate')  and  YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+				$query = "select * from req where status =1 and  MONTH(datetime) = MONTH('$curdate')  and  YEAR(datetime) = YEAR('$curdate') and uid != 77 order by datetime asc";
 			}
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate') order by datetime desc";			
+			$query = "select * from req where status = 1 and DATE(datetime) = DATE('$curdate')  and uid != 77 order by datetime desc";			
 			if($showweekly==1)
 			{
-				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') and YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+				$query = "select * from req where status =1 and WEEK(datetime) = WEEK('$curdate') and YEAR(datetime) = YEAR('$curdate')  and uid != 77 order by datetime asc";
 			}
 			
 			if($showmonthly==1)
 			{
-				$query = "select * from req where status =1 and MONTH(datetime) = MONTH('$curdate') and YEAR(datetime) = YEAR('$curdate') order by datetime asc";
+				$query = "select * from req where status =1 and MONTH(datetime) = MONTH('$curdate') and YEAR(datetime) = YEAR('$curdate')  and uid != 77 order by datetime asc";
 			}
 		}
 		if($dta['level'] == 3)
@@ -141,7 +141,7 @@ $data = $ins->fetchAll();
 			<div class="col-lg-12">
 				<div class="panel panel-default">
 				<div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></form></td>  </div>
-					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<?php if($dta['level'] == 2 || $dta['level'] == 1) { ?><a target ="_blank" href="reqsdownload.php?download=allreqs<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showweekly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showmonthly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php } if($dta['level'] == 1) { ?><a target ="_blank" href="reqcmd.php?do=qallupdate"><button name="updatequalified" class="btn btn-primary">Update Qualified</button></a> <?php } ?>
+					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showallreqs&smid=77"><button name="taniya" class="btn btn-primary">Taniya Reqs</button></a>&nbsp;&nbsp;&nbsp; <a target ="_blank" href="admin.php?action=showallreqs&sid=7"><button name="javareks" class="btn btn-primary">Java Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=10"><button name="spreks" class="btn btn-primary">Sailpoint Reqs</button></a>&nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=6"><button name="spreks" class="btn btn-primary">Devops Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<?php if($dta['level'] == 2 || $dta['level'] == 1) { ?><a target ="_blank" href="reqsdownload.php?download=allreqs<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadallreqs" class="btn btn-primary">Download Reqs</button></a> &nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showweekly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Weekly Reqs</button></a>&nbsp;&nbsp;&nbsp;&nbsp;<a target ="_blank" href="reqsdownload.php?download=allreqs&showmonthly=1&showunique=1<?php if($olddate==1) { echo "&date=".$curdate; } ?>"><button name="downloadweeklyreqs" class="btn btn-primary">Download Unique Monthly Reqs</button></a><?php } if($dta['level'] == 1) { ?><a target ="_blank" href="reqcmd.php?do=qallupdate"><button name="updatequalified" class="btn btn-primary">Update Qualified</button></a> <?php } ?>
 					<?php if(isset($_GET['sid'])) { ?> &nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=<?php echo $sid; ?>&showweekly=1"><button name="reksweekly" class="btn btn-primary">Weekly Reqs</button></a>  &nbsp;&nbsp;&nbsp;<a target ="_blank" href="admin.php?action=showallreqs&sid=<?php echo $sid; ?>&showmonthly=1"><button name="reksmonthlyly" class="btn btn-primary">Monthly Reqs</button></a> <?php } ?>
 				
 					<?php if($dta['level'] == 3) { ?>
