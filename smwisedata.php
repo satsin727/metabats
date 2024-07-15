@@ -29,6 +29,9 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $olddate = 0;
 $uid = $dta['uid'];
+$curdate = date("m/d/y");
+$curdate = strtotime($curdate);
+$curdate = date('Y-m-d H:i:s',$curdate);
 
 if(isset($_POST['date']))
 {
@@ -40,9 +43,12 @@ if(isset($_POST['date']))
 else
 {
     $curdate = date("m/d/y");
+	$curdate = strtotime($curdate);
+	$curdate = date('Y-m-d H:i:s',$curdate);
+
 }
-$curdate = strtotime($curdate);
-$curdate = date('Y-m-d H:i:s',$curdate);
+//$curdate = strtotime($curdate);
+//$curdate = date('Y-m-d H:i:s',$curdate);
 
 ?>
 
