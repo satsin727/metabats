@@ -38,7 +38,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from req where status =1 and TO_DAYS('$curdate') - TO_DAYS(datetime) < 1 order by datetime desc";
+			$query = "select * from req where status =1 and TO_DAYS('$curdate') - TO_DAYS(datetime) < 1 and uid != 77 order by datetime desc";
 		}
 		if($dta['level'] == 2 || $dta['level'] == 3)
 		{
@@ -63,7 +63,7 @@ $data = $ins->fetchAll();
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"><!-- <a href="admin.php?action=postreq"><button name="addauser" class="btn btn-primary">Post Req</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a> --></div>
+					<div class="panel-heading"> <a target ="_blank" href="admin.php?action=showreqs&smid=77"><button name="taniya" class="btn btn-primary">Taniya Reqs</button></a>&nbsp;&nbsp;&nbsp; <!-- <a href="admin.php?action=postreq"><button name="addauser" class="btn btn-primary">Post Req</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a> --></div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>
