@@ -270,7 +270,7 @@ else
                                                <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid; ?>"><?php echo $wsub_num; ?></a></td> 
                                                 <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid; ?>"><?php echo $weci_num; ?></a></td> 
                                                 
-                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid; ?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>><?php echo $mapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid; ?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $mapp_num; ?></a></td>
                                                 <td> <a href="trackersmcmd.php?rcsm_id=<?php echo $uid;?>"><?php echo $mrc_num; ?></a></td> 
                                                <td> <a href="trackersmcmd.php?subsm_id=<?php echo $uid;?>"><?php echo $msub_num; ?></a></td> 
                                                 <td> <a href="trackersmcmd.php?ecism_id=<?php echo $uid;?>"><?php echo $meci_num; ?></a></td> 
