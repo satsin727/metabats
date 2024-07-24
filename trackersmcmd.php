@@ -226,8 +226,6 @@ if(isset($_GET['appsd_id']))
                 $download = "yeci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
             }
-
-        }
        
      }
 if($access == 0)
