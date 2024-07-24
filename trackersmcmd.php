@@ -64,6 +64,9 @@ if(isset($_GET['appsd_id']))
             $download = "dapp";
 	if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
+        $sm_id = $_GET['appsd_id'];
+        if($sm_id == $uid || $dta['level'] == 1 || $dta['level'] == 2)
+        {
 		
         if(isset($_GET['appsd_id']))
 			{
@@ -208,7 +211,7 @@ if(isset($_GET['appsd_id']))
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
             }
 
-
+        }
      }
 	
 $ind= $conn->prepare($query);
