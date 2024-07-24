@@ -61,18 +61,22 @@ if(isset($_GET['appsd_id']))
             $weekly = 0;
             $monthly = 0;
             $yearly = 0;
+            $access = 0;
             $download = "dapp";
 	if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	{
-        $sm_id = $_GET['appsd_id'];
-        if($sm_id == $uid || $dta['level'] == 1 || $dta['level'] == 2)
+        
+        if($dta['level'] == 1 || $dta['level'] == 2)
         {
+            $access = 1;
+        }
 		
         if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsd_id'];
                 $app = 1;
-                $daily = 1;                
+                $daily = 1;     
+                $access = 1;           
                 $download = "dapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1 and DATE(appdate) = DATE('$curdate')";
             }
@@ -81,6 +85,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['rcsd_id'];
                 $rc = 1;
                 $daily = 1;
+                $access = 1;
                 $download = "drc";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')";
             }
@@ -90,6 +95,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['subsd_id'];                
                 $sub = 1;
                 $daily = 1;
+                $access = 1;
                 $download = "dsub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')";
             }
@@ -108,6 +114,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['appsw_id'];
                 $app = 1;
                 $weekly = 1;
+                $access = 1;
                 $download = "wapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
@@ -116,7 +123,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['rcsw_id'];
                 $rc = 1;   
-                $weekly = 1;  
+                $weekly = 1; 
+                $access = 1; 
                 $download = "wrc";           
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
             }
@@ -135,6 +143,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['ecisw_id'];                
                 $eci = 1;
                 $weekly = 1;
+                $access = 1;
                 $download = "weci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
@@ -143,7 +152,8 @@ if(isset($_GET['appsd_id']))
 			{
                 $sm_id = $_GET['appsm_id'];
                 $app = 1;
-                $monthly = 1;                
+                $monthly = 1;  
+                $access = 1;              
                 $download = "mapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
             }
@@ -162,6 +172,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['subsm_id'];
                 $sub = 1;
                 $monthly = 1;
+                $access = 1;
                 $download = "msub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
             }
@@ -171,6 +182,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['ecism_id'];                
                 $eci = 1;
                 $monthly = 1;
+                $access = 1;
                 $download = "meci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
             }
@@ -180,6 +192,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['appsy_id'];
                 $app = 1;
                 $yearly = 1;
+                $access = 1;
                 $download = "yapp";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `status` = 1  and YEAR(appdate) = YEAR('$curdate')";
             }
@@ -189,6 +202,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['rcsy_id'];
                 $rc = 1;     
                 $yearly = 1;        
+                $access = 1;
                 $download = "yrc";   
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
             }
@@ -198,6 +212,7 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['subsy_id'];
                 $sub = 1;
                 $yearly = 1;
+                $access = 1;
                 $download = "ysub";
                 $query = "SELECT * FROM `app_data` WHERE `uid`= $sm_id and `subdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate')";
             }
@@ -207,19 +222,21 @@ if(isset($_GET['appsd_id']))
                 $sm_id = $_GET['ecisy_id'];                
                 $eci = 1;
                 $yearly = 1;
+                $access = 1;
                 $download = "yeci";
                 $query = "SELECT * FROM `eci` WHERE `sm_id`= $sm_id and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
             }
 
         }
-        else {
-            echo "<script>
-            alert('Not Authorised to view this page, Not a valid session. Your IP address has been recorded for review. Please Log-in again to view this page !!!');
-            window.location.href='login.php';
-            </script>";   
-        }
+       
      }
-	
+if($access == 0)
+     {
+         echo "<script>
+         alert('Not Authorised to view this page, Not a valid session. Your IP address has been recorded for review. Please Log-in again to view this page !!!');
+         window.location.href='login.php';
+         </script>";   
+     }	
 $ind= $conn->prepare($query);
 $ind->execute();
 $data = $ind->fetchAll();
