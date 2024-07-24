@@ -28,9 +28,9 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
 $olddate = 0;
-$uid = $dta['uid'];
+$uid = $dta['uid'];  
 $curdate = date("m/d/y");
-$curdate = strtotime($curdate);
+$curdate = strtotime($curdate); 
 $curdate = date('Y-m-d H:i:s',$curdate);
 
 if(isset($_POST['date']))
@@ -260,25 +260,25 @@ else
                                                 
                                                 ?>
 
-                                                <td> <a href="trackersmcmd.php?appsd_id=<?php echo $uid?>"><?php echo $dapp_num; ?> </a></td>
-                                                <td> <a href="trackersmcmd.php?rcsd_id=<?php echo $uid?>"><?php echo $drc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsd_id=<?php echo $uid?>"><?php echo $dsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?appsd_id=<?php echo $uid; ?>"><?php echo $dapp_num; ?> </a></td>
+                                                <td> <a href="trackersmcmd.php?rcsd_id=<?php echo $uid; ?>"><?php echo $drc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsd_id=<?php echo $uid; ?>"><?php echo $dsub_num; ?></a></td> 
                                                 <td> <a href="trackersmcmd.php?ecisd_id=<?php echo $uid?>"><?php echo $deci_num; ?></a></td> 
 
-                                                <td> <a href="trackersmcmd.php?appsw_id=<?php echo $uid?>"><?php echo $wapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsw_id=<?php echo $uid?>"><?php echo $wrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid?>"><?php echo $weci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?appsw_id=<?php echo $uid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?rcsw_id=<?php echo $uid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid; ?>"><?php echo $weci_num; ?></a></td> 
                                                 
-                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>><?php echo $mapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsm_id=<?php echo $uid?>"><?php echo $mrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsm_id=<?php echo $uid?>"><?php echo $msub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecism_id=<?php echo $uid?>"><?php echo $meci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid; ?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>><?php echo $mapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?rcsm_id=<?php echo $uid;?>"><?php echo $mrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsm_id=<?php echo $uid;?>"><?php echo $msub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecism_id=<?php echo $uid;?>"><?php echo $meci_num; ?></a></td> 
                                                 
-                                                <td> <a href="trackersmcmd.php?appsy_id=<?php echo $uid?>"><?php echo $yapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsy_id=<?php echo $uid?>"><?php echo $yrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsy_id=<?php echo $uid?>"><?php echo $ysub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecisy_id=<?php echo $uid?>"><?php echo $yeci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?appsy_id=<?php echo $uid;?>"><?php echo $yapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?rcsy_id=<?php echo $uid;?>"><?php echo $yrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?subsy_id=<?php echo $uid;?>"><?php echo $ysub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?ecisy_id=<?php echo $uid;?>"><?php echo $yeci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php
