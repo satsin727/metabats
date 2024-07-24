@@ -212,6 +212,12 @@ if(isset($_GET['appsd_id']))
             }
 
         }
+        else {
+            echo "<script>
+            alert('Not Authorised to view this page, Not a valid session. Your IP address has been recorded for review. Please Log-in again to view this page !!!');
+            window.location.href='login.php';
+            </script>";   
+        }
      }
 	
 $ind= $conn->prepare($query);
