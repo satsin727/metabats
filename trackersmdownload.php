@@ -116,11 +116,11 @@ $data = $ins->fetchAll();
                                 $curweek = date("W", $utime); 
                                 $ureq_id = "W".$curweek.$cur_date."-".$ureq_id;
 
-                        $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
-                        $jdtext = strip_tags(html_entity_decode($jd));
-                        $jdtext = str_replace('Â', '', $jdtext);                        
-                        $jdtext = str_replace('â', '', $jdtext);
-                        $jdtext = str_replace('€', '', $jdtext);
+                       // $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                       // $jdtext = strip_tags(html_entity_decode($jd));
+                       // $jdtext = str_replace('Â', '', $jdtext);                        
+                       // $jdtext = str_replace('â', '', $jdtext);
+                      //  $jdtext = str_replace('€', '', $jdtext);
                         
                                 $cid = $row['client_id'];
                         $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
