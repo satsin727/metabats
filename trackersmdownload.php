@@ -319,7 +319,7 @@ $data = $ins->fetchAll();
                                 $ureq_id = "W".$curweek.$cur_date."-".$ureq_id;
                         */
                                 $cid = $row['client_id'];
-
+/*
                                 $cq = "SELECT * from clients where `cid` = $cid";
                                 $pq1= $conn->prepare($cq);
                                 $pq1->execute(); 
@@ -330,14 +330,14 @@ $data = $ins->fetchAll();
                         $bpphone = $cdata['rphone'];
                         $bplocation = $cdata['rlocation'];
                         $bptier = $cdata['tier'];
-                        $bptimezone = $cdata['rtimezon']; 
-                     /*   $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
+                        $bptimezone = $cdata['rtimezon']; */
+                        $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
                         $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                         $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();                        
                         $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
                         $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
-                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    */
+                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();   
                     //    $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn(); 
                     //    $bpsm = $conn->query("SELECT name from users where `uid` = $bpuid")->fetchColumn();                      
                                 $app_id = $row['app_id'];
