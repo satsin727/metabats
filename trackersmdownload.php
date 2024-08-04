@@ -81,7 +81,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,BP Company Name,BP Name,BP Email,BP Phone,BP Location,BP Timezone,Tier,Client,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -123,9 +123,14 @@ $data = $ins->fetchAll();
                         $jdtext = str_replace('€', '', $jdtext);
                         
                                 $cid = $row['client_id'];
+                        $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
+                        $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
                         $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
-                        
+                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();                        
+                        $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
+                        $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
+                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
+                    
 
                                 $app_id = $row['app_id'];
                         $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
@@ -255,7 +260,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$bpcompany,$bpname,$bpemail,$bpphone,$bplocation,$bptimezone,$bptier,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
