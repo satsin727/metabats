@@ -167,7 +167,7 @@ foreach( $data as $row)
     <tbody>
         <?php
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$q = "select * from skill";
+$q = "select distinct sid, skillname from skill as A Left JOIN consultants as B on A.sid = B.skill where B.status=1 order by A.sid";
 $ins= $conn->prepare($q);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -269,7 +269,7 @@ foreach( $data as $row)
     <tbody>
         <?php
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$q = "select * from skill";
+$q = "select distinct sid, skillname from skill as A Left JOIN consultants as B on A.sid = B.skill where B.status=1 order by A.sid";
 $ins= $conn->prepare($q);
 $ins->execute();
 $data = $ins->fetchAll();
