@@ -28,6 +28,9 @@
 	<?php if(isset($_SESSION['username'])) { 	?>
 	
 	<div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar">
+	<button id="close-sidebar" class="btn btn-danger btn-sm" style="position: absolute; top: 10px; right: 10px; z-index: 9999;">
+        × Close
+    </button>
 	<br> <br>
 		<?php 
 

@@ -29,7 +29,24 @@ if(isset($_SESSION['username'])) { 	?>
 		$(window).on('resize', function () {
 		  if ($(window).width() <= 767) $('#sidebar-collapse').collapse('hide')
 		})
-	</script>	
+	</script>
+	<script>
+	$(document).ready(function() {
+		// Close button handler
+		$("#close-sidebar").on("click", function() {
+			$("#sidebar-collapse").hide();
+			$(".main").removeClass("col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2").addClass("col-sm-12 col-lg-12");
+		});
+
+		// Optional: Toggle sidebar by clicking the brand name (or use another toggle button)
+		$(".navbar-brand").on("click", function(e) {
+			e.preventDefault();
+			$("#sidebar-collapse").toggle();
+			$(".main").toggleClass("col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 col-sm-12 col-lg-12");
+		});
+	});
+	</script>
+
 </body>
 
 </html> 
