@@ -456,6 +456,148 @@ if(isset($_GET['appcd_id']))
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
     
+	// Total
+            if(isset($_GET['appcdt_id']))
+            {
+                $app = 1;
+                $total=1;                
+                $download = "dapp";
+                $query = "SELECT * FROM `app_data` WHERE  `status` = 1  and`uid`= $uid and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+            }
+            if(isset($_GET['rccdt_id']))
+            {
+                $rc = 1;                
+                $total=1;
+                $download = "drc";
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+            }
+
+            if(isset($_GET['subcdt_id']))
+            {               
+                $sub = 1;
+                $total=1;                
+                $download = "dsub";
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";
+            }
+
+            if(isset($_GET['ecicdt_id']))
+            {
+                $eci = 1;
+                $total=1;
+                $download = "deci";
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= $uid and DATE(eci_date) = DATE('$curdate') and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+            }
+
+            if(isset($_GET['appcwt_id']))
+            {
+                $app = 1;
+                $total=1;
+                $download = "wapp";
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+            }
+
+            if(isset($_GET['rccwt_id']))
+            {
+                $rc = 1;  
+                $total=1;    
+                $download = "wrc";          
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+            }
+
+            if(isset($_GET['subcwt_id']))
+            {
+                $sub = 1;
+                $total=1;
+                $download = "wsub";
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+            }
+
+            if(isset($_GET['ecicwt_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $download = "weci";
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
+            if(isset($_GET['appcmt_id']))
+            {
+                $app = 1;
+                $total=1;
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $download = "mapp";
+            }
+            if(isset($_GET['appcyt_id']))
+            {
+                $app = 1;
+                $total=1;
+                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $download = "yapp";
+            }
+
+            if(isset($_GET['rccmt_id']))
+            {
+                $rc = 1;   
+                $total=1;             
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $download = "mrc";
+            }
+
+            
+            if(isset($_GET['rccyt_id']))
+            {
+                $rc = 1;   
+                $total=1;             
+                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $download = "yrc";
+            }
+
+            if(isset($_GET['subcmt_id']))
+            {
+                $sub = 1;
+                $total=1;
+                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and`uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $download = "msub";
+            }
+
+            
+            if(isset($_GET['subcyt_id']))
+            {
+                $sub = 1;
+                $total=1;
+                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $download = "ysub";
+            }
+
+
+            if(isset($_GET['ecicmt_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $download = "meci";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+            if(isset($_GET['ecicall_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 order by eci_req_date asc";
+                $download = "teci";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
+            if(isset($_GET['ecicyt_id']))
+            {               
+                $eci = 1;
+                $total=1;
+                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $download = "yeci";
+            //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            }
+
+
     }
 $ins= $conn->prepare($query);
 $ins->execute();
