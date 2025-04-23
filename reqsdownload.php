@@ -190,12 +190,20 @@ $data = $ins->fetchAll();
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
                                     $commentdata = $cins->fetchAll();
+									$scom_id ="";
 
                                 foreach($commentdata as $comment)
                                 {
+									if($scom_id ==$comment['com_id'])
+									{
+										continue;
+									}
+									else {
+									$scom_id = $comment['com_id'];
                                     $uid = $comment['uid'];
                                     $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
                                     $comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
+									}
                                 }
 
                                 if($row['reqstatus']==1)
