@@ -150,10 +150,18 @@ $data = $ins->fetchAll();
                         //posted by SM
                         if($weekly==1 || $monthly==1 || $yearly==1)
                         {
-                            $sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1";
+							$appcount = $conn->query("select count(*) from app_data where reqid = $reqid")->fetchColumn();
+							if($appcount == 0)
+							{
+							$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1";	
+							}
+							else{
+							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1";	
+							
+							}
                         }
                         else{
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
                         }
 						
                         $sins= $conn->prepare($sm_query);
