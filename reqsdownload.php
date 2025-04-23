@@ -137,6 +137,8 @@ $data = $ins->fetchAll();
                         $appdata = "";
                         $bpcontact = "";
                         $comments = "";
+						$sreqid = "";
+						$ssmid = "";
                         $totalrc = 0;
                         $totalsub = 0;
                 
