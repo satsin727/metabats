@@ -191,7 +191,7 @@ $data = $ins->fetchAll();
                                     $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
 								if($weekly==1 || $monthly==1 || $yearly==1)
 								{
-									$cid = $row['cid'];
+									$cid = $sm['cid'];
 								}	
 								else
 								{
