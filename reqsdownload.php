@@ -191,16 +191,19 @@ $data = $ins->fetchAll();
                                     $cins->execute();
                                     $commentdata = $cins->fetchAll();
 									$scom_id ="";
+									$scuid = "";
 
                                 foreach($commentdata as $comment)
                                 {
-									if($scom_id ==$comment['com_id'])
+									if($scom_id ==$comment['com_id'] && $scuid = $comment['uid'] )
 									{
 										continue;
 									}
 									else {
 									$scom_id = $comment['com_id'];
                                     $uid = $comment['uid'];
+                                    $scuid = $comment['uid'];
+									
                                     $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
                                     $comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
 									}
