@@ -177,12 +177,13 @@ $data = $ins->fetchAll();
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
-								if($sreqid == $reqid)
+								if($sreqid == $reqid && $ssmid == $uid)
 								{
 									continue;
 								}
 							else {
 									$sreqid = $reqid;
+									$ssmid = $uid ;
                                     $com_query = "SELECT * FROM comments WHERE (com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1)";
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
