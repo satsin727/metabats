@@ -71,6 +71,7 @@ $data = $ins->fetchAll();
 						        <th data-field="Datetime"  data-sortable="false"  data-visible="false" >Datetime</th>
 						        <th data-field="id" data-sortable="false">S.no</th>								
 								<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <th data-field="smname" data-sortable="true">SM</th> <?php } ?>
+								<th data-field="Req Source"  data-sortable="true">Req Source</th>	
 						        <th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
 						        <th data-field="rfname" data-sortable="true">Business Partner</th>
@@ -115,11 +116,33 @@ $rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid an
 $sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `subdone` =1 and `rcdone` =1 and `status` = 1")->fetchColumn();
 $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `hasinterview` =1 and `subdone` =1 and `rcdone` =1 and `status` = 1")->fetchColumn();
 
+$reqSources = [
+    1  => "Inbox",
+    2  => "Posting",
+    3  => "Cold Calls",
+    4  => "AMC",
+    5  => "Prohires",
+    6  => "Google Groups",
+    7  => "LinkedIn",
+    8  => "Job Portal - Dice",
+    9  => "Job Portal - Techfetch",
+    10 => "Job Portal - SimplyHired",
+    11 => "Job Portal - Careerbuilder",
+    12 => "Job Portal - Ziprecruiter",
+    13 => "Job Portal - Monster",
+    14 => "Job Portal - other",
+    15 => "Company Websites",
+    16 => "I-Labor",
+    17 => "Other"
+];
+
+$selectedValue = $row['req_source'] ?? "17";
 	?>
     <tr>
 		<td data-search="<?php echo $row['datetime']; ?>"> <?php $time = strtotime($row['datetime']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>  
 		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showreqs&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
+		<td data-search="<?php echo $reqSources[$selectedValue]; ?>"> <?php echo $reqSources[$selectedValue]; ?></td>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
     	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>
 		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
