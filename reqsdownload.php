@@ -33,19 +33,35 @@ if($_GET['showunique']==1)
 {
     $unique = 1; 
 }
+if(isset($_GET['sid']))
+{
+    $sid = $_GET['sid']; 
+}
 
 if($download == "allreqs")
 {
     if($_GET['showweekly']==1)
     {
         $weekly=1;
+		if(isset($_GET['sid']))
+		{
+		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 	
+		}
+		else {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
-    }
+		}
+	}
     else if($_GET['showmonthly']==1)
     {
         $monthly=1;
+		if(isset($_GET['sid']))
+		{
+		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 	
+		}
+		else {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
-    }
+		}
+	}
     else 
     {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
