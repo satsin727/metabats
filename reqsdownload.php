@@ -156,8 +156,7 @@ $data = $ins->fetchAll();
 							$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1";	
 							}
 							else{
-							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1";	
-							
+							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1";
 							}
                         }
                         else{
