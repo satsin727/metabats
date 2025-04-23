@@ -98,12 +98,12 @@ $data = $ins->fetchAll();
 
                         if($unique==1 & $reqid_length>20)
                         {
-                                $u_req_id = $row['ureq_id'];
+                                $u_req_id = $row['reqid'];
                         }
                                 
                         $date = date("m/d/y", $time);
 
-                        $ureq_id = $row['ureq_id'];
+                        $ureq_id = $row['reqid'];
                             $skillid = $row['skillid'];
 						$selectedValue = $row['req_source'] ?? "17";
 						$reqsource = $reqSources[$selectedValue];
@@ -120,13 +120,15 @@ $data = $ins->fetchAll();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
                         //posted by SM
-                        if($weekly==1 OR $monthly==1)
+                        if($weekly==1)
                         {
                             $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1";
                         }
-                
+						else if($monthly==1){
+							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1";
+						}
                         else{
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate')";
+                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate')";
                         }
 						
                         $sins= $conn->prepare($sm_query);
@@ -175,7 +177,8 @@ $data = $ins->fetchAll();
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
-                                    $com_query = "select * from comments where com_postid = $appid";
+								
+                                    $com_query = "SELECT * FROM comments WHERE (com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1)";
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
                                     $commentdata = $cins->fetchAll();
