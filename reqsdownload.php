@@ -188,7 +188,7 @@ $data = $ins->fetchAll();
 								}	
 								else
 								{
-									$cid = $sm['cid'];
+									$cid = $sm['client_id'];
 								}
 								
                                 $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
