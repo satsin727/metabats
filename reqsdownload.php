@@ -51,6 +51,28 @@ if($download == "allreqs")
         $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
     }
 
+$reqSources = [
+    1  => "Inbox",
+    2  => "Posting",
+    3  => "Cold Calls",
+    4  => "AMC",
+    5  => "Prohires",
+    6  => "Google Groups",
+    7  => "LinkedIn",
+    8  => "Job Portal - Dice",
+    9  => "Job Portal - Techfetch",
+    10 => "Job Portal - SimplyHired",
+    11 => "Job Portal - Careerbuilder",
+    12 => "Job Portal - Ziprecruiter",
+    13 => "Job Portal - Monster",
+    14 => "Job Portal - other",
+    15 => "Company Websites",
+    16 => "I-Labor",
+    17 => "Other"
+];
+
+$selectedValue = $row['req_source'] ?? "17";
+
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -59,7 +81,7 @@ $data = $ins->fetchAll();
 					$date = date("Y-m-d H:i:s");
                     $filename = "tmp/"."allreqs_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
-                    $txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Qualified,Req Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,Req Source,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Qualified,Req Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     $level=0;
@@ -83,6 +105,7 @@ $data = $ins->fetchAll();
 
                         $ureq_id = $row['ureq_id'];
                             $skillid = $row['skillid'];
+						$reqsource = $reqSources[$selectedValue];
                         $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
                             $jobtype = $row['jobtype'];
                         if($jobtype == 1) { $job = "Contract";} else { $job = "Contract to hire"; }
@@ -95,8 +118,6 @@ $data = $ins->fetchAll();
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
-                       
-
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
                         {
@@ -106,6 +127,7 @@ $data = $ins->fetchAll();
                         else{
                         $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate')";
                         }
+						
                         $sins= $conn->prepare($sm_query);
                         $sins->execute();
                         $smdata = $sins->fetchAll();
@@ -271,7 +293,7 @@ $data = $ins->fetchAll();
                         else
                         { */
                             //S.no,Date,Req_ID,Skill,Location,Job Description,App Data,SM,BP Email,BP contact,IP/Tier1,End Client,Utilization Status,Total RC,Comment
-                            $lineData = array($i,$date,$req_id,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$qualified,$reqstatus,$comments);
+                            $lineData = array($i,$date,$req_id,$reqsource,$skill,$location,$jdtext,$appdata,$smn,$bpemail,$bpphone,$t1ip,$clientname,$status,$totalrc,$qualified,$reqstatus,$comments);
                             fputcsv($fp, $lineData,",");
                        // }
                         //$txt = "S.no,Date,Req_ID,Skill,Location,Job Description,App Data,End Client, Utilization Status,Total RC,Comment\n";
