@@ -183,7 +183,13 @@ $data = $ins->fetchAll();
                                 $smname = $smname.$sep.$conn->query("SELECT * from users where `uid` = $uid")->fetchColumn();
 
                                */
-                                $uid = $sm['uid'];
+							   if($weekly==1 || $monthly==1 || $yearly==1)
+								{
+									$uid = $row['uid'];
+								else
+								{
+									$uid = $sm['uid'];
+								}
                                 $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
 
                                     $consultantid = $sm['consultant_id'];
