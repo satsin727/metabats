@@ -71,7 +71,7 @@ $reqSources = [
     17 => "Other"
 ];
 
-$selectedValue = $row['req_source'] ?? "17";
+
 
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $ins= $conn->prepare($query);
@@ -105,6 +105,7 @@ $data = $ins->fetchAll();
 
                         $ureq_id = $row['ureq_id'];
                             $skillid = $row['skillid'];
+						$selectedValue = $row['req_source'] ?? "17";
 						$reqsource = $reqSources[$selectedValue];
                         $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
                             $jobtype = $row['jobtype'];
