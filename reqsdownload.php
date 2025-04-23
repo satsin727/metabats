@@ -182,8 +182,12 @@ $data = $ins->fetchAll();
                                     $consultantid = $sm['consultant_id'];
 
                                     $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-
-                                $cid = $sm['client_id'];
+								/*if($weekly==1 || $monthly==1 || $yearly==1)
+                        {
+							$cid = $sm['cid'];
+						}
+						else {*/
+								$cid = $sm['cid']; //}
                                 $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                                 $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
 
