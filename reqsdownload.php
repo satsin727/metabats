@@ -47,6 +47,7 @@ if($download == "allreqs")
 		{
 		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 	
 		}
+		
 		else {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
 		}
@@ -60,6 +61,17 @@ if($download == "allreqs")
 		}
 		else {
         $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+		}
+	}
+	    else if($_GET['showyearly']==1)
+    {
+        $yearly=1;
+		if(isset($_GET['sid']))
+		{
+		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and YEAR(datetime) =  YEAR('$curdate')"; 	
+		}
+		else {
+        $query = "SELECT * FROM `req` WHERE `status` = 1  and YEAR(datetime) =  YEAR('$curdate')"; 
 		}
 	}
     else 
@@ -136,13 +148,10 @@ $data = $ins->fetchAll();
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
 
                         //posted by SM
-                        if($weekly==1)
+                        if($weekly==1 || $monthly==1 || $yearly==1)
                         {
                             $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1";
                         }
-						else if($monthly==1){
-							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and A.status=1";
-						}
                         else{
                         $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
                         }
