@@ -177,7 +177,12 @@ $data = $ins->fetchAll();
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
-								
+								if($sreqid == $reqid)
+								{
+									continue;
+								}
+							else {
+									$sreqid = $reqid;
                                     $com_query = "SELECT * FROM comments WHERE (com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1)";
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
@@ -187,7 +192,7 @@ $data = $ins->fetchAll();
                                 {
                                     $uid = $comment['uid'];
                                     $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
-                                    $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
+                                    $comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
                                 }
 
                                 if($row['reqstatus']==1)
@@ -256,7 +261,7 @@ $data = $ins->fetchAll();
                                     }
                                 } */
         
-                                
+							} //close for same req id 
 
                             }
 
