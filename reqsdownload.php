@@ -147,11 +147,10 @@ $data = $ins->fetchAll();
                         $jdtext = str_replace('&nbsp;', '', $jdtext);
 
                         $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
-
+						$appcount = $conn->query("select count(*) from app_data where reqid = $reqid")->fetchColumn();
                         //posted by SM
                         if($weekly==1 || $monthly==1 || $yearly==1)
                         {
-							$appcount = $conn->query("select count(*) from app_data where reqid = $reqid")->fetchColumn();
 							if($appcount == 0)
 							{
 							$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1";	
