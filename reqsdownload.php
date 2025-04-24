@@ -75,10 +75,15 @@ if($download == "allreqs")
         $query = "SELECT * FROM `req` WHERE `status` = 1  and YEAR(datetime) =  YEAR('$curdate')"; 
 		}
 	}
-    else 
+	else if($unique==1)
     {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+		 $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+ 
     }
+    else 
+    {    $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+
+   }
 
 $reqSources = [
     1  => "Inbox",
@@ -162,11 +167,12 @@ $data = $ins->fetchAll();
                         else{
 							if($unique==1)
 							{
-								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
 							}
 							else 
 							{
-								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+							
 							}
                         }
 						
