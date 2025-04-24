@@ -193,10 +193,10 @@ $data = $ins->fetchAll();
                                 $smname = $smname.$sep.$conn->query("SELECT * from users where `uid` = $uid")->fetchColumn();
 
                                */
-							   if($weekly==1 || $monthly==1 || $yearly==1)
+							   if($weekly==1 || $monthly==1 || $yearly==1 || $unique ==1)
 								{
 									$uid = $row['uid'];
-									$cid = $sm['cid'];
+									$cid = $row['cid'];
 								}
 								else
 								{
