@@ -77,12 +77,23 @@ if($download == "allreqs")
 	}
 	else if($unique==1)
     {
+		if(isset($_GET['sid']))
+		{
+			$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+		}
+		else {
 		 $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
- 
+		}
     }
     else 
-    {    $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
-
+    {    
+		if(isset($_GET['sid']))
+		{
+			$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+		}
+		else {
+		$query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+		}
    }
 
 $reqSources = [
@@ -171,8 +182,13 @@ $data = $ins->fetchAll();
 							}
 							else 
 							{
+								if($appcount == 0)
+								{
+								$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and DATE(A.datetime) =  DATE('$curdate') and MONTH(A.datetime) =  MONTH('$curdate') and YEAR(A.datetime) =  YEAR('$curdate') order by A.uid asc";
+								}
+								else{
 								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
-							
+								}
 							}
                         }
 						
@@ -194,11 +210,7 @@ $data = $ins->fetchAll();
                 
                             foreach ($smdata as $sm)
                             {
-                               /* $uid = $sm['B.uid'];
-                            if(isset($smname)) { $sep = "\n"; }
-                                $smname = $smname.$sep.$conn->query("SELECT * from users where `uid` = $uid")->fetchColumn();
-
-                               */
+                             
 							   if($unique==1 )
 								{
 									$uid = $sm['uid'];
@@ -280,7 +292,7 @@ $data = $ins->fetchAll();
 										}
 									}
 
-                                if($row['reqstatus']==1)
+                                if($sm['reqstatus']==1)
                                 {
                                     if($level<=2) 
                                     { 
@@ -288,7 +300,7 @@ $data = $ins->fetchAll();
                                         $reqstatus = "Rejected";
                                     }
                                 }
-                                else if($row['reqstatus']==2)
+                                else if($sm['reqstatus']==2)
                                 {
                                     if($level<=3) 
                                     {
@@ -296,7 +308,7 @@ $data = $ins->fetchAll();
                                          $reqstatus = "Closed";
                                     } 
                                 }
-                                else if($row['reqstatus']==3)
+                                else if($sm['reqstatus']==3)
                                 {
                                     if($level<=1) 
                                     { 
@@ -304,7 +316,7 @@ $data = $ins->fetchAll();
                                         $reqstatus = "Not Connected"; 
                                     }
                                 }
-                                else if($row['reqstatus']==4)
+                                else if($sm['reqstatus']==4)
                                 {
                                     if($level<=4) 
                                     { 
@@ -312,7 +324,7 @@ $data = $ins->fetchAll();
                                         $reqstatus = "Open";
                                     }
                                 }
-                                else if($row['reqstatus']==5)
+                                else if($sm['reqstatus']==5)
                                 {
                                     if($level<=5) 
                                     { 
@@ -320,7 +332,7 @@ $data = $ins->fetchAll();
                                         $reqstatus = "In process";
                                     }
                                 }
-                                else if($row['reqstatus']==6)
+                                else if($sm['reqstatus']==6)
                                 {
                                     if($level<=6) 
                                     { 
@@ -329,7 +341,7 @@ $data = $ins->fetchAll();
                                     }
                                 }
 
-                                if($row['qualified']==1)
+                                if($sm['qualified']==1)
                                 {
                                     if($value==0) 
                                     { 
