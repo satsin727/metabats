@@ -233,10 +233,15 @@ $data = $ins->fetchAll();
 								{
 									$t1ip= "";
 								}
-
+								if($appcount==0)
+								{
+									$appdata = "No application done.";
+								}
+							else {
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
-                            
-                                $appid = $sm['app_id'];
+								$appid = $sm['app_id'];
+							}
+                                
 								if($sreqid == $reqid && $ssmid == $uid && $appcount == 0)
 								{
 									continue;
@@ -244,34 +249,31 @@ $data = $ins->fetchAll();
 							else {
 									$sreqid = $reqid;
 									$ssmid = $uid ;
-									if($appcount==0)
-									{
-										$com_query = "SELECT * FROM comments WHERE uid = $uid and com_postid = $reqid AND reqcom_id = 1";
-									}
-									else {
+									if (!empty($appid)) {
 										$com_query = "SELECT * FROM comments WHERE uid = $uid and ((com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1))";
-									}
-                                    $cins= $conn->prepare($com_query);
-                                    $cins->execute();
-                                    $commentdata = $cins->fetchAll();
-									$scom_id ="";
-									$scuid = "";
+										
+										$cins= $conn->prepare($com_query);
+										$cins->execute();
+										$commentdata = $cins->fetchAll();
+										$scom_id ="";
+										$scuid = "";
 
-                                foreach($commentdata as $comment)
-                                {
-									if($scom_id ==$comment['com_id'] && $scuid = $comment['uid'] )
-									{
-										continue;
+										foreach($commentdata as $comment)
+										{
+											if($scom_id ==$comment['com_id'] && $scuid = $comment['uid'] )
+											{
+												continue;
+											}
+											else {
+											$scom_id = $comment['com_id'];
+											$uid = $comment['uid'];
+											$scuid = $comment['uid'];
+											
+											$smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+											$comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
+											}
+										}
 									}
-									else {
-									$scom_id = $comment['com_id'];
-                                    $uid = $comment['uid'];
-                                    $scuid = $comment['uid'];
-									
-                                    $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
-                                    $comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
-									}
-                                }
 
                                 if($row['reqstatus']==1)
                                 {
