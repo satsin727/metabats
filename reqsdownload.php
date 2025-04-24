@@ -244,7 +244,13 @@ $data = $ins->fetchAll();
 							else {
 									$sreqid = $reqid;
 									$ssmid = $uid ;
-                                    $com_query = "SELECT * FROM comments WHERE uid = $uid and ((com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1))";
+									if($appcount==0)
+									{
+										$com_query = "SELECT * FROM comments WHERE uid = $uid and com_postid = $reqid AND reqcom_id = 1";
+									}
+									else {
+										$com_query = "SELECT * FROM comments WHERE uid = $uid and ((com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1))";
+									}
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
                                     $commentdata = $cins->fetchAll();
