@@ -9,6 +9,7 @@ else
 	header( "Location: admin.php" ); 
 
 }
+$weekly = $monthly = $yearly = $unique = 0;
 
 $conn=null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -124,7 +125,7 @@ $data = $ins->fetchAll();
                                 $u_req_id = "W".$curweek.$cur_date."-".$row['ureq_id'];
                                 $reqid_length = strlen($u_req_id);
 
-                        if($unique==1 & $reqid_length>20)
+                        if($unique==1 && $reqid_length>20)
                         {
                                 $u_req_id = $row['reqid'];
                         }
@@ -176,6 +177,7 @@ $data = $ins->fetchAll();
                         $totalrc = 0;
                         $totalsub = 0;
 						$consultantname ="";
+						$t1ip="";
                 
                             foreach ($smdata as $sm)
                             {
@@ -187,30 +189,20 @@ $data = $ins->fetchAll();
 							   if($weekly==1 || $monthly==1 || $yearly==1)
 								{
 									$uid = $row['uid'];
+									$cid = $sm['cid'];
 								}
 								else
 								{
 									$uid = $sm['uid'];
+									$cid = $sm['client_id'];
 								}
                                 $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
 								$consultantid = $sm['consultant_id'];
-								if($consultantid == NULL)
+								if(!empty($consultantid))
 								{
-									$consultantname = "";
-								}
-								else {
                                 $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
 								}
-								
-								if($weekly==1 || $monthly==1 || $yearly==1)
-								{
-									$cid = $sm['cid'];
-								}	
-								else
-								{
-									$cid = $sm['client_id'];
-								}
-								
+																
                                 $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
                                 $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
 
@@ -228,21 +220,21 @@ $data = $ins->fetchAll();
                                     $totalsub =$totalsub+1;
                                 }
 
-                                $t1ip= $sm['t1ip_name'];
-								if($t1ip == NULL)
+								if(!empty($sm['t1ip_name']))
 								{
-									$t1ip= "";
+									$t1ip= $sm['t1ip_name'];
 								}
-								if($appcount==0)
-								{
-									$appdata = "No application done.";
-								}
+								if($appcount == 0)
+							{
+								$appdata = "";
+							}
 							else {
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
-								$appid = $sm['app_id'];
+								
 							}
-                                
-								if($sreqid == $reqid && $ssmid == $uid && $appcount == 0)
+                                $appid = $sm['app_id'];
+								
+								if($sreqid == $reqid && $ssmid == $uid)
 								{
 									continue;
 								}
