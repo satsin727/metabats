@@ -246,14 +246,14 @@ $data = $ins->fetchAll();
 								
 							}
                                 $appid = $sm['app_id'];
-								/*
+								
 								if($sreqid == $reqid && $ssmid == $uid)
 								{
 									continue;
 								}
 							else {
 									$sreqid = $reqid;
-									$ssmid = $uid ; */
+									$ssmid = $uid ;
 									if (!empty($appid)) {
 										$com_query = "SELECT * FROM comments WHERE uid = $uid and ((com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1))";
 										
@@ -346,7 +346,7 @@ $data = $ins->fetchAll();
                                     }
                                 } */
         
-						//	} //close for same req id 
+							} //close for same req id 
 
                             }
 
