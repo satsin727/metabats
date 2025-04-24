@@ -160,7 +160,14 @@ $data = $ins->fetchAll();
 							}
                         }
                         else{
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+							if($unique==1)
+							{
+								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+							}
+							else 
+							{
+								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+							}
                         }
 						
                         $sins= $conn->prepare($sm_query);
@@ -193,7 +200,7 @@ $data = $ins->fetchAll();
 								else
 								{
 									$uid = $sm['uid'];
-									$cid = $sm['client_id'];
+									$cid = $sm['cid'];
 								}
                                 $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
 								$consultantid = $sm['consultant_id'];
