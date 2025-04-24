@@ -183,6 +183,7 @@ $data = $ins->fetchAll();
                         $totalrc = 0;
                         $totalsub = 0;
 						$consultantname ="";
+						$reqstatus ="";
 						$t1ip="";
                 
                             foreach ($smdata as $sm)
