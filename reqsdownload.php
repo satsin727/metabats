@@ -175,6 +175,7 @@ $data = $ins->fetchAll();
 						$ssmid = "";
                         $totalrc = 0;
                         $totalsub = 0;
+						$consultantname ="";
                 
                             foreach ($smdata as $sm)
                             {
@@ -191,10 +192,15 @@ $data = $ins->fetchAll();
 									$uid = $sm['uid'];
 								}
                                 $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
-
-                                    $consultantid = $sm['consultant_id'];
-
-                                    $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+								$consultantid = $sm['consultant_id'];
+								if($consultantid == NULL)
+								{
+									$consultantname = "";
+								}
+								else {
+                                $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+								}
+								
 								if($weekly==1 || $monthly==1 || $yearly==1)
 								{
 									$cid = $sm['cid'];
@@ -222,11 +228,15 @@ $data = $ins->fetchAll();
                                 }
 
                                 $t1ip= $sm['t1ip_name'];
+								if($t1ip == NULL)
+								{
+									$t1ip= "";
+								}
 
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
-								if($sreqid == $reqid && $ssmid == $uid)
+								if($sreqid == $reqid && $ssmid == $uid && $appcount == 0)
 								{
 									continue;
 								}
