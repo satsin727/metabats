@@ -187,6 +187,7 @@ $data = $ins->fetchAll();
 							   if($weekly==1 || $monthly==1 || $yearly==1)
 								{
 									$uid = $row['uid'];
+								}
 								else
 								{
 									$uid = $sm['uid'];
