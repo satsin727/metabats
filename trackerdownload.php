@@ -1,5 +1,9 @@
 <?php
 require( "config.php" );
+
+set_time_limit(0);
+ini_set('memory_limit', '512M');
+
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
