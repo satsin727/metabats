@@ -159,6 +159,8 @@ $data = $ins->fetchAll();
 						        <th data-field="id" data-sortable="false">S.no</th>
 								<th data-field="Reqid"  data-sortable="true">Req ID</th>
 						        <?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?> <th data-field="rfname" data-sortable="true">SM</th> <?php } ?>
+								
+						        <th data-field="EmpType"  data-sortable="true">Emp Type</th>
 								<th data-field="Reqsource"  data-sortable="true">Req Source</th>
 								<th data-field="Role"  data-sortable="true">Skill</th>	
 						        <th data-field="rlocation"  data-sortable="true">Location</th>
@@ -258,6 +260,7 @@ $selectedValue = $row['req_source'] ?? "17";
     	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
 		<td> <?php echo $ureq_id; ?><a target="_blank" href="reqnoedit.php?do=editreqid&rid=<?php echo $row['reqid']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a></td>
     	<?php   if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showallreqs&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
+		<td data-search="<?php echo $row['emp_type']; ?>"> <?php echo $row['emp_type']; ?></td>  
 		<td data-search="<?php echo $reqSources[$selectedValue]; ?>"> <?php echo $reqSources[$selectedValue]; ?></td>
 		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="le
 		ads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
