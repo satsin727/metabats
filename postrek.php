@@ -140,6 +140,13 @@ require("includes/menu.php");
            								<option value="16">I-Labor</option>																				
            								<option value="17">Other</option>
 									</select>
+									
+									<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Employment Type:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;	</label>
+									<select name="emp_type" class="form-control-in">
+										<option value="C2C">C2C</option>
+           								<option value="W2">W2</option>
+           								<option value="FTE">FTE</option>
+									</select>
 								</td>
 </div></tr><tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr>
 
@@ -194,6 +201,8 @@ $domain = substr($remail, strpos($remail, '@') + 1);
 $ttype = $_POST['ttype'];
 $req_source = $_POST['req_source'];
 $nationality = $_POST['nationality'];
+
+$emp_type = $_POST['emp_type'];
 $currentdatetime =date('Y-m-d H:i:s');
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
@@ -226,9 +235,10 @@ else {
 $conn= null;
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 
- $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `req_source`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :req_source, :ttype, :nationality, '$currentdatetime');");
+ $que= $conn->prepare("INSERT INTO `req` (`uid`, `cid`, `emp_type`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `req_source`, `ttype`, `nationality`, `datetime`) VALUES ( :uid, :cid, :emp_type, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :req_source, :ttype, :nationality, '$currentdatetime');");
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":cid", $cid, PDO::PARAM_INT );
+ $que->bindValue(':emp_type', $emp_type, PDO::PARAM_STR);
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
  $que->bindValue( ":rlocation", $rlocation, PDO::PARAM_STR );
  $que->bindValue( ":rduration", $rduration, PDO::PARAM_STR );
