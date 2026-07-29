@@ -110,6 +110,15 @@ switch ( $action ) {
   case 'clientsdata':
         clientsdata();
         break;
+  case 'clientassignment':
+        clientassignment();
+        break;
+  case 'callinglist':
+        callinglist();
+        break;
+  case 'clienthistory':
+        clienthistory();
+        break;
   default:
     dashboard();
 }
@@ -223,21 +232,24 @@ function listissues() {  $selected = "showissues"; require( "issues.php" ); }
 function addissue() {  $selected = "showissues"; require( "addissues.php" ); }
 function showwtd() {  $selected = "showreports"; require( "showmtddata.php" ); }
 
+function clientassignment() {  $selected = "clientassignment"; require( "client_call_assignment.php" ); }
+function callinglist() {  $selected = "callinglist"; require( "client_todays_calls.php" ); }
 function clientsdata() {  $selected = "clientsdata"; require( "clientsdata.php" ); }
+function clienthistory() {  $selected = "clienthistory"; require( "client_call_history.php" ); }
 
 function uploadcallinglist() {  $selected = "calling"; require( "updatecalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
 function clientlistdownload()
 {
-if(isset($_SESSION['id']))
-{
-$sessid = $_SESSION['id'];
-}
-else
-{
-  header( "Location: admin.php" ); 
-
-}
+  if(isset($_SESSION['id']))
+  {
+  $sessid = $_SESSION['id'];
+  }
+  else
+  {
+    header( "Location: admin.php" ); 
+    exit;
+  }
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
@@ -250,7 +262,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 )
 }
 else
 {
-  $dsql="SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.uid = $sessid A.status = 1 group by A.remail";
+  $dsql="SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.uid = $sessid AND A.status = 1 group by A.remail";
 }
   $connd = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
   $dins= $connd->prepare($dsql);
