@@ -58,7 +58,7 @@ if ($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {
 
     $uid = $dta['uid'];
 
-    if ($dta['level'] == 1 || $dta['level'] == 2) {
+    if ($dta['level'] == 1) {
 
         $sql = "
             SELECT
@@ -121,7 +121,6 @@ if ($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3) {
             ON h.uid=u.uid
             ".$where."
             AND c.uid=:uid
-            LIMIT 500
         ";
 
         $stmt = $conn->prepare($sql);
