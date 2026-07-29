@@ -596,7 +596,7 @@ Not Connected
 
 <a
 
-href="client_details.php?cid=<?php echo $row['cid']; ?>"
+href="admin.php?action=clienthistory&cid=<?php echo $row['cid']; ?>"
 
 class="btn btn-xs btn-info">
 
