@@ -38,8 +38,6 @@ require("includes/menu.php");
 		</div><!--/.row-->
 
 		
-	<a href="admin.php?action=uploadcallinglist" target="_blank"><button>Upload Calling list</button></a>
-		
 	</div>	<!--/.main-->
 
 

@@ -87,9 +87,6 @@
 
 <li class="<?php if($selected=="clientassignment") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientassignment"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Client Call Schedule</a></li> <?php } ?>
 
-<?php if($dta['level'] == 1 || $dta['level'] == 2 )
-{ ?> <li class="<?php if($selected=="clientsdata") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=clientsdata"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Clients data</a></li> <?php } ?>
-
 <li class="<?php if($selected=="showallreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showallreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>All Reqs</a></li>
 
 	<!--		<li class="<?php if($selected=="updatedhotlist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=updatedhotlist"><svg class="glyph stroked table"><use xlink:href="#stroked-table"></use></svg>Updated Hotlist</a></li>

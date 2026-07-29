@@ -237,6 +237,7 @@ Showing search results for <strong><?php echo htmlspecialchars($search); ?></str
 <th data-field="lastby" data-sortable="true">Last By</th>
 <th data-field="status" data-sortable="true">Status</th>
 <th data-field="history">Call History</th>
+<th data-field="editaction">Edit</th>
 </tr>
 </thead>
 <tbody>
@@ -283,6 +284,11 @@ if(empty($row['call_datetime'])) {
 <td>
 <a href="admin.php?action=clienthistory&cid=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
 <span class="glyphicon glyphicon-time"></span> History
+</a>
+</td>
+<td>
+<a href="listcmd.php?do=editcontact&lid=<?php echo $row['lid']; ?>&id=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
+<span class="glyphicon glyphicon-pencil"></span> Edit
 </a>
 </td>
 </tr>
