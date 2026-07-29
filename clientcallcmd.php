@@ -167,6 +167,7 @@ switch ($action) {
 
             $clid = $_POST['clid'];
             $connected = $_POST['connected']; 
+            $connected = $_POST['comment']; 
 
             try {
                 $stmt = $conn->prepare("UPDATE client_call_schedule SET called = 1, connected = :connected WHERE cl_id = :clid");
@@ -225,7 +226,7 @@ function saveCall($conn) {
         echo json_encode(array("status" => "error", "message" => "Invalid Call ID."));
         exit;
     }
-    if ($response_type <= 0) {
+    if ($response_type <= 0 &&  $connected == 1) {
         echo json_encode(array("status" => "error", "message" => "Please select a response type."));
         exit;
     }

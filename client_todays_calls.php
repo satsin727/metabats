@@ -23,7 +23,7 @@ if (isset($_SESSION['id'])) {
 
         if ($dta['level'] == 2 || $dta['level'] == 3) {
             $where .= " AND s.uid = :uid ";
-            $params[':uid'] = $_SESSION['id']; // $uid is already set from $_SESSION['id']
+            $params[':uid'] = $_SESSION['id'];
         }
 
         $sql = "
@@ -87,13 +87,10 @@ if (isset($_SESSION['id'])) {
                         </thead>
                         <tbody>
                             <?php 
-
                             $i=0;
-                                                        
                             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
                                 $i++;
-                                
-                                ?>
+                            ?>
                                 <tr>
                                     <td><?php echo $i; ?></td>
                                     <td><?php echo htmlspecialchars($row['companyname']); ?></td>
@@ -103,19 +100,25 @@ if (isset($_SESSION['id'])) {
                                     <td><?php echo htmlspecialchars($row['domain']); ?></td>
                                     <td>
                                         <?php if($row['called'] == 0) { ?>
+                                            <!-- YES Button (Connected = 1) -->
                                             <button 
                                                 type="button" 
-                                                class="btn btn-success btn-xs btnYes" 
+                                                class="btn btn-success btn-xs btnCallModal" 
                                                 data-toggle="modal" 
                                                 data-target="#callResponseModal" 
-                                                data-clid="<?php echo $row['cl_id']; ?>">
+                                                data-clid="<?php echo $row['cl_id']; ?>"
+                                                data-connected="1">
                                                 Yes
                                             </button>
 
+                                            <!-- NO Button (Not Connected = 0) - Now opens the modal -->
                                             <button 
                                                 type="button" 
-                                                class="btn btn-danger btn-xs btnNo" 
-                                                data-clid="<?php echo $row['cl_id']; ?>">
+                                                class="btn btn-danger btn-xs btnCallModal" 
+                                                data-toggle="modal" 
+                                                data-target="#callResponseModal" 
+                                                data-clid="<?php echo $row['cl_id']; ?>"
+                                                data-connected="0">
                                                 No
                                             </button>
                                         <?php } else { ?>
@@ -147,16 +150,21 @@ if (isset($_SESSION['id'])) {
                             <form id="callResponseForm">
                                 <div class="modal-body">
                                     <input type="hidden" name="clid" id="clid">        
+                                    <input type="hidden" name="connected" id="connected" value="1"> <!-- Tracks Yes/No -->
                                     
-                                    <div class="form-group">
+                                    <div class="form-group" id="responseTypeGroup">
                                         <label>Response Type</label>
-                                        <select class="form-control" name="response_type" id="response_type" required>
+                                        <select class="form-control" name="response_type" id="response_type">
                                             <option value="">-- Select Response Type --</option>
-                                            <?php foreach($responseTypes as $type){ ?>
+                                            <?php foreach($responseTypes as $type){ 
+                                                if ($type['id'] > 0)
+                                                    {
+                                                
+                                                ?>
                                                 <option value="<?php echo $type['id']; ?>">
                                                     <?php echo htmlspecialchars($type['response_name']); ?>
                                                 </option>
-                                            <?php } ?>
+                                            <?php } } ?>
                                         </select>
                                     </div>
 
@@ -169,7 +177,7 @@ if (isset($_SESSION['id'])) {
                                         <label>Next Follow-up Date</label>
                                         <input type="date" class="form-control" name="followup_date" id="followup_date">
                                     </div>
-                                </div> <!-- end modal-body -->
+                                </div>
 
                                 <div class="modal-footer">
                                     <button type="button" id="btnSaveCall" class="btn btn-primary">Save</button>
@@ -198,28 +206,50 @@ require("includes/footer.php");
 <script>
 $(document).ready(function() {
     
-    // Pass the clid to the hidden input when the modal is opened
+    // Pass the clid and connected status to hidden inputs when the modal opens
     $('#callResponseModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        $('#clid').val(button.data('clid'));
+        var connectedStatus = button.data('connected');
         
-        // Reset form fields when opening
+        $('#clid').val(button.data('clid'));
+        $('#connected').val(connectedStatus);
+        
+        // Reset form fields first
         $('#callResponseForm')[0].reset();
+        $('#connected').val(connectedStatus); // Re-assign after reset
+
+        if (connectedStatus == 0) {
+            // Hide Response Type for "No" (Not Connected)
+            $('#responseTypeGroup').hide();
+            $('#response_type').prop('required', false);
+            $('#callResponseModal .modal-title').text('Add Comment (Not Connected)');
+        } else {
+            // Show Response Type for "Yes" (Connected)
+            $('#responseTypeGroup').show();
+            $('#response_type').prop('required', true);
+            $('#callResponseModal .modal-title').text('Client Call Response');
+        }
     });
 
-    // Handle the AJAX save
+    // Handle the AJAX save dynamically for both Yes and No
     $('#btnSaveCall').click(function(){
         var btn = $(this);
+        var connectedStatus = $('#connected').val();
+        
+        // Choose the endpoint based on whether it's connected (1) or not (0)
+        var actionUrl = (connectedStatus == 1) 
+            ? 'clientcallcmd.php?action=savecall' 
+            : 'clientcallcmd.php?action=savecall';
+
         btn.prop('disabled', true).text('Saving...');
 
         $.ajax({
-            url: 'clientcallcmd.php?action=savecall',
+            url: actionUrl,
             type: 'POST',
             data: $('#callResponseForm').serialize(),
             dataType: 'json',
             success: function(res){
                 if(res.status == "success"){
-                    alert("Call response saved successfully.");
                     $('#callResponseModal').modal('hide');
                     location.reload();
                 } else {
@@ -233,41 +263,6 @@ $(document).ready(function() {
             }
         });
     });
-
-        // Handle the "No" (Not Connected) button click
-    $('.btnNo').click(function() {
-        var btn = $(this);
-        var clid = btn.data('clid');
-
-        // Optional: Ask for confirmation before updating
-        if(confirm("Mark this call as Not Connected?")) {
-            btn.prop('disabled', true).text('Saving...');
-
-            $.ajax({
-                url: 'clientcallcmd.php?action=notconnected',
-                type: 'POST',
-                data: { 
-                    clid: clid,
-                    connected: 0 
-                },
-                dataType: 'json',
-                success: function(res){
-                    if(res.status == "success"){
-                        // Reload the page to reflect the new status
-                        location.reload(); 
-                    } else {
-                        alert(res.message);
-                        btn.prop('disabled', false).text('No');
-                    }
-                },
-                error: function(){
-                    alert("Unable to update call status.");
-                    btn.prop('disabled', false).text('No');
-                }
-            });
-        }
-    });
-
 
 });
 </script>
