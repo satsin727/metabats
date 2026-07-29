@@ -18,7 +18,13 @@ if (isset($_SESSION['id'])) {
         }
 
         $where = " WHERE s.call_date = :call_date ";
+
         $params = [':call_date' => $date];
+
+        if ($dta['level'] == 2 || $dta['level'] == 3) {
+            $where .= " AND s.uid = :uid ";
+            $params[':uid'] = $_SESSION['id']; // $uid is already set from $_SESSION['id']
+        }
 
         $sql = "
             SELECT
