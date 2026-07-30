@@ -6,7 +6,7 @@ $ins->bindValue(":sess", $_SESSION['username'], PDO::PARAM_STR);
 $ins->execute();
 $dta = $ins->fetch();
 
-$selected = isset($_GET['selected']) ? $_GET['selected'] : '';
+$selected = isset($_GET['action']) ? $_GET['action'] : '';
 ?>
 
 <body>
