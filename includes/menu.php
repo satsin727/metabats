@@ -48,9 +48,11 @@
 		?>
 		<ul class="nav menu">
 			<li class="<?php if($selected=="postreq") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=postreq"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Post Req</a></li>
-			<?php if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
+			<?php if($dta['level'] == 2 || $dta['level'] == 3)
+{ ?>		<li class="<?php if($selected=="callinglist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=callinglist"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Calling List</a></li>
+<?php } ?>
+			<?php if($dta['level'] == 2 || $dta['level'] == 3)
 { ?>		<li class="<?php if($selected=="showreqs") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreqs"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>My Reqs</a></li> 
-			<li class="<?php if($selected=="callinglist") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=callinglist"><svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg>Calling List</a></li>
 
 <?php } ?>
 				<?php if($dta['level'] == 2)

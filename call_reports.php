@@ -417,10 +417,11 @@ if ($view_uid !== null) {
             </div>
             
             <button type="submit" class="btn btn-info">Apply Filters</button>
-            
+            <?php if($dta['level']==1) {  ?>
             <button type="submit" formaction="export_reports.php" class="btn btn-success pull-right">
                 <span class="glyphicon glyphicon-download-alt"></span> Download CSV
             </button>
+            <?php   } ?>
         </form>
         <br>
 
