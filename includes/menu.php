@@ -226,5 +226,3 @@ $selected = isset($_GET['selected']) ? $_GET['selected'] : '';
         </script>"; 
     } 
     ?>
-
-```
