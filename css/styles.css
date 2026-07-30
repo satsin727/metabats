@@ -1,19 +1,29 @@
+/*
+Lumino Admin Bootstrap Template - Fixed & Optimized
+*/
+
+/* Global Styles */
 
 body {
     background: #ffffff;
     padding-top: 50px;
     color: #212529;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 16px;
+    font-size: 14px; /* Fixed: restored standard admin data density */
     line-height: 1.5;
 }
 
 p {
-    color: #495057; /* Darkened for WCAG AA compliance */
+    color: #495057;
 }
 
-a, a:hover, a:focus {
+a {
     color: #1d5b8c;
+    text-decoration: none; /* Fixed: removed unwanted global underlines */
+}
+
+a:hover, a:focus {
+    color: #16466d;
     text-decoration: underline;
 }
 
@@ -27,25 +37,16 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-h1 {
-    font-size: 36px;
-}
-
-h2 {
-    margin-bottom: 20px;
-    font-size: 28px;
-}
-
-h3, h4 {
-    font-weight: 500;
-}
+h1 { font-size: 30px; }
+h2 { margin-bottom: 20px; font-size: 24px; }
+h3, h4 { font-weight: 500; }
 
 .large {
     font-size: 2em;
 }
 
 .text-muted {
-    color: #6c757d !important; /* WCAG compliant muted text */
+    color: #6c757d !important;
 }
 
 .color-gray { color: #212529; }
@@ -59,17 +60,12 @@ h3, h4 {
     margin: 0;
 }
 
-.glyphicon-xl { font-size: 6em; }
-.glyphicon-l { font-size: 3em; }
-.glyphicon-m { font-size: 1.5em; }
-.glyphicon-s { font-size: 0.75em; }
-
 .form-control {
     border: 1px solid #ced4da;
     border-radius: 4px;
     box-shadow: none;
-    height: 38px;
-    font-size: 16px;
+    height: 36px;
+    font-size: 14px;
     color: #212529;
 }
 
@@ -98,70 +94,18 @@ button:hover {
     opacity: 0.9;
 }
 
-a.btn:focus,
-button:focus {
-    outline: 3px solid #005fcc !important;
-}
-
 .btn {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
-    padding: 8px 16px;
+    padding: 6px 14px;
     border-radius: 4px;
 }
 
-.btn-default {
-    background-color: #e9ecef;
-    border-color: #ced4da;
-    color: #212529;
-}
-
-.btn-primary {
-    background-color: #1d5b8c;
-    border-color: #1d5b8c;
-    color: #ffffff;
-}
-
-.btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: #ffffff;
-}
-
-.btn-warning {
-    background-color: #d39e00;
-    border-color: #c69500;
-    color: #ffffff;
-}
-
-.btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: #ffffff;
-}
-
-/* Backgrounds */
-
-.bg-primary {
-    color: #212529;
-    background-color: #e9ecef;
-}
-.bg-success {
-    color: #ffffff;
-    background-color: #28a745;
-}
-.bg-info {
-    color: #ffffff;
-    background-color: #1d5b8c;
-}
-.bg-warning {
-    color: #ffffff;
-    background-color: #d39e00;
-}
-.bg-danger {
-    color: #ffffff;
-    background-color: #dc3545;
-}
+.btn-default { background-color: #e9ecef; border-color: #ced4da; color: #212529; }
+.btn-primary { background-color: #1d5b8c; border-color: #1d5b8c; color: #ffffff; }
+.btn-success { background-color: #28a745; border-color: #28a745; color: #ffffff; }
+.btn-warning { background-color: #d39e00; border-color: #c69500; color: #ffffff; }
+.btn-danger  { background-color: #dc3545; border-color: #dc3545; color: #ffffff; }
 
 /* Panels */
 
@@ -172,11 +116,9 @@ button:focus {
 }
 
 .panel-heading {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 600;
-    letter-spacing: 0.025em;
-    padding: 15px 20px;
-    height: auto;
+    padding: 12px 18px;
 }
 
 .panel-default .panel-heading {
@@ -190,115 +132,7 @@ button:focus {
     border-top: 1px solid #dee2e6;
 }
 
-.panel-blue { background: #1d5b8c; color: #ffffff; }
-.panel-teal { background: #158c7f; color: #ffffff; }
-.panel-orange { background: #b86200; color: #ffffff; }
-.panel-red { background: #b71c2a; color: #ffffff; }
-
-.panel-blue .panel-body p,
-.panel-teal .panel-body p,
-.panel-orange .panel-body p,
-.panel-red .panel-body p { 
-    color: #ffffff; 
-}
-
-.widget-left {
-    height: 80px;
-    padding-top: 15px;
-    text-align: center;
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-}
-
-.widget-right {
-    text-align: left;
-    line-height: 1.6em;
-    margin: 0px;
-    padding: 20px;
-    height: 80px;
-    color: #495057;
-    font-weight: 400;
-    background: #ffffff;
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-}
-
-@media (max-width: 768px) {
-    .widget-right, .widget-left {
-        width: 100%;
-        text-align: center;
-        border-radius: 6px;
-    }
-}
-
-.widget-right .text-muted {
-    color: #6c757d;
-}
-.widget-right .large {
-    color: #212529;
-    font-weight: 700;
-}
-
-/* Jumbotron */
-
-.jumbotron {
-    background: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-    color: #212529;
-}
-
-/* Tabs */
-
-.nav-tabs {
-    background: #e9ecef;
-    border: 0;
-}
-
-.nav-tabs li a,
-.nav-tabs li.active a {
-    border: 0;
-    padding: 12px 20px;
-    color: #212529;
-    font-weight: 500;
-}
-
-.nav-tabs li.active a {
-    background: #ffffff;
-    color: #1d5b8c;
-    border-top: 3px solid #1d5b8c;
-}
-
-.nav-pills li.active a {
-    background: #1d5b8c;
-    color: #ffffff;
-}
-
-.tab-content {
-    padding: 20px;
-    background: #ffffff;
-}
-
-/* Navbar */
-
-.navbar {
-    border: 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.user-menu {
-    display: inline-block;
-    margin-top: 14px;
-    margin-right: 10px;
-    list-style: none;
-    padding: 0;
-}
-
-.user-menu a {
-    color: #ffffff;
-    font-weight: 500;
-}
-
-/* Sidebar */
+/* Sidebar & Navigation */
 
 .sidebar {
     display: block;
@@ -327,19 +161,25 @@ button:focus {
     color: #333333;
     font-weight: 500;
     padding: 12px 15px;
+    text-decoration: none;
 }
 
-.sidebar ul.nav a:hover, 
-.sidebar ul.nav li.parent ul li a:hover {
-    text-decoration: none;
+.sidebar ul.nav a:hover {
     background-color: #e9ecef;
     color: #1d5b8c;
+    text-decoration: none;
 }
 
-.sidebar ul.nav .active a, 
+/* Fixed: Active Sidebar Highlighting */
+.sidebar ul.nav li.active > a, 
 .sidebar ul.nav li.parent a.active {
-    color: #ffffff;
-    background-color: #1d5b8c;
+    color: #ffffff !important;
+    background-color: #1d5b8c !important;
+    text-decoration: none;
+}
+
+.sidebar ul.nav li.active svg.glyph {
+    fill: #ffffff !important;
 }
 
 .sidebar ul.nav ul.children {
@@ -349,7 +189,7 @@ button:focus {
 }
 
 .sidebar ul.nav ul.children li a {
-    height: 42px;
+    height: 40px;
     background: #f1f3f5;
     color: #1d5b8c !important;
     padding-left: 35px;
@@ -357,7 +197,7 @@ button:focus {
 }
 
 .sidebar ul.nav ul.children li a.active {
-    background-color: #1d5b8c;
+    background-color: #1d5b8c !important;
     color: #ffffff !important;
 }
 
@@ -365,11 +205,10 @@ button:focus {
 
 .breadcrumb {
     border-radius: 0;
-    padding: 12px 20px;
+    padding: 10px 15px;
     background: #e9ecef;
-    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .05);
     margin: 0;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Tables */
@@ -377,6 +216,7 @@ button:focus {
 .table {
     background: #ffffff;
     color: #212529;
+    font-size: 14px;
 }
 
 .table > thead > tr > th {
@@ -385,49 +225,40 @@ button:focus {
     color: #212529;
     font-weight: 600;
     vertical-align: middle;
-    text-align: left;
-    padding: 12px;
+    padding: 10px 12px;
 }
 
 .table > tbody > tr > td {
-    padding: 12px;
+    padding: 10px 12px;
     vertical-align: middle;
     border-top: 1px solid #dee2e6;
 }
 
-/* Todo List & Chat */
-
-.todo-list-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid #eee;
+.table a {
+    text-decoration: none;
 }
 
-.todo-list-item:hover {
-    background-color: #f8f9fa;
-}
-
-.panel-body input[type=checkbox]:checked + label { 
-    text-decoration: line-through;
-    color: #6c757d; 
+.table a:hover {
+    text-decoration: underline;
 }
 
 /* SVG Glyphs Sizing */
 svg.glyph {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     vertical-align: -3px;
     fill: currentColor;
     display: inline-block;
 }
 
 .navbar-header svg.glyph {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 .user-menu svg.glyph {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     vertical-align: -4px;
     margin-right: 4px;
 }
