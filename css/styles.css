@@ -863,21 +863,50 @@ h1.page-header {
 .fixed-table-container tbody td:last-child {
 	border-right: none;
 }
+/*=================================================
+  TABLES
+=================================================*/
 
-.table>thead>tr>th {
-	border-top: 2px solid #000;
-	border: 2px solid #000;
-	vertical-align: middle;
-	text-align: center;
-	height: 50px;
+.table{
+    background:#fff;
+    color:#1F2937;
+    margin-bottom:0;
 }
 
-.fixed-table-pagination .pagination {
-    margin-top: 10px;
-    margin-bottom: 0px;
+.table>thead>tr>th{
+    background:#EAF2FB;
+    color:#111827;
+    border-color:#D7DEE7;
+    font-weight:600;
+    vertical-align:middle;
+    white-space:nowrap;
 }
-.fixed-table-pagination .pagination-detail {
-	margin-top: 20px;
+
+.table>tbody>tr>td{
+    border-color:#D7DEE7;
+    vertical-align:middle;
+}
+
+.table-hover>tbody>tr:hover{
+    background:#EDF5FF;
+}
+
+.table-striped>tbody>tr:nth-child(odd){
+    background:#FAFBFC;
+}
+
+/* Bootstrap Table compatibility */
+
+.bootstrap-table{
+    width:100%;
+}
+
+.fixed-table-container{
+    border:1px solid #D7DEE7;
+}
+
+.panel-body{
+    overflow-x:auto;
 }
 
 /*Icons*/
