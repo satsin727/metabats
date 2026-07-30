@@ -83,6 +83,8 @@ if (isset($_SESSION['id'])) {
                                 <th data-sortable="true" data-visible="false">Domain</th>
                                 <th data-sortable="true">Connected</th>
                                 <th data-sortable="true">History</th>
+                                <th data-field="editaction">Edit</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
@@ -131,6 +133,11 @@ if (isset($_SESSION['id'])) {
                                     </td>
                                     <td align="center">
                                         <a href="admin.php?action=clienthistory&cid=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">History</a>
+                                    </td>
+                                    <td>
+                                    <a href="listcmd.php?do=editcontact&lid=<?php echo $row['lid']; ?>&id=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
+                                    <span class="glyphicon glyphicon-pencil"></span> Edit
+                                    </a>
                                     </td>
                                 </tr>
                             <?php } ?>
