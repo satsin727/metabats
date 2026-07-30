@@ -22,6 +22,7 @@ if(isset($_SESSION['username']))
 
 <link href="css/bootstrap.min.css" rel="stylesheet">
 <link href="css/styles.css" rel="stylesheet">
+<link rel="stylesheet" href="css/accessibility.css">
  
 <!-- Icons -->
 <script src="js/lumino.glyphs.js"></script>

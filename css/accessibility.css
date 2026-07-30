@@ -1,0 +1,1535 @@
+/* ===========================================================
+   Metahorizon BATS Accessibility Theme
+   Part 1 - Foundation
+   WCAG 2.2 AAA
+   =========================================================== */
+
+
+/*==========================
+  COLOR SYSTEM
+==========================*/
+
+:root{
+
+    --primary:#004A99;
+    --primary-dark:#003366;
+    --primary-light:#DCEBFA;
+
+    --success:#006B3C;
+    --warning:#9A4A00;
+    --danger:#B00020;
+    --info:#005F73;
+
+    --white:#FFFFFF;
+
+    --gray-50:#F8F9FA;
+    --gray-100:#F1F3F5;
+    --gray-200:#E9ECEF;
+    --gray-300:#DEE2E6;
+    --gray-400:#CED4DA;
+    --gray-500:#6C757D;
+    --gray-600:#495057;
+    --gray-700:#343A40;
+    --gray-800:#212529;
+    --gray-900:#111827;
+
+    --text:#1F2937;
+    --muted:#4B5563;
+
+    --sidebar-bg:#F5F7FA;
+
+    --focus:#FFBF47;
+
+    --border:#C5CED8;
+
+}
+
+
+
+/*==========================
+ BODY
+==========================*/
+
+body{
+
+    background:#ffffff;
+    color:var(--text);
+
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+
+}
+
+
+
+/*==========================
+ TYPOGRAPHY
+==========================*/
+
+h1,h2,h3,h4,h5,h6{
+
+    color:var(--gray-900);
+    font-weight:400;
+
+}
+
+p{
+
+    color:var(--text);
+    line-height:1.65;
+
+}
+
+small{
+
+    color:var(--muted);
+
+}
+
+.text-muted{
+
+    color:var(--muted)!important;
+
+}
+
+
+
+/*==========================
+ LINKS
+==========================*/
+
+a{
+
+    color:var(--primary);
+
+    transition:.18s ease;
+
+}
+
+a:hover{
+
+    color:var(--primary-dark);
+    text-decoration:underline;
+
+}
+
+a:focus{
+
+    color:var(--primary-dark);
+
+}
+
+
+
+/*==========================
+ UNIVERSAL FOCUS
+==========================*/
+
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus,
+.btn:focus,
+.dropdown-toggle:focus{
+
+    outline:3px solid var(--focus)!important;
+    outline-offset:2px!important;
+
+    box-shadow:none!important;
+
+}
+
+
+
+/*==========================
+ FORM CONTROLS
+==========================*/
+
+.form-control{
+
+    border:1px solid var(--border);
+
+    border-radius:4px;
+
+    color:var(--text);
+
+    box-shadow:none;
+
+}
+
+.form-control:hover{
+
+    border-color:var(--primary);
+
+}
+
+.form-control:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 3px rgba(0,74,153,.18);
+
+}
+
+
+
+/*==========================
+ NAVBAR
+==========================*/
+
+.navbar{
+
+    background:#003B73;
+
+    border:none;
+
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+
+}
+
+.navbar-brand{
+
+    color:#ffffff!important;
+
+    font-weight:600;
+
+}
+
+.navbar-brand span{
+
+    color:#9FD0FF!important;
+
+}
+
+.user-menu a{
+
+    color:#ffffff!important;
+
+}
+
+.user-menu a:hover{
+
+    color:#DCEBFA!important;
+
+}
+
+
+
+/*==========================
+ SIDEBAR
+==========================*/
+
+.sidebar{
+
+    background:var(--sidebar-bg);
+
+    border-right:1px solid var(--gray-300);
+
+}
+
+
+
+/*==========================
+ MENU LINKS
+==========================*/
+
+.sidebar ul.nav li a{
+
+    color:var(--gray-800);
+
+    font-weight:500;
+
+    border-left:4px solid transparent;
+
+    transition:all .15s ease;
+
+}
+
+
+
+/*==========================
+ MENU HOVER
+==========================*/
+
+.sidebar ul.nav li a:hover{
+
+    background:var(--primary-light);
+
+    color:var(--primary-dark);
+
+    border-left:4px solid var(--primary);
+
+}
+
+
+
+/*==========================
+ ACTIVE MENU
+==========================*/
+
+.sidebar ul.nav .active>a,
+.sidebar ul.nav li.parent>a.active,
+.sidebar ul.nav li.current>a{
+
+    background:var(--primary)!important;
+
+    color:#ffffff!important;
+
+    border-left:4px solid #FFBF47;
+
+}
+
+.sidebar ul.nav .active>a:hover{
+
+    background:var(--primary-dark)!important;
+
+}
+
+
+
+/*==========================
+ SUB MENU
+==========================*/
+
+.sidebar ul.nav ul.children{
+
+    background:#EEF4FB;
+
+}
+
+.sidebar ul.nav ul.children li a{
+
+    background:#EEF4FB;
+
+    color:var(--primary-dark)!important;
+
+}
+
+.sidebar ul.nav ul.children li a:hover{
+
+    background:#DCEBFA!important;
+
+}
+
+
+
+/*==========================
+ GLYPHS
+==========================*/
+
+.sidebar .glyph{
+
+    stroke-width:3.5;
+
+}
+
+
+
+/*==========================
+ DIVIDERS
+==========================*/
+
+.sidebar ul.nav li.divider{
+
+    border-bottom:1px solid var(--gray-300);
+
+}
+
+
+
+/*==========================
+ SELECTION
+==========================*/
+
+::selection{
+
+    background:#004A99;
+
+    color:white;
+
+}
+
+
+
+/*==========================
+ SCROLLBAR
+==========================*/
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#ECECEC;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#8EA5C0;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#6B8CB5;
+
+}
+
+/* ===========================================================
+   Metahorizon BATS Accessibility Theme
+   Part 2 - Components
+   WCAG 2.2 AAA
+   ===========================================================*/
+
+
+
+/*=================================================
+  BUTTONS
+=================================================*/
+
+.btn{
+
+    border-radius:6px;
+
+    font-weight:600;
+
+    transition:all .15s ease;
+
+    box-shadow:none;
+
+}
+
+.btn:hover{
+
+    transform:translateY(-1px);
+
+}
+
+.btn:active{
+
+    transform:translateY(0);
+
+}
+
+
+/* Primary */
+
+.btn-primary{
+
+    background:#004A99;
+
+    border-color:#004A99;
+
+    color:#fff;
+
+}
+
+.btn-primary:hover{
+
+    background:#003366;
+
+    border-color:#003366;
+
+}
+
+
+/* Success */
+
+.btn-success{
+
+    background:#006B3C;
+
+    border-color:#006B3C;
+
+    color:#fff;
+
+}
+
+.btn-success:hover{
+
+    background:#00532E;
+
+}
+
+
+/* Warning */
+
+.btn-warning{
+
+    background:#9A4A00;
+
+    border-color:#9A4A00;
+
+    color:#fff;
+
+}
+
+.btn-warning:hover{
+
+    background:#7A3B00;
+
+}
+
+
+/* Danger */
+
+.btn-danger{
+
+    background:#B00020;
+
+    border-color:#B00020;
+
+    color:#fff;
+
+}
+
+.btn-danger:hover{
+
+    background:#860018;
+
+}
+
+
+/* Default */
+
+.btn-default{
+
+    background:#F8F9FA;
+
+    border:1px solid #C5CED8;
+
+    color:#1F2937;
+
+}
+
+.btn-default:hover{
+
+    background:#E9ECEF;
+
+}
+
+
+
+/*=================================================
+  LABELS
+=================================================*/
+
+.label{
+
+    font-size:12px;
+
+    padding:5px 8px;
+
+    border-radius:4px;
+
+}
+
+
+
+/*=================================================
+  BADGES
+=================================================*/
+
+.badge{
+
+    background:#004A99;
+
+    color:#fff;
+
+}
+
+
+
+/*=================================================
+  PANELS
+=================================================*/
+
+.panel{
+
+    border:1px solid #D7DEE7;
+
+    border-radius:8px;
+
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+
+}
+
+.panel-heading{
+
+    background:#F8F9FA!important;
+
+    color:#1F2937!important;
+
+    border-bottom:1px solid #D7DEE7!important;
+
+    font-weight:600;
+
+}
+
+.panel-footer{
+
+    background:#FAFBFC;
+
+}
+
+
+
+/* Colored Panels */
+
+.panel-blue{
+
+    background:#004A99;
+
+}
+
+.panel-teal{
+
+    background:#005F73;
+
+}
+
+.panel-orange{
+
+    background:#9A4A00;
+
+}
+
+.panel-red{
+
+    background:#B00020;
+
+}
+
+.panel-blue,
+.panel-teal,
+.panel-orange,
+.panel-red{
+
+    color:#fff;
+
+}
+
+
+
+/*=================================================
+  WIDGETS
+=================================================*/
+
+.widget-right{
+
+    color:#1F2937;
+
+}
+
+.widget-right .large{
+
+    color:#111827;
+
+}
+
+
+
+/*=================================================
+  TABLES
+=================================================*/
+
+.table{
+
+    background:#fff;
+
+    color:#1F2937;
+
+}
+
+.table>thead>tr>th{
+
+    background:#EAF2FB;
+
+    color:#111827;
+
+    border:1px solid #C5CED8;
+
+    font-weight:700;
+
+    vertical-align:middle;
+
+}
+
+.table>tbody>tr>td{
+
+    border:1px solid #D7DEE7;
+
+    vertical-align:middle;
+
+}
+
+
+/* Zebra */
+
+.table-striped>tbody>tr:nth-child(odd){
+
+    background:#FAFBFC;
+
+}
+
+
+/* Hover */
+
+.table-hover>tbody>tr:hover{
+
+    background:#EDF5FF;
+
+}
+
+
+/* Selected */
+
+.table tbody tr.active{
+
+    background:#DCEBFA!important;
+
+}
+
+
+
+/*=================================================
+  BOOTSTRAP TABLE
+=================================================*/
+
+.fixed-table-container{
+
+    border:1px solid #C5CED8;
+
+}
+
+.fixed-table-container thead th{
+
+    background:#EAF2FB;
+
+    color:#111827;
+
+}
+
+.fixed-table-container tbody tr:hover{
+
+    background:#EDF5FF;
+
+}
+
+
+
+/*=================================================
+  PAGINATION
+=================================================*/
+
+.pagination>li>a,
+.pagination>li>span{
+
+    color:#004A99;
+
+    border-color:#C5CED8;
+
+}
+
+.pagination>li>a:hover{
+
+    background:#DCEBFA;
+
+}
+
+.pagination>.active>a,
+.pagination>.active>span{
+
+    background:#004A99;
+
+    border-color:#004A99;
+
+    color:#fff;
+
+}
+
+
+
+/*=================================================
+  BREADCRUMB
+=================================================*/
+
+.breadcrumb{
+
+    background:#F5F7FA;
+
+    border:1px solid #D7DEE7;
+
+    color:#1F2937;
+
+}
+
+.breadcrumb>li+li:before{
+
+    color:#6C757D;
+
+}
+
+
+
+/*=================================================
+  TABS
+=================================================*/
+
+.nav-tabs{
+
+    background:#F5F7FA;
+
+}
+
+.nav-tabs>li>a{
+
+    color:#495057;
+
+}
+
+.nav-tabs>li>a:hover{
+
+    background:#EAF2FB;
+
+}
+
+.nav-tabs>li.active>a{
+
+    background:#004A99;
+
+    color:#fff;
+
+}
+
+
+
+/*=================================================
+  PILLS
+=================================================*/
+
+.nav-pills>li>a{
+
+    color:#004A99;
+
+}
+
+.nav-pills>li.active>a{
+
+    background:#004A99;
+
+    color:#fff;
+
+}
+
+
+
+/*=================================================
+  ALERTS
+=================================================*/
+
+.alert{
+
+    border-radius:6px;
+
+    border-width:1px;
+
+}
+
+.alert-success{
+
+    background:#E8F5EC;
+
+    color:#004225;
+
+    border-color:#006B3C;
+
+}
+
+.alert-info{
+
+    background:#EAF2FB;
+
+    color:#003366;
+
+    border-color:#004A99;
+
+}
+
+.alert-warning{
+
+    background:#FFF5E6;
+
+    color:#663300;
+
+    border-color:#9A4A00;
+
+}
+
+.alert-danger{
+
+    background:#FCEBEC;
+
+    color:#5E0012;
+
+    border-color:#B00020;
+
+}
+
+
+
+/*=================================================
+  PROGRESS BARS
+=================================================*/
+
+.progress{
+
+    background:#E9ECEF;
+
+    border-radius:6px;
+
+}
+
+.progress-bar{
+
+    background:#004A99;
+
+}
+
+
+
+/*=================================================
+  LIST GROUPS
+=================================================*/
+
+.list-group-item{
+
+    border-color:#D7DEE7;
+
+}
+
+.list-group-item.active{
+
+    background:#004A99;
+
+    border-color:#004A99;
+
+}
+
+
+
+/*=================================================
+  MODALS
+=================================================*/
+
+.modal-content{
+
+    border-radius:8px;
+
+    border:none;
+
+    box-shadow:0 12px 40px rgba(0,0,0,.20);
+
+}
+
+.modal-header{
+
+    background:#F8F9FA;
+
+    border-bottom:1px solid #D7DEE7;
+
+}
+
+.modal-footer{
+
+    border-top:1px solid #D7DEE7;
+
+}
+
+
+
+/*=================================================
+  DROPDOWNS
+=================================================*/
+
+.dropdown-menu{
+
+    border-radius:6px;
+
+    border:1px solid #D7DEE7;
+
+}
+
+.dropdown-menu>li>a{
+
+    color:#1F2937;
+
+}
+
+.dropdown-menu>li>a:hover{
+
+    background:#EAF2FB;
+
+    color:#003366;
+
+}
+
+/* ===========================================================
+   Metahorizon BATS Accessibility Theme
+   Part 3 - Final Accessibility & Polish
+   WCAG 2.2 AAA
+   =========================================================== */
+
+
+/*=================================================
+  PLACEHOLDERS
+=================================================*/
+
+::-webkit-input-placeholder{
+    color:#6C757D;
+}
+
+::-moz-placeholder{
+    color:#6C757D;
+}
+
+:-ms-input-placeholder{
+    color:#6C757D;
+}
+
+::placeholder{
+    color:#6C757D;
+}
+
+
+
+/*=================================================
+  DISABLED CONTROLS
+=================================================*/
+
+button:disabled,
+.btn.disabled,
+.btn[disabled],
+input[disabled],
+select[disabled],
+textarea[disabled]{
+
+    opacity:.65;
+    cursor:not-allowed;
+
+}
+
+
+
+/*=================================================
+  CHECKBOXES
+=================================================*/
+
+input[type=checkbox]{
+
+    accent-color:#004A99;
+
+}
+
+
+
+/*=================================================
+  RADIO BUTTONS
+=================================================*/
+
+input[type=radio]{
+
+    accent-color:#004A99;
+
+}
+
+
+
+/*=================================================
+  FIELDSETS
+=================================================*/
+
+fieldset{
+
+    border:1px solid #D7DEE7;
+
+    padding:15px;
+
+    margin-bottom:20px;
+
+}
+
+legend{
+
+    width:auto;
+
+    padding:0 10px;
+
+    color:#003366;
+
+    font-weight:600;
+
+}
+
+
+
+/*=================================================
+  HR
+=================================================*/
+
+hr{
+
+    border-top:1px solid #D7DEE7;
+
+}
+
+
+
+/*=================================================
+  BLOCKQUOTE
+=================================================*/
+
+blockquote{
+
+    border-left:5px solid #004A99;
+
+    background:#F8F9FA;
+
+}
+
+
+
+/*=================================================
+  CODE
+=================================================*/
+
+code{
+
+    color:#B00020;
+
+    background:#F8F9FA;
+
+}
+
+pre{
+
+    background:#F8F9FA;
+
+    border:1px solid #D7DEE7;
+
+}
+
+
+
+/*=================================================
+  CALENDAR
+=================================================*/
+
+.datepicker table tr td.active,
+.datepicker table tr td.active:hover{
+
+    background:#004A99!important;
+
+    color:#ffffff!important;
+
+}
+
+.datepicker table tr td.day:hover{
+
+    background:#DCEBFA;
+
+}
+
+.datepicker table tr td.today{
+
+    background:#FFF4CC;
+
+    font-weight:bold;
+
+}
+
+
+
+/*=================================================
+  CHAT
+=================================================*/
+
+.chat ul li{
+
+    border-bottom:1px solid #D7DEE7;
+
+}
+
+.chat-body p{
+
+    color:#1F2937;
+
+}
+
+
+
+/*=================================================
+  TODO
+=================================================*/
+
+.todo-list{
+
+    background:#FFFFFF;
+
+}
+
+.todo-list-item{
+
+    border-bottom:1px solid #EEF2F5;
+
+}
+
+.todo-list-item:hover{
+
+    background:#F8FBFF;
+
+}
+
+
+
+/*=================================================
+  DASHBOARD WIDGETS
+=================================================*/
+
+.widget-left{
+
+    color:#ffffff;
+
+}
+
+.widget-right{
+
+    background:#ffffff;
+
+    color:#1F2937;
+
+}
+
+
+
+/*=================================================
+  PANEL ICONS
+=================================================*/
+
+.panel-heading .glyph{
+
+    color:#004A99;
+
+}
+
+
+
+/*=================================================
+  ICON GRID
+=================================================*/
+
+.icon-grid div{
+
+    border-color:#D7DEE7;
+
+}
+
+.icon-grid div:hover{
+
+    background:#F8FBFF;
+
+}
+
+
+
+/*=================================================
+  BOOTSTRAP TABLE SEARCH
+=================================================*/
+
+.fixed-table-toolbar .search input{
+
+    border:1px solid #C5CED8;
+
+}
+
+.fixed-table-toolbar .search input:focus{
+
+    border-color:#004A99;
+
+}
+
+
+
+/*=================================================
+  BOOTSTRAP TABLE TOOLBAR
+=================================================*/
+
+.fixed-table-toolbar{
+
+    margin-bottom:10px;
+
+}
+
+
+
+/*=================================================
+  LOGIN PAGE
+=================================================*/
+
+.login-panel{
+
+    border-radius:10px;
+
+    border:1px solid #D7DEE7;
+
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+
+}
+
+
+
+/*=================================================
+  WELL
+=================================================*/
+
+.well{
+
+    background:#F8F9FA;
+
+    border:1px solid #D7DEE7;
+
+}
+
+
+
+/*=================================================
+  THUMBNAILS
+=================================================*/
+
+.thumbnail{
+
+    border:1px solid #D7DEE7;
+
+}
+
+
+
+/*=================================================
+  IMAGES
+=================================================*/
+
+img{
+
+    max-width:100%;
+
+}
+
+
+
+/*=================================================
+  FOCUS INSIDE TABLES
+=================================================*/
+
+.table a:focus{
+
+    outline:3px solid #FFBF47;
+
+}
+
+
+
+/*=================================================
+  KEYBOARD NAVIGATION
+=================================================*/
+
+.sidebar a:focus,
+.navbar a:focus,
+.dropdown-menu a:focus{
+
+    background:#003366!important;
+
+    color:#ffffff!important;
+
+}
+
+
+
+/*=================================================
+  SKIP TO CONTENT SUPPORT
+=================================================*/
+
+.skip-link{
+
+    position:absolute;
+
+    top:-40px;
+
+    left:10px;
+
+    background:#003366;
+
+    color:#fff;
+
+    padding:10px;
+
+    z-index:99999;
+
+}
+
+.skip-link:focus{
+
+    top:10px;
+
+}
+
+
+
+/*=================================================
+  REDUCED MOTION
+=================================================*/
+
+@media (prefers-reduced-motion: reduce){
+
+    *{
+
+        animation:none!important;
+
+        transition:none!important;
+
+        scroll-behavior:auto!important;
+
+    }
+
+}
+
+
+
+/*=================================================
+  HIGH CONTRAST SUPPORT
+=================================================*/
+
+@media (prefers-contrast: more){
+
+    *{
+
+        border-color:#000!important;
+
+    }
+
+    body{
+
+        color:#000;
+
+    }
+
+}
+
+
+
+/*=================================================
+  WINDOWS HIGH CONTRAST
+=================================================*/
+
+@media (forced-colors: active){
+
+    *{
+
+        forced-color-adjust:auto;
+
+    }
+
+}
+
+
+
+/*=================================================
+  PRINT
+=================================================*/
+
+@media print{
+
+    body{
+
+        background:#fff;
+
+        color:#000;
+
+    }
+
+    .navbar,
+    .sidebar,
+    .btn,
+    .pagination,
+    .breadcrumb{
+
+        display:none!important;
+
+    }
+
+    .panel{
+
+        border:1px solid #000;
+
+        box-shadow:none;
+
+    }
+
+}
+
+
+
+/*=================================================
+  TEXT SELECTION
+=================================================*/
+
+::selection{
+
+    background:#004A99;
+
+    color:#ffffff;
+
+}
+
+
+
+/*=================================================
+  SMOOTH SCROLL
+=================================================*/
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+
+
+/*=================================================
+  FINAL POLISH
+=================================================*/
+
+.panel,
+.modal-content,
+.btn,
+.form-control,
+.table,
+.dropdown-menu{
+
+    transition:background-color .15s ease,
+               border-color .15s ease,
+               color .15s ease;
+
+}
+
+
+
+/*=================================================
+  END OF FILE
+=================================================*/
