@@ -2,23 +2,16 @@
 require_once("config.php");
 if(isset($_SESSION['username']))
 {
-
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Metahorizon BATS - Dashboard</title>
-<!-- 
-	<script src="js/jquery-1.4.3.min.js"></script> 
- <script src='js/jquery-3.4.1.min.js' type='text/javascript'></script> 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
-<script>
-		!window.jQuery && document.write('<script src="js/jquery-1.4.3.min.js"><\/script>');
-</script> -->
 
-<script type="text/javascript" src="js/jquery.min.js"></script>
+<!-- jQuery & Plugins -->
+<script src="js/jquery-3.5.1.min.js"></script>
 <script type="text/javascript" src="js/jquery.easing-1.3.pack.js"></script>
 <script type="text/javascript" src="js/jquery.mousewheel-3.0.4.pack.js"></script>
 <script type="text/javascript" src="js/jquery.fancybox-1.3.4.js"></script>
@@ -26,114 +19,109 @@ if(isset($_SESSION['username']))
 
 <script src="https://cdn.datatables.net/2.0.0/js/dataTables.js"></script>
 <script src="js/dataTables.bootstrap.min.js"></script>
-<!-- <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-<script src="js/bootstrap-datepicker.js"></script> -->
 
 <link href="css/bootstrap.min.css" rel="stylesheet">
-<!-- <link href="css/datepicker3.css" rel="stylesheet"> -->
 <link href="css/styles.css" rel="stylesheet">
-  
-<!--Icons-->
+ 
+<!-- Icons -->
 <script src="js/lumino.glyphs.js"></script>
-
-
-<!-- select2 css -->
-<!-- <link href='css/select2/dist/css/select2.min.css' rel='stylesheet' type='text/css'> -->
-
-<!--  select2 script -->
-<!-- <script src='css/select2/dist/js/select2.min.js'></script> -->
 <script type="text/javascript" src="ckeditor/ckeditor.js"></script>
-<!--
-<script>
-function openPopupWin(pageURL)
-	{
-		//  Opens a popup window.
-		//  **********
-		var pw = 400;		// pixels - change for your desired popup width
-		var ph = 350;		// pixels - change for your popup height
-		var left   = (screen.width  - pw)/2;
-		var top    = (screen.height - ph)/2;
-		var parms = 'modal=no, dialog=no, height='+ ph +', width=' + pw + ',left=' + left + ', top=' + top + ', status=no, location=no, menubar=no, title=no, scrollbars=no,resizable=no';
-		var uid = window.open(pageURL, '', parms);
-	}
-</script> 
-<script type="text/javascript" src="js/fancybox/jquery.mousewheel-3.0.4.pack.js"></script>
-<script type="text/javascript" src="js/fancybox/jquery.fancybox-1.3.4.pack.js"></script>
-<link rel="stylesheet" type="text/css" href="js/fancybox/jquery.fancybox-1.3.4.css" media="screen" /> -->
-<script type="text/javascript">
-		$(document).ready(function() {
-		
-			$("#various3").fancybox({
-				'width'				: '75%',
-				'height'			: '75%',
-				'autoScale'			: false,
-				'transitionIn'		: 'none',
-				'transitionOut'		: 'none',
-				'type'				: 'iframe'
-			});
 
-		});
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#various3").fancybox({
+            'width'             : '75%',
+            'height'            : '75%',
+            'autoScale'         : false,
+            'transitionIn'      : 'none',
+            'transitionOut'     : 'none',
+            'type'              : 'iframe'
+        });
+    });
 </script>
+
 <style>
-    body{
-        font-family: Arail, sans-serif;
+    /* WCAG AA Compliant Typography & Base Styles */
+    body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #f8f9fa;
     }
-    /* Formatting search box */
-    .search-box{
+
+    /* High-visibility Focus States for Accessibility */
+    a:focus, button:focus, input:focus {
+        outline: 3px solid #005fcc !important;
+        outline-offset: 2px !important;
+    }
+
+    /* Modernized Search Box */
+    .search-box {
         width: 300px;
         position: relative;
         display: inline-block;
-        font-size: 14px;
+        font-size: 16px;
     }
     .search-box input[type="text"]{
-        height: 32px;
-        padding: 5px 10px;
-        border: 1px solid #CCCCCC;
-        font-size: 14px;
+        height: 38px;
+        padding: 6px 12px;
+        border: 2px solid #495057;
+        border-radius: 4px;
+        font-size: 16px;
+        color: #212529;
+        background-color: #ffffff;
     }
-    .result{
+    .result {
         position: absolute;        
         z-index: 999;
         top: 100%;
         left: 0;
+        background: #ffffff;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     }
     .search-box input[type="text"], .result{
         width: 100%;
         box-sizing: border-box;
     }
-    /* Formatting result items */
-    .result p{
+    
+    /* Accessible Result Items */
+    .result p {
         margin: 0;
-        padding: 7px 10px;
-        border: 1px solid #CCCCCC;
+        padding: 10px 14px;
+        border: 1px solid #ced4da;
         border-top: none;
         cursor: pointer;
-        background: #f2f2f2;
+        background: #ffffff;
+        color: #212529;
+        font-size: 15px;
     }
-    .result p:hover{
-        background: #f7e6e6;
+    .result p:hover, .result p:focus {
+        background: #e9ecef;
+        color: #000000;
+        text-decoration: underline;
     }
 </style>
-<script src="js/jquery-3.5.1.min.js"></script>
 
+<!-- Datepicker Initialization -->
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
 <script>
-  $( function() {
+  $(function() {
     $( "#datepicker" ).datepicker();
-  } );
- </script>
-
-<script>
-  $( function() {
     $( "#datepicker2" ).datepicker();
-  } );
+  });
 </script>
 
 </head>
-
+<body>
 <?php
 }
 else
-{ echo "<script>
-alert('Not Authorised to view this page. !!!');
-window.location.href='../login.php';
-</script>";  } ?>
+{ 
+    echo "<script>
+    alert('Not Authorised to view this page. !!!');
+    window.location.href='../login.php';
+    </script>"; 
+} 
+?>
