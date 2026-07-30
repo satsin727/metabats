@@ -52,6 +52,9 @@ if (isset($_SESSION['id'])) {
 
         require("includes/header.php");
         require("includes/menu.php");
+
+        
+        
         
         echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
         ?>
@@ -135,7 +138,11 @@ if (isset($_SESSION['id'])) {
                                         <a href="admin.php?action=clienthistory&cid=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">History</a>
                                     </td>
                                     <td>
-                                    <a href="listcmd.php?do=editcontact&lid=<?php echo $row['lid']; ?>&id=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
+                                        <?php
+                                        $cid = (int)$row['cid'];
+                                        $lid = $conn->query("SELECT lid FROM clients WHERE cid = $cid")->fetchColumn();
+                                        ?>
+                                    <a href="listcmd.php?do=editcontact&lid=<?php echo $lid; ?>&id=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
                                     <span class="glyphicon glyphicon-pencil"></span> Edit
                                     </a>
                                     </td>
