@@ -1529,6 +1529,64 @@ html{
 }
 
 
+/* Desktop Responsive Scaling */
+
+@media (min-width: 1200px) and (max-width: 1600px) {
+
+    html {
+        font-size: 15px;
+    }
+
+    body {
+        font-size: 13px;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table > thead > tr > th,
+    .table > tbody > tr > td {
+        padding: 6px 8px;
+    }
+
+    .btn {
+        font-size: 12px;
+        padding: 4px 10px;
+    }
+
+    .panel-heading {
+        font-size: 16px;
+    }
+
+    .sidebar ul.nav li a {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+.fixed-table-container{
+
+    font-size:12px;
+
+}
+
+.fixed-table-toolbar{
+
+    font-size:12px;
+
+}
+
+.pagination{
+
+    font-size:12px;
+
+}
+html{
+
+    font-size:clamp(13px, 0.75vw, 16px);
+
+}
 
 /*=================================================
   END OF FILE
