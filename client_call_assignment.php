@@ -200,7 +200,7 @@ if(isset($_GET['msg']))
             <button type="button" class="btn btn-warning" id="clearAll">Clear</button>
         </div>
     </div>
-
+<?php if ($dta['level'] == 1) { ?>
     <div class="col-md-3">
         <div class="form-group">
             <input type="text" name="search" class="form-control" placeholder="Domain" value="<?php echo htmlspecialchars($search); ?>">
@@ -210,6 +210,7 @@ if(isset($_GET['msg']))
         </button>
         <input type="hidden" name="action" value="clientassignment">
     </div>
+<?php } ?>
 </div>
 
 <br>

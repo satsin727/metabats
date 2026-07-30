@@ -119,6 +119,9 @@ switch ( $action ) {
   case 'clienthistory':
         clienthistory();
         break;
+  case 'callreports':
+        callreports();
+        break;
   default:
     dashboard();
 }
@@ -236,6 +239,7 @@ function clientassignment() {  $selected = "clientassignment"; require( "client_
 function callinglist() {  $selected = "callinglist"; require( "client_todays_calls.php" ); }
 function clientsdata() {  $selected = "clientsdata"; require( "clientsdata.php" ); }
 function clienthistory() {  $selected = "clienthistory"; require( "client_call_history.php" ); }
+function callreports() {  $selected = "callreports"; require( "call_reports.php" ); }
 
 function uploadcallinglist() {  $selected = "calling"; require( "updatecalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }

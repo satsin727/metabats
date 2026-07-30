@@ -104,6 +104,7 @@
 			<?php if($dta['level'] == 1 || $dta['level'] == 2 )
 { ?>
 <li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=showreports"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>All Reports</a></li> 
+	<li class="<?php if($selected=="callreports") { echo "active"; } else { echo "parent"; } ?>"><a href="admin.php?action=callreports"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg>Call Reports</a></li>  
 
 <!--
 <li class="<?php if($selected=="showreports") { echo "active"; } else { echo "parent"; } ?>">

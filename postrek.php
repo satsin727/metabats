@@ -42,7 +42,7 @@ if (isset($_POST['save'])) {
 		function checkemail(string $str): bool {
 			return filter_var(trim($str), FILTER_VALIDATE_EMAIL) !== false;
 		}
-
+	
     if (
         empty($_POST['jobtype']) || 
         empty($_POST['rlocation']) || 
