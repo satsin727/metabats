@@ -411,3 +411,23 @@ button:focus {
     color: #6c757d; 
 }
 
+/* SVG Glyphs Sizing */
+svg.glyph {
+    width: 18px;
+    height: 18px;
+    vertical-align: -3px;
+    fill: currentColor;
+    display: inline-block;
+}
+
+.navbar-header svg.glyph {
+    width: 20px;
+    height: 20px;
+}
+
+.user-menu svg.glyph {
+    width: 20px;
+    height: 20px;
+    vertical-align: -4px;
+    margin-right: 4px;
+}
