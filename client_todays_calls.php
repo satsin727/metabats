@@ -1,282 +1,1277 @@
 <?php
-session_start();
 require_once("config.php");
 
-$conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+/*
+|--------------------------------------------------------------------------
+| Database Connection
+|--------------------------------------------------------------------------
+*/
 
-if (isset($_SESSION['id'])) {
-    $stmt = $conn->prepare("SELECT * FROM users WHERE uid = :uid LIMIT 1");
-    $stmt->execute([":uid" => $_SESSION['id']]);
-    
-    $dta = $stmt->fetch(PDO::FETCH_ASSOC);
+try {
+    $conn = new PDO(
+        DB_DSN,
+        DB_USERNAME,
+        DB_PASSWORD
+    );
 
-    if ($stmt->rowCount() > 0) {
-        $date = date("Y-m-d");
+    $conn->setAttribute(
+        PDO::ATTR_ERRMODE,
+        PDO::ERRMODE_EXCEPTION
+    );
 
-        if (isset($_GET['call_date']) && $_GET['call_date'] != "") {
-            $date = $_GET['call_date'];
-        }
-
-        $where = " WHERE s.call_date = :call_date ";
-
-        $params = [':call_date' => $date];
-
-        if ($dta['level'] == 2 || $dta['level'] == 3) {
-            $where .= " AND s.uid = :uid ";
-            $params[':uid'] = $_SESSION['id'];
-        }
-
-        $sql = "
-            SELECT
-                s.cl_id, s.cid, s.call_date, s.called, s.connected,
-                c.companyname, c.rname, c.rphone, c.remail, c.domain,
-                u.name AS assignedby
-            FROM client_call_schedule s
-            INNER JOIN clients c ON s.cid = c.cid
-            LEFT JOIN users u ON s.uid = u.uid
-            $where
-            ORDER BY c.companyname
-        ";
-
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($params);
-
-        $responseStmt = $conn->prepare("
-            SELECT id, response_name
-            FROM client_response_type
-            WHERE status = 1
-            ORDER BY response_name
-        ");
-        $responseStmt->execute();
-        $responseTypes = $responseStmt->fetchAll(PDO::FETCH_ASSOC);
-
-        require("includes/header.php");
-        require("includes/menu.php");
-
-        
-        
-        
-        echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
-        ?>
-
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="container-fluid">
-                    <h3>Today's Client Calls</h3>
-
-                    <form method="get" class="form-inline">
-                        <input type="hidden" name="action" value="callinglist">
-
-                        <div class="form-group">
-                            <label>Date</label>
-                            <input type="date" name="call_date" class="form-control" value="<?php echo htmlspecialchars($date); ?>">
-                        </div>
-                        <button class="btn btn-primary">Search</button>
-                    </form>
-                    <br>
-                    
-                    <table id="callTable" data-toggle="table" data-search="true" data-pagination="true" data-page-size="25" data-show-columns="true" data-show-toggle="true" data-show-refresh="true" class="table table-bordered table-hover">
-                        <thead>
-                            <tr>
-                                <th data-sortable="true">S.no</th>
-                                <th data-sortable="true">Company</th>
-                                <th data-sortable="true">Name</th>
-                                <th data-sortable="true">Phone</th>
-                                <th data-sortable="true">Email</th>
-                                <th data-sortable="true" data-visible="false">Domain</th>
-                                <th data-sortable="true">Connected</th>
-                                <th data-sortable="true">History</th>
-                                <th data-field="editaction">Edit</th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php 
-                            $i=0;
-                            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
-                                $i++;
-                            ?>
-                                <tr>
-                                    <td><?php echo $i; ?></td>
-                                    <td><?php echo htmlspecialchars($row['companyname']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['rname']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['rphone']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['remail']); ?></td>
-                                    <td><?php echo htmlspecialchars($row['domain']); ?></td>
-                                    <td>
-                                        <?php if($row['called'] == 0) { ?>
-                                            <!-- YES Button (Connected = 1) -->
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-success btn-xs btnCallModal" 
-                                                data-toggle="modal" 
-                                                data-target="#callResponseModal" 
-                                                data-clid="<?php echo $row['cl_id']; ?>"
-                                                data-connected="1">
-                                                Yes
-                                            </button>
-
-                                            <!-- NO Button (Not Connected = 0) - Now opens the modal -->
-                                            <button 
-                                                type="button" 
-                                                class="btn btn-danger btn-xs btnCallModal" 
-                                                data-toggle="modal" 
-                                                data-target="#callResponseModal" 
-                                                data-clid="<?php echo $row['cl_id']; ?>"
-                                                data-connected="0">
-                                                No
-                                            </button>
-                                        <?php } else { ?>
-                                            <?php if($row['connected'] == 1) { ?>
-                                                <span class="label label-success">Connected</span>
-                                            <?php } else { ?>
-                                                <span class="label label-danger">Not Connected</span>
-                                            <?php } ?>
-                                        <?php } ?>
-                                    </td>
-                                    <td align="center">
-                                        <a href="admin.php?action=clienthistory&cid=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">History</a>
-                                    </td>
-                                    <td>
-                                        <?php
-                                        $cid = (int)$row['cid'];
-                                        $lid = $conn->query("SELECT lid FROM clients WHERE cid = $cid")->fetchColumn();
-                                        ?>
-                                    <a href="listcmd.php?do=editcontact&lid=<?php echo $lid; ?>&id=<?php echo $row['cid']; ?>" class="btn btn-xs btn-info">
-                                    <span class="glyphicon glyphicon-pencil"></span> Edit
-                                    </a>
-                                    </td>
-                                </tr>
-                            <?php } ?>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Modal -->
-                <div class="modal fade" id="callResponseModal" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                <h4 class="modal-title">Client Call Response</h4>
-                            </div>
-
-                            <form id="callResponseForm">
-                                <div class="modal-body">
-                                    <input type="hidden" name="clid" id="clid">        
-                                    <input type="hidden" name="connected" id="connected" value="1"> <!-- Tracks Yes/No -->
-                                    
-                                    <div class="form-group" id="responseTypeGroup">
-                                        <label>Response Type</label>
-                                        <select class="form-control" name="response_type" id="response_type">
-                                            <option value="">-- Select Response Type --</option>
-                                            <?php foreach($responseTypes as $type){ 
-                                                if ($type['id'] > 0)
-                                                    {
-                                                
-                                                ?>
-                                                <option value="<?php echo $type['id']; ?>">
-                                                    <?php echo htmlspecialchars($type['response_name']); ?>
-                                                </option>
-                                            <?php } } ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Comments</label>
-                                        <textarea class="form-control" rows="5" name="comments" id="comments"></textarea>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Next Follow-up Date</label>
-                                        <input type="date" class="form-control" name="followup_date" id="followup_date">
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer">
-                                    <button type="button" id="btnSaveCall" class="btn btn-primary">Save</button>
-                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div> <!-- End Modal -->
-
-            </div> <!-- end panel-body -->
-        </div> <!-- end panel -->
-        </div> <!-- Closing div for main content wrapper -->
-
-        <?php
-    } else {
-        echo "<div class='alert alert-danger'>No client calls assigned for the selected date.</div>";
-    }
-} else {
-    echo "<script>alert('You need to login.'); window.location='index.php';</script>";
+} catch (PDOException $e) {
+    die("Database connection failed.");
 }
 
-require("includes/footer.php"); 
+/*
+|--------------------------------------------------------------------------
+| Login Validation
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !isset($_SESSION['id']) ||
+    (int)$_SESSION['id'] <= 0
+) {
+    echo "<script>
+        alert('You need to login.');
+        window.location='index.php';
+    </script>";
+
+    exit;
+}
+
+$stmt = $conn->prepare("
+    SELECT *
+    FROM users
+    WHERE uid = :uid
+    LIMIT 1
+");
+
+$stmt->execute(array(
+    ":uid" => (int)$_SESSION['id']
+));
+
+$dta = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$dta) {
+    echo "<script>
+        alert('Invalid user session.');
+        window.location='index.php';
+    </script>";
+
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Selected Call Date
+|--------------------------------------------------------------------------
+*/
+
+$date = date("Y-m-d");
+
+if (!empty($_GET['call_date'])) {
+
+    $requestedDate = trim(
+        $_GET['call_date']
+    );
+
+    $dateObject = DateTime::createFromFormat(
+        'Y-m-d',
+        $requestedDate
+    );
+
+    if (
+        $dateObject &&
+        $dateObject->format('Y-m-d') ===
+            $requestedDate
+    ) {
+        $date = $requestedDate;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Call List Query
+|--------------------------------------------------------------------------
+*/
+
+$where = "
+    WHERE s.call_date = :call_date
+";
+
+$params = array(
+    ':call_date' => $date
+);
+
+/*
+ * Level 2 and Level 3 users can view only their
+ * own assigned calls.
+ */
+
+if (
+    (int)$dta['level'] === 2 ||
+    (int)$dta['level'] === 3
+) {
+    $where .= "
+        AND s.uid = :uid
+    ";
+
+    $params[':uid'] =
+        (int)$_SESSION['id'];
+}
+
+$sql = "
+    SELECT
+        s.cl_id,
+        s.cid,
+        s.call_date,
+        s.called,
+        s.connected,
+        s.latest_comment,
+
+        c.lid,
+        c.companyname,
+        c.rname,
+        c.rphone,
+        c.remail,
+        c.domain,
+
+        u.name AS assignedby
+
+    FROM client_call_schedule s
+
+    INNER JOIN clients c
+        ON s.cid = c.cid
+
+    LEFT JOIN users u
+        ON s.uid = u.uid
+
+    $where
+
+    ORDER BY
+        c.companyname ASC
+";
+
+$stmt = $conn->prepare($sql);
+$stmt->execute($params);
+
+$scheduledCalls =
+    $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+/*
+|--------------------------------------------------------------------------
+| Response Types
+|--------------------------------------------------------------------------
+*/
+
+$responseStmt = $conn->prepare("
+    SELECT
+        id,
+        response_name
+    FROM client_response_type
+    WHERE status = 1
+    ORDER BY response_name ASC
+");
+
+$responseStmt->execute();
+
+$responseTypes =
+    $responseStmt->fetchAll(
+        PDO::FETCH_ASSOC
+    );
+
+/*
+|--------------------------------------------------------------------------
+| Page Header
+|--------------------------------------------------------------------------
+*/
+
+require("includes/header.php");
+require("includes/menu.php");
+
+echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 ?>
 
+<div class="panel panel-default">
+
+    <div class="panel-body">
+
+        <div class="container-fluid">
+
+            <h3>Today's Client Calls</h3>
+
+            <form
+                method="get"
+                class="form-inline">
+
+                <input
+                    type="hidden"
+                    name="action"
+                    value="callinglist">
+
+                <div class="form-group">
+
+                    <label for="call_date_filter">
+                        Date
+                    </label>
+
+                    <input
+                        type="date"
+                        id="call_date_filter"
+                        name="call_date"
+                        class="form-control"
+                        value="<?php
+                        echo htmlspecialchars(
+                            $date,
+                            ENT_QUOTES,
+                            'UTF-8'
+                        );
+                        ?>">
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-primary">
+
+                    Search
+
+                </button>
+
+            </form>
+
+            <br>
+
+            <table
+                id="callTable"
+                data-toggle="table"
+                data-search="true"
+                data-pagination="true"
+                data-page-size="25"
+                data-show-columns="true"
+                data-show-toggle="true"
+                data-show-refresh="true"
+                class="table table-bordered table-hover">
+
+                <thead>
+
+                    <tr>
+
+                        <th data-sortable="true">
+                            S.no
+                        </th>
+
+                        <th data-sortable="true">
+                            Company
+                        </th>
+
+                        <th data-sortable="true">
+                            Name
+                        </th>
+
+                        <th data-sortable="true">
+                            Phone
+                        </th>
+
+                        <th data-sortable="true">
+                            Email
+                        </th>
+
+                        <th
+                            data-sortable="true"
+                            data-visible="false">
+
+                            Domain
+
+                        </th>
+
+                        <th data-sortable="true">
+                            Connected
+                        </th>
+
+                        <th data-sortable="true">
+                            History
+                        </th>
+
+                        <th data-field="editaction">
+                            Edit
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                <?php
+                $i = 0;
+
+                foreach (
+                    $scheduledCalls as $row
+                ) {
+                    $i++;
+
+                    $clid =
+                        (int)$row['cl_id'];
+                ?>
+
+                    <tr
+                        id="call-row-<?php
+                        echo $clid;
+                        ?>"
+                        data-clid="<?php
+                        echo $clid;
+                        ?>">
+
+                        <td>
+                            <?php echo $i; ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['companyname'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            );
+                            ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['rname'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            );
+                            ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['rphone'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            );
+                            ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['remail'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            );
+                            ?>
+                        </td>
+
+                        <td>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['domain'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            );
+                            ?>
+                        </td>
+
+                        <!-- Call Status -->
+
+                        <td>
+
+                            <div
+                                id="call-status-<?php
+                                echo $clid;
+                                ?>"
+                                class="call-status-wrapper"
+                                data-clid="<?php
+                                echo $clid;
+                                ?>">
+
+                                <?php
+                                if (
+                                    (int)$row['called'] === 0
+                                ) {
+                                ?>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-success btn-xs btnCallModal"
+                                        data-toggle="modal"
+                                        data-target="#callResponseModal"
+                                        data-clid="<?php
+                                        echo $clid;
+                                        ?>"
+                                        data-connected="1"
+                                        data-mode="initial">
+
+                                        Yes
+
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-danger btn-xs btnCallModal"
+                                        data-toggle="modal"
+                                        data-target="#callResponseModal"
+                                        data-clid="<?php
+                                        echo $clid;
+                                        ?>"
+                                        data-connected="0"
+                                        data-mode="initial">
+
+                                        No
+
+                                    </button>
+
+                                <?php
+                                } elseif (
+                                    (int)$row['connected'] === 1
+                                ) {
+                                ?>
+
+                                    <span class="label label-success">
+                                        Connected
+                                    </span>
+
+                                <?php } else { ?>
+
+                                    <span class="label label-danger">
+                                        Not Connected
+                                    </span>
+
+                                    <br><br>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-primary btn-xs btnCallModal"
+                                        data-toggle="modal"
+                                        data-target="#callResponseModal"
+                                        data-clid="<?php
+                                        echo $clid;
+                                        ?>"
+                                        data-connected="1"
+                                        data-mode="callback">
+
+                                        <span class="glyphicon glyphicon-earphone"></span>
+
+                                        Client Called Back
+
+                                    </button>
+
+                                <?php } ?>
+
+                            </div>
+
+                        </td>
+
+                        <!-- History -->
+
+                        <td align="center">
+
+                            <a
+                                href="admin.php?action=clienthistory&amp;cid=<?php
+                                echo (int)$row['cid'];
+                                ?>"
+                                class="btn btn-xs btn-info">
+
+                                History
+
+                            </a>
+
+                        </td>
+
+                        <!-- Edit -->
+
+                        <td>
+
+                            <a
+                                href="listcmd.php?do=editcontact&amp;lid=<?php
+                                echo (int)$row['lid'];
+                                ?>&amp;id=<?php
+                                echo (int)$row['cid'];
+                                ?>"
+                                class="btn btn-xs btn-info">
+
+                                <span class="glyphicon glyphicon-pencil"></span>
+
+                                Edit
+
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                <?php } ?>
+
+                <?php
+                if (empty($scheduledCalls)) {
+                ?>
+
+                    <tr>
+
+                        <td
+                            colspan="9"
+                            class="text-center text-muted">
+
+                            No client calls assigned for the
+                            selected date.
+
+                        </td>
+
+                    </tr>
+
+                <?php } ?>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <!-- Call Response Modal -->
+
+        <div
+            class="modal fade"
+            id="callResponseModal"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="callResponseModalTitle">
+
+            <div
+                class="modal-dialog"
+                role="document">
+
+                <div class="modal-content">
+
+                    <div class="modal-header">
+
+                        <button
+                            type="button"
+                            class="close"
+                            data-dismiss="modal"
+                            aria-label="Close">
+
+                            <span aria-hidden="true">
+                                &times;
+                            </span>
+
+                        </button>
+
+                        <h4
+                            class="modal-title"
+                            id="callResponseModalTitle">
+
+                            Client Call Response
+
+                        </h4>
+
+                    </div>
+
+                    <form id="callResponseForm">
+
+                        <div class="modal-body">
+
+                            <input
+                                type="hidden"
+                                name="clid"
+                                id="clid">
+
+                            <input
+                                type="hidden"
+                                name="connected"
+                                id="connected"
+                                value="1">
+
+                            <input
+                                type="hidden"
+                                name="call_mode"
+                                id="call_mode"
+                                value="initial">
+
+                            <div
+                                class="form-group"
+                                id="responseTypeGroup">
+
+                                <label for="response_type">
+                                    Response Type
+                                </label>
+
+                                <select
+                                    class="form-control"
+                                    name="response_type"
+                                    id="response_type">
+
+                                    <option value="">
+                                        -- Select Response Type --
+                                    </option>
+
+                                    <?php
+                                    foreach (
+                                        $responseTypes as $type
+                                    ) {
+                                    ?>
+
+                                        <option
+                                            value="<?php
+                                            echo (int)$type['id'];
+                                            ?>">
+
+                                            <?php
+                                            echo htmlspecialchars(
+                                                $type['response_name'],
+                                                ENT_QUOTES,
+                                                'UTF-8'
+                                            );
+                                            ?>
+
+                                        </option>
+
+                                    <?php } ?>
+
+                                </select>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="comments">
+                                    Comments
+                                </label>
+
+                                <textarea
+                                    class="form-control"
+                                    rows="5"
+                                    name="comments"
+                                    id="comments"></textarea>
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="followup_date">
+                                    Next Follow-up Date
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    name="followup_date"
+                                    id="followup_date"
+                                    min="<?php
+                                    echo date('Y-m-d');
+                                    ?>">
+
+                            </div>
+
+                        </div>
+
+                        <div class="modal-footer">
+
+                            <button
+                                type="button"
+                                id="btnSaveCall"
+                                class="btn btn-primary">
+
+                                Save
+
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-default"
+                                data-dismiss="modal">
+
+                                Close
+
+                            </button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
 <script>
-$(document).ready(function() {
-    
-    // Pass the clid and connected status to hidden inputs when the modal opens
-    $('#callResponseModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var connectedStatus = button.data('connected');
-        
-        $('#clid').val(button.data('clid'));
-        $('#connected').val(connectedStatus);
-        
-        // Reset form fields first
-        $('#callResponseForm')[0].reset();
-        $('#connected').val(connectedStatus); // Re-assign after reset
+$(document).ready(function () {
 
-        if (connectedStatus == 0) {
-            // Hide Response Type for "No" (Not Connected)
-            $('#responseTypeGroup').hide();
-            $('#response_type').prop('required', false);
-            $('#callResponseModal .modal-title').text('Add Comment (Not Connected)');
-        } else {
-            // Show Response Type for "Yes" (Connected)
-            $('#responseTypeGroup').show();
-            $('#response_type').prop('required', true);
-            $('#callResponseModal .modal-title').text('Client Call Response');
+    'use strict';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Build Status HTML
+    |--------------------------------------------------------------------------
+    */
+
+    function buildCallStatusHtml(
+        clid,
+        called,
+        connected
+    ) {
+        clid = parseInt(clid, 10);
+        called = parseInt(called, 10);
+        connected = parseInt(
+            connected,
+            10
+        );
+
+        /*
+         * Call has not yet been completed.
+         */
+
+        if (called === 0) {
+
+            return ''
+                + '<button'
+                + ' type="button"'
+                + ' class="btn btn-success btn-xs btnCallModal"'
+                + ' data-toggle="modal"'
+                + ' data-target="#callResponseModal"'
+                + ' data-clid="' + clid + '"'
+                + ' data-connected="1"'
+                + ' data-mode="initial">'
+                + 'Yes'
+                + '</button> '
+                + '<button'
+                + ' type="button"'
+                + ' class="btn btn-danger btn-xs btnCallModal"'
+                + ' data-toggle="modal"'
+                + ' data-target="#callResponseModal"'
+                + ' data-clid="' + clid + '"'
+                + ' data-connected="0"'
+                + ' data-mode="initial">'
+                + 'No'
+                + '</button>';
         }
-    });
 
-    // Handle the AJAX save dynamically for both Yes and No
-    $('#btnSaveCall').click(function(){
-        var btn = $(this);
-        var connectedStatus = $('#connected').val();
-        
-        // Choose the endpoint based on whether it's connected (1) or not (0)
-        var actionUrl = (connectedStatus == 1) 
-            ? 'clientcallcmd.php?action=savecall' 
-            : 'clientcallcmd.php?action=savecall';
+        /*
+         * Connected.
+         */
 
-        btn.prop('disabled', true).text('Saving...');
+        if (connected === 1) {
 
-        $.ajax({
-            url: actionUrl,
-            type: 'POST',
-            data: $('#callResponseForm').serialize(),
-            dataType: 'json',
-            success: function(res){
-                if(res.status == "success"){
-                    $('#callResponseModal').modal('hide');
-                    location.reload();
-                } else {
-                    alert(res.message);
-                    btn.prop('disabled', false).text('Save');
-                }
+            return ''
+                + '<span class="label label-success">'
+                + 'Connected'
+                + '</span>';
+        }
+
+        /*
+         * Not Connected.
+         */
+
+        return ''
+            + '<span class="label label-danger">'
+            + 'Not Connected'
+            + '</span>'
+            + '<br><br>'
+            + '<button'
+            + ' type="button"'
+            + ' class="btn btn-primary btn-xs btnCallModal"'
+            + ' data-toggle="modal"'
+            + ' data-target="#callResponseModal"'
+            + ' data-clid="' + clid + '"'
+            + ' data-connected="1"'
+            + ' data-mode="callback">'
+            + '<span class="glyphicon glyphicon-earphone"></span> '
+            + 'Client Called Back'
+            + '</button>';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Update Only the Visible Status Cell
+    |--------------------------------------------------------------------------
+    */
+
+    function updateVisibleCallRow(
+        callData
+    ) {
+        var clid = parseInt(
+            callData.cl_id,
+            10
+        );
+
+        /*
+         * Every status cell has a permanent unique wrapper ID.
+         */
+
+        var statusWrapper = $(
+            '#call-status-' + clid
+        );
+
+        /*
+         * Fallback search using data-clid.
+         */
+
+        if (!statusWrapper.length) {
+
+            statusWrapper = $(
+                '.call-status-wrapper[data-clid="' +
+                clid +
+                '"]'
+            ).first();
+        }
+
+        if (!statusWrapper.length) {
+            return false;
+        }
+
+        statusWrapper.html(
+            buildCallStatusHtml(
+                clid,
+                callData.called,
+                callData.connected
+            )
+        );
+
+        /*
+         * Briefly highlight the updated row.
+         */
+
+        var tableRow =
+            statusWrapper.closest('tr');
+
+        tableRow.addClass('success');
+
+        window.setTimeout(
+            function () {
+                tableRow.removeClass(
+                    'success'
+                );
             },
-            error: function(){
-                alert("Unable to save call response.");
-                btn.prop('disabled', false).text('Save');
-            }
-        });
-    });
+            1500
+        );
 
+        return true;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reload One Call Record from Database
+    |--------------------------------------------------------------------------
+    */
+
+    function reloadCallRow(clid) {
+
+        return $.ajax({
+
+            url:
+                'clientcallcmd.php?action=getcallrow',
+
+            type: 'GET',
+
+            data: {
+                clid: clid,
+
+                /*
+                 * Prevent browser caching.
+                 */
+
+                _: new Date().getTime()
+            },
+
+            dataType: 'json',
+
+            cache: false
+
+        }).done(function (res) {
+
+            if (
+                !res ||
+                res.status !== 'success'
+            ) {
+
+                alert(
+                    res && res.message
+                        ? res.message
+                        : 'Unable to refresh the saved call.'
+                );
+
+                return;
+            }
+
+            if (!updateVisibleCallRow(res)) {
+
+                alert(
+                    'The call was saved, but the visible table row could not be found.'
+                );
+            }
+
+        }).fail(function (xhr) {
+
+            console.log(
+                xhr.responseText
+            );
+
+            alert(
+                'The call was saved, but the table row could not be refreshed.'
+            );
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open Call Modal
+    |--------------------------------------------------------------------------
+    */
+
+    $('#callResponseModal').on(
+        'show.bs.modal',
+        function (event) {
+
+            var button =
+                $(event.relatedTarget);
+
+            /*
+             * Use attr instead of jQuery data caching so dynamically
+             * inserted callback buttons always return current values.
+             */
+
+            var clid = parseInt(
+                button.attr('data-clid'),
+                10
+            );
+
+            var connectedStatus =
+                parseInt(
+                    button.attr(
+                        'data-connected'
+                    ),
+                    10
+                );
+
+            var callMode =
+                button.attr('data-mode') ||
+                'initial';
+
+            /*
+             * Reset modal.
+             */
+
+            $('#callResponseForm')[0]
+                .reset();
+
+            $('#clid').val(clid);
+
+            $('#connected').val(
+                connectedStatus
+            );
+
+            $('#call_mode').val(
+                callMode
+            );
+
+            $('#btnSaveCall').prop(
+                'disabled',
+                false
+            );
+
+            /*
+             * Client Called Back.
+             */
+
+            if (callMode === 'callback') {
+
+                $('#connected').val(1);
+
+                $('#responseTypeGroup')
+                    .show();
+
+                $('#response_type').prop(
+                    'required',
+                    true
+                );
+
+                $('#callResponseModalTitle')
+                    .text(
+                        'Client Called Back'
+                    );
+
+                $('#comments').attr(
+                    'placeholder',
+                    'Add details about the client callback...'
+                );
+
+                $('#btnSaveCall').text(
+                    'Save Callback'
+                );
+
+                return;
+            }
+
+            /*
+             * Initial Not Connected call.
+             */
+
+            if (connectedStatus === 0) {
+
+                $('#responseTypeGroup')
+                    .hide();
+
+                $('#response_type')
+                    .prop(
+                        'required',
+                        false
+                    )
+                    .val('');
+
+                $('#callResponseModalTitle')
+                    .text('Not Connected');
+
+                $('#comments').attr(
+                    'placeholder',
+                    'Add comments about the call attempt...'
+                );
+
+                $('#btnSaveCall').text(
+                    'Save'
+                );
+
+                return;
+            }
+
+            /*
+             * Initial Connected call.
+             */
+
+            $('#responseTypeGroup').show();
+
+            $('#response_type').prop(
+                'required',
+                true
+            );
+
+            $('#callResponseModalTitle')
+                .text(
+                    'Client Call Response'
+                );
+
+            $('#comments').attr(
+                'placeholder',
+                'Add comments about the conversation...'
+            );
+
+            $('#btnSaveCall').text(
+                'Save'
+            );
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Call or Callback
+    |--------------------------------------------------------------------------
+    */
+
+    $('#btnSaveCall').on(
+        'click',
+        function () {
+
+            var button = $(this);
+
+            var callMode =
+                $('#call_mode').val();
+
+            var connectedStatus =
+                parseInt(
+                    $('#connected').val(),
+                    10
+                );
+
+            var responseType =
+                $('#response_type').val();
+
+            var clid =
+                parseInt(
+                    $('#clid').val(),
+                    10
+                );
+
+            if (!clid || clid <= 0) {
+
+                alert(
+                    'Invalid call record.'
+                );
+
+                return;
+            }
+
+            /*
+             * Response type is required for connected calls
+             * and client callbacks.
+             */
+
+            if (
+                connectedStatus === 1 &&
+                responseType === ''
+            ) {
+
+                alert(
+                    'Please select a response type.'
+                );
+
+                return;
+            }
+
+            var actionUrl =
+                callMode === 'callback'
+                    ? 'clientcallcmd.php?action=savecallback'
+                    : 'clientcallcmd.php?action=savecall';
+
+            button
+                .prop('disabled', true)
+                .text('Saving...');
+
+            $.ajax({
+
+                url: actionUrl,
+
+                type: 'POST',
+
+                data:
+                    $('#callResponseForm')
+                        .serialize(),
+
+                dataType: 'json',
+
+                cache: false
+
+            }).done(function (res) {
+
+                if (
+                    !res ||
+                    res.status !== 'success'
+                ) {
+
+                    alert(
+                        res && res.message
+                            ? res.message
+                            : 'Unable to save the call response.'
+                    );
+
+                    button
+                        .prop(
+                            'disabled',
+                            false
+                        )
+                        .text(
+                            callMode ===
+                            'callback'
+                                ? 'Save Callback'
+                                : 'Save'
+                        );
+
+                    return;
+                }
+
+                var savedClid =
+                    res.clid
+                        ? parseInt(
+                            res.clid,
+                            10
+                        )
+                        : clid;
+
+                /*
+                 * Close modal.
+                 */
+
+                $('#callResponseModal')
+                    .modal('hide');
+
+                /*
+                 * Retrieve the latest status from the database
+                 * and update only this row.
+                 */
+
+                reloadCallRow(
+                    savedClid
+                );
+
+            }).fail(function (xhr) {
+
+                console.log(
+                    xhr.responseText
+                );
+
+                alert(
+                    'Unable to save the call response.'
+                );
+
+                button
+                    .prop(
+                        'disabled',
+                        false
+                    )
+                    .text(
+                        callMode ===
+                        'callback'
+                            ? 'Save Callback'
+                            : 'Save'
+                    );
+            });
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reset Modal After Closing
+    |--------------------------------------------------------------------------
+    */
+
+    $('#callResponseModal').on(
+        'hidden.bs.modal',
+        function () {
+
+            $('#callResponseForm')[0]
+                .reset();
+
+            $('#responseTypeGroup')
+                .show();
+
+            $('#response_type').prop(
+                'required',
+                false
+            );
+
+            $('#btnSaveCall')
+                .prop(
+                    'disabled',
+                    false
+                )
+                .text('Save');
+
+            $('#callResponseModalTitle')
+                .text(
+                    'Client Call Response'
+                );
+
+            $('#comments').removeAttr(
+                'placeholder'
+            );
+        }
+    );
 });
 </script>
+
+<?php
+require("includes/footer.php");
+
+$conn = null;
+?>
