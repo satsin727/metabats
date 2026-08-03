@@ -1,6 +1,15 @@
 <?php
-session_start();
 require_once("config.php");
+
+/*
+|--------------------------------------------------------------------------
+| Constants
+|--------------------------------------------------------------------------
+*/
+
+if (!defined('CLIENT_NOTE_PREFIX')) {
+    define('CLIENT_NOTE_PREFIX', '[NOTE] ');
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -9,8 +18,17 @@ require_once("config.php");
 */
 
 try {
-    $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $conn = new PDO(
+        DB_DSN,
+        DB_USERNAME,
+        DB_PASSWORD
+    );
+
+    $conn->setAttribute(
+        PDO::ATTR_ERRMODE,
+        PDO::ERRMODE_EXCEPTION
+    );
+
 } catch (PDOException $e) {
     die("Database connection failed.");
 }
@@ -21,15 +39,27 @@ try {
 |--------------------------------------------------------------------------
 */
 
-if (!isset($_SESSION['id']) || (int)$_SESSION['id'] <= 0) {
+if (
+    !isset($_SESSION['id']) ||
+    (int)$_SESSION['id'] <= 0
+) {
     header("Location: admin.php");
     exit;
 }
 
 $uid = (int)$_SESSION['id'];
 
-$stmt = $conn->prepare("SELECT * FROM users WHERE uid = :uid LIMIT 1");
-$stmt->execute(array(":uid" => $uid));
+$stmt = $conn->prepare("
+    SELECT *
+    FROM users
+    WHERE uid = :uid
+    LIMIT 1
+");
+
+$stmt->execute(array(
+    ":uid" => $uid
+));
+
 $dta = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$dta) {
@@ -38,7 +68,10 @@ if (!$dta) {
     exit;
 }
 
-if (!isset($_SESSION['username']) || $dta['sess'] != $_SESSION['username']) {
+if (
+    !isset($_SESSION['username']) ||
+    $dta['sess'] != $_SESSION['username']
+) {
     session_destroy();
     header("Location: login.php");
     exit;
@@ -50,7 +83,9 @@ if (!isset($_SESSION['username']) || $dta['sess'] != $_SESSION['username']) {
 |--------------------------------------------------------------------------
 */
 
-$action = isset($_GET['action']) ? trim($_GET['action']) : '';
+$action = isset($_GET['action'])
+    ? trim($_GET['action'])
+    : '';
 
 /*
 |--------------------------------------------------------------------------
@@ -65,51 +100,61 @@ switch ($action) {
     | Assign Clients
     |--------------------------------------------------------------------------
     |
-    | Assignment rules:
-    |
-    | 1. A client called within the last five days cannot be selected.
-    | 2. A client scheduled for today or a future date cannot be selected.
-    | 3. A passed schedule where called = 0 does not block reassignment.
-    | 4. The old passed schedule remains in the database so that the
-    |    history page can show "Scheduled - Not Called".
+    | Rules:
+    | 1. A real call within the last five days blocks selection.
+    | 2. Comment-only history entries do not trigger the five-day lock.
+    | 3. An active schedule for today or later blocks another assignment.
+    | 4. An expired schedule where called = 0 does not block reassignment.
     |
     */
 
     case "assign":
 
         if ($_SERVER['REQUEST_METHOD'] !== "POST") {
-            header("Location: admin.php?action=clientassignment");
+            header(
+                "Location: admin.php?action=clientassignment"
+            );
             exit;
         }
 
-        $callDate = isset($_POST['call_date']) ? trim($_POST['call_date']) : '';
-        $clients = (isset($_POST['client']) && is_array($_POST['client'])) ? $_POST['client'] : array();
+        $callDate = isset($_POST['call_date'])
+            ? trim($_POST['call_date'])
+            : '';
 
-        /*
-         * Validate selected call date.
-         */
+        $clients = (
+            isset($_POST['client']) &&
+            is_array($_POST['client'])
+        )
+            ? $_POST['client']
+            : array();
+
         if ($callDate === '') {
-            header("Location: admin.php?action=clientassignment&msg=date");
+            header(
+                "Location: admin.php?action=clientassignment&msg=date"
+            );
             exit;
         }
 
-        $dateObject = DateTime::createFromFormat('Y-m-d', $callDate);
+        $dateObject = DateTime::createFromFormat(
+            'Y-m-d',
+            $callDate
+        );
 
-        if (!$dateObject || $dateObject->format('Y-m-d') !== $callDate) {
-            header("Location: admin.php?action=clientassignment&msg=date");
-            exit;
-        }
-
-        /*
-         * Do not permit a new assignment for a past date.
-         */
-        if ($callDate < date('Y-m-d')) {
-            header("Location: admin.php?action=clientassignment&msg=date");
+        if (
+            !$dateObject ||
+            $dateObject->format('Y-m-d') !== $callDate ||
+            $callDate < date('Y-m-d')
+        ) {
+            header(
+                "Location: admin.php?action=clientassignment&msg=date"
+            );
             exit;
         }
 
         if (count($clients) === 0) {
-            header("Location: admin.php?action=clientassignment&msg=noclients");
+            header(
+                "Location: admin.php?action=clientassignment&msg=noclients"
+            );
             exit;
         }
 
@@ -120,38 +165,71 @@ switch ($action) {
         try {
             $conn->beginTransaction();
 
+            $clientCheck = $conn->prepare("
+                SELECT cid
+                FROM clients
+                WHERE cid = :cid
+                AND status = 1
+                LIMIT 1
+            ");
+
             /*
-             * Check whether the latest completed call occurred
-             * within the previous five days.
+             * Comment-only history entries begin with [NOTE].
+             * They must not be treated as completed calls.
              */
+
             $recentCallCheck = $conn->prepare("
-                SELECT history_id FROM client_call_history 
-                WHERE cid = :cid AND call_datetime >= DATE_SUB(NOW(), INTERVAL 5 DAY) 
-                ORDER BY call_datetime DESC, history_id DESC LIMIT 1
+                SELECT history_id
+                FROM client_call_history
+                WHERE cid = :cid
+                AND call_datetime >= DATE_SUB(
+                    NOW(),
+                    INTERVAL 5 DAY
+                )
+                AND COALESCE(comment, '') NOT LIKE '[NOTE]%'
+                ORDER BY
+                    call_datetime DESC,
+                    history_id DESC
+                LIMIT 1
             ");
 
-            /*
-             * Check only active schedules.
-             * A passed schedule does not block a new assignment.
-             */
             $activeScheduleCheck = $conn->prepare("
-                SELECT cl_id, call_date FROM client_call_schedule 
-                WHERE cid = :cid AND COALESCE(called, 0) = 0 AND call_date >= CURDATE() 
-                ORDER BY call_date ASC, cl_id ASC LIMIT 1
+                SELECT
+                    cl_id,
+                    call_date
+                FROM client_call_schedule
+                WHERE cid = :cid
+                AND COALESCE(called, 0) = 0
+                AND call_date >= CURDATE()
+                ORDER BY
+                    call_date ASC,
+                    cl_id ASC
+                LIMIT 1
             ");
 
-            /*
-             * Insert a new schedule.
-             * When a previous scheduled date passed without a call,
-             * that old row remains unchanged. This allows the history
-             * page to display the missed scheduled call.
-             */
             $insertSchedule = $conn->prepare("
-                INSERT INTO client_call_schedule (cid, uid, call_date, called, connected, latest_comment, created_datetime) 
-                VALUES (:cid, :uid, :call_date, 0, 0, '', NOW())
+                INSERT INTO client_call_schedule (
+                    cid,
+                    uid,
+                    call_date,
+                    called,
+                    connected,
+                    latest_comment,
+                    created_datetime
+                )
+                VALUES (
+                    :cid,
+                    :uid,
+                    :call_date,
+                    0,
+                    0,
+                    '',
+                    NOW()
+                )
             ");
 
             foreach ($clients as $clientId) {
+
                 $clientId = (int)$clientId;
 
                 if ($clientId <= 0) {
@@ -159,11 +237,9 @@ switch ($action) {
                     continue;
                 }
 
-                /*
-                 * Confirm the client still exists and is active.
-                 */
-                $clientCheck = $conn->prepare("SELECT cid FROM clients WHERE cid = :cid AND status = 1 LIMIT 1");
-                $clientCheck->execute(array(":cid" => $clientId));
+                $clientCheck->execute(array(
+                    ":cid" => $clientId
+                ));
 
                 if (!$clientCheck->fetchColumn()) {
                     $failed++;
@@ -171,38 +247,46 @@ switch ($action) {
                 }
 
                 /*
-                 * Block clients called within the last five days.
+                 * Block only real calls within the last five days.
                  */
-                $recentCallCheck->execute(array(":cid" => $clientId));
+
+                $recentCallCheck->execute(array(
+                    ":cid" => $clientId
+                ));
+
                 if ($recentCallCheck->fetchColumn()) {
                     $duplicate++;
                     continue;
                 }
 
                 /*
-                 * Block clients already scheduled for today or a future date.
+                 * Block an existing schedule for today or later.
                  */
-                $activeScheduleCheck->execute(array(":cid" => $clientId));
-                if ($activeScheduleCheck->fetch(PDO::FETCH_ASSOC)) {
+
+                $activeScheduleCheck->execute(array(
+                    ":cid" => $clientId
+                ));
+
+                if (
+                    $activeScheduleCheck->fetch(
+                        PDO::FETCH_ASSOC
+                    )
+                ) {
                     $duplicate++;
                     continue;
                 }
 
-                /*
-                 * Passed, unresolved schedules do not prevent
-                 * this new schedule from being inserted.
-                 */
                 try {
                     $insertSchedule->execute(array(
                         ":cid" => $clientId,
                         ":uid" => $uid,
                         ":call_date" => $callDate
                     ));
+
                     $assigned++;
+
                 } catch (PDOException $e) {
-                    /*
-                     * Handle database duplicate-key constraints.
-                     */
+
                     if ($e->getCode() === "23000") {
                         $duplicate++;
                     } else {
@@ -214,33 +298,83 @@ switch ($action) {
             $conn->commit();
 
         } catch (PDOException $e) {
+
             if ($conn->inTransaction()) {
                 $conn->rollBack();
             }
-            die("Database Error: " . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8'));
+
+            die(
+                "Database Error: " .
+                htmlspecialchars(
+                    $e->getMessage(),
+                    ENT_QUOTES,
+                    'UTF-8'
+                )
+            );
         }
 
-        header("Location: admin.php?action=clientassignment&assigned=" . $assigned . "&duplicate=" . $duplicate . "&failed=" . $failed);
+        header(
+            "Location: admin.php?action=clientassignment" .
+            "&assigned=" . $assigned .
+            "&duplicate=" . $duplicate .
+            "&failed=" . $failed
+        );
+
         exit;
 
     /*
     |--------------------------------------------------------------------------
-    | Save Call Response
+    | Save Initial Call
     |--------------------------------------------------------------------------
     */
 
     case "savecall":
-        saveCall($conn, $dta);
+
+        saveCall(
+            $conn,
+            $dta
+        );
+
         exit;
-    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Client Callback
+    |--------------------------------------------------------------------------
+    */
+
     case "savecallback":
-            saveCallback(
-                $conn,
-                $dta
-            );
-            exit;
+
+        saveCallback(
+            $conn,
+            $dta
+        );
+
+        exit;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save Comment-Only History Entry
+    |--------------------------------------------------------------------------
+    */
+
+    case "savecomment":
+
+        saveComment(
+            $conn,
+            $dta
+        );
+
+        exit;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Get One Updated Call Row
+    |--------------------------------------------------------------------------
+    */
 
     case "getcallrow":
+
         getCallRow(
             $conn,
             $dta
@@ -250,291 +384,300 @@ switch ($action) {
 
     /*
     |--------------------------------------------------------------------------
-    | Reschedule Redirect
+    | Existing Redirect Actions
     |--------------------------------------------------------------------------
     */
 
     case "reschedule":
-        header("Location: admin.php?action=todayscalls");
-        exit;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Delete Assignment Redirect
-    |--------------------------------------------------------------------------
-    */
+        header(
+            "Location: admin.php?action=todayscalls"
+        );
+
+        exit;
 
     case "deleteassignment":
-        header("Location: admin.php?action=clientassignment");
+
+        header(
+            "Location: admin.php?action=clientassignment"
+        );
+
         exit;
 
-    /*
-    |--------------------------------------------------------------------------
-    | Default
-    |--------------------------------------------------------------------------
-    */
-
     default:
+
         header("Location: admin.php");
         exit;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Save Call Function
+| Save Initial Call
 |--------------------------------------------------------------------------
 */
 
-function saveCall($conn, $userData)
-{
-    /*
-     * Remove any accidental output before returning JSON.
-     */
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-
-    header('Content-Type: application/json');
+function saveCall(
+    $conn,
+    $userData
+) {
+    prepareJsonResponse();
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        echo json_encode(array("status" => "error", "message" => "Invalid request method."));
-        exit;
+        jsonError(
+            "Invalid request method."
+        );
     }
 
-    $clid = isset($_POST['clid']) ? (int)$_POST['clid'] : 0;
-    $responseType = isset($_POST['response_type']) ? (int)$_POST['response_type'] : 0;
-    $connected = isset($_POST['connected']) ? (int)$_POST['connected'] : 0;
-    $comments = isset($_POST['comments']) ? trim($_POST['comments']) : '';
-    $followupDate = isset($_POST['followup_date']) ? trim($_POST['followup_date']) : '';
-    $uid = isset($_SESSION['id']) ? (int)$_SESSION['id'] : 0;
+    $clid = isset($_POST['clid'])
+        ? (int)$_POST['clid']
+        : 0;
 
-    /*
-     * Normalize connected value.
-     */
-    $connected = $connected === 1 ? 1 : 0;
+    $responseType = isset($_POST['response_type'])
+        ? (int)$_POST['response_type']
+        : 0;
+
+    $connected = isset($_POST['connected'])
+        ? (int)$_POST['connected']
+        : 0;
+
+    $comments = isset($_POST['comments'])
+        ? trim($_POST['comments'])
+        : '';
+
+    $followupDate = isset($_POST['followup_date'])
+        ? trim($_POST['followup_date'])
+        : '';
+
+    $uid = isset($_SESSION['id'])
+        ? (int)$_SESSION['id']
+        : 0;
+
+    $connected =
+        $connected === 1 ? 1 : 0;
 
     if ($clid <= 0) {
-        echo json_encode(array("status" => "error", "message" => "Invalid Call ID."));
-        exit;
+        jsonError(
+            "Invalid Call ID."
+        );
     }
 
     /*
-     * Response type is required only when connected.
+     * A response type is required only for a connected call.
      */
-    if ($connected === 1 && $responseType <= 0) {
-        echo json_encode(array("status" => "error", "message" => "Please select a response type."));
-        exit;
+
+    if (
+        $connected === 1 &&
+        $responseType <= 0
+    ) {
+        jsonError(
+            "Please select a response type."
+        );
     }
 
-    /*
-     * Do not store response type zero for a not-connected call.
-     */
     if ($connected === 0) {
         $responseType = null;
     }
 
-    /*
-     * Validate optional follow-up date.
-     */
-    if ($followupDate !== '') {
-        $followupObject = DateTime::createFromFormat('Y-m-d', $followupDate);
-
-        if (!$followupObject || $followupObject->format('Y-m-d') !== $followupDate) {
-            echo json_encode(array("status" => "error", "message" => "Invalid follow-up date."));
-            exit;
-        }
-
-        if ($followupDate < date('Y-m-d')) {
-            echo json_encode(array("status" => "error", "message" => "Follow-up date cannot be in the past."));
-            exit;
-        }
-    }
+    validateOptionalDate(
+        $followupDate,
+        "Follow-up date"
+    );
 
     try {
         $conn->beginTransaction();
 
-        /*
-         * Retrieve the scheduled call.
-         */
-        $scheduleStmt = $conn->prepare("SELECT cl_id, cid, uid, call_date, called FROM client_call_schedule WHERE cl_id = :clid LIMIT 1");
-        $scheduleStmt->execute(array(":clid" => $clid));
-        $schedule = $scheduleStmt->fetch(PDO::FETCH_ASSOC);
+        $schedule = getScheduleForUpdate(
+            $conn,
+            $clid,
+            $uid,
+            $userData
+        );
 
-        if (!$schedule) {
+        if (
+            (int)$schedule['called'] === 1
+        ) {
             $conn->rollBack();
-            echo json_encode(array("status" => "error", "message" => "Call schedule not found."));
-            exit;
+
+            jsonError(
+                "This call response has already been saved."
+            );
         }
 
-        /*
-         * Level 1 administrators may update any assigned call.
-         * Other users may update only their own assigned calls.
-         */
-        if ((int)$userData['level'] !== 1 && (int)$schedule['uid'] !== $uid) {
-            $conn->rollBack();
-            echo json_encode(array("status" => "error", "message" => "You are not authorised to update this call."));
-            exit;
-        }
+        $cid =
+            (int)$schedule['cid'];
 
         /*
-         * Prevent the same scheduled call from being completed twice.
+         * Update the scheduled call.
          */
-        if ((int)$schedule['called'] === 1) {
-            $conn->rollBack();
-            echo json_encode(array("status" => "error", "message" => "This call response has already been saved."));
-            exit;
-        }
 
-        $cid = (int)$schedule['cid'];
-
-        /*
-         * Update the scheduled-call row.
-         */
         $updateSchedule = $conn->prepare("
-            UPDATE client_call_schedule 
-            SET called = 1, connected = :connected, response_type_id = :response_type_id, latest_comment = :comments 
-            WHERE cl_id = :clid AND called = 0
+            UPDATE client_call_schedule
+            SET
+                called = 1,
+                connected = :connected,
+                response_type_id = :response_type_id,
+                latest_comment = :comments
+            WHERE cl_id = :clid
+            AND called = 0
         ");
-        
-        $updateSchedule->bindValue(":connected", $connected, PDO::PARAM_INT);
-        
-        if ($responseType === null) {
-            $updateSchedule->bindValue(":response_type_id", null, PDO::PARAM_NULL);
-        } else {
-            $updateSchedule->bindValue(":response_type_id", $responseType, PDO::PARAM_INT);
-        }
-        
-        $updateSchedule->bindValue(":comments", $comments, PDO::PARAM_STR);
-        $updateSchedule->bindValue(":clid", $clid, PDO::PARAM_INT);
+
+        $updateSchedule->bindValue(
+            ":connected",
+            $connected,
+            PDO::PARAM_INT
+        );
+
+        bindNullableInteger(
+            $updateSchedule,
+            ":response_type_id",
+            $responseType
+        );
+
+        $updateSchedule->bindValue(
+            ":comments",
+            $comments,
+            PDO::PARAM_STR
+        );
+
+        $updateSchedule->bindValue(
+            ":clid",
+            $clid,
+            PDO::PARAM_INT
+        );
+
         $updateSchedule->execute();
 
-        if ($updateSchedule->rowCount() === 0) {
+        if (
+            $updateSchedule->rowCount() === 0
+        ) {
             $conn->rollBack();
-            echo json_encode(array("status" => "error", "message" => "The call was already updated by another user."));
-            exit;
+
+            jsonError(
+                "The call was already updated by another user."
+            );
         }
 
         /*
-         * Insert the completed call into call history.
+         * Insert completed call into history.
          */
+
         $insertHistory = $conn->prepare("
-            INSERT INTO client_call_history (cl_id, cid, uid, call_datetime, connected, response_type_id, comment, created_datetime) 
-            VALUES (:clid, :cid, :uid, NOW(), :connected, :response_type_id, :comment, NOW())
+            INSERT INTO client_call_history (
+                cl_id,
+                cid,
+                uid,
+                call_datetime,
+                connected,
+                response_type_id,
+                comment,
+                created_datetime
+            )
+            VALUES (
+                :clid,
+                :cid,
+                :uid,
+                NOW(),
+                :connected,
+                :response_type_id,
+                :comment,
+                NOW()
+            )
         ");
-        
-        $insertHistory->bindValue(":clid", $clid, PDO::PARAM_INT);
-        $insertHistory->bindValue(":cid", $cid, PDO::PARAM_INT);
-        $insertHistory->bindValue(":uid", $uid, PDO::PARAM_INT);
-        $insertHistory->bindValue(":connected", $connected, PDO::PARAM_INT);
-        
-        if ($responseType === null) {
-            $insertHistory->bindValue(":response_type_id", null, PDO::PARAM_NULL);
-        } else {
-            $insertHistory->bindValue(":response_type_id", $responseType, PDO::PARAM_INT);
-        }
-        
-        $insertHistory->bindValue(":comment", $comments, PDO::PARAM_STR);
+
+        $insertHistory->bindValue(
+            ":clid",
+            $clid,
+            PDO::PARAM_INT
+        );
+
+        $insertHistory->bindValue(
+            ":cid",
+            $cid,
+            PDO::PARAM_INT
+        );
+
+        $insertHistory->bindValue(
+            ":uid",
+            $uid,
+            PDO::PARAM_INT
+        );
+
+        $insertHistory->bindValue(
+            ":connected",
+            $connected,
+            PDO::PARAM_INT
+        );
+
+        bindNullableInteger(
+            $insertHistory,
+            ":response_type_id",
+            $responseType
+        );
+
+        $insertHistory->bindValue(
+            ":comment",
+            $comments,
+            PDO::PARAM_STR
+        );
+
         $insertHistory->execute();
 
-        $followupScheduled = false;
-        $followupSkipped = false;
-
         /*
-         * Schedule an optional follow-up call.
+         * Add optional follow-up schedule.
          */
-        if ($followupDate !== '') {
 
-            /*
-             * Do not create another active schedule when one
-             * already exists for this client.
-             */
-            $activeFollowupCheck = $conn->prepare("
-                SELECT cl_id FROM client_call_schedule 
-                WHERE cid = :cid AND COALESCE(called, 0) = 0 AND call_date >= CURDATE() LIMIT 1
-            ");
-            $activeFollowupCheck->execute(array(":cid" => $cid));
-
-            if ($activeFollowupCheck->fetchColumn()) {
-                $followupSkipped = true;
-            } else {
-                $insertFollowup = $conn->prepare("
-                    INSERT INTO client_call_schedule (cid, uid, call_date, called, connected, latest_comment, created_datetime) 
-                    VALUES (:cid, :uid, :call_date, 0, 0, '', NOW())
-                ");
-
-                try {
-                    $insertFollowup->execute(array(
-                        ":cid" => $cid,
-                        ":uid" => $uid,
-                        ":call_date" => $followupDate
-                    ));
-                    $followupScheduled = true;
-                } catch (PDOException $e) {
-                    if ($e->getCode() === "23000") {
-                        $followupSkipped = true;
-                    } else {
-                        throw $e;
-                    }
-                }
-            }
-        }
+        $followupResult = scheduleFollowup(
+            $conn,
+            $cid,
+            $uid,
+            $followupDate
+        );
 
         $conn->commit();
 
-        $message = "Call saved successfully.";
-        if ($followupScheduled) {
-            $message .= " Follow-up call scheduled.";
-        }
-        if ($followupSkipped) {
-            $message .= " Follow-up was not added because an active schedule already exists.";
-        }
+        $message =
+            "Call saved successfully.";
 
-        echo json_encode(array(
-                "status" => "success",
-                "message" => $message,
-                "clid" => $clid,
-                "connected" => $connected
-            ));
-        exit;
+        $message .= buildFollowupMessage(
+            $followupResult
+        );
+
+        jsonSuccess(array(
+            "message" => $message,
+            "clid" => $clid,
+            "connected" => $connected
+        ));
 
     } catch (PDOException $e) {
+
         if ($conn->inTransaction()) {
             $conn->rollBack();
         }
-        echo json_encode(array("status" => "error", "message" => "Database Error: " . $e->getMessage()));
-        exit;
+
+        jsonError(
+            "Database Error: " .
+            $e->getMessage()
+        );
     }
 }
 
-function saveCallback($conn, $userData)
-{
-    /*
-    |--------------------------------------------------------------------------
-    | Return JSON Only
-    |--------------------------------------------------------------------------
-    */
+/*
+|--------------------------------------------------------------------------
+| Save Client Callback
+|--------------------------------------------------------------------------
+*/
 
-    while (ob_get_level() > 0) {
-        ob_end_clean();
-    }
-
-    header('Content-Type: application/json');
+function saveCallback(
+    $conn,
+    $userData
+) {
+    prepareJsonResponse();
 
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-        echo json_encode(array(
-            "status" => "error",
-            "message" => "Invalid request method."
-        ));
-
-        exit;
+        jsonError(
+            "Invalid request method."
+        );
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Read Form Values
-    |--------------------------------------------------------------------------
-    */
 
     $clid = isset($_POST['clid'])
         ? (int)$_POST['clid']
@@ -557,156 +700,49 @@ function saveCallback($conn, $userData)
         : 0;
 
     if ($clid <= 0) {
-
-        echo json_encode(array(
-            "status" => "error",
-            "message" => "Invalid Call ID."
-        ));
-
-        exit;
+        jsonError(
+            "Invalid Call ID."
+        );
     }
 
     if ($responseType <= 0) {
-
-        echo json_encode(array(
-            "status" => "error",
-            "message" => "Please select a response type."
-        ));
-
-        exit;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validate Optional Follow-up Date
-    |--------------------------------------------------------------------------
-    */
-
-    if ($followupDate !== '') {
-
-        $followupObject = DateTime::createFromFormat(
-            'Y-m-d',
-            $followupDate
+        jsonError(
+            "Please select a response type."
         );
-
-        if (
-            !$followupObject ||
-            $followupObject->format('Y-m-d') !==
-                $followupDate
-        ) {
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" => "Invalid follow-up date."
-            ));
-
-            exit;
-        }
-
-        if ($followupDate < date('Y-m-d')) {
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" =>
-                    "Follow-up date cannot be in the past."
-            ));
-
-            exit;
-        }
     }
+
+    validateOptionalDate(
+        $followupDate,
+        "Follow-up date"
+    );
 
     try {
-
         $conn->beginTransaction();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Retrieve Original Scheduled Call
-        |--------------------------------------------------------------------------
-        */
-
-        $scheduleStmt = $conn->prepare("
-            SELECT
-                cl_id,
-                cid,
-                uid,
-                call_date,
-                called,
-                connected
-            FROM client_call_schedule
-            WHERE cl_id = :clid
-            LIMIT 1
-        ");
-
-        $scheduleStmt->execute(array(
-            ":clid" => $clid
-        ));
-
-        $schedule = $scheduleStmt->fetch(
-            PDO::FETCH_ASSOC
+        $schedule = getScheduleForUpdate(
+            $conn,
+            $clid,
+            $uid,
+            $userData
         );
 
-        if (!$schedule) {
-
-            $conn->rollBack();
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" => "Call schedule not found."
-            ));
-
-            exit;
-        }
-
         /*
-         * Callback is available only after the original
-         * call was marked Not Connected.
+         * A callback can be added only after a Not Connected call.
          */
 
         if (
             (int)$schedule['called'] !== 1 ||
             (int)$schedule['connected'] !== 0
         ) {
-
             $conn->rollBack();
 
-            echo json_encode(array(
-                "status" => "error",
-                "message" =>
-                    "A callback can only be added after a Not Connected call."
-            ));
-
-            exit;
+            jsonError(
+                "A callback can only be added after a Not Connected call."
+            );
         }
 
-        /*
-         * Admin can update any call.
-         * Other users can update only their assigned calls.
-         */
-
-        if (
-            (int)$userData['level'] !== 1 &&
-            (int)$schedule['uid'] !== $uid
-        ) {
-
-            $conn->rollBack();
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" =>
-                    "You are not authorised to update this call."
-            ));
-
-            exit;
-        }
-
-        $cid = (int)$schedule['cid'];
-
-        /*
-        |--------------------------------------------------------------------------
-        | Create Callback Comment
-        |--------------------------------------------------------------------------
-        */
+        $cid =
+            (int)$schedule['cid'];
 
         $callbackComment =
             "Client called back.";
@@ -717,13 +753,9 @@ function saveCallback($conn, $userData)
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | Insert New Callback History Entry
-        |--------------------------------------------------------------------------
-        |
-        | The original Not Connected row remains unchanged.
-        |
-        */
+         * Preserve the original Not Connected history entry.
+         * Add a separate Connected callback history entry.
+         */
 
         $insertHistory = $conn->prepare("
             INSERT INTO client_call_history (
@@ -752,19 +784,15 @@ function saveCallback($conn, $userData)
             ":clid" => $clid,
             ":cid" => $cid,
             ":uid" => $uid,
-            ":response_type_id" => $responseType,
-            ":comment" => $callbackComment
+            ":response_type_id" =>
+                $responseType,
+            ":comment" =>
+                $callbackComment
         ));
 
         /*
-        |--------------------------------------------------------------------------
-        | Update Today's Schedule to Latest Status
-        |--------------------------------------------------------------------------
-        |
-        | The schedule will now display Connected, while the history
-        | will still retain the earlier Not Connected entry.
-        |
-        */
+         * Change the current schedule status to Connected.
+         */
 
         $updateSchedule = $conn->prepare("
             UPDATE client_call_schedule
@@ -776,114 +804,34 @@ function saveCallback($conn, $userData)
         ");
 
         $updateSchedule->execute(array(
-            ":response_type_id" => $responseType,
-            ":comment" => $callbackComment,
+            ":response_type_id" =>
+                $responseType,
+            ":comment" =>
+                $callbackComment,
             ":clid" => $clid
         ));
 
-        $followupScheduled = false;
-        $followupSkipped = false;
-
-        /*
-        |--------------------------------------------------------------------------
-        | Optional Follow-up Schedule
-        |--------------------------------------------------------------------------
-        */
-
-        if ($followupDate !== '') {
-
-            /*
-             * Check whether a pending schedule already exists.
-             */
-
-            $pendingCheck = $conn->prepare("
-                SELECT cl_id
-                FROM client_call_schedule
-                WHERE cid = :cid
-                AND COALESCE(called, 0) = 0
-                AND call_date >= CURDATE()
-                LIMIT 1
-            ");
-
-            $pendingCheck->execute(array(
-                ":cid" => $cid
-            ));
-
-            if ($pendingCheck->fetchColumn()) {
-
-                $followupSkipped = true;
-
-            } else {
-
-                $insertFollowup = $conn->prepare("
-                    INSERT INTO client_call_schedule (
-                        cid,
-                        uid,
-                        call_date,
-                        called,
-                        connected,
-                        latest_comment,
-                        created_datetime
-                    )
-                    VALUES (
-                        :cid,
-                        :uid,
-                        :call_date,
-                        0,
-                        0,
-                        '',
-                        NOW()
-                    )
-                ");
-
-                try {
-
-                    $insertFollowup->execute(array(
-                        ":cid" => $cid,
-                        ":uid" => $uid,
-                        ":call_date" => $followupDate
-                    ));
-
-                    $followupScheduled = true;
-
-                } catch (PDOException $e) {
-
-                    /*
-                     * The database has a unique client/date key.
-                     */
-
-                    if ($e->getCode() === "23000") {
-                        $followupSkipped = true;
-                    } else {
-                        throw $e;
-                    }
-                }
-            }
-        }
+        $followupResult = scheduleFollowup(
+            $conn,
+            $cid,
+            $uid,
+            $followupDate
+        );
 
         $conn->commit();
 
         $message =
             "Client callback saved successfully.";
 
-        if ($followupScheduled) {
-            $message .=
-                " Follow-up call scheduled.";
-        }
+        $message .= buildFollowupMessage(
+            $followupResult
+        );
 
-        if ($followupSkipped) {
-            $message .=
-                " Follow-up was skipped because a schedule already exists for that client/date.";
-        }
-
-        echo json_encode(array(
-            "status" => "success",
+        jsonSuccess(array(
             "message" => $message,
             "clid" => $clid,
             "connected" => 1
         ));
-
-        exit;
 
     } catch (PDOException $e) {
 
@@ -891,24 +839,199 @@ function saveCallback($conn, $userData)
             $conn->rollBack();
         }
 
-        echo json_encode(array(
-            "status" => "error",
-            "message" =>
-                "Database Error: " .
-                $e->getMessage()
-        ));
-
-        exit;
+        jsonError(
+            "Database Error: " .
+            $e->getMessage()
+        );
     }
 }
 
-function getCallRow($conn, $userData)
-{
-    while (ob_get_level() > 0) {
-        ob_end_clean();
+/*
+|--------------------------------------------------------------------------
+| Save Comment-Only Entry
+|--------------------------------------------------------------------------
+|
+| The note is stored in the existing history comment column with a
+| reserved [NOTE] prefix. No database-column change is needed.
+|
+| This action does not change:
+| - called
+| - connected
+| - response_type_id
+| - latest_comment in client_call_schedule
+|
+*/
+
+function saveComment(
+    $conn,
+    $userData
+) {
+    prepareJsonResponse();
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        jsonError(
+            "Invalid request method."
+        );
     }
 
-    header('Content-Type: application/json');
+    $clid = isset($_POST['clid'])
+        ? (int)$_POST['clid']
+        : 0;
+
+    $comments = isset($_POST['comments'])
+        ? trim($_POST['comments'])
+        : '';
+
+    $followupDate = isset($_POST['followup_date'])
+        ? trim($_POST['followup_date'])
+        : '';
+
+    $uid = isset($_SESSION['id'])
+        ? (int)$_SESSION['id']
+        : 0;
+
+    if ($clid <= 0) {
+        jsonError(
+            "Invalid Call ID."
+        );
+    }
+
+    if ($comments === '') {
+        jsonError(
+            "Please enter a comment."
+        );
+    }
+
+    validateOptionalDate(
+        $followupDate,
+        "Follow-up date"
+    );
+
+    try {
+        $conn->beginTransaction();
+
+        $schedule = getScheduleForUpdate(
+            $conn,
+            $clid,
+            $uid,
+            $userData
+        );
+
+        /*
+         * Comment button is available only after an initial
+         * call result has been saved.
+         */
+
+        if (
+            (int)$schedule['called'] !== 1
+        ) {
+            $conn->rollBack();
+
+            jsonError(
+                "Please save the initial call result before adding a comment."
+            );
+        }
+
+        $cid =
+            (int)$schedule['cid'];
+
+        $currentConnected =
+            (int)$schedule['connected'] === 1
+                ? 1
+                : 0;
+
+        /*
+         * Prefix is hidden later on the history page.
+         */
+
+        $noteComment =
+            CLIENT_NOTE_PREFIX .
+            $comments;
+
+        $insertNote = $conn->prepare("
+            INSERT INTO client_call_history (
+                cl_id,
+                cid,
+                uid,
+                call_datetime,
+                connected,
+                response_type_id,
+                comment,
+                created_datetime
+            )
+            VALUES (
+                :clid,
+                :cid,
+                :uid,
+                NOW(),
+                :connected,
+                NULL,
+                :comment,
+                NOW()
+            )
+        ");
+
+        $insertNote->execute(array(
+            ":clid" => $clid,
+            ":cid" => $cid,
+            ":uid" => $uid,
+            ":connected" =>
+                $currentConnected,
+            ":comment" =>
+                $noteComment
+        ));
+
+        /*
+         * An optional follow-up can still be created.
+         */
+
+        $followupResult = scheduleFollowup(
+            $conn,
+            $cid,
+            $uid,
+            $followupDate
+        );
+
+        $conn->commit();
+
+        $message =
+            "Comment added successfully.";
+
+        $message .= buildFollowupMessage(
+            $followupResult
+        );
+
+        jsonSuccess(array(
+            "message" => $message,
+            "clid" => $clid,
+            "connected" =>
+                $currentConnected
+        ));
+
+    } catch (PDOException $e) {
+
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+
+        jsonError(
+            "Database Error: " .
+            $e->getMessage()
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Get One Updated Call Row
+|--------------------------------------------------------------------------
+*/
+
+function getCallRow(
+    $conn,
+    $userData
+) {
+    prepareJsonResponse();
 
     $clid = isset($_GET['clid'])
         ? (int)$_GET['clid']
@@ -919,17 +1042,12 @@ function getCallRow($conn, $userData)
         : 0;
 
     if ($clid <= 0) {
-
-        echo json_encode(array(
-            "status" => "error",
-            "message" => "Invalid Call ID."
-        ));
-
-        exit;
+        jsonError(
+            "Invalid Call ID."
+        );
     }
 
     try {
-
         $stmt = $conn->prepare("
             SELECT
                 s.cl_id,
@@ -949,57 +1067,343 @@ function getCallRow($conn, $userData)
             ":clid" => $clid
         ));
 
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $row = $stmt->fetch(
+            PDO::FETCH_ASSOC
+        );
 
         if (!$row) {
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" => "Call record not found."
-            ));
-
-            exit;
+            jsonError(
+                "Call record not found."
+            );
         }
-
-        /*
-         * Admin can view every row.
-         * Other users can reload only their assigned rows.
-         */
 
         if (
             (int)$userData['level'] !== 1 &&
             (int)$row['uid'] !== $uid
         ) {
-
-            echo json_encode(array(
-                "status" => "error",
-                "message" =>
-                    "You are not authorised to view this call."
-            ));
-
-            exit;
+            jsonError(
+                "You are not authorised to view this call."
+            );
         }
 
-        echo json_encode(array(
-            "status" => "success",
-            "cl_id" => (int)$row['cl_id'],
-            "called" => (int)$row['called'],
-            "connected" => (int)$row['connected'],
-            "comment" => $row['latest_comment']
+        jsonSuccess(array(
+            "cl_id" =>
+                (int)$row['cl_id'],
+            "called" =>
+                (int)$row['called'],
+            "connected" =>
+                (int)$row['connected'],
+            "comment" =>
+                $row['latest_comment']
         ));
-
-        exit;
 
     } catch (PDOException $e) {
 
-        echo json_encode(array(
-            "status" => "error",
-            "message" =>
-                "Database Error: " . $e->getMessage()
+        jsonError(
+            "Database Error: " .
+            $e->getMessage()
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| JSON Response Helpers
+|--------------------------------------------------------------------------
+*/
+
+function prepareJsonResponse()
+{
+    while (ob_get_level() > 0) {
+        ob_end_clean();
+    }
+
+    header(
+        'Content-Type: application/json'
+    );
+
+    header(
+        'Cache-Control: no-store, no-cache, must-revalidate, max-age=0'
+    );
+}
+
+function jsonSuccess($data)
+{
+    $response = array_merge(
+        array(
+            "status" => "success"
+        ),
+        $data
+    );
+
+    echo json_encode($response);
+    exit;
+}
+
+function jsonError($message)
+{
+    echo json_encode(array(
+        "status" => "error",
+        "message" => $message
+    ));
+
+    exit;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Date Validation
+|--------------------------------------------------------------------------
+*/
+
+function validateOptionalDate(
+    $dateValue,
+    $fieldLabel
+) {
+    if ($dateValue === '') {
+        return;
+    }
+
+    $dateObject = DateTime::createFromFormat(
+        'Y-m-d',
+        $dateValue
+    );
+
+    if (
+        !$dateObject ||
+        $dateObject->format('Y-m-d') !==
+            $dateValue
+    ) {
+        jsonError(
+            "Invalid " .
+            strtolower($fieldLabel) .
+            "."
+        );
+    }
+
+    if (
+        $dateValue < date('Y-m-d')
+    ) {
+        jsonError(
+            $fieldLabel .
+            " cannot be in the past."
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Retrieve and Authorize Schedule
+|--------------------------------------------------------------------------
+*/
+
+function getScheduleForUpdate(
+    $conn,
+    $clid,
+    $uid,
+    $userData
+) {
+    $scheduleStmt = $conn->prepare("
+        SELECT
+            cl_id,
+            cid,
+            uid,
+            call_date,
+            called,
+            connected,
+            response_type_id,
+            latest_comment
+        FROM client_call_schedule
+        WHERE cl_id = :clid
+        LIMIT 1
+    ");
+
+    $scheduleStmt->execute(array(
+        ":clid" => $clid
+    ));
+
+    $schedule = $scheduleStmt->fetch(
+        PDO::FETCH_ASSOC
+    );
+
+    if (!$schedule) {
+
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+
+        jsonError(
+            "Call schedule not found."
+        );
+    }
+
+    /*
+     * Level 1 can update any scheduled call.
+     * Other levels can update only their assigned calls.
+     */
+
+    if (
+        (int)$userData['level'] !== 1 &&
+        (int)$schedule['uid'] !==
+            (int)$uid
+    ) {
+        if ($conn->inTransaction()) {
+            $conn->rollBack();
+        }
+
+        jsonError(
+            "You are not authorised to update this call."
+        );
+    }
+
+    return $schedule;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Bind Nullable Integer
+|--------------------------------------------------------------------------
+*/
+
+function bindNullableInteger(
+    $statement,
+    $parameter,
+    $value
+) {
+    if ($value === null) {
+
+        $statement->bindValue(
+            $parameter,
+            null,
+            PDO::PARAM_NULL
+        );
+
+    } else {
+
+        $statement->bindValue(
+            $parameter,
+            (int)$value,
+            PDO::PARAM_INT
+        );
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Optional Follow-up Scheduling
+|--------------------------------------------------------------------------
+*/
+
+function scheduleFollowup(
+    $conn,
+    $cid,
+    $uid,
+    $followupDate
+) {
+    $result = array(
+        "scheduled" => false,
+        "skipped" => false
+    );
+
+    if ($followupDate === '') {
+        return $result;
+    }
+
+    /*
+     * Prevent another unresolved active schedule.
+     */
+
+    $pendingCheck = $conn->prepare("
+        SELECT cl_id
+        FROM client_call_schedule
+        WHERE cid = :cid
+        AND COALESCE(called, 0) = 0
+        AND call_date >= CURDATE()
+        LIMIT 1
+    ");
+
+    $pendingCheck->execute(array(
+        ":cid" => $cid
+    ));
+
+    if ($pendingCheck->fetchColumn()) {
+        $result['skipped'] = true;
+        return $result;
+    }
+
+    $insertFollowup = $conn->prepare("
+        INSERT INTO client_call_schedule (
+            cid,
+            uid,
+            call_date,
+            called,
+            connected,
+            latest_comment,
+            created_datetime
+        )
+        VALUES (
+            :cid,
+            :uid,
+            :call_date,
+            0,
+            0,
+            '',
+            NOW()
+        )
+    ");
+
+    try {
+        $insertFollowup->execute(array(
+            ":cid" => $cid,
+            ":uid" => $uid,
+            ":call_date" =>
+                $followupDate
         ));
 
-        exit;
+        $result['scheduled'] = true;
+
+    } catch (PDOException $e) {
+
+        if ($e->getCode() === "23000") {
+            $result['skipped'] = true;
+        } else {
+            throw $e;
+        }
     }
+
+    return $result;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Follow-up Result Message
+|--------------------------------------------------------------------------
+*/
+
+function buildFollowupMessage(
+    $followupResult
+) {
+    if (!is_array($followupResult)) {
+        return '';
+    }
+
+    if (
+        !empty(
+            $followupResult['scheduled']
+        )
+    ) {
+        return " Follow-up call scheduled.";
+    }
+
+    if (
+        !empty(
+            $followupResult['skipped']
+        )
+    ) {
+        return " Follow-up was skipped because an active schedule already exists.";
+    }
+
+    return '';
 }
 
 $conn = null;

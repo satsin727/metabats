@@ -84,8 +84,7 @@ if (!empty($_GET['call_date'])) {
 
     if (
         $dateObject &&
-        $dateObject->format('Y-m-d') ===
-            $requestedDate
+        $dateObject->format('Y-m-d') === $requestedDate
     ) {
         $date = $requestedDate;
     }
@@ -106,8 +105,7 @@ $params = array(
 );
 
 /*
- * Level 2 and Level 3 users can view only their
- * own assigned calls.
+ * Level 2 and Level 3 users view only their own calls.
  */
 
 if (
@@ -178,9 +176,7 @@ $responseStmt = $conn->prepare("
 $responseStmt->execute();
 
 $responseTypes =
-    $responseStmt->fetchAll(
-        PDO::FETCH_ASSOC
-    );
+    $responseStmt->fetchAll(PDO::FETCH_ASSOC);
 
 /*
 |--------------------------------------------------------------------------
@@ -201,6 +197,13 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
         <div class="container-fluid">
 
             <h3>Today's Client Calls</h3>
+
+            <!-- AJAX success/error message -->
+
+            <div
+                id="callActionMessage"
+                style="display:none;">
+            </div>
 
             <form
                 method="get"
@@ -308,22 +311,16 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                 <?php
                 $i = 0;
 
-                foreach (
-                    $scheduledCalls as $row
-                ) {
+                foreach ($scheduledCalls as $row) {
+
                     $i++;
 
-                    $clid =
-                        (int)$row['cl_id'];
+                    $clid = (int)$row['cl_id'];
                 ?>
 
                     <tr
-                        id="call-row-<?php
-                        echo $clid;
-                        ?>"
-                        data-clid="<?php
-                        echo $clid;
-                        ?>">
+                        id="call-row-<?php echo $clid; ?>"
+                        data-clid="<?php echo $clid; ?>">
 
                         <td>
                             <?php echo $i; ?>
@@ -384,18 +381,12 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                         <td>
 
                             <div
-                                id="call-status-<?php
-                                echo $clid;
-                                ?>"
+                                id="call-status-<?php echo $clid; ?>"
                                 class="call-status-wrapper"
-                                data-clid="<?php
-                                echo $clid;
-                                ?>">
+                                data-clid="<?php echo $clid; ?>">
 
                                 <?php
-                                if (
-                                    (int)$row['called'] === 0
-                                ) {
+                                if ((int)$row['called'] === 0) {
                                 ?>
 
                                     <button
@@ -403,10 +394,9 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                         class="btn btn-success btn-xs btnCallModal"
                                         data-toggle="modal"
                                         data-target="#callResponseModal"
-                                        data-clid="<?php
-                                        echo $clid;
-                                        ?>"
+                                        data-clid="<?php echo $clid; ?>"
                                         data-connected="1"
+                                        data-current-connected="0"
                                         data-mode="initial">
 
                                         Yes
@@ -418,10 +408,9 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                         class="btn btn-danger btn-xs btnCallModal"
                                         data-toggle="modal"
                                         data-target="#callResponseModal"
-                                        data-clid="<?php
-                                        echo $clid;
-                                        ?>"
+                                        data-clid="<?php echo $clid; ?>"
                                         data-connected="0"
+                                        data-current-connected="0"
                                         data-mode="initial">
 
                                         No
@@ -429,38 +418,44 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                     </button>
 
                                 <?php
-                                } elseif (
-                                    (int)$row['connected'] === 1
-                                ) {
+                                } else {
                                 ?>
 
-                                    <span class="label label-success">
-                                        Connected
-                                    </span>
+                                    <?php
+                                    if ((int)$row['connected'] === 1) {
+                                    ?>
 
-                                <?php } else { ?>
+                                        <span class="label label-success">
+                                            Connected
+                                        </span>
 
-                                    <span class="label label-danger">
-                                        Not Connected
-                                    </span>
+                                    <?php } else { ?>
 
-                                    <br><br>
+                                        <span class="label label-danger">
+                                            Not Connected
+                                        </span>
+
+                                    <?php } ?>
+
+                                &nbsp;&nbsp;
 
                                     <button
                                         type="button"
                                         class="btn btn-primary btn-xs btnCallModal"
                                         data-toggle="modal"
                                         data-target="#callResponseModal"
-                                        data-clid="<?php
-                                        echo $clid;
+                                        data-clid="<?php echo $clid; ?>"
+                                        data-connected="<?php
+                                        echo (int)$row['connected'];
                                         ?>"
-                                        data-connected="1"
-                                        data-mode="callback">
+                                        data-current-connected="<?php
+                                        echo (int)$row['connected'];
+                                        ?>"
+                                        data-mode="activity">
 
-                                        <span class="glyphicon glyphicon-earphone"></span>
+                                        <span class="glyphicon glyphicon-edit"></span>
 
-                                        Client Called Back
-
+                                        Update / Add Comment
                                     </button>
 
                                 <?php } ?>
@@ -509,9 +504,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                 <?php } ?>
 
-                <?php
-                if (empty($scheduledCalls)) {
-                ?>
+                <?php if (empty($scheduledCalls)) { ?>
 
                     <tr>
 
@@ -519,8 +512,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             colspan="9"
                             class="text-center text-muted">
 
-                            No client calls assigned for the
-                            selected date.
+                            No client calls assigned for the selected date.
 
                         </td>
 
@@ -534,7 +526,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
         </div>
 
-        <!-- Call Response Modal -->
+        <!-- Call Response / Update Modal -->
 
         <div
             class="modal fade"
@@ -590,9 +582,49 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                             <input
                                 type="hidden"
+                                name="current_connected"
+                                id="current_connected"
+                                value="0">
+
+                            <input
+                                type="hidden"
                                 name="call_mode"
                                 id="call_mode"
                                 value="initial">
+
+                            <!-- Activity Type -->
+
+                            <div
+                                class="form-group"
+                                id="activityTypeGroup"
+                                style="display:none;">
+
+                                <label for="activity_type">
+                                    Update Type
+                                </label>
+
+                                <select
+                                    class="form-control"
+                                    name="activity_type"
+                                    id="activity_type">
+
+                                    <option value="">
+                                        -- Select Update Type --
+                                    </option>
+
+                                    <option value="comment">
+                                        Add Comment
+                                    </option>
+
+                                    <option value="callback">
+                                        Client Called Back
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- Response Type -->
 
                             <div
                                 class="form-group"
@@ -612,9 +644,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                     </option>
 
                                     <?php
-                                    foreach (
-                                        $responseTypes as $type
-                                    ) {
+                                    foreach ($responseTypes as $type) {
                                     ?>
 
                                         <option
@@ -638,6 +668,8 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                             </div>
 
+                            <!-- Comments -->
+
                             <div class="form-group">
 
                                 <label for="comments">
@@ -650,9 +682,21 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                     name="comments"
                                     id="comments"></textarea>
 
+                                <small
+                                    id="commentHelp"
+                                    class="text-muted">
+
+                                    Add details about the call.
+
+                                </small>
+
                             </div>
 
-                            <div class="form-group">
+                            <!-- Follow-up Date -->
+
+                            <div
+                                class="form-group"
+                                id="followupDateGroup">
 
                                 <label for="followup_date">
                                     Next Follow-up Date
@@ -663,9 +707,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                                     class="form-control"
                                     name="followup_date"
                                     id="followup_date"
-                                    min="<?php
-                                    echo date('Y-m-d');
-                                    ?>">
+                                    min="<?php echo date('Y-m-d'); ?>">
 
                             </div>
 
@@ -714,6 +756,43 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Display Page Message
+    |--------------------------------------------------------------------------
+    */
+
+    function showPageMessage(
+        message,
+        messageType
+    ) {
+        var alertClass =
+            messageType === 'error'
+                ? 'alert-danger'
+                : 'alert-success';
+
+        $('#callActionMessage')
+            .removeClass(
+                'alert-success alert-danger'
+            )
+            .addClass(
+                'alert ' + alertClass
+            )
+            .html(
+                $('<div>').text(message).html()
+            )
+            .stop(true, true)
+            .show();
+
+        window.setTimeout(
+            function () {
+                $('#callActionMessage')
+                    .fadeOut();
+            },
+            4000
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Build Status HTML
     |--------------------------------------------------------------------------
     */
@@ -731,7 +810,7 @@ $(document).ready(function () {
         );
 
         /*
-         * Call has not yet been completed.
+         * Call has not been completed.
          */
 
         if (called === 0) {
@@ -744,6 +823,7 @@ $(document).ready(function () {
                 + ' data-target="#callResponseModal"'
                 + ' data-clid="' + clid + '"'
                 + ' data-connected="1"'
+                + ' data-current-connected="0"'
                 + ' data-mode="initial">'
                 + 'Yes'
                 + '</button> '
@@ -754,48 +834,50 @@ $(document).ready(function () {
                 + ' data-target="#callResponseModal"'
                 + ' data-clid="' + clid + '"'
                 + ' data-connected="0"'
+                + ' data-current-connected="0"'
                 + ' data-mode="initial">'
                 + 'No'
                 + '</button>';
         }
 
-        /*
-         * Connected.
-         */
+        var statusHtml = '';
 
         if (connected === 1) {
 
-            return ''
-                + '<span class="label label-success">'
-                + 'Connected'
-                + '</span>';
+            statusHtml +=
+                '<span class="label label-success">' +
+                'Connected' +
+                '</span>';
+
+        } else {
+
+            statusHtml +=
+                '<span class="label label-danger">' +
+                'Not Connected' +
+                '</span>';
         }
 
-        /*
-         * Not Connected.
-         */
+        statusHtml +=
+            '<br><br>' +
+            '<button' +
+            ' type="button"' +
+            ' class="btn btn-primary btn-xs btnCallModal"' +
+            ' data-toggle="modal"' +
+            ' data-target="#callResponseModal"' +
+            ' data-clid="' + clid + '"' +
+            ' data-connected="' + connected + '"' +
+            ' data-current-connected="' + connected + '"' +
+            ' data-mode="activity">' +
+            '<span class="glyphicon glyphicon-edit"></span> ' +
+            'Update / Add Comment' +
+            '</button>';
 
-        return ''
-            + '<span class="label label-danger">'
-            + 'Not Connected'
-            + '</span>'
-            + '<br><br>'
-            + '<button'
-            + ' type="button"'
-            + ' class="btn btn-primary btn-xs btnCallModal"'
-            + ' data-toggle="modal"'
-            + ' data-target="#callResponseModal"'
-            + ' data-clid="' + clid + '"'
-            + ' data-connected="1"'
-            + ' data-mode="callback">'
-            + '<span class="glyphicon glyphicon-earphone"></span> '
-            + 'Client Called Back'
-            + '</button>';
+        return statusHtml;
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Update Only the Visible Status Cell
+    | Update Visible Row
     |--------------------------------------------------------------------------
     */
 
@@ -807,17 +889,9 @@ $(document).ready(function () {
             10
         );
 
-        /*
-         * Every status cell has a permanent unique wrapper ID.
-         */
-
         var statusWrapper = $(
             '#call-status-' + clid
         );
-
-        /*
-         * Fallback search using data-clid.
-         */
 
         if (!statusWrapper.length) {
 
@@ -840,10 +914,6 @@ $(document).ready(function () {
             )
         );
 
-        /*
-         * Briefly highlight the updated row.
-         */
-
         var tableRow =
             statusWrapper.closest('tr');
 
@@ -863,7 +933,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Reload One Call Record from Database
+    | Reload One Row from Database
     |--------------------------------------------------------------------------
     */
 
@@ -878,11 +948,6 @@ $(document).ready(function () {
 
             data: {
                 clid: clid,
-
-                /*
-                 * Prevent browser caching.
-                 */
-
                 _: new Date().getTime()
             },
 
@@ -896,11 +961,11 @@ $(document).ready(function () {
                 !res ||
                 res.status !== 'success'
             ) {
-
-                alert(
+                showPageMessage(
                     res && res.message
                         ? res.message
-                        : 'Unable to refresh the saved call.'
+                        : 'Unable to refresh the saved call.',
+                    'error'
                 );
 
                 return;
@@ -908,8 +973,9 @@ $(document).ready(function () {
 
             if (!updateVisibleCallRow(res)) {
 
-                alert(
-                    'The call was saved, but the visible table row could not be found.'
+                showPageMessage(
+                    'The record was saved, but the visible row could not be found.',
+                    'error'
                 );
             }
 
@@ -919,15 +985,115 @@ $(document).ready(function () {
                 xhr.responseText
             );
 
-            alert(
-                'The call was saved, but the table row could not be refreshed.'
+            showPageMessage(
+                'The record was saved, but the table row could not be refreshed.',
+                'error'
             );
         });
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Open Call Modal
+    | Configure Activity Fields
+    |--------------------------------------------------------------------------
+    */
+
+    function configureActivityFields(
+        activityType
+    ) {
+        $('#response_type')
+            .prop('required', false)
+            .val('');
+
+        if (activityType === 'callback') {
+
+            $('#responseTypeGroup').show();
+
+            $('#response_type').prop(
+                'required',
+                true
+            );
+
+            $('#callResponseModalTitle')
+                .text('Client Called Back');
+
+            $('#comments').attr(
+                'placeholder',
+                'Add details about the client callback...'
+            );
+
+            $('#commentHelp').text(
+                'The callback will be added as a new Connected history entry.'
+            );
+
+            $('#btnSaveCall').text(
+                'Save Callback'
+            );
+
+            return;
+        }
+
+        if (activityType === 'comment') {
+
+            $('#responseTypeGroup').hide();
+
+            $('#callResponseModalTitle')
+                .text('Add Client Comment');
+
+            $('#comments').attr(
+                'placeholder',
+                'Example: Email bounced, left voicemail, wrong number...'
+            );
+
+            $('#commentHelp').text(
+                'This note will not change the current call status.'
+            );
+
+            $('#btnSaveCall').text(
+                'Save Comment'
+            );
+
+            return;
+        }
+
+        $('#responseTypeGroup').hide();
+
+        $('#callResponseModalTitle')
+            .text('Update / Add Comment');
+
+        $('#comments').attr(
+            'placeholder',
+            'Select an update type first.'
+        );
+
+        $('#commentHelp').text(
+            'Select Add Comment or Client Called Back.'
+        );
+
+        $('#btnSaveCall').text(
+            'Save Update'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Activity Type Change
+    |--------------------------------------------------------------------------
+    */
+
+    $('#activity_type').on(
+        'change',
+        function () {
+
+            configureActivityFields(
+                $(this).val()
+            );
+        }
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Open Modal
     |--------------------------------------------------------------------------
     */
 
@@ -937,11 +1103,6 @@ $(document).ready(function () {
 
             var button =
                 $(event.relatedTarget);
-
-            /*
-             * Use attr instead of jQuery data caching so dynamically
-             * inserted callback buttons always return current values.
-             */
 
             var clid = parseInt(
                 button.attr('data-clid'),
@@ -956,13 +1117,17 @@ $(document).ready(function () {
                     10
                 );
 
+            var currentConnected =
+                parseInt(
+                    button.attr(
+                        'data-current-connected'
+                    ),
+                    10
+                );
+
             var callMode =
                 button.attr('data-mode') ||
                 'initial';
-
-            /*
-             * Reset modal.
-             */
 
             $('#callResponseForm')[0]
                 .reset();
@@ -971,6 +1136,10 @@ $(document).ready(function () {
 
             $('#connected').val(
                 connectedStatus
+            );
+
+            $('#current_connected').val(
+                currentConnected
             );
 
             $('#call_mode').val(
@@ -983,41 +1152,26 @@ $(document).ready(function () {
             );
 
             /*
-             * Client Called Back.
+             * Existing completed call:
+             * Add comment or callback.
              */
 
-            if (callMode === 'callback') {
+            if (callMode === 'activity') {
 
-                $('#connected').val(1);
+                $('#activityTypeGroup').show();
 
-                $('#responseTypeGroup')
-                    .show();
+                $('#activity_type').val('');
 
-                $('#response_type').prop(
-                    'required',
-                    true
-                );
-
-                $('#callResponseModalTitle')
-                    .text(
-                        'Client Called Back'
-                    );
-
-                $('#comments').attr(
-                    'placeholder',
-                    'Add details about the client callback...'
-                );
-
-                $('#btnSaveCall').text(
-                    'Save Callback'
-                );
+                configureActivityFields('');
 
                 return;
             }
 
             /*
-             * Initial Not Connected call.
+             * Initial Yes/No response.
              */
+
+            $('#activityTypeGroup').hide();
 
             if (connectedStatus === 0) {
 
@@ -1039,16 +1193,16 @@ $(document).ready(function () {
                     'Add comments about the call attempt...'
                 );
 
+                $('#commentHelp').text(
+                    'The call will be saved as Not Connected.'
+                );
+
                 $('#btnSaveCall').text(
                     'Save'
                 );
 
                 return;
             }
-
-            /*
-             * Initial Connected call.
-             */
 
             $('#responseTypeGroup').show();
 
@@ -1067,6 +1221,10 @@ $(document).ready(function () {
                 'Add comments about the conversation...'
             );
 
+            $('#commentHelp').text(
+                'Select the client response and add call details.'
+            );
+
             $('#btnSaveCall').text(
                 'Save'
             );
@@ -1075,7 +1233,7 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Save Call or Callback
+    | Save Call, Comment, or Callback
     |--------------------------------------------------------------------------
     */
 
@@ -1088,6 +1246,9 @@ $(document).ready(function () {
             var callMode =
                 $('#call_mode').val();
 
+            var activityType =
+                $('#activity_type').val();
+
             var connectedStatus =
                 parseInt(
                     $('#connected').val(),
@@ -1096,6 +1257,11 @@ $(document).ready(function () {
 
             var responseType =
                 $('#response_type').val();
+
+            var comments =
+                $.trim(
+                    $('#comments').val()
+                );
 
             var clid =
                 parseInt(
@@ -1112,27 +1278,73 @@ $(document).ready(function () {
                 return;
             }
 
+            var actionUrl = '';
+
             /*
-             * Response type is required for connected calls
-             * and client callbacks.
+             * Existing completed call activity.
              */
 
-            if (
-                connectedStatus === 1 &&
-                responseType === ''
-            ) {
+            if (callMode === 'activity') {
 
-                alert(
-                    'Please select a response type.'
-                );
+                if (activityType === '') {
 
-                return;
+                    alert(
+                        'Please select an update type.'
+                    );
+
+                    return;
+                }
+
+                if (
+                    activityType === 'comment' &&
+                    comments === ''
+                ) {
+
+                    alert(
+                        'Please enter a comment.'
+                    );
+
+                    return;
+                }
+
+                if (
+                    activityType === 'callback' &&
+                    responseType === ''
+                ) {
+
+                    alert(
+                        'Please select a response type.'
+                    );
+
+                    return;
+                }
+
+                actionUrl =
+                    activityType === 'callback'
+                        ? 'clientcallcmd.php?action=savecallback'
+                        : 'clientcallcmd.php?action=savecomment';
+
+            } else {
+
+                /*
+                 * Initial Yes/No call response.
+                 */
+
+                if (
+                    connectedStatus === 1 &&
+                    responseType === ''
+                ) {
+
+                    alert(
+                        'Please select a response type.'
+                    );
+
+                    return;
+                }
+
+                actionUrl =
+                    'clientcallcmd.php?action=savecall';
             }
-
-            var actionUrl =
-                callMode === 'callback'
-                    ? 'clientcallcmd.php?action=savecallback'
-                    : 'clientcallcmd.php?action=savecall';
 
             button
                 .prop('disabled', true)
@@ -1162,7 +1374,7 @@ $(document).ready(function () {
                     alert(
                         res && res.message
                             ? res.message
-                            : 'Unable to save the call response.'
+                            : 'Unable to save the update.'
                     );
 
                     button
@@ -1170,12 +1382,7 @@ $(document).ready(function () {
                             'disabled',
                             false
                         )
-                        .text(
-                            callMode ===
-                            'callback'
-                                ? 'Save Callback'
-                                : 'Save'
-                        );
+                        .text('Save');
 
                     return;
                 }
@@ -1188,20 +1395,18 @@ $(document).ready(function () {
                         )
                         : clid;
 
-                /*
-                 * Close modal.
-                 */
-
                 $('#callResponseModal')
                     .modal('hide');
 
-                /*
-                 * Retrieve the latest status from the database
-                 * and update only this row.
-                 */
-
                 reloadCallRow(
                     savedClid
+                );
+
+                showPageMessage(
+                    res.message
+                        ? res.message
+                        : 'Update saved successfully.',
+                    'success'
                 );
 
             }).fail(function (xhr) {
@@ -1211,7 +1416,7 @@ $(document).ready(function () {
                 );
 
                 alert(
-                    'Unable to save the call response.'
+                    'Unable to save the update.'
                 );
 
                 button
@@ -1219,19 +1424,14 @@ $(document).ready(function () {
                         'disabled',
                         false
                     )
-                    .text(
-                        callMode ===
-                        'callback'
-                            ? 'Save Callback'
-                            : 'Save'
-                    );
+                    .text('Save');
             });
         }
     );
 
     /*
     |--------------------------------------------------------------------------
-    | Reset Modal After Closing
+    | Reset Modal
     |--------------------------------------------------------------------------
     */
 
@@ -1241,6 +1441,9 @@ $(document).ready(function () {
 
             $('#callResponseForm')[0]
                 .reset();
+
+            $('#activityTypeGroup')
+                .hide();
 
             $('#responseTypeGroup')
                 .show();
@@ -1264,6 +1467,10 @@ $(document).ready(function () {
 
             $('#comments').removeAttr(
                 'placeholder'
+            );
+
+            $('#commentHelp').text(
+                'Add details about the call.'
             );
         }
     );
