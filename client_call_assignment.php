@@ -550,7 +550,7 @@ if (
                 data-show-columns="true"
                 data-show-toggle="true"
                 data-show-refresh="true"
-                data-page-size="25"
+                data-page-size="100"
                 class="table table-bordered table-hover">
 
                 <thead>
