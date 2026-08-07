@@ -67,8 +67,26 @@ if (isset($_POST['save'])) {
         $ttype       = (int)$_POST['ttype'];
         $req_source  = (int)$_POST['req_source'];
         $nationality = (int)$_POST['nationality'];
-        $emp_type    = trim($_POST['emp_type']);
+        if($jobtype==1)
+            {
+                $emp_type    = "C2C";
+            }
+        else if($jobtype==2)
+            {
+                $emp_type    = "C2H";
+            }
+        else if($jobtype==3)
+            {
+                $emp_type    = "W2";
+            }
+        else if($jobtype==4)
+            {
+                $emp_type    = "FTE";
+            }
+
+
         $currentdatetime = date('Y-m-d H:i:s');
+
 
         // Check existing client
         $ins = $conn->prepare("SELECT `cid` FROM clients WHERE `remail` = :remail");
@@ -209,7 +227,9 @@ require("includes/menu.php");
                                 <td width="85%" align="left" valign="top">
                                     <select name="jobtype" class="form-control-in">
                                         <option value="1">Contract</option>
-                                        <option value="2">Contract to hire</option>
+                                        <option value="2">Contract to hire</option>                                        
+                                        <option value="3">W2</option>                                                                                
+                                        <option value="4">FTE</option>
                                     </select>
                                     <label>&nbsp;&nbsp;Email:&nbsp;&nbsp;</label>
                                     <div class="search-box" style="display:inline-block;">
@@ -268,12 +288,7 @@ require("includes/menu.php");
                                         <option value="16">I-Labor</option>
                                         <option value="17">Other</option>
                                     </select>
-                                    <label>&nbsp;&nbsp;Employment Type:&nbsp;&nbsp;</label>
-                                    <select name="emp_type" class="form-control-in">
-                                        <option value="C2C">C2C</option>
-                                        <option value="W2">W2</option>
-                                        <option value="FTE">FTE</option>
-                                    </select>
+
                                 </td>
                             </tr>
                             <tr><td><label>&nbsp;</label></td></tr>

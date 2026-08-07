@@ -1167,7 +1167,7 @@ if (
                             <a
                                 href="admin.php?action=clienthistory&amp;cid=<?php
                                 echo (int)$row['cid'];
-                                ?>"
+                                ?>" target="_blank"
                                 class="btn btn-xs btn-info">
 
                                 <span class="glyphicon glyphicon-time"></span>
