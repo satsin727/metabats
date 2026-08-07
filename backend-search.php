@@ -5,7 +5,6 @@ header("Content-Type: text/html; charset=UTF-8");
 
 // The autocomplete endpoint should only be available to logged-in users.
 if (empty($_SESSION['id'])) {
-    http_response_code(401);
     exit;
 }
 

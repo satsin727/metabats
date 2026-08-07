@@ -321,54 +321,82 @@ require("includes/menu.php");
 
 <script>
 $(document).ready(function(){
+
+    var searchTimer = null;
     var clientSearchRequest = null;
 
-    $('.search-box input[name="cemail"]').on("keyup input", function(){
+    $('.search-box input[name="cemail"]').on("input", function(){
+
         var $input = $(this);
         var inputVal = $.trim($input.val());
         var resultDropdown = $input.siblings(".result");
 
+        clearTimeout(searchTimer);
+
         if (clientSearchRequest) {
             clientSearchRequest.abort();
+            clientSearchRequest = null;
         }
 
-        if (inputVal.length < 1) {
+        if (inputVal.length < 2) {
             resultDropdown.empty().hide();
             return;
         }
 
-        clientSearchRequest = $.ajax({
-            url: "backend-search.php",
-            type: "GET",
-            data: { term: inputVal },
-            cache: false,
-            dataType: "html"
-        }).done(function(data){
-            resultDropdown.html(data);
-            if ($.trim(data).length) {
-                resultDropdown.show();
-            } else {
+        searchTimer = setTimeout(function(){
+
+            clientSearchRequest = $.ajax({
+                url: "backend-search.php",
+                type: "GET",
+                data: {
+                    term: inputVal
+                },
+                dataType: "html"
+            })
+            .done(function(data){
+
+                if ($.trim(data) !== '') {
+                    resultDropdown.html(data).show();
+                } else {
+                    resultDropdown.empty().hide();
+                }
+
+            })
+            .fail(function(xhr, status){
+
+                if (status !== "abort") {
+                    console.log(
+                        "Client autocomplete error:",
+                        xhr.status
+                    );
+                }
+
                 resultDropdown.empty().hide();
-            }
-        }).fail(function(xhr, status){
-            if (status !== "abort") {
-                console.error("Client search failed. HTTP status:", xhr.status);
-                resultDropdown.empty().hide();
-            }
-        });
+            });
+
+        }, 200);
+
     });
 
-    $(document).on("click", ".result .client-search-item", function(){
-        var email = $(this).attr("data-email") || $(this).text();
-        $(this).closest(".search-box").find('input[name="cemail"]').val($.trim(email));
-        $(this).closest(".result").empty().hide();
-    });
 
-    $(document).on("keydown", ".result .client-search-item", function(e){
-        if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            $(this).trigger("click");
+    $(document).on(
+        "click",
+        ".result .client-search-item",
+        function(){
+
+            var email = $(this).attr("data-email");
+
+            $(this)
+                .closest(".search-box")
+                .find('input[name="cemail"]')
+                .val(email);
+
+            $(this)
+                .closest(".result")
+                .empty()
+                .hide();
         }
-    });
+    );
+
 });
 </script>
