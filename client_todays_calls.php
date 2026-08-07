@@ -501,6 +501,8 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                             <?php if ((int)$row['called'] === 0) { ?>
 
+                            <!--
+
                                 <button
                                     type="button"
                                     class="btn btn-xs btn-danger btnRemoveAssignment"
@@ -515,7 +517,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                                     <span class="glyphicon glyphicon-trash"></span>
                                     Delete
-                                </button>
+                                </button> -->
 
                             <?php } ?>
 
