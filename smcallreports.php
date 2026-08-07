@@ -58,7 +58,7 @@ if ($isRecruiter) {
     ) {
         echo "<script>
             alert('You are not authorised to view another recruiter\'s call report.');
-            window.location.href='admin.php?action=callreports';
+            window.location.href='admin.php?action=smcallreports';
         </script>";
         exit;
     }
@@ -123,7 +123,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
         
         <!-- Snapshot Filters -->
         <form method="get" class="form-inline">
-            <input type="hidden" name="action" value="callreports">
+            <input type="hidden" name="action" value="smcallreports">
             <?php if ($view_uid !== null) { ?>
                 <input type="hidden" name="view_uid" value="<?php echo $view_uid; ?>">
             <?php } ?>
@@ -198,7 +198,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                         $sum_conn += $row['total_connected'];
                         $sum_not_conn += $row['not_connected'];
 
-                        $baseLink = "?action=callreports&report_type=daily&filter_date=$filter_date&view_uid=".$row['uid'];
+                        $baseLink = "?action=smcallreports&report_type=daily&filter_date=$filter_date&view_uid=".$row['uid'];
                         ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['name']); ?></td>
@@ -211,7 +211,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                     
                     // Team Total Row - Admin / Manager only
                     if ($isAdminOrManager) {
-                        $teamBaseLink = "?action=callreports&report_type=daily&filter_date=$filter_date&view_uid=0";
+                        $teamBaseLink = "?action=smcallreports&report_type=daily&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
                         <td>Team Total</td>
@@ -322,7 +322,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                         $t_week_calls += $row['week_calls']; $t_week_conn += $row['week_conn'];
                         $t_month_calls += $row['month_calls']; $t_month_conn += $row['month_conn'];
 
-                        $baseLink = "?action=callreports&report_type=weekly&filter_date=$filter_date&view_uid=".$row['uid'];
+                        $baseLink = "?action=smcallreports&report_type=weekly&filter_date=$filter_date&view_uid=".$row['uid'];
                         ?>
                         <tr>
                             <td style="text-align: left;"><a href="<?php echo $baseLink; ?>"><?php echo htmlspecialchars($row['name']); ?></a></td>
@@ -345,14 +345,14 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             <td class="success"><a href="<?php echo $baseLink; ?>&filter_connected=called" style="font-weight:bold;"><?php echo (int)$row['week_calls']; ?></a></td>
                             <td class="success"><a href="<?php echo $baseLink; ?>&filter_connected=1" style="font-weight:bold; color:green;"><?php echo (int)$row['week_conn']; ?></a></td>
                             
-                            <td class="warning"><a href="?action=callreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=<?php echo $row['uid']; ?>&filter_connected=called" style="font-weight:bold;"><?php echo (int)$row['month_calls']; ?></a></td>
-                            <td class="warning"><a href="?action=callreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=<?php echo $row['uid']; ?>&filter_connected=1" style="font-weight:bold; color:green;"><?php echo (int)$row['month_conn']; ?></a></td>
+                            <td class="warning"><a href="?action=smcallreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=<?php echo $row['uid']; ?>&filter_connected=called" style="font-weight:bold;"><?php echo (int)$row['month_calls']; ?></a></td>
+                            <td class="warning"><a href="?action=smcallreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=<?php echo $row['uid']; ?>&filter_connected=1" style="font-weight:bold; color:green;"><?php echo (int)$row['month_conn']; ?></a></td>
                         </tr>
                     <?php } 
                     
                     // Team Total Row for Weekly - Admin / Manager only
                     if ($isAdminOrManager) {
-                        $teamBaseLink = "?action=callreports&report_type=weekly&filter_date=$filter_date&view_uid=0";
+                        $teamBaseLink = "?action=smcallreports&report_type=weekly&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
                         <td style="text-align: left;">Team Total</td>
@@ -375,8 +375,8 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                         <td class="success"><a href="<?php echo $teamBaseLink; ?>&filter_connected=called"><?php echo $t_week_calls; ?></a></td>
                         <td class="success"><a href="<?php echo $teamBaseLink; ?>&filter_connected=1" style="color:green;"><?php echo $t_week_conn; ?></a></td>
                         
-                        <td class="warning"><a href="?action=callreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=0&filter_connected=called"><?php echo $t_month_calls; ?></a></td>
-                        <td class="warning"><a href="?action=callreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=0&filter_connected=1" style="color:green;"><?php echo $t_month_conn; ?></a></td>
+                        <td class="warning"><a href="?action=smcallreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=0&filter_connected=called"><?php echo $t_month_calls; ?></a></td>
+                        <td class="warning"><a href="?action=smcallreports&report_type=monthly&filter_date=<?php echo $filter_date; ?>&view_uid=0&filter_connected=1" style="color:green;"><?php echo $t_month_conn; ?></a></td>
                     </tr>
                     <?php } ?>
                 </tbody>
@@ -433,7 +433,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                         $sum_conn += $row['total_connected'];
                         $sum_not_conn += $row['not_connected'];
 
-                        $baseLink = "?action=callreports&report_type=monthly&filter_date=$filter_date&view_uid=".$row['uid'];
+                        $baseLink = "?action=smcallreports&report_type=monthly&filter_date=$filter_date&view_uid=".$row['uid'];
                         ?>
                         <tr>
                             <td><?php echo htmlspecialchars($row['name']); ?></td>
@@ -446,7 +446,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                     
                     // Team Total Row for Monthly - Admin / Manager only
                     if ($isAdminOrManager) {
-                        $teamBaseLink = "?action=callreports&report_type=monthly&filter_date=$filter_date&view_uid=0";
+                        $teamBaseLink = "?action=smcallreports&report_type=monthly&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
                         <td>Team Total</td>
@@ -487,7 +487,7 @@ if ($view_uid !== null) {
         
         <!-- Detail Filters & CSV Export -->
         <form method="get" class="form-inline">
-            <input type="hidden" name="action" value="callreports">
+            <input type="hidden" name="action" value="smcallreports">
             <input type="hidden" name="report_type" value="<?php echo htmlspecialchars($report_type); ?>">
             <input type="hidden" name="filter_date" value="<?php echo htmlspecialchars($filter_date); ?>">
             <input type="hidden" name="view_uid" value="<?php echo $view_uid; ?>">
@@ -517,11 +517,11 @@ if ($view_uid !== null) {
             </div>
             
             <button type="submit" class="btn btn-info">Apply Filters</button>
-            <?php if($dta['level']==1) {  ?>
+            <?php if (in_array((int)$dta['level'], array(1, 2, 3), true)) { ?>
             <button type="submit" formaction="export_reports.php" class="btn btn-success pull-right">
                 <span class="glyphicon glyphicon-download-alt"></span> Download CSV
             </button>
-            <?php   } ?>
+            <?php } ?>
         </form>
         <br>
 

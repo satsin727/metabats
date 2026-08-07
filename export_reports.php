@@ -5,19 +5,111 @@ ini_set('display_errors', 0);
 
 require_once("config.php");
 
-if (!isset($_SESSION['id'])) {
+if (!isset($_SESSION['id']) || (int)$_SESSION['id'] <= 0) {
+    http_response_code(403);
     exit('Unauthorized');
 }
 
-$conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+$sessid = (int)$_SESSION['id'];
 
-// Retrieve Variables safely matching call_reports.php
-$report_type = isset($_GET['report_type']) ? $_GET['report_type'] : 'daily';
-$filter_date = isset($_GET['filter_date']) ? $_GET['filter_date'] : date('Y-m-d');
-$view_uid = isset($_GET['view_uid']) ? (int)$_GET['view_uid'] : 0;
-$filter_connected = isset($_GET['filter_connected']) ? $_GET['filter_connected'] : '';
-$filter_response = (isset($_GET['filter_response']) && $_GET['filter_response'] !== '') ? (int)$_GET['filter_response'] : '';
-$detail_date = isset($_GET['detail_date']) ? trim($_GET['detail_date']) : '';
+try {
+    $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    http_response_code(500);
+    exit('Database connection failed.');
+}
+
+/*
+ * Validate the authenticated user exactly like call_reports.php.
+ */
+$userStmt = $conn->prepare("
+    SELECT uid, name, level, sess
+    FROM users
+    WHERE uid = :uid
+    LIMIT 1
+");
+$userStmt->execute(array(':uid' => $sessid));
+$dta = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+if (
+    !$dta ||
+    !isset($_SESSION['username']) ||
+    $dta['sess'] != $_SESSION['username']
+) {
+    http_response_code(403);
+    exit('Unauthorized');
+}
+
+$userLevel = (int)$dta['level'];
+$isAdminOrManager = in_array($userLevel, array(1, 2), true);
+$isRecruiter = ($userLevel === 3);
+
+if (!$isAdminOrManager && !$isRecruiter) {
+    http_response_code(403);
+    exit('Unauthorized');
+}
+
+// Retrieve variables matching call_reports.php
+$report_type = isset($_GET['report_type']) ? trim($_GET['report_type']) : 'daily';
+
+if (!in_array($report_type, array('daily', 'weekly', 'monthly'), true)) {
+    $report_type = 'daily';
+}
+
+$filter_date = isset($_GET['filter_date'])
+    ? trim($_GET['filter_date'])
+    : date('Y-m-d');
+
+$dateCheck = DateTime::createFromFormat('Y-m-d', $filter_date);
+if (!$dateCheck || $dateCheck->format('Y-m-d') !== $filter_date) {
+    $filter_date = date('Y-m-d');
+}
+
+$requested_view_uid = isset($_GET['view_uid'])
+    ? (int)$_GET['view_uid']
+    : 0;
+
+/*
+ * CSV access control
+ * -------------------------------------------------------------
+ * Levels 1 and 2:
+ *   - view_uid = 0 => team export
+ *   - view_uid > 0 => selected recruiter's export
+ *
+ * Level 3:
+ *   - may export ONLY their own UID
+ *   - changing view_uid to 0 or another user's UID is rejected
+ *   - when view_uid is omitted, their own UID is still forced
+ */
+if ($isRecruiter) {
+    if (
+        isset($_GET['view_uid']) &&
+        $requested_view_uid !== $sessid
+    ) {
+        http_response_code(403);
+        exit('Unauthorized export request.');
+    }
+
+    $view_uid = $sessid;
+} else {
+    $view_uid = $requested_view_uid;
+}
+
+$filter_connected = isset($_GET['filter_connected'])
+    ? $_GET['filter_connected']
+    : '';
+
+$filter_response = (
+    isset($_GET['filter_response']) &&
+    $_GET['filter_response'] !== ''
+)
+    ? (int)$_GET['filter_response']
+    : '';
+
+$detail_date = isset($_GET['detail_date'])
+    ? trim($_GET['detail_date'])
+    : '';
 
 // -------------------------------------------------------------
 // Date Calculations for Weekly and Monthly Views
@@ -45,7 +137,11 @@ $dateFri = (clone $dt)->modify('+4 days')->format('Y-m-d');
 $detailParams = [];
 $detailConds = " 1=1 ";
 
-// If view_uid is set and greater than 0, filter by that user. If 0, include all users (Team Total).
+/*
+ * UID scope is applied server-side.
+ * Recruiters always reach this point with view_uid = session UID.
+ * Admin/Manager may use 0 for team-wide export.
+ */
 if ($view_uid > 0) {
     $detailConds .= " AND s.uid = :uid ";
     $detailParams[':uid'] = $view_uid;
@@ -53,8 +149,18 @@ if ($view_uid > 0) {
 
 // Prioritize detail_date if a specific day was clicked in the weekly view
 if ($detail_date != '') {
-    $detailConds .= " AND s.call_date = :ddate ";
-    $detailParams[':ddate'] = $detail_date;
+    $detailDateCheck = DateTime::createFromFormat('Y-m-d', $detail_date);
+
+    if (
+        $detailDateCheck &&
+        $detailDateCheck->format('Y-m-d') === $detail_date
+    ) {
+        $detailConds .= " AND s.call_date = :ddate ";
+        $detailParams[':ddate'] = $detail_date;
+    } else {
+        http_response_code(400);
+        exit('Invalid detail date.');
+    }
 } elseif ($report_type == 'daily') {
     $detailConds .= " AND s.call_date = :fdate ";
     $detailParams[':fdate'] = $filter_date;
@@ -97,16 +203,37 @@ $sql = "SELECT c.cid, c.companyname, c.rname, c.rphone, c.remail,
 $stmt = $conn->prepare($sql);
 $stmt->execute($detailParams);
 
-// Prepare statement for the Latest 5 Comments from client history table
-$commentStmt = $conn->prepare("
-    SELECT call_datetime, comment 
-    FROM client_call_history 
-    WHERE cid = :cid 
-    AND comment != '' 
-    AND comment IS NOT NULL
-    ORDER BY call_datetime DESC 
-    LIMIT 5
-");
+/*
+ * Latest 5 comments.
+ *
+ * For recruiter exports, comments are also restricted by the
+ * authenticated recruiter's UID. This prevents a shared client's
+ * comments entered by another recruiter from leaking into the CSV.
+ *
+ * Admin / Manager keep the existing all-history behavior.
+ */
+if ($isRecruiter) {
+    $commentStmt = $conn->prepare("
+        SELECT call_datetime, comment
+        FROM client_call_history
+        WHERE cid = :cid
+          AND uid = :comment_uid
+          AND comment != ''
+          AND comment IS NOT NULL
+        ORDER BY call_datetime DESC
+        LIMIT 5
+    ");
+} else {
+    $commentStmt = $conn->prepare("
+        SELECT call_datetime, comment
+        FROM client_call_history
+        WHERE cid = :cid
+          AND comment != ''
+          AND comment IS NOT NULL
+        ORDER BY call_datetime DESC
+        LIMIT 5
+    ");
+}
 
 // Configure Headers to Download CSV
 header('Content-Type: text/csv; charset=utf-8');
@@ -140,8 +267,18 @@ while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $statusText = 'Not Connected';
     }
 
-    // Fetch latest 5 comments for this specific client from history
-    $commentStmt->execute([':cid' => $row['cid']]);
+    // Fetch latest 5 comments allowed for this export
+    if ($isRecruiter) {
+        $commentStmt->execute(array(
+            ':cid' => $row['cid'],
+            ':comment_uid' => $sessid
+        ));
+    } else {
+        $commentStmt->execute(array(
+            ':cid' => $row['cid']
+        ));
+    }
+
     $commentsArray = [];
     
     while ($c = $commentStmt->fetch(PDO::FETCH_ASSOC)) {
