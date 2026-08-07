@@ -283,9 +283,10 @@ require("includes/menu.php");
                                         <option value="11">Job Portal - Careerbuilder</option>
                                         <option value="12">Job Portal - Ziprecruiter</option>
                                         <option value="13">Job Portal - Monster</option>
-                                        <option value="14">Job Portal - other</option>
+                                        <option value="14">Job Portal - other</option>                                       
                                         <option value="15">Company Websites</option>
                                         <option value="16">I-Labor</option>
+                                         <option value="18">SATS</option>
                                         <option value="17">Other</option>
                                     </select>
 
