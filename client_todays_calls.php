@@ -98,6 +98,7 @@ if (!empty($_GET['call_date'])) {
 
 $where = "
     WHERE s.call_date = :call_date
+      AND c.status = 1
 ";
 
 $params = array(
@@ -132,8 +133,12 @@ $sql = "
         c.lid,
         c.companyname,
         c.rname,
+        c.rfname,
         c.rphone,
         c.remail,
+        c.rlocation,
+        c.rtimezon,
+        c.tier,
         c.domain,
 
         u.name AS assignedby
@@ -320,13 +325,14 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                     <tr
                         id="call-row-<?php echo $clid; ?>"
-                        data-clid="<?php echo $clid; ?>">
+                        data-clid="<?php echo $clid; ?>"
+                        data-cid="<?php echo (int)$row['cid']; ?>">
 
                         <td>
                             <?php echo $i; ?>
                         </td>
 
-                        <td>
+                        <td class="client-companyname">
                             <?php
                             echo htmlspecialchars(
                                 $row['companyname'],
@@ -336,7 +342,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             ?>
                         </td>
 
-                        <td>
+                        <td class="client-rname">
                             <?php
                             echo htmlspecialchars(
                                 $row['rname'],
@@ -346,7 +352,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             ?>
                         </td>
 
-                        <td>
+                        <td class="client-rphone">
                             <?php
                             echo htmlspecialchars(
                                 $row['rphone'],
@@ -356,7 +362,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             ?>
                         </td>
 
-                        <td>
+                        <td class="client-remail">
                             <?php
                             echo htmlspecialchars(
                                 $row['remail'],
@@ -366,7 +372,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                             ?>
                         </td>
 
-                        <td>
+                        <td class="client-domain">
                             <?php
                             echo htmlspecialchars(
                                 $row['domain'],
@@ -480,23 +486,38 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
                         </td>
 
-                        <!-- Edit -->
+                        <!-- Edit / Delete Client -->
 
-                        <td>
+                        <td class="client-actions">
 
-                            <a
-                                href="listcmd.php?do=editcontact&amp;lid=<?php
-                                echo (int)$row['lid'];
-                                ?>&amp;id=<?php
-                                echo (int)$row['cid'];
-                                ?>"
-                                class="btn btn-xs btn-info">
+                            <button
+                                type="button"
+                                class="btn btn-xs btn-info btnEditClient"
+                                data-cid="<?php echo (int)$row['cid']; ?>">
 
                                 <span class="glyphicon glyphicon-pencil"></span>
-
                                 Edit
+                            </button>
 
-                            </a>
+                            <?php if ((int)$row['called'] === 0) { ?>
+
+                                <button
+                                    type="button"
+                                    class="btn btn-xs btn-danger btnRemoveAssignment"
+                                    data-clid="<?php echo $clid; ?>"
+                                    data-company="<?php
+                                        echo htmlspecialchars(
+                                            $row['companyname'],
+                                            ENT_QUOTES,
+                                            'UTF-8'
+                                        );
+                                    ?>">
+
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                    Delete
+                                </button>
+
+                            <?php } ?>
 
                         </td>
 
@@ -524,6 +545,81 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
 
             </table>
 
+        </div>
+
+        <!-- Client Edit Modal -->
+
+        <div class="modal fade" id="clientEditModal" tabindex="-1" role="dialog" aria-labelledby="clientEditModalTitle">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="clientEditModalTitle">Edit Client</h4>
+                    </div>
+
+                    <form id="clientEditForm">
+                        <div class="modal-body">
+                            <input type="hidden" name="cid" id="edit_client_cid">
+
+                            <div class="form-group">
+                                <label for="edit_companyname">Company Name</label>
+                                <input type="text" class="form-control" name="companyname" id="edit_companyname" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_rname">Full Name</label>
+                                <input type="text" class="form-control" name="rname" id="edit_rname">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_rfname">First Name</label>
+                                <input type="text" class="form-control" name="rfname" id="edit_rfname">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_remail">Email ID</label>
+                                <input type="email" class="form-control" name="remail" id="edit_remail">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_rphone">Phone Number</label>
+                                <input type="text" class="form-control" name="rphone" id="edit_rphone">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_rlocation">Location</label>
+                                <input type="text" class="form-control" name="rlocation" id="edit_rlocation">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_tier">Tier</label>
+                                <select class="form-control" name="tier" id="edit_tier">
+                                    <option value="Tier 1">Tier 1</option>
+                                    <option value="Tier 2">Tier 2</option>
+                                    <option value="Implementation Partner">Implementation Partner</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="edit_rtimezon">Timezone</label>
+                                <select class="form-control" name="rtimezon" id="edit_rtimezon">
+                                    <option value="EST">EST</option>
+                                    <option value="CST">CST</option>
+                                    <option value="MST">MST</option>
+                                    <option value="PST">PST</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="submit" id="btnSaveClient" class="btn btn-primary">Save Client</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
 
         <!-- Call Response / Update Modal -->
@@ -754,6 +850,197 @@ $(document).ready(function () {
 
     'use strict';
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Client Edit / Remove Assignment (isolated AJAX functionality)
+    |--------------------------------------------------------------------------
+    */
+
+    function escapeClientText(value) {
+        return value === null || typeof value === 'undefined'
+            ? ''
+            : String(value);
+    }
+
+    function refreshClientRow(cid) {
+        return $.ajax({
+            url: 'client_today_client_ajax.php',
+            type: 'GET',
+            data: {
+                action: 'getclient',
+                cid: cid,
+                _: new Date().getTime()
+            },
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success' || !res.client) {
+                showPageMessage(
+                    res && res.message ? res.message : 'Client saved, but the row could not be refreshed.',
+                    'error'
+                );
+                return;
+            }
+
+            var row = $('#call-row-' + parseInt(res.client.cl_id, 10));
+            if (!row.length) {
+                row = $('tr[data-cid="' + parseInt(res.client.cid, 10) + '"]').first();
+            }
+            if (!row.length) {
+                return;
+            }
+
+            row.find('.client-companyname').text(escapeClientText(res.client.companyname));
+            row.find('.client-rname').text(escapeClientText(res.client.rname));
+            row.find('.client-rphone').text(escapeClientText(res.client.rphone));
+            row.find('.client-remail').text(escapeClientText(res.client.remail));
+            row.find('.client-domain').text(escapeClientText(res.client.domain));
+
+            row.find('.btnRemoveAssignment').attr('data-company', escapeClientText(res.client.companyname));
+
+            row.addClass('success');
+            window.setTimeout(function () {
+                row.removeClass('success');
+            }, 1500);
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            showPageMessage('Client saved, but the row could not be refreshed.', 'error');
+        });
+    }
+
+    $(document).on('click', '.btnEditClient', function () {
+        var cid = parseInt($(this).attr('data-cid'), 10);
+        var button = $(this);
+
+        if (!cid) {
+            return;
+        }
+
+        button.prop('disabled', true);
+
+        $.ajax({
+            url: 'client_today_client_ajax.php',
+            type: 'GET',
+            data: {
+                action: 'getclient',
+                cid: cid,
+                _: new Date().getTime()
+            },
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success' || !res.client) {
+                alert(res && res.message ? res.message : 'Unable to load client details.');
+                return;
+            }
+
+            $('#clientEditForm')[0].reset();
+            $('#edit_client_cid').val(res.client.cid);
+            $('#edit_companyname').val(res.client.companyname || '');
+            $('#edit_rname').val(res.client.rname || '');
+            $('#edit_rfname').val(res.client.rfname || '');
+            $('#edit_remail').val(res.client.remail || '');
+            $('#edit_rphone').val(res.client.rphone || '');
+            $('#edit_rlocation').val(res.client.rlocation || '');
+            $('#edit_tier').val(res.client.tier || 'Tier 1');
+            $('#edit_rtimezon').val(res.client.rtimezon || 'CST');
+
+            $('#clientEditModal').modal('show');
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to load client details.');
+        }).always(function () {
+            button.prop('disabled', false);
+        });
+    });
+
+    $('#clientEditForm').on('submit', function (event) {
+        event.preventDefault();
+
+        var button = $('#btnSaveClient');
+        var cid = parseInt($('#edit_client_cid').val(), 10);
+
+        if (!cid) {
+            alert('Invalid client.');
+            return;
+        }
+
+        button.prop('disabled', true).text('Saving...');
+
+        $.ajax({
+            url: 'client_today_client_ajax.php?action=saveclient',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert(res && res.message ? res.message : 'Unable to save client.');
+                return;
+            }
+
+            $('#clientEditModal').modal('hide');
+            refreshClientRow(cid);
+            showPageMessage(res.message || 'Client updated successfully.', 'success');
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to save client.');
+        }).always(function () {
+            button.prop('disabled', false).text('Save Client');
+        });
+    });
+
+    $(document).on('click', '.btnRemoveAssignment', function () {
+        var button = $(this);
+        var clid = parseInt(button.attr('data-clid'), 10);
+        var company = button.attr('data-company') || 'this client';
+
+        if (!clid) {
+            return;
+        }
+
+        if (!window.confirm(
+            'Remove the Today\'s Calls assignment for ' + company + '?\n\n'
+        )) {
+            return;
+        }
+
+        button.prop('disabled', true);
+
+        $.ajax({
+            url: 'client_today_client_ajax.php?action=removeassignment',
+            type: 'POST',
+            data: { clid: clid },
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert(
+                    res && res.message
+                        ? res.message
+                        : 'Unable to remove the call assignment.'
+                );
+                button.prop('disabled', false);
+                return;
+            }
+
+            var row = button.closest('tr');
+            row.fadeOut(250, function () {
+                $(this).remove();
+            });
+
+            showPageMessage(
+                res.message || 'Call assignment removed successfully.',
+                'success'
+            );
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to remove the call assignment.');
+            button.prop('disabled', false);
+        });
+    });
+
     /*
     |--------------------------------------------------------------------------
     | Display Page Message
@@ -916,6 +1203,15 @@ $(document).ready(function () {
 
         var tableRow =
             statusWrapper.closest('tr');
+
+        /*
+         * Once Yes/No has been saved, called becomes 1.
+         * The assignment is now a completed call and must no longer
+         * offer the Delete Assignment button.
+         */
+        if (parseInt(callData.called, 10) === 1) {
+            tableRow.find('.btnRemoveAssignment').remove();
+        }
 
         tableRow.addClass('success');
 

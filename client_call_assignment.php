@@ -388,6 +388,8 @@ if (
 
 <?php } ?>
 
+<div id="assignmentActionMessage" style="display:none;"></div>
+
 <div class="panel panel-default">
 
     <div class="panel-body">
@@ -759,17 +761,14 @@ if (
                     }
                 ?>
 
-                    <tr<?php
-                    echo $rowClass !== ''
-                        ? ' class="' .
-                            $rowClass .
-                            '"'
-                        : '';
-                    ?>>
+                    <tr
+                        id="assignment-row-<?php echo (int)$row['cid']; ?>"
+                        data-cid="<?php echo (int)$row['cid']; ?>"
+                        class="<?php echo htmlspecialchars($rowClass, ENT_QUOTES, 'UTF-8'); ?>">
 
                         <!-- Selection -->
 
-                        <td>
+                        <td class="assignment-selection">
 
                             <?php if ($disableSelection) { ?>
 
@@ -853,7 +852,7 @@ if (
 
                         <!-- Company -->
 
-                        <td>
+                        <td class="assignment-company">
                             <?php
                             echo htmlspecialchars(
                                 $row['companyname'],
@@ -865,7 +864,7 @@ if (
 
                         <!-- Contact -->
 
-                        <td>
+                        <td class="assignment-contact">
                             <?php
                             echo htmlspecialchars(
                                 $row['rname'],
@@ -877,7 +876,7 @@ if (
 
                         <!-- Email -->
 
-                        <td>
+                        <td class="assignment-email">
                             <?php
                             echo htmlspecialchars(
                                 $row['remail'],
@@ -889,7 +888,7 @@ if (
 
                         <!-- Phone -->
 
-                        <td>
+                        <td class="assignment-phone">
                             <?php
                             echo htmlspecialchars(
                                 $row['rphone'],
@@ -901,7 +900,7 @@ if (
 
                         <!-- Domain -->
 
-                        <td>
+                        <td class="assignment-domain">
                             <?php
                             echo htmlspecialchars(
                                 $row['domain'],
@@ -913,7 +912,7 @@ if (
 
                         <!-- Location -->
 
-                        <td>
+                        <td class="assignment-location">
                             <?php
                             echo htmlspecialchars(
                                 isset($row['rlocation'])
@@ -927,7 +926,7 @@ if (
 
                         <!-- Timezone -->
 
-                        <td>
+                        <td class="assignment-timezone">
                             <?php
                             echo htmlspecialchars(
                                 isset($row['rtimezon'])
@@ -941,7 +940,7 @@ if (
 
                         <!-- Tier -->
 
-                        <td>
+                        <td class="assignment-tier">
                             <?php
                             echo htmlspecialchars(
                                 isset($row['tier'])
@@ -955,7 +954,7 @@ if (
 
                         <!-- Last Called / Scheduled Date -->
 
-                        <td>
+                        <td class="assignment-lastcall">
 
                             <?php if ($hasActiveSchedule) { ?>
 
@@ -1038,7 +1037,7 @@ if (
 
                         <!-- Last By / Scheduled By -->
 
-                        <td>
+                        <td class="assignment-lastby">
 
                             <?php
                             if ($hasPendingSchedule) {
@@ -1076,7 +1075,7 @@ if (
 
                         <!-- Status -->
 
-                        <td>
+                        <td class="assignment-status">
 
                             <?php if ($hasActiveSchedule) { ?>
 
@@ -1178,23 +1177,24 @@ if (
 
                         </td>
 
-                        <!-- Edit -->
+                        <!-- Edit / Delete -->
 
-                        <td>
+                        <td class="assignment-actions">
 
-                            <a
-                                href="listcmd.php?do=editcontact&amp;lid=<?php
-                                echo (int)$row['lid'];
-                                ?>&amp;id=<?php
-                                echo (int)$row['cid'];
-                                ?>"
-                                class="btn btn-xs btn-info">
+                            <button
+                                type="button"
+                                class="btn btn-xs btn-info btnEditClient"
+                                data-cid="<?php echo (int)$row['cid']; ?>">
+                                <span class="glyphicon glyphicon-pencil"></span> Edit
+                            </button>
 
-                                <span class="glyphicon glyphicon-pencil"></span>
-
-                                Edit
-
-                            </a>
+                            <button
+                                type="button"
+                                class="btn btn-xs btn-danger btnDeleteClient"
+                                data-cid="<?php echo (int)$row['cid']; ?>"
+                                data-company="<?php echo htmlspecialchars($row['companyname'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <span class="glyphicon glyphicon-trash"></span> Delete
+                            </button>
 
                         </td>
 
@@ -1231,6 +1231,35 @@ if (
 
     </div>
 
+</div>
+
+<!-- Client Edit Modal -->
+<div class="modal fade" id="clientEditModal" tabindex="-1" role="dialog" aria-labelledby="clientEditModalTitle">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="clientEditModalTitle">Edit Client</h4>
+            </div>
+            <form id="clientEditForm">
+                <div class="modal-body">
+                    <input type="hidden" name="cid" id="edit_client_cid">
+                    <div class="form-group"><label for="edit_companyname">Company Name</label><input type="text" class="form-control" name="companyname" id="edit_companyname" required></div>
+                    <div class="form-group"><label for="edit_rname">Full Name</label><input type="text" class="form-control" name="rname" id="edit_rname"></div>
+                    <div class="form-group"><label for="edit_rfname">First Name</label><input type="text" class="form-control" name="rfname" id="edit_rfname"></div>
+                    <div class="form-group"><label for="edit_remail">Email ID</label><input type="email" class="form-control" name="remail" id="edit_remail"></div>
+                    <div class="form-group"><label for="edit_rphone">Phone Number</label><input type="text" class="form-control" name="rphone" id="edit_rphone"></div>
+                    <div class="form-group"><label for="edit_rlocation">Location</label><input type="text" class="form-control" name="rlocation" id="edit_rlocation"></div>
+                    <div class="form-group"><label for="edit_tier">Tier</label><select class="form-control" name="tier" id="edit_tier"><option value="Tier 1">Tier 1</option><option value="Tier 2">Tier 2</option><option value="Implementation Partner">Implementation Partner</option></select></div>
+                    <div class="form-group"><label for="edit_rtimezon">Timezone</label><select class="form-control" name="rtimezon" id="edit_rtimezon"><option value="EST">EST</option><option value="CST">CST</option><option value="MST">MST</option><option value="PST">PST</option></select></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" id="btnSaveClient" class="btn btn-primary">Save Client</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -1335,56 +1364,221 @@ $(document).ready(function () {
 
     /*
     |--------------------------------------------------------------------------
-    | Assignment Form Validation
+    | Page Message
     |--------------------------------------------------------------------------
     */
+    function showAssignmentMessage(message, type) {
+        var cls = type === 'error' ? 'alert-danger' : 'alert-success';
+        $('#assignmentActionMessage')
+            .removeClass('alert-success alert-danger')
+            .addClass('alert ' + cls)
+            .text(message)
+            .stop(true, true)
+            .show();
+        window.setTimeout(function () {
+            $('#assignmentActionMessage').fadeOut();
+        }, 4500);
+    }
 
-    $('#assignmentForm').on(
-        'submit',
-        function (event) {
+    function setText($row, selector, value) {
+        $row.find(selector).text(value === null || typeof value === 'undefined' ? '' : String(value));
+    }
 
-            var submitter = null;
+    function updateAssignmentRow(rowData) {
+        var cid = parseInt(rowData.cid, 10);
+        var $row = $('#assignment-row-' + cid);
+        if (!$row.length) { return; }
 
-            if (
-                event.originalEvent &&
-                event.originalEvent.submitter
-            ) {
-                submitter =
-                    event.originalEvent.submitter;
-            } else {
-                submitter =
-                    document.activeElement;
-            }
+        setText($row, '.assignment-company', rowData.companyname);
+        setText($row, '.assignment-contact', rowData.rname);
+        setText($row, '.assignment-email', rowData.remail);
+        setText($row, '.assignment-phone', rowData.rphone);
+        setText($row, '.assignment-domain', rowData.domain);
+        setText($row, '.assignment-location', rowData.rlocation);
+        setText($row, '.assignment-timezone', rowData.rtimezon);
+        setText($row, '.assignment-tier', rowData.tier);
 
-            /*
-             * Apply selection validation only when the
-             * Assign Selected Clients button is used.
-             */
+        $row.find('.assignment-selection').html(rowData.selection_html || '');
+        $row.find('.assignment-lastcall').html(rowData.lastcall_html || '');
+        setText($row, '.assignment-lastby', rowData.last_by || '-');
+        $row.find('.assignment-status').html(rowData.status_html || '');
 
-            if (
-                submitter &&
-                submitter.id ===
-                    'assignButton'
-            ) {
-                if (
-                    $('.clientCheck:checked')
-                        .length === 0
-                ) {
-                    alert(
-                        'Please select at least one client.'
-                    );
+        $row.removeClass('warning danger success');
+        if (rowData.row_class) { $row.addClass(rowData.row_class); }
 
-                    event.preventDefault();
+        $row.find('.btnDeleteClient').attr('data-company', rowData.companyname || 'this client');
+    }
 
-                    return false;
-                }
+    /*
+    |--------------------------------------------------------------------------
+    | AJAX Assignment - only Assign button; Search remains normal GET
+    |--------------------------------------------------------------------------
+    */
+    $('#assignButton').on('click', function (event) {
+        event.preventDefault();
 
-                return confirm(
-                    'Assign selected clients to the selected date?'
-                );
-            }
+        var $button = $(this);
+        var selectedCount = $('.clientCheck:checked').length;
+
+        if (selectedCount === 0) {
+            alert('Please select at least one client.');
+            return false;
         }
-    );
+
+        if (!window.confirm('Assign selected clients to the selected date?')) {
+            return false;
+        }
+
+        $button.prop('disabled', true).text('Assigning...');
+
+        $.ajax({
+            url: 'client_today_client_ajax.php?action=assign',
+            type: 'POST',
+            data: $('#assignmentForm').serialize(),
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert(res && res.message ? res.message : 'Unable to assign selected clients.');
+                return;
+            }
+
+            if (res.rows && $.isArray(res.rows)) {
+                $.each(res.rows, function (_, rowData) {
+                    updateAssignmentRow(rowData);
+                });
+            }
+
+            $('.clientCheck:checked').prop('checked', false);
+            $('#masterCheck').prop('checked', false);
+            updateSelectedCount();
+
+            var message = (parseInt(res.assigned, 10) || 0) + ' client(s) assigned successfully.';
+            if ((parseInt(res.duplicate, 10) || 0) > 0) {
+                message += ' ' + res.duplicate + ' skipped due to an active schedule or recent call.';
+            }
+            if ((parseInt(res.failed, 10) || 0) > 0) {
+                message += ' ' + res.failed + ' invalid client(s) skipped.';
+            }
+            showAssignmentMessage(message, 'success');
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to assign selected clients.');
+        }).always(function () {
+            $button.prop('disabled', false).text('Assign Selected Clients');
+        });
+
+        return false;
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Edit Client Modal
+    |--------------------------------------------------------------------------
+    */
+    $(document).on('click', '.btnEditClient', function () {
+        var cid = parseInt($(this).attr('data-cid'), 10);
+        if (!cid) { return; }
+
+        $.ajax({
+            url: 'client_today_client_ajax.php',
+            type: 'GET',
+            data: { action: 'getclient', cid: cid, _: new Date().getTime() },
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success' || !res.client) {
+                alert(res && res.message ? res.message : 'Unable to load client details.');
+                return;
+            }
+            $('#clientEditForm')[0].reset();
+            $('#edit_client_cid').val(res.client.cid);
+            $('#edit_companyname').val(res.client.companyname || '');
+            $('#edit_rname').val(res.client.rname || '');
+            $('#edit_rfname').val(res.client.rfname || '');
+            $('#edit_remail').val(res.client.remail || '');
+            $('#edit_rphone').val(res.client.rphone || '');
+            $('#edit_rlocation').val(res.client.rlocation || '');
+            $('#edit_tier').val(res.client.tier || 'Tier 1');
+            $('#edit_rtimezon').val(res.client.rtimezon || 'CST');
+            $('#clientEditModal').modal('show');
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to load client details.');
+        });
+    });
+
+    $('#clientEditForm').on('submit', function (event) {
+        event.preventDefault();
+        var cid = parseInt($('#edit_client_cid').val(), 10);
+        var $button = $('#btnSaveClient');
+        if (!cid) { alert('Invalid client.'); return; }
+
+        $button.prop('disabled', true).text('Saving...');
+        $.ajax({
+            url: 'client_today_client_ajax.php?action=saveclient',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert(res && res.message ? res.message : 'Unable to save client.');
+                return;
+            }
+            var $row = $('#assignment-row-' + cid);
+            setText($row, '.assignment-company', $('#edit_companyname').val());
+            setText($row, '.assignment-contact', $('#edit_rname').val());
+            setText($row, '.assignment-email', $('#edit_remail').val());
+            setText($row, '.assignment-phone', $('#edit_rphone').val());
+            setText($row, '.assignment-location', $('#edit_rlocation').val());
+            setText($row, '.assignment-timezone', $('#edit_rtimezon').val());
+            setText($row, '.assignment-tier', $('#edit_tier').val());
+            $row.find('.btnDeleteClient').attr('data-company', $('#edit_companyname').val());
+            $('#clientEditModal').modal('hide');
+            showAssignmentMessage(res.message || 'Client updated successfully.', 'success');
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to save client.');
+        }).always(function () {
+            $button.prop('disabled', false).text('Save Client');
+        });
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Soft Delete Client
+    |--------------------------------------------------------------------------
+    */
+    $(document).on('click', '.btnDeleteClient', function () {
+        var $button = $(this);
+        var cid = parseInt($button.attr('data-cid'), 10);
+        var company = $button.attr('data-company') || 'this client';
+        if (!cid) { return; }
+        if (!window.confirm('Are you sure you want to remove ' + company + ' from active clients?')) { return; }
+
+        $button.prop('disabled', true);
+        $.ajax({
+            url: 'client_today_client_ajax.php?action=deleteclient',
+            type: 'POST',
+            data: { cid: cid },
+            dataType: 'json',
+            cache: false
+        }).done(function (res) {
+            if (!res || res.status !== 'success') {
+                alert(res && res.message ? res.message : 'Unable to delete client.');
+                $button.prop('disabled', false);
+                return;
+            }
+            $('#assignment-row-' + cid).fadeOut(250, function () { $(this).remove(); });
+            showAssignmentMessage(res.message || 'Client removed from active clients.', 'success');
+            updateSelectedCount();
+        }).fail(function (xhr) {
+            console.log(xhr.responseText);
+            alert('Unable to delete client.');
+            $button.prop('disabled', false);
+        });
+    });
 });
 </script>
 
