@@ -4,9 +4,6 @@ require( "config.php" );
 header("Content-Type: text/html; charset=UTF-8");
 
 // The autocomplete endpoint should only be available to logged-in users.
-if (empty($_SESSION['id'])) {
-    exit;
-}
 
 $term = trim($_GET['term'] ?? '');
 if ($term === '') {
