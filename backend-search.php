@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . "/config.php";
+require( "config.php" );
 
 header("Content-Type: text/html; charset=UTF-8");
 
