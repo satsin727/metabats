@@ -79,7 +79,7 @@ if (isset($_POST['save'])) {
             {
                 $emp_type    = "W2";
             }
-        else if($jobtype==4)
+        else
             {
                 $emp_type    = "FTE";
             }
