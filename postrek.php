@@ -346,7 +346,7 @@ $(document).ready(function(){
         searchTimer = setTimeout(function(){
 
             clientSearchRequest = $.ajax({
-                url: "backend-search.php",
+                url: "backendsearch.php",
                 type: "GET",
                 data: {
                     term: inputVal
