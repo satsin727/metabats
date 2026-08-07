@@ -36,20 +36,50 @@ $requested_view_uid = isset($_GET['view_uid'])
     ? (int)$_GET['view_uid']
     : null;
 
-$isRecruiter = ((int)$dta['level'] === 3);
+$userLevel = (int)$dta['level'];
+$isAdminOrManager = in_array($userLevel, array(1, 2), true);
+$isRecruiter = ($userLevel === 3);
 $report_uid = $isRecruiter
     ? (int)$sessid
     : null;
 
 /*
- * Recruiter security:
- * Level 3 can view only their own call-report data.
- * Admin / Manager retain the existing team-wide behavior.
+ * Call Report Access Control
+ * -------------------------------------------------------------
+ * Levels 1 and 2 may view team totals and drill into any user.
+ * Level 3 may view ONLY their own report data.
+ *
+ * Do not silently accept a forged/tampered view_uid for recruiters.
  */
-if ($isRecruiter && $requested_view_uid !== null) {
-    $view_uid = (int)$sessid;
-} else {
+if ($isRecruiter) {
+    if (
+        $requested_view_uid !== null &&
+        $requested_view_uid !== (int)$sessid
+    ) {
+        echo "<script>
+            alert('You are not authorised to view another recruiter\'s call report.');
+            window.location.href='admin.php?action=callreports';
+        </script>";
+        exit;
+    }
+
+    /*
+     * When a recruiter requests a detail view, its UID is always
+     * the authenticated session UID.
+     */
+    $view_uid = $requested_view_uid !== null
+        ? (int)$sessid
+        : null;
+
+} elseif ($isAdminOrManager) {
     $view_uid = $requested_view_uid;
+
+} else {
+    echo "<script>
+        alert('You are not authorised to view call reports.');
+        window.location.href='admin.php';
+    </script>";
+    exit;
 }
 
 $filter_connected = isset($_GET['filter_connected']) ? $_GET['filter_connected'] : '';
@@ -180,7 +210,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                     <?php } 
                     
                     // Team Total Row - Admin / Manager only
-                    if (!$isRecruiter) {
+                    if ($isAdminOrManager) {
                         $teamBaseLink = "?action=callreports&report_type=daily&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
@@ -321,7 +351,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                     <?php } 
                     
                     // Team Total Row for Weekly - Admin / Manager only
-                    if (!$isRecruiter) {
+                    if ($isAdminOrManager) {
                         $teamBaseLink = "?action=callreports&report_type=weekly&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
@@ -415,7 +445,7 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">';
                     <?php } 
                     
                     // Team Total Row for Monthly - Admin / Manager only
-                    if (!$isRecruiter) {
+                    if ($isAdminOrManager) {
                         $teamBaseLink = "?action=callreports&report_type=monthly&filter_date=$filter_date&view_uid=0";
                     ?>
                     <tr style="font-weight:bold; background-color: #f9f9f9;">
