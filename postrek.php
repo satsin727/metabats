@@ -321,21 +321,54 @@ require("includes/menu.php");
 
 <script>
 $(document).ready(function(){
-    $('.search-box input[type="text"]').on("keyup input", function(){
-        var inputVal = $.trim($(this).val());
-        var resultDropdown = $(this).siblings(".result");
-        if(inputVal.length){
-            $.get("backend-search.php", {term: inputVal}).done(function(data){
-                resultDropdown.html(data);
-            });
-        } else {
-            resultDropdown.empty();
+    var clientSearchRequest = null;
+
+    $('.search-box input[name="cemail"]').on("keyup input", function(){
+        var $input = $(this);
+        var inputVal = $.trim($input.val());
+        var resultDropdown = $input.siblings(".result");
+
+        if (clientSearchRequest) {
+            clientSearchRequest.abort();
         }
+
+        if (inputVal.length < 1) {
+            resultDropdown.empty().hide();
+            return;
+        }
+
+        clientSearchRequest = $.ajax({
+            url: "backend-search.php",
+            type: "GET",
+            data: { term: inputVal },
+            cache: false,
+            dataType: "html"
+        }).done(function(data){
+            resultDropdown.html(data);
+            if ($.trim(data).length) {
+                resultDropdown.show();
+            } else {
+                resultDropdown.empty().hide();
+            }
+        }).fail(function(xhr, status){
+            if (status !== "abort") {
+                console.error("Client search failed. HTTP status:", xhr.status);
+                resultDropdown.empty().hide();
+            }
+        });
     });
-    
-    $(document).on("click", ".result p", function(){
-        $(this).parents(".search-box").find('input[type="text"]').val($(this).text());
-        $(this).parent(".result").empty();
+
+    $(document).on("click", ".result .client-search-item", function(){
+        var email = $(this).attr("data-email") || $(this).text();
+        $(this).closest(".search-box").find('input[name="cemail"]').val($.trim(email));
+        $(this).closest(".result").empty().hide();
+    });
+
+    $(document).on("keydown", ".result .client-search-item", function(e){
+        if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            $(this).trigger("click");
+        }
     });
 });
 </script>
