@@ -174,6 +174,11 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
                         <a class="<?php echo ($selected == "showsmdata") ? "active" : ""; ?>" href="admin.php?action=showsmdata">
                             <svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg> SM Snapshot
                         </a>
+                    </li>                    
+                    <li>
+                        <a class="<?php echo ($selected == "smcallreports") ? "active" : ""; ?>" href="admin.php?action=smcallreports">
+                            <svg class="glyph stroked line-graph"><use xlink:href="#stroked-line-graph"></use></svg>SM Call Reports
+                        </a>
                     </li>
                     <?php } ?>
 

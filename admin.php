@@ -122,6 +122,9 @@ switch ( $action ) {
   case 'callreports':
         callreports();
         break;
+  case 'smcallreports':
+        smcallreports();
+        break;
   default:
     dashboard();
 }
@@ -240,6 +243,7 @@ function callinglist() {  $selected = "callinglist"; require( "client_todays_cal
 function clientsdata() {  $selected = "clientsdata"; require( "clientsdata.php" ); }
 function clienthistory() {  $selected = "clienthistory"; require( "client_call_history.php" ); }
 function callreports() {  $selected = "callreports"; require( "call_reports.php" ); }
+function smcallreports() {  $selected = "callreports"; require( "smcallreports.php" ); }
 
 function uploadcallinglist() {  $selected = "calling"; require( "updatecalllist.php" ); }
 function showmtd() {  $selected = "showreports"; require( "skillmtd.php" ); }
