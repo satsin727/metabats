@@ -584,7 +584,7 @@ try {
                 1,
                 4,
                 NULL,
-                :application_datetime,
+                :rc_datetime,
                 NULL,
                 1,
                 NULL,
@@ -592,8 +592,8 @@ try {
                 10,
                 1,
                 1,
-                :application_datetime,
-                :application_datetime
+                :app_datetime,
+                :sub_datetime
             )
         ");
 
@@ -602,7 +602,9 @@ try {
             ':reqid' => $reqId,
             ':client_id' => $clientId,
             ':consultant_id' => $consultantId,
-            ':application_datetime' => $applicationDateTime
+            ':rc_datetime' => $applicationDateTime,
+            ':app_datetime' => $applicationDateTime,
+            ':sub_datetime' => $applicationDateTime
         ]);
 
         $appId = (int)$conn->lastInsertId();
