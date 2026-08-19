@@ -63,6 +63,36 @@ function satsRequirePositiveInt(array $data, string $key): int
     return (int)$value;
 }
 
+
+/*
+ * Optional SATS application event timestamp.
+ *
+ * Normal real-time requests should send this value. Recovery requests MUST send
+ * the historical SATS apply timestamp so BATS does not stamp repaired records
+ * with the recovery-run date.
+ *
+ * Format: YYYY-MM-DD HH:MM:SS
+ */
+function satsOptionalDateTime(array $data, string $key): ?string
+{
+    $value = trim((string)($data[$key] ?? ''));
+
+    if ($value === '') {
+        return null;
+    }
+
+    $dt = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $value);
+
+    if ($dt === false || $dt->format('Y-m-d H:i:s') !== $value) {
+        satsJsonResponse(422, [
+            'success' => false,
+            'error' => "Invalid datetime field: {$key}. Expected YYYY-MM-DD HH:MM:SS"
+        ]);
+    }
+
+    return $value;
+}
+
 function satsNormalizeEmployment(string $employmentType): array
 {
     $normalized = strtolower(trim($employmentType));
@@ -186,6 +216,14 @@ $employmentType = satsRequireString($data, 'employment_type', 100);
 $company = satsRequireString($data, 'company', 255);
 $directJobLink = trim((string)($data['direct_job_link'] ?? ''));
 
+/*
+ * Historical event time supplied by SATS.
+ *
+ * This is optional for backward compatibility with older SATS callers.
+ * When absent, the BATS database's current NOW() value is used.
+ */
+$applicationDateTime = satsOptionalDateTime($data, 'application_datetime');
+
 if (!filter_var($submittedByEmail, FILTER_VALIDATE_EMAIL)) {
     satsJsonResponse(422, [
         'success' => false,
@@ -211,6 +249,14 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false
     ]);
+
+    /*
+     * Older real-time callers may not yet send application_datetime.
+     * Use the BATS database clock only for those callers.
+     */
+    if ($applicationDateTime === null) {
+        $applicationDateTime = (string)$conn->query('SELECT NOW()')->fetchColumn();
+    }
 
     $conn->beginTransaction();
 
@@ -416,7 +462,7 @@ try {
                 :req_source,
                 :ttype,
                 :nationality,
-                NOW()
+                :application_datetime
             )
         ");
 
@@ -432,7 +478,8 @@ try {
             ':skillid' => $skillId,
             ':req_source' => $reqSource,
             ':ttype' => $tierType,
-            ':nationality' => $nationality
+            ':nationality' => $nationality,
+            ':application_datetime' => $applicationDateTime
         ]);
 
         $reqId = (int)$conn->lastInsertId();
@@ -537,7 +584,7 @@ try {
                 1,
                 4,
                 NULL,
-                NOW(),
+                :application_datetime,
                 NULL,
                 1,
                 NULL,
@@ -545,8 +592,8 @@ try {
                 10,
                 1,
                 1,
-                NOW(),
-                NOW()
+                :application_datetime,
+                :application_datetime
             )
         ");
 
@@ -554,7 +601,8 @@ try {
             ':uid' => $batsUid,
             ':reqid' => $reqId,
             ':client_id' => $clientId,
-            ':consultant_id' => $consultantId
+            ':consultant_id' => $consultantId,
+            ':application_datetime' => $applicationDateTime
         ]);
 
         $appId = (int)$conn->lastInsertId();
@@ -573,6 +621,7 @@ try {
         'client_id' => $clientId,
         'consultant_id' => $consultantId,
         'skill_id' => $skillId,
+        'application_datetime' => $applicationDateTime,
         'requirement_created' => $requirementCreated,
         'application_created' => $applicationCreated,
         'duplicate_application' => !$applicationCreated

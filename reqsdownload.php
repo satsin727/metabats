@@ -1,17 +1,6 @@
 <?php
 require("config.php");
 
-/*
- * reqsdownload.php - fixed CSV requirement downloader
- *
- * Fixes:
- *  - Unique weekly/monthly/yearly downloads now actually apply uniqueness.
- *  - Avoids SELECT * + LEFT JOIN duplicate-column overwrites (uid/cid becoming NULL).
- *  - Avoids GROUP BY ureq_id with SELECT *, which can fail with ONLY_FULL_GROUP_BY.
- *  - Streams CSV directly; no dependency on tmp/ being present/writable.
- *  - Uses prepared statements for date/skill/IDs.
- *  - Handles requirements with zero applications safely.
- */
 
 if (!isset($_SESSION['id']) || !$_SESSION['id']) {
     header("Location: admin.php");
