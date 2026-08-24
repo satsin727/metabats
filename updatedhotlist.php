@@ -57,6 +57,7 @@ $conn=null;
 						        <th data-field="Id">ID</th>
 						        <th data-field="name"  data-sortable="true">Consultant Name</th>
 						        <th data-field="Skill" data-sortable="true">Skill</th>
+						        <th data-field="Visa" data-sortable="true">Work Authorization</th>
 						        <th data-field="Location" data-sortable="true">Location</th>
 						        <th data-field="Relocation" data-sortable="true">Relocation</th>
 						        <th data-field="Consultant Data" data-sortable="true">Consultant Data</th>
@@ -80,7 +81,8 @@ $sid = $row['skill'];
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
     	<td data-search="<?php echo $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
     	<td data-search="<?php echo $dta2['skillname']; ?>"> <?php echo $dta2['skillname']; ?></td>    	
-    	<td data-search="<?php echo $row['cmlocation']; ?>"> <?php echo $row['cmlocation']; ?></td> 	
+    	<td data-search="<?php echo $row['covisa']; ?>"> <?php echo $row['covisa']; ?></td>    	
+    	<td data-search="<?php echo $row['colocation']; ?>"> <?php echo $row['colocation']; ?></td> 	
     	<td data-search="<?php echo $row['relocation']; ?>"> <?php echo $row['relocation']; ?></td>     
     	<td> <a href="consultantdata.php?id=<?php echo $row['cid']; ?>"><button>View Details</button></a></td>      	
 

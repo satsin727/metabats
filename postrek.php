@@ -256,6 +256,8 @@ require("includes/menu.php");
                                     <select name="ttype" class="form-control-in">
                                         <option value="1">Tier 1</option>
                                         <option value="2">Tier 2</option>
+                                        <option value="3">IP</option>
+                                        <option value="4">End Client</option>
                                     </select>
                                     <label>&nbsp;&nbsp;Nationality:&nbsp;&nbsp;</label>
                                     <select name="nationality" class="form-control-in">
