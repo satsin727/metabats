@@ -118,6 +118,12 @@ $conn=null;
 										<option value="<?php echo $row3['sid']; ?>" <?php if(trim($udata['skill'])===$row3['sid']) { echo "selected"; } ?>><?php echo $row3['skillname']; ?></option>
 									<?php } ?></select></td>
 </div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
+
+<div class="form-group">
+									<td width="25%" align="left" valign="top"><label>DOB (MM/DD/YYYY):&nbsp;&nbsp;&nbsp;</label></td>
+								<td width="90%" align="left" valign="top">	<input name="dob"  value="<?php echo $udata['dob']; ?>" class="form-control-in" placeholder="DOB"></td>
+</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
+
 <div class="form-group">
 									<td width="25%" align="left" valign="top"><label>Consultant Original Email:&nbsp;&nbsp;&nbsp;</label></td>
 								<td width="90%" align="left" valign="top">	<input name="co_email"  value="<?php echo $udata['co_email']; ?>" class="form-control-in" placeholder="Email Address"></td>
@@ -185,6 +191,7 @@ if(isset($_POST['update']))
 		$skill = $_POST['skill'];
 		$status=1;
 		$co_email = $_POST['co_email'];
+		$dob = $_POST['dob'];
 		$colocation = $_POST['colocation'];
 		$co_phonenumber = $_POST['co_phonenumber'];
 		$covisa = $_POST['covisa'];
@@ -195,7 +202,7 @@ if(isset($_POST['update']))
 		$nda = $_POST['nda'];
 		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
 		 
-		 $inquery = "UPDATE `consultants` SET `status` = '$status', `cfname` = '$cfname', `cmname` = '$cmname', `clname` = '$clname', `skill` = '$skill', `co_email` = '$co_email', `colocation` = '$colocation', `co_phonenumber` = '$co_phonenumber', `covisa` = '$covisa', `relocation` = '$relocation', `lastssn` = '$lastssn', `passportnumber` = '$passportnumber', `passportcountry` = '$passportcountry', `nda` = '$nda' WHERE `cid` = $cid";
+		 $inquery = "UPDATE `consultants` SET `status` = '$status', `cfname` = '$cfname', `cmname` = '$cmname', `clname` = '$clname', `skill` = '$skill', `co_email` = '$co_email', `colocation` = '$colocation', `co_phonenumber` = '$co_phonenumber', `covisa` = '$covisa', `relocation` = '$relocation', `lastssn` = '$lastssn', `dob` = '$dob', `passportnumber` = '$passportnumber', `passportcountry` = '$passportcountry', `nda` = '$nda' WHERE `cid` = $cid";
 		
 		$ins= $conn->prepare($inquery);
 		$ins->execute();

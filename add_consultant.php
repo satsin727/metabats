@@ -80,6 +80,11 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 									<?php } ?></select></td>
 </div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
+									<td width="25%" align="left" valign="top"><label>DOB (MM/DD/YYYY):&nbsp;&nbsp;&nbsp;</label></td>
+								<td width="90%" align="left" valign="top">	<input name="dob" class="form-control-in" placeholder="DOB"></td>
+</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
+
+<div class="form-group">
 									<td width="25%" align="left" valign="top"><label>Consultant Original Email:&nbsp;&nbsp;&nbsp;</label></td>
 								<td width="90%" align="left" valign="top">	<input name="co_email" class="form-control-in" placeholder="Email Address"></td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
@@ -232,6 +237,7 @@ if(isset($_POST['save']))
 		$clname = $_POST['clname'];
 		$skill = $_POST['skill'];
 		$co_email = $_POST['co_email'];
+		$dob = $_POST['dob'];
 		$status="1";
 		$cm_email = "0";
 		$cm_password = "0";	
@@ -288,7 +294,7 @@ window.location.href='admin.php?action=listconsultants';
 </script>"; 
 		 }
 else {
-		 $inquery = "INSERT INTO `consultants` (`cid`, `status`, `cfname`, `cmname`, `clname`, `skill`, `co_email`, `cm_email`, `cm_password`, `cp_email`, `cp_password`, `colocation`, `cmlocation`, `co_phonenumber`, `cm_phonenumber`, `covisa`, `cmvisa`, `relocation`, `resume`, `visacopy`, `dlcopy`, `stateid`, `lastssn`, `passportcopy`, `passportnumber`, `passportcountry`, `bachelordegree`, `buniversity`, `byear`, `masterdegree`, `muniversity`, `myear`, `dateadded`, `nda`) VALUES (NULL, '$status', '$cfname', '$cmname', '$clname', '$skill', '$co_email', '$cm_email', '$cm_password', '$cp_email', '$cp_password', '$colocation', '$cmlocation', '$co_phonenumber', '$cm_phonenumber', '$covisa', '$cmvisa', '$relocation', '$resume', '$visacopy', '$dlcopy', '$stateid', '$lastssn', '$passportcopy', '$passportnumber', '$passportcountry', '$bachelordegree', '$buniversity', '$byear', '$masterdegree', '$muniversity', '$myear', '$dateadded', '$nda');";
+		 $inquery = "INSERT INTO `consultants` (`cid`, `status`, `cfname`, `cmname`, `clname`, `skill`, `co_email`, `cm_email`, `cm_password`, `cp_email`, `cp_password`, `colocation`, `cmlocation`, `co_phonenumber`, `cm_phonenumber`, `covisa`, `cmvisa`, `relocation`, `resume`, `visacopy`, `dlcopy`, `stateid`, `lastssn`, `passportcopy`,`dob`, `passportnumber`, `passportcountry`, `bachelordegree`, `buniversity`, `byear`, `masterdegree`, `muniversity`, `myear`, `dateadded`, `nda`) VALUES (NULL, '$status', '$cfname', '$cmname', '$clname', '$skill', '$co_email', '$cm_email', '$cm_password', '$cp_email', '$cp_password', '$colocation', '$cmlocation', '$co_phonenumber', '$cm_phonenumber', '$covisa', '$cmvisa', '$relocation', '$resume', '$visacopy', '$dlcopy', '$stateid', '$lastssn', '$dob', '$passportcopy', '$passportnumber', '$passportcountry', '$bachelordegree', '$buniversity', '$byear', '$masterdegree', '$muniversity', '$myear', '$dateadded', '$nda');";
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		echo "<script>
