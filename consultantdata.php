@@ -72,7 +72,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                         <table>
                             <td width="30%">
 								<label>Consultant Name:&nbsp;<?php echo $cdata['cfname']." ".$cdata['cmname']." ".$cdata['clname'];?> </label><br>
-								<label>Location:&nbsp;<?php echo $cdata['cmlocation'];?> </label><br>
+								<label>Location:&nbsp;<?php echo $cdata['colocation'];?> </label><br>
 								<label>Email:&nbsp;<?php echo $cdata['cm_email'];?> </label><br>				
 								<label>Phone:&nbsp;<?php echo $cdata['cm_phonenumber'];?> </label><br>
 							    <label>DOB:&nbsp;<?php echo $cdata['dob'];?> </label><br> 
@@ -82,7 +82,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 								{ ?>
 								<label>Last 4 SSN:&nbsp;<?php echo $cdata['lastssn'];?> </label><br>
 								<?php } ?>
-								<label>US Work Authorization:&nbsp;<?php echo $cdata['cmvisa'];?> </label><br>				
+								<label>US Work Authorization:&nbsp;<?php echo $cdata['covisa'];?> </label><br>				
 								<label>Relocation:&nbsp;<?php echo $cdata['relocation'];?> </label><br>
 								<?php
 														
