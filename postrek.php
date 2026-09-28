@@ -216,12 +216,36 @@ require("includes/menu.php");
                             <tr><td><label>&nbsp;</label></td></tr>
 							
 							 <tr>
-                                <td width="15%" align="left" valign="top"><label>Job Title:</label></td>
-                                <td width="85%" align="left" valign="top">
+                                <td><label>Job Title:</label></td>
+                                <td>
                                     <input name="job_title" class="form-control-in" placeholder="Location">
+                                </td>
+								<td><label>Requirement Source:</label></td>
+                                <td>
+                                    <select name="req_source" class="form-control-in">
+                                        <option value="1">Inbox</option>
+                                        <option value="2">Posting</option>
+                                        <option value="3">Cold Calls</option>
+                                        <option value="4">AMC</option>
+                                        <option value="5">Prohires</option>
+                                        <option value="6">Google Groups</option>
+                                        <option value="7">LinkedIn</option>
+                                        <option value="8">Job Portal - Dice</option>
+                                        <option value="9">Job Portal - Techfetch</option>
+                                        <option value="10">Job Portal - SimplyHired</option>
+                                        <option value="11">Job Portal - Careerbuilder</option>
+                                        <option value="12">Job Portal - Ziprecruiter</option>
+                                        <option value="13">Job Portal - Monster</option>
+                                        <option value="14">Job Portal - other</option>                                       
+                                        <option value="15">Company Websites</option>
+                                        <option value="16">I-Labor</option>
+                                         <option value="18">SATS</option>
+                                        <option value="17">Other</option>
+                                    </select>
                                 </td>
                             </tr>
 
+                            <tr><td><label>&nbsp;</label></td></tr>
                             <tr>
                                 <td width="15%" align="left" valign="top"><label>Location:</label></td>
                                 <td width="85%" align="left" valign="top">
@@ -274,34 +298,6 @@ require("includes/menu.php");
                                         <option value="1">American</option>
                                         <option value="2">Indian</option>
                                     </select>
-                                </td>
-                            </tr>
-                            <tr><td><label>&nbsp;</label></td></tr>
-
-                            <tr>
-                                <td width="15%" align="left" valign="top"><label>Requirement Source:</label></td>
-                                <td width="85%" align="left" valign="top">
-                                    <select name="req_source" class="form-control-in">
-                                        <option value="1">Inbox</option>
-                                        <option value="2">Posting</option>
-                                        <option value="3">Cold Calls</option>
-                                        <option value="4">AMC</option>
-                                        <option value="5">Prohires</option>
-                                        <option value="6">Google Groups</option>
-                                        <option value="7">LinkedIn</option>
-                                        <option value="8">Job Portal - Dice</option>
-                                        <option value="9">Job Portal - Techfetch</option>
-                                        <option value="10">Job Portal - SimplyHired</option>
-                                        <option value="11">Job Portal - Careerbuilder</option>
-                                        <option value="12">Job Portal - Ziprecruiter</option>
-                                        <option value="13">Job Portal - Monster</option>
-                                        <option value="14">Job Portal - other</option>                                       
-                                        <option value="15">Company Websites</option>
-                                        <option value="16">I-Labor</option>
-                                         <option value="18">SATS</option>
-                                        <option value="17">Other</option>
-                                    </select>
-
                                 </td>
                             </tr>
                             <tr><td><label>&nbsp;</label></td></tr>
