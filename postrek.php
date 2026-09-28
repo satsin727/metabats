@@ -47,6 +47,7 @@ if (isset($_POST['save'])) {
         empty($_POST['jobtype']) || 
         empty($_POST['rlocation']) || 
         empty($_POST['rduration']) || 
+        empty($_POST['job_title']) || 
         empty($_POST['rdesc']) || 
         empty($_POST['skillid']) || 
         empty($_POST['cemail']) || 
@@ -55,6 +56,7 @@ if (isset($_POST['save'])) {
         echo "<script>alert('All required fields must be filled correctly. Please check email and other details.');</script>";
     } else {
         $jobtype     = (int)$_POST['jobtype'];
+		$job_title   = trim($_POST['job_title']);
         $rlocation   = trim($_POST['rlocation']);
         $rduration   = trim($_POST['rduration']);
         $rrate       = !empty($_POST['rrate']) ? (int)$_POST['rrate'] : null;
@@ -119,13 +121,14 @@ if (isset($_POST['save'])) {
 
         // Insert Requirement record
         $que = $conn->prepare("INSERT INTO `req` 
-            (`uid`, `cid`, `emp_type`, `jobtype`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `req_source`, `ttype`, `nationality`, `datetime`) 
-            VALUES (:uid, :cid, :emp_type, :jobtype, :rlocation, :rduration, :rrate, :rend_client, :skillid, :req_source, :ttype, :nationality, :datetime)");
+            (`uid`, `cid`, `emp_type`, `jobtype`, `job_title`, `rlocation`, `rduration`, `rrate`, `rend_client`, `skillid`, `req_source`, `ttype`, `nationality`, `datetime`) 
+            VALUES (:uid, :cid, :emp_type, :jobtype, :jobtitle, :rlocation, :rduration, :rrate, :rend_client, :skillid, :req_source, :ttype, :nationality, :datetime)");
         
         $que->bindValue(":uid", $uid, PDO::PARAM_INT);
         $que->bindValue(":cid", $cid, PDO::PARAM_INT);
         $que->bindValue(":emp_type", $emp_type, PDO::PARAM_STR);
         $que->bindValue(":jobtype", $jobtype, PDO::PARAM_INT);
+        $que->bindValue(":jobtitle", $job_title, PDO::PARAM_STR);
         $que->bindValue(":rlocation", $rlocation, PDO::PARAM_STR);
         $que->bindValue(":rduration", $rduration, PDO::PARAM_STR);
         $que->bindValue(":rrate", $rrate, PDO::PARAM_INT);
@@ -211,6 +214,13 @@ require("includes/menu.php");
                                 </td>
                             </tr>
                             <tr><td><label>&nbsp;</label></td></tr>
+							
+							 <tr>
+                                <td width="15%" align="left" valign="top"><label>Job Title:</label></td>
+                                <td width="85%" align="left" valign="top">
+                                    <input name="job_title" class="form-control-in" placeholder="Location">
+                                </td>
+                            </tr>
 
                             <tr>
                                 <td width="15%" align="left" valign="top"><label>Location:</label></td>
