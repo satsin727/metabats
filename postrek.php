@@ -219,7 +219,7 @@ require("includes/menu.php");
                                 <td><label>Job Title:</label></td>
                                 <td>
                                     <input name="job_title" class="form-control-in" placeholder="Location">
-                                </td>
+                                
 								<label>&nbsp;&nbsp;Requirement Source:&nbsp;&nbsp;</label>
                                 
                                     <select name="req_source" class="form-control-in">
@@ -242,7 +242,7 @@ require("includes/menu.php");
                                          <option value="18">SATS</option>
                                         <option value="17">Other</option>
                                     </select>
-                               
+                               </td>
                             </tr>
 
                             <tr><td><label>&nbsp;</label></td></tr>
