@@ -189,11 +189,11 @@ require("includes/menu.php");
                                             </option>
                                         <?php } ?>
                                     </select>
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
+                                    &nbsp;&nbsp;
                                     <?php if ($dta['level'] == 1) { ?>
                                         <a href="admin.php?action=addskill">Add Skill</a>
                                     <?php } ?>
-                                    <label>SM:&nbsp;&nbsp;&nbsp;&nbsp;</label>
+                                    <label>&nbsp;&nbsp;SM:&nbsp;&nbsp;</label>
                                     <select name="uid" class="form-control-in">
                                         <?php
                                         if ($dta['level'] == 1) {
@@ -218,7 +218,7 @@ require("includes/menu.php");
 							 <tr>
                                 <td><label>Job Title:</label></td>
                                 <td>
-                                    <input name="job_title" class="form-control-in" placeholder="Location">
+                                    <input name="job_title" class="form-control-in" placeholder="Job Title">
                                 
 								<label>&nbsp;&nbsp;Requirement Source:&nbsp;&nbsp;</label>
                                 
