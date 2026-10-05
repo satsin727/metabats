@@ -80,10 +80,52 @@ $search = isset($_GET['search'])
 
 $where = "
     WHERE c.status = 1
+    AND c.lid = :def_lid
     AND LOWER(c.remail) NOT LIKE 'abc@%'
+
+    AND NOT EXISTS (
+        SELECT 1
+        FROM clients c2
+        WHERE c2.lid = c.lid
+          AND c2.status = 1
+          AND c2.remail = c.remail
+          AND LOWER(c2.remail) NOT LIKE 'abc@%'
+
+          AND (
+              /* Prefer a record having a phone number */
+              (
+                  c2.rphone IS NOT NULL
+                  AND TRIM(c2.rphone) <> ''
+                  AND (
+                      c.rphone IS NULL
+                      OR TRIM(c.rphone) = ''
+                  )
+              )
+
+              OR
+
+              /* If phone priority is equal, prefer newer record */
+              (
+                  (
+                      (c2.rphone IS NOT NULL AND TRIM(c2.rphone) <> '')
+                      =
+                      (c.rphone IS NOT NULL AND TRIM(c.rphone) <> '')
+                  )
+                  AND (
+                      c2.datetime > c.datetime
+                      OR (
+                          c2.datetime = c.datetime
+                          AND c2.cid > c.cid
+                      )
+                  )
+              )
+          )
+    )
 ";
 
-$params = array();
+$params = array(
+    ':def_lid' => $def_lid
+);
 
 if ($search !== '') {
     $where .= "
@@ -110,6 +152,7 @@ if (
     )
 ) {
     $uid = (int)$dta['uid'];
+    $def_lid = (int)$dta['def_lid'];
 
     /*
      * h:
@@ -274,7 +317,7 @@ if (
 
     foreach ($params as $key => $value) {
 
-        if ($key === ':uid') {
+        if ($key === ':uid' || $key === ':def_lid') {
 
             $stmt->bindValue(
                 $key,
