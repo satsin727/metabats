@@ -85,7 +85,7 @@ $data = $ins->fetchAll();
                     $filename = "tmp/"."app_list_".$sessid."-".date("m-d-Y", strtotime($date) ).".csv";
                     $fp = fopen("$filename", 'w');
                    // $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,JD,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
-                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Location,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
+                    $txt = "S.no,Date,Req_ID,SM,Consultant Name,Skill,Job Title,Location,BP Email,BP Phone,Client,RC Status,Sub Status,Status,Comment\n";
                     fwrite($fp, $txt);
                     $i = 0;
                     foreach($data as $row) {
@@ -112,6 +112,7 @@ $data = $ins->fetchAll();
                         $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
                         
                                 $reqid = $row['reqid'];
+                        $job_title = $conn->query("select job_title from req where reqid = $reqid")->fetchColumn();
                         $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
                                 $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
                                 $udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
@@ -259,7 +260,7 @@ $data = $ins->fetchAll();
                             $subdone = "No";
                         }
                     
-                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
+                        $lineData = array($i,$date,$ureq_id,$sm,$consultantname,$skill,$job_title,$location,$bpemail,$bpphone,$client,$rcdone,$subdone,$status,$comment);
                         fputcsv($fp, $lineData,",");
                     }// for
                     fclose($fp);
