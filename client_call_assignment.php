@@ -73,7 +73,9 @@ require("includes/menu.php");
 | Search
 |--------------------------------------------------------------------------
 */
-
+    $uid = (int)$dta['uid'];
+    $def_lid = (int)$dta['def_lid'];
+    
 $search = isset($_GET['search'])
     ? trim($_GET['search'])
     : '';
@@ -151,8 +153,7 @@ if (
         true
     )
 ) {
-    $uid = (int)$dta['uid'];
-    $def_lid = (int)$dta['def_lid'];
+
 
     /*
      * h:
