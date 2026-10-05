@@ -163,43 +163,7 @@ $def_lid = (int)$dta['def_lid'];
 
 $where = "
     WHERE c.status = 1
-    AND c.lid = :def_lid
     AND LOWER(c.remail) NOT LIKE 'abc@%'
-
-    AND NOT EXISTS (
-        SELECT 1
-        FROM clients c2
-        WHERE c2.lid = c.lid
-          AND c2.status = 1
-          AND c2.remail = c.remail
-          AND LOWER(c2.remail) NOT LIKE 'abc@%'
-          AND (
-              /* Prefer the duplicate row that has a phone number */
-              (
-                  c2.rphone IS NOT NULL
-                  AND TRIM(c2.rphone) <> ''
-                  AND (c.rphone IS NULL OR TRIM(c.rphone) = '')
-              )
-              OR
-              /* Same phone priority: highest cid wins */
-              (
-                  (
-                      (
-                          c2.rphone IS NOT NULL
-                          AND TRIM(c2.rphone) <> ''
-                          AND c.rphone IS NOT NULL
-                          AND TRIM(c.rphone) <> ''
-                      )
-                      OR
-                      (
-                          (c2.rphone IS NULL OR TRIM(c2.rphone) = '')
-                          AND (c.rphone IS NULL OR TRIM(c.rphone) = '')
-                      )
-                  )
-                  AND c2.cid > c.cid
-              )
-          )
-    )
 ";
 
 $params = array(
@@ -335,6 +299,35 @@ if (
 
 
         FROM clients c
+
+        INNER JOIN (
+            SELECT
+                CAST(
+                    SUBSTRING_INDEX(
+                        GROUP_CONCAT(
+                            cid
+                            ORDER BY
+                                CASE
+                                    WHEN rphone IS NOT NULL
+                                     AND TRIM(rphone) <> ''
+                                    THEN 1
+                                    ELSE 0
+                                END DESC,
+                                cid DESC
+                            SEPARATOR ','
+                        ),
+                        ',',
+                        1
+                    ) AS UNSIGNED
+                ) AS winner_cid
+            FROM clients
+            WHERE status = 1
+              AND lid = :def_lid
+              AND LOWER(remail) NOT LIKE 'abc@%'
+            GROUP BY remail
+        ) unique_client
+            ON unique_client.winner_cid = c.cid
+
 
 
 
