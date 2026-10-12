@@ -54,6 +54,11 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
                     <svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg> Post Req
                 </a>
             </li>
+             <li class="<?php echo ($selected == "postreq_cp") ? "active" : "parent"; ?>">
+                <a href="admin.php?action=postreq_cp">
+                    <svg class="glyph stroked dashboard-dial"><use xlink:href="#stroked-dashboard-dial"></use></svg> Post Req CopyPaste
+                </a>
+            </li>
             
             <li class="<?php echo ($selected == "clientassignment") ? "active" : "parent"; ?>">
                 <a href="admin.php?action=clientassignment"><svg class="glyph stroked calendar"><use xlink:href="#stroked-calendar"></use></svg> Client Call Schedule</a>
