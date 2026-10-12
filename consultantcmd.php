@@ -28,9 +28,10 @@ $fields = [
  'co_phonenumber'=>'Original Phone Number', 'covisa'=>'Original Visa Status',
  'relocation'=>'Relocation', 'lastssn'=>'Last 5 SSN', 'passportnumber'=>'Passport Number',
  'passportcountry'=>'Passport Country', 'nda'=>'NDA Signed',
+ 'end_date'=>'End Date', 'linkedin'=>'LinkedIn URL',
 
 ];
-$dateFields = ['dob'];
+$dateFields = ['dob', 'end_date'];
 $requiredDates = ['dob'];
 $dateValue = static function ($value) {
     if ($value === null || $value === '' || $value === '0000-00-00') return '';
@@ -55,11 +56,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (in_array($name, $requiredDates, true)) $errors[] = "$label is required.";
                 } elseif (!$dateValue($value)) { $errors[] = "$label must be a valid YYYY-MM-DD date."; }
                 if ($name === 'dob' && $dateValue($value) && $value > date('Y-m-d')) $errors[] = 'DOB cannot be in the future.';
+                if ($name === 'end_date' && $value === '') $value = '0000-00-00'; // Legacy NOT NULL DATE default in current database.
+                if ($name === 'end_date' && $value !== '0000-00-00' && $dateValue($value) && $dateValue((string)($_POST['dob'] ?? '')) && $value < $_POST['dob']) $errors[] = 'End Date cannot be earlier than DOB.';
             }
             if ($name === 'lastssn') {
                 if ($value !== '' && !preg_match('/^[0-9]{1,5}$/', $value)) $errors[] = 'Last 5 SSN must contain at most five digits.';
                 $value = $value === '' ? '0' : $value; // NOT NULL INT in existing schema.
             }
+            if ($name === 'linkedin' && $value === '') $value = '0';
+            if ($name === 'linkedin' && $value !== '0' && !filter_var($value, FILTER_VALIDATE_URL)) $errors[] = 'LinkedIn must be a valid URL including https://.';
+            if ($name === 'linkedin' && strlen($value) > 80) $errors[] = 'LinkedIn URL must be 80 characters or fewer (database limit).';
             if ($name === 'co_email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) $errors[] = 'Original email is invalid.';
             if (in_array($name, ['cfname', 'clname', 'colocation', 'co_phonenumber', 'covisa', 'relocation', 'nda'], true) && $value === '') $errors[] = "$label is required.";
             $updated[$name] = $value;
@@ -103,13 +109,15 @@ require('includes/menu.php');
    ['skill','Role (Skill)'], ['dob','DOB'], ['co_email','Consultant Original Email'],
    ['colocation','Consultant Original Location'], ['co_phonenumber','Consultant Original Phone number'],
    ['covisa','Consultant Original visa'], ['relocation','Relocation'], ['lastssn','Last 5 SSN'],
-   ['passportnumber','Passport Number'], ['passportcountry','Passport Country'], ['nda','NDA (Agreement) Signed']
+   ['passportnumber','Passport Number'], ['passportcountry','Passport Country'], ['nda','NDA (Agreement) Signed'],
+   ['end_date','End Date'], ['linkedin','LinkedIn URL']
  ];
  foreach ($layout as [$name,$label]):
  $value = $record[$name] ?? '';
- if ($name === 'dob') $value = $dateValue($value);
+ if (in_array($name, $dateFields, true)) $value = $dateValue($value);
+ if ($name === 'linkedin' && $value === '0') $value = '';
  ?>
- <tr><td width="25%" align="left" valign="top"><label for="<?= $esc($name) ?>"><?= $esc($label) ?><?= $name === 'dob' ? ' (MM/DD/YYYY)' : '' ?>:&nbsp;&nbsp;&nbsp;</label></td>
+ <tr><td width="25%" align="left" valign="top"><label for="<?= $esc($name) ?>"><?= $esc($label) ?><?= in_array($name, $dateFields, true) ? ' (calendar)' : '' ?>:&nbsp;&nbsp;&nbsp;</label></td>
  <td width="90%" align="left" valign="top">
  <?php if ($name === 'skill'): ?>
  <select id="skill" name="skill" class="form-control-in" required>
@@ -120,7 +128,7 @@ require('includes/menu.php');
  <?php foreach (['Yes','No','Not Required'] as $choice): ?><option value="<?= $esc($choice) ?>" <?= $value === $choice ? 'selected' : '' ?>><?= $esc($choice) ?></option><?php endforeach; ?>
  </select>
  <?php else: ?>
- <input id="<?= $esc($name) ?>" name="<?= $esc($name) ?>" class="form-control-in" type="<?= $name === 'dob' ? 'date' : ($name === 'co_email' ? 'email' : 'text') ?>" value="<?= $esc($value) ?>" <?= $name === 'dob' ? 'required max="'.date('Y-m-d').'"' : '' ?> <?= $name === 'lastssn' ? 'inputmode="numeric" maxlength="5"' : '' ?>>
+ <input id="<?= $esc($name) ?>" name="<?= $esc($name) ?>" class="form-control-in" type="<?= in_array($name, $dateFields, true) ? 'date' : ($name === 'co_email' ? 'email' : ($name === 'linkedin' ? 'url' : 'text')) ?>" value="<?= $esc($value) ?>" <?= $name === 'dob' ? 'required max="'.date('Y-m-d').'"' : '' ?> <?= $name === 'lastssn' ? 'inputmode="numeric" maxlength="5"' : '' ?> <?= $name === 'linkedin' ? 'maxlength="80" placeholder="https://www.linkedin.com/in/..."' : '' ?>>
  <?php endif; ?>
  </td></tr><tr><td colspan="2">&nbsp;</td></tr>
  <?php endforeach; ?>
