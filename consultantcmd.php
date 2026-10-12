@@ -1,248 +1,122 @@
 <?php
-require( "config.php" );
-if($_SESSION['id'])
-{
-$sessid = $_SESSION['id'];
+require('config.php');
+if (empty($_SESSION['id'])) { header('Location: admin.php'); exit; }
+$pdo = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
+$userStmt = $pdo->prepare('SELECT * FROM users WHERE uid = ?');
+$userStmt->execute([$_SESSION['id']]);
+$user = $userStmt->fetch();
+if (!$user || !isset($_SESSION['username']) || $user['sess'] !== $_SESSION['username']) { header('Location: login.php'); exit; }
+if (!in_array((int)$user['level'], [1, 2], true)) { http_response_code(403); exit('You need admin access to view this page.'); }
+$action = $_GET['do'] ?? '';
+$cid = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+if (!$cid || !in_array($action, ['edit', 'delete'], true)) { header('Location: admin.php?action=listconsultants'); exit; }
+$esc = static function ($value) { return htmlspecialchars((string)($value ?? ''), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); };
+$errors = [];
+$notice = '';
+if (empty($_SESSION['consultant_csrf'])) { $_SESSION['consultant_csrf'] = bin2hex(random_bytes(32)); }
+$csrf = $_SESSION['consultant_csrf'];
+$recordStmt = $pdo->prepare('SELECT * FROM consultants WHERE cid = ?');
+$recordStmt->execute([$cid]);
+$record = $recordStmt->fetch();
+if (!$record) { http_response_code(404); exit('Consultant not found.'); }
+
+// These fields belong to the basic consultant form. Other columns are handled in separate marketing,
+// education and document screens; never overwrite them implicitly.
+$fields = [
+ 'cfname'=>'First Name', 'cmname'=>'Middle Name', 'clname'=>'Last Name',
+ 'dob'=>'Date of Birth', 'co_email'=>'Original Email', 'colocation'=>'Original Location',
+ 'co_phonenumber'=>'Original Phone Number', 'covisa'=>'Original Visa Status',
+ 'relocation'=>'Relocation', 'lastssn'=>'Last 5 SSN', 'passportnumber'=>'Passport Number',
+ 'passportcountry'=>'Passport Country', 'nda'=>'NDA Signed',
+ 'dateadded'=>'Date Added', 'end_date'=>'End Date', 'linkedin'=>'LinkedIn URL'
+];
+$dateFields = ['dob', 'dateadded', 'end_date'];
+$requiredDates = ['dob', 'dateadded']; // Both are NOT NULL DATE columns in the supplied schema.
+$dateValue = static function ($value) {
+    if ($value === null || $value === '' || $value === '0000-00-00') return '';
+    $dt = DateTimeImmutable::createFromFormat('!Y-m-d', (string)$value);
+    return ($dt && $dt->format('Y-m-d') === $value) ? $value : '';
+};
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals($csrf, (string)($_POST['csrf'] ?? ''))) { http_response_code(400); exit('Invalid form token. Please reload.'); }
+    if ($action === 'delete') {
+        if ((string)($_POST['confirm_delete'] ?? '') === 'yes') {
+            $stmt = $pdo->prepare('UPDATE consultants SET status = 0 WHERE cid = ?');
+            $stmt->execute([$cid]);
+            header('Location: admin.php?action=listconsultants'); exit;
+        }
+        $errors[] = 'Deletion was not confirmed.';
+    } elseif (isset($_POST['update'])) {
+        $updated = [];
+        foreach ($fields as $name => $label) {
+            $value = trim((string)($_POST[$name] ?? ''));
+            if (in_array($name, $dateFields, true)) {
+                if ($value === '') {
+                    if (in_array($name, $requiredDates, true)) $errors[] = "$label is required.";
+                    // Preserve the legacy zero date for an empty end_date, since this schema has NOT NULL.
+                    $value = $name === 'end_date' ? '0000-00-00' : $value;
+                } elseif (!$dateValue($value)) { $errors[] = "$label must be a valid YYYY-MM-DD date."; }
+                if ($name === 'dob' && $dateValue($value) && $value > date('Y-m-d')) $errors[] = 'DOB cannot be in the future.';
+            }
+            if ($name === 'lastssn') {
+                if ($value !== '' && !preg_match('/^[0-9]{1,5}$/', $value)) $errors[] = 'Last 5 SSN must contain at most five digits.';
+                $value = $value === '' ? '0' : $value; // NOT NULL INT in existing schema.
+            }
+            if ($name === 'co_email' && $value !== '' && !filter_var($value, FILTER_VALIDATE_EMAIL)) $errors[] = 'Original email is invalid.';
+            if (in_array($name, ['cfname', 'clname', 'colocation', 'co_phonenumber', 'covisa', 'relocation', 'nda'], true) && $value === '') $errors[] = "$label is required.";
+            $updated[$name] = $value;
+        }
+        $skill = filter_var($_POST['skill'] ?? null, FILTER_VALIDATE_INT);
+        if (!$skill) $errors[] = 'Please select a skill.';
+        else {
+            $check = $pdo->prepare('SELECT COUNT(*) FROM skill WHERE sid = ?');
+            $check->execute([$skill]);
+            if (!$check->fetchColumn()) $errors[] = 'Selected skill is not valid.';
+        }
+        if (!$errors) {
+            $updated['skill'] = $skill;
+            $set = implode(', ', array_map(static fn($name) => "`$name` = :$name", array_keys($updated)));
+            $stmt = $pdo->prepare("UPDATE consultants SET $set WHERE cid = :cid");
+            $updated['cid'] = $cid;
+            $stmt->execute($updated);
+            header('Location: admin.php?action=listconsultants'); exit;
+        }
+        $record = array_merge($record, $updated);
+    }
 }
-else
-{
-	header( "Location: admin.php" ); 
-
-}
-
-$conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from users where `uid` = :u";
-$ins= $conn->prepare($query);
-$ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
-$ins->execute();
-$dta = $ins->fetch();
-$conn=null;
-
-if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
-{
-
-require("includes/header.php");
-$selected = "dashboard";
-require("includes/menu.php");
-
-if($dta['level'] == 1 || $dta['level'] == 2)
-{
-
-
-if(isset($_GET['do']))
-{
-
-	$do=$_GET['do'];	
-	$cid=$_GET['id'];
-	?>
-	<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">			
-		<div class="row">
-			<ol class="breadcrumb">
-				<li><a href="#"><svg class="glyph stroked home"><use xlink:href="#stroked-home"></use></svg></a></li>
-				<li class="active"><?php echo $do; ?> Consultant Basic Details</li>
-			</ol>
-		</div>
-		<?php
-	if($do=='delete')
-	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `consultants` SET `status` = '0' WHERE `cid` = $cid";
-									$ins= $conn->prepare($inquery);
-									$ins->execute();
-									$conn=null;
-									echo "<script>
-											alert(' Consultant details deleted.');
-											window.close();
-											</script>"; 	
-	}
-	
-	if($do=='edit')
-	{ 
-
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from consultants where `cid` = :cid";
-$ins= $conn->prepare($query);
-$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
-$ins->execute();
-$udata = $ins->fetch();
-$conn=null;
-
-
-		?>
-		
-		<div class="row">
-			<div class="col-lg-12">&nbsp;
-			</div>
-		</div><!--/.row-->
-				
-		
-		<div class="row">
-			<div class="col-lg-12">
-				<div class="panel panel-default">
-					<div class="panel-body">
-
-					<form action="#" method="post">
-  <table width="100%" border="0" cellspacing="0" cellpadding="0">
-          <tr>
-<div class="form-group">
-								<td width="25%" align="left" valign="top">	<label>First Name:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top"><input name="cfname" value="<?php echo $udata['cfname'];  ?>" class="form-control-in" placeholder="First Name"></td>
-</div> </tr> <tr>
-<div class="form-group">
-								<td width="25%" align="left" valign="top">	<label>Middle Name:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top"><input name="cmname"  value="<?php echo $udata['cmname'];  ?>" class="form-control-in" placeholder="Middle Name"></td>
-</div> </tr>  <tr>
-<div class="form-group">
-								<td width="25%" align="left" valign="top">	<label>Last Name:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top"><input name="clname"  value="<?php echo $udata['clname'];  ?>" class="form-control-in" placeholder="Last Name"></td>
-</div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-								<td width="15%" align="left" valign="top"><label>Role(Skill):</label>
-								<?php
-								$sid = $udata['skill'];
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-								$q2 = "select * from skill where `sid` = $sid";
-								$ins2= $conn2->prepare($q2);
-								$ins2->execute(); 
-								$dta2 = $ins2->fetch(); 
-								$conn2=null; ?>
-								<td width="90%" align="left" valign="top">	<select name="skill" class="form-control-in">
-								 <?php
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-								$q3 = "select * from skill";
-								$ins3= $conn2->prepare($q3);
-								$ins3->execute(); 
-								$dta3 = $ins3->fetchAll(); 
-								foreach( $dta3 as $row3) { ?>
-										<option value="<?php echo $row3['sid']; ?>" <?php if(trim($udata['skill'])==$row3['sid']) { echo "selected"; } ?>><?php echo $row3['skillname']; ?></option>
-									<?php } ?></select></td>
-</div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>DOB (MM/DD/YYYY):&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="dob"  value="<?php echo $udata['dob']; ?>" class="form-control-in" placeholder="DOB"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Consultant Original Email:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="co_email"  value="<?php echo $udata['co_email']; ?>" class="form-control-in" placeholder="Email Address"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Consultant Original Location:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="colocation"  value="<?php echo $udata['colocation']; ?>" class="form-control-in" placeholder="Original location"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Consultant Original Phone number:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="co_phonenumber" value="<?php echo $udata['co_phonenumber']; ?>"  class="form-control-in" placeholder="Original Phone number"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Consultant Original visa:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="covisa"  value="<?php echo $udata['covisa']; ?>" class="form-control-in" placeholder="Original Visa Status"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Relocation:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="relocation"  value="<?php echo $udata['relocation']; ?>" class="form-control-in" placeholder="Relocation Status"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Last 5 SSN:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="lastssn"  value="<?php echo $udata['lastssn']; ?>" class="form-control-in" placeholder="Last 5 SSN"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Passport Number:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="passportnumber"  value="<?php echo $udata['passportnumber']; ?>" class="form-control-in" placeholder="Passport Number"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-<div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Passport Country:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="passportcountry"  value="<?php echo $udata['passportcountry']; ?>" class="form-control-in" placeholder="Passport Country"></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-<div class="form-group">
-									<td width="15%" align="left" valign="top"><label>NDA (Agreement) Signed</label>
-								<td width="90%" align="left" valign="top">	<select name="nda" " class="form-control-in">
-										<option value="Yes" <?php if(trim($udata['nda'])==="Yes") { echo "selected"; } ?>>Yes</option>
-           								<option value="No" <?php if(trim($udata['nda'])==="No") { echo "selected"; } ?>>No</option>
-            							<option value="Not Required" <?php if(trim($udata['nda'])==="Not Required") { echo "selected"; } ?>>Not Required</option>
-									</select></td>
-</div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-</tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
-
-   							<td  align="left" ><button type="submit" name="update" class="btn btn-primary">Update</button> </td>					
-                 </tr>
-</form>
-						
-				</div></div>
-			</div><!-- /.col-->
-		</div><!-- /.row -->
-		
-	</div>
-
-
-<?php	
-if(isset($_POST['update']))
-
-{
-		$cfname = $_POST['cfname'];
-		$cmname = $_POST['cmname'];
-		$clname = $_POST['clname'];
-		$skill = $_POST['skill'];
-		$status=1;
-		$co_email = $_POST['co_email'];
-		$dob = $_POST['dob'];
-		$colocation = $_POST['colocation'];
-		$co_phonenumber = $_POST['co_phonenumber'];
-		$covisa = $_POST['covisa'];
-		$relocation = $_POST['relocation'];
-		$lastssn = $_POST['lastssn'];
-		$passportnumber = $_POST['passportnumber'];
-		$passportcountry = $_POST['passportcountry'];
-		$nda = $_POST['nda'];
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		 
-		 $inquery = "UPDATE `consultants` SET `status` = '$status', `cfname` = '$cfname', `cmname` = '$cmname', `clname` = '$clname', `skill` = '$skill', `co_email` = '$co_email', `colocation` = '$colocation', `co_phonenumber` = '$co_phonenumber', `covisa` = '$covisa', `relocation` = '$relocation', `lastssn` = '$lastssn', `dob` = '$dob', `passportnumber` = '$passportnumber', `passportcountry` = '$passportcountry', `nda` = '$nda' WHERE `cid` = $cid";
-		
-		$ins= $conn->prepare($inquery);
-		$ins->execute();
-		header( "Location: admin.php?action=listconsultants" );
-
-}
-
-
-} //do edit
-	
-	else
-	{
-		echo "<script>
-alert('Not a valid command.');
-window.location.href='admin.php?action=listconsultants';
-</script>";
-	}
-
-
-} //for $do
-
-} //for admin
-else
-{
-	echo "<script>
-alert('You Need to be Admin to view this page.');
-window.location.href='admin.php';
-</script>"; 
-}
-
+$skills = $pdo->query('SELECT sid, skillname FROM skill ORDER BY skillname')->fetchAll();
+require('includes/header.php');
+$selected = 'dashboard';
+require('includes/menu.php');
 ?>
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
+ <div class="row"><ol class="breadcrumb"><li><a href="admin.php">Dashboard</a></li><li class="active"><?= $esc(ucfirst($action)) ?> Consultant Basic Details</li></ol></div>
+ <div class="row"><div class="col-lg-12"><div class="panel panel-default"><div class="panel-heading">Consultant Basic Details</div><div class="panel-body">
+ <?php foreach ($errors as $error): ?><div class="alert alert-danger"><?= $esc($error) ?></div><?php endforeach; ?>
+ <?php if ($action === 'delete'): ?>
+ <form method="post"><input type="hidden" name="csrf" value="<?= $esc($csrf) ?>"><p>Deactivate consultant <?= $esc(trim($record['cfname'].' '.$record['clname'])) ?>?</p><label><input type="checkbox" name="confirm_delete" value="yes" required> Confirm</label> <button type="submit" class="btn btn-danger">Deactivate</button></form>
+ <?php else: ?>
+ <form method="post" action="consultantcmd.php?do=edit&amp;id=<?= (int)$cid ?>">
+ <input type="hidden" name="csrf" value="<?= $esc($csrf) ?>">
+ <div class="form-group"><label for="skill">Role (Skill)</label><select id="skill" name="skill" class="form-control" required>
+ <?php foreach ($skills as $skill): ?><option value="<?= (int)$skill['sid'] ?>" <?= (int)$record['skill'] === (int)$skill['sid'] ? 'selected' : '' ?>><?= $esc($skill['skillname']) ?></option><?php endforeach; ?>
+ </select></div>
+ <?php foreach ($fields as $name => $label):
+    $isDate = in_array($name, $dateFields, true);
+    $value = $isDate ? $dateValue($record[$name] ?? '') : ($record[$name] ?? '');
+    $required = in_array($name, ['cfname', 'clname', 'colocation', 'co_phonenumber', 'covisa', 'relocation', 'nda', 'dob', 'dateadded'], true);
+ ?>
+ <div class="form-group"><label for="<?= $esc($name) ?>"><?= $esc($label) ?><?= $required ? ' *' : '' ?></label>
+ <?php if ($name === 'nda'): ?>
+ <select id="nda" name="nda" class="form-control" required><?php foreach (['Yes', 'No', 'Not Required'] as $choice): ?><option value="<?= $esc($choice) ?>" <?= $value === $choice ? 'selected' : '' ?>><?= $esc($choice) ?></option><?php endforeach; ?></select>
+ <?php else: ?>
+ <input id="<?= $esc($name) ?>" name="<?= $esc($name) ?>" class="form-control" type="<?= $isDate ? 'date' : ($name === 'co_email' ? 'email' : 'text') ?>" value="<?= $esc($value) ?>" <?= $required ? 'required' : '' ?> <?= $name === 'dob' ? 'max="'.date('Y-m-d').'"' : '' ?> <?= $name === 'lastssn' ? 'inputmode="numeric" maxlength="5"' : '' ?>>
+ <?php endif; ?>
+ </div>
+ <?php endforeach; ?>
+ <button type="submit" name="update" value="1" class="btn btn-primary">Update</button> <a class="btn btn-default" href="admin.php?action=listconsultants">Cancel</a>
+ </form>
+ <?php endif; ?>
+ </div></div></div></div>
 </div>
-
-<?php
-require("includes/footer.php"); 
-}
-else
-{ echo "<script>
-alert('Not Authorised to view this page, Not a valid session. Your IP address has been recorded for review. Please Log-in again to view this page !!!');
-window.location.href='login.php';
-</script>";   }
-
-?>
+<?php require('includes/footer.php'); ?>
