@@ -205,7 +205,7 @@ require('includes/menu.php');
       var subj=firstMatch(t,[/^\s*subject\s*:\s*(?:re\s*:\s*|fw[d]?\s*:\s*)*([^\n]+)/im]);
       if(/\b(?:developer|engineer|architect|analyst|consultant|administrator|specialist|devops|full[ -]?stack)\b/i.test(subj))title=subj;
     }
-    title=singleLine(title).replace(/^(?:urgent|immediate|hot\s+requirement)\s*[-:]\s*/i,'').replace(/^[\-•]\s*/,'').replace(/[.!,;]+$/,'').slice(0,50);
+    title=singleLine(title).replace(/^#{1,6}\s*/, '').replace(/^(?:urgent|immediate|hot\s+requirement)\s*[-:]\s*/i,'').replace(/^[\-•]\s*/,'').replace(/[.!,;]+$/,'').slice(0,50);
     var loc=singleLine(firstMatch(t,[/^\s*(?:job\s*location|work\s*location|location|onsite\s*location|city|worksite)\s*(?:is|:|\-)\s*([^\n]+)/im,/\b(?:located\s+in|based\s+in)\s+([A-Za-z][A-Za-z .,-]{2,55})/i]));
     loc=loc.replace(/[.\s]+$/,'');
     // Contract duration must never be inferred from required experience.
@@ -267,7 +267,7 @@ require('includes/menu.php');
       {label:'Blockchain Developer', test:/\b(?:block\s*chain|blockchain|web3|smart\s*contract|solidity|ethereum\s*developer)\b/i},
       {label:'iOS Developer', test:/\b(?:ios\s*(?:developer|engineer|application)|iphone\s*(?:developer|engineer)|swiftui|swift\s*developer|objective[\s-]*c\s*developer)\b/i},
       {label:'UI/UX', test:/\b(?:ui\s*\/\s*ux|ux\s*\/\s*ui|user\s*experience\s*(?:designer|researcher)|user\s*interface\s*designer|ux\s*designer|ui\s*designer|product\s*designer|figma\s*designer)\b/i},
-      {label:'.Net Developer', test:/\b(?:\.net|dot\s*net|asp\s*\.\s*net|c#|blazor|wpf|vb\s*\.\s*net)\b/i},
+      {label:'.Net Developer', test:/(?:\.\s*net\b|\bdot\s*net\b|\basp\s*\.\s*net\b|\bc\s*#(?:\b|(?=\W|$))|\bblazor\b|\bwpf\b|\bvb\s*\.\s*net\b)/i},
       {label:'Java Developer', test:/\b(?:java\s*(?:developer|engineer|programmer|architect|full\s*stack)|spring\s*boot|spring\s*framework|j2ee|jee\s*developer)\b/i},
       {label:'Business Analyst', test:/\b(?:business\s*analyst|business\s*analysis|project\s*(?:coordinator|analyst|manager)|program\s*manager|business\s*systems?\s*analyst|\bba\b)\b/i}
     ];
@@ -278,7 +278,7 @@ require('includes/menu.php');
     for(var f=0;f<families.length;f++){
       if(families[f].test.test(titleLow)){family=families[f].label;break;}
     }
-    if(!family && (!titleLow || /^(?:urgent|requirement|opening|position|hiring|job|opportunity)/i.test(titleLow))){
+    if(!family){
       for(var f2=0;f2<families.length;f2++){
         if(families[f2].test.test(bodyLow)){family=families[f2].label;break;}
       }
