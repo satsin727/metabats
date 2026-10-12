@@ -100,7 +100,7 @@ require('includes/menu.php');
       @media(max-width:720px){.spr-row td{display:block;width:100%!important}.spr-input{max-width:100%}}
     </style>
     <h4>Paste Job Requirement</h4>
-    <p>Paste the complete job posting or recruiter email. Click <strong>Detect Fields</strong>, review the results and select any missing values before saving.</p>
+    <p>Paste a job posting or an email thread. Fields are detected automatically after pasting; review and correct them before saving.</p>
     <?php if ($errors): ?><div class="alert alert-danger" role="alert"><?php foreach ($errors as $err): ?><div><?= spr_h($err) ?></div><?php endforeach; ?></div><?php endif; ?>
     <textarea id="spr_paste" class="spr-paste" placeholder="Paste the job description, including subject, client email, location, duration and rate if available..."><?= spr_h(spr_post('paste_text')) ?></textarea>
     <div class="spr-actions"><button type="button" id="spr_detect" class="btn btn-primary">Detect Fields</button> <button type="button" id="spr_clear" class="btn btn-default">Clear Pasted Text</button><div id="spr_feedback" class="spr-msg" aria-live="polite"></div></div>
@@ -114,7 +114,7 @@ require('includes/menu.php');
         <tr class="spr-row"><td><label for="spr_jobtype">Job Type:</label></td><td><select name="jobtype" id="spr_jobtype" class="form-control-in"><?php foreach ($jobOptions as $key=>$name): ?><option value="<?= $key ?>" <?= (string)$key === spr_post('jobtype','1') ? 'selected' : '' ?>><?= spr_h($name) ?></option><?php endforeach; ?></select> &nbsp; <label for="spr_email">Email:</label> <span class="search-box" style="display:inline-block;position:relative"><input type="email" class="spr-input" id="spr_email" name="cemail" autocomplete="off" required maxlength="50" value="<?= spr_h(spr_post('cemail')) ?>" placeholder="Recruiter/client email"><span class="result"></span></span></td></tr>
         <tr class="spr-row"><td><label for="spr_rate">Rate ($/hr):</label></td><td><input type="number" min="0" max="2147483647" step="1" class="spr-input spr-small" id="spr_rate" name="rrate" value="<?= spr_h(spr_post('rrate')) ?>"> &nbsp; <label for="spr_client">End Client:</label> <input class="spr-input" id="spr_client" name="rend_client" maxlength="30" value="<?= spr_h(spr_post('rend_client')) ?>"></td></tr>
         <tr class="spr-row"><td><label for="spr_tier">Tier Type:</label></td><td><select name="ttype" id="spr_tier" class="form-control-in"><?php foreach ($tierOptions as $key=>$name): ?><option value="<?= $key ?>" <?= (string)$key === spr_post('ttype','2') ? 'selected' : '' ?>><?= spr_h($name) ?></option><?php endforeach; ?></select> &nbsp; <label for="spr_nationality">Nationality:</label> <select name="nationality" id="spr_nationality" class="form-control-in"><?php foreach ($nationalityOptions as $key=>$name): ?><option value="<?= $key ?>" <?= (string)$key === spr_post('nationality','2') ? 'selected' : '' ?>><?= spr_h($name) ?></option><?php endforeach; ?></select></td></tr>
-        <tr class="spr-row"><td><label for="spr_description">Job Description:</label></td><td><textarea id="spr_description" name="rdesc" class="spr-paste" required><?= spr_h(spr_post('rdesc')) ?></textarea><div class="spr-note">Original pasted requirement is copied here. Review and edit before saving.</div></td></tr>
+        <tr class="spr-row"><td><label for="spr_description">Job Description:</label></td><td><textarea id="spr_description" name="rdesc" class="spr-paste" required><?= spr_h(spr_post('rdesc')) ?></textarea><div class="spr-note">Only the detected job description is copied here, excluding email headers, replies and signatures. Review before saving.</div></td></tr>
         <tr class="spr-row"><td></td><td><button type="submit" name="save" value="1" class="btn btn-primary">Save Requirement</button></td></tr>
       </table>
     </form>
@@ -130,35 +130,118 @@ require('includes/menu.php');
   function firstMatch(text, patterns){ for(var i=0;i<patterns.length;i++){var m=text.match(patterns[i]);if(m && m[1] && m[1].trim()) return m[1].trim();} return ''; }
   function singleLine(s){return (s||'').split(/\r?\n/)[0].replace(/\s+/g,' ').trim();}
   function setField(el,value){ if(value && el) el.value=value; }
+  function cleanText(s){return (s||'').replace(/\u00a0/g,' ').replace(/[\t ]+/g,' ').trim();}
+  function emailAddresses(s){return (s.match(/[A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,}/ig)||[]).map(function(x){return x.toLowerCase();});}
+  function extractEmail(t){
+    // In a forwarded thread, the current From header is the recruiter; the To
+    // header is usually our mailbox. Never choose our own email as client.
+    var header=/^\s*(?:from|sender)\s*:\s*([^\n]+)/gim,m,candidates=[];
+    while((m=header.exec(t))!==null){emailAddresses(m[1]).forEach(function(e){candidates.push(e);});}
+    // Prioritize the outermost From header; if it is our own, find an external From.
+    var external=function(e){return !/@metahorizon\.com$/i.test(e);};
+    var first=candidates.find(external); if(first)return first;
+    var contact=firstMatch(t,[/^\s*(?:recruiter\s*email|contact\s*email|email\s*id|email)\s*:\s*([^\n]+)/im]);
+    first=emailAddresses(contact).find(external); if(first)return first;
+    // Last resort: external addresses elsewhere, but exclude generic footer/privacy
+    // mailboxes when possible. Leave empty rather than use our own email.
+    var all=emailAddresses(t).filter(external);
+    return all.find(function(e){return !/^(?:privacy|unsubscribe|noreply|no-reply|support)@/i.test(e);})||'';
+  }
+  function bodyLines(t){
+    return t.split('\n').map(cleanText).filter(function(line){
+      return line && !/^(?:from|to|sent|date|subject|cc|bcc|on .* wrote:|forwarded message|caution:|you don't often get email|this email and any files|click here|www\.|https?:\/\/|regards|thanks|thank you|an official partner|lead\s*[-–]\s*recruiting|t\s*:\s*\(?\+?\d)/i.test(line)
+        && !/^(?:re:|fw:|fwd:)/i.test(line);
+    });
+  }
+  function extractJobDescription(text){
+    var lines=text.replace(/\r/g,'').split('\n');
+    var role=/(?:full[ -]?stack|back[ -]?end|front[ -]?end|developer|engineer|architect|analyst|administrator|consultant|programmer|specialist|devops|tester|data scientist|project manager|business analyst)/i;
+    var requirement=/(?:^\s*(?:job\s*(?:title|description|location)|position|role|location|work\s*location|duration|rate|end\s*client|responsibilities|requirements|qualifications|skills|experience|must\s*have|nice\s*to\s*have)\s*[:\-]|\b(?:looking for|hiring|seeking|developers?|engineers?|must have|should have|experience with|working with)\b)/i;
+    var noise=/^(?:-{2,}\s*forwarded message|from\s*:|to\s*:|cc\s*:|bcc\s*:|sent\s*:|date\s*:|subject\s*:|on .{5,120} wrote\s*:|caution\s*:|you don't often get email|learn why this is important|regards\b|best regards\b|thanks\b|thank you\b|sincerely\b|metahorizon inc\b|certified minority|an e-verify employer|email\s*:|o\s*:\s*\(?\d|t\s*:\s*\(?\+?\d|www\.|https?:\/\/|click here|not willing to|opt-out|this email and any files|warning: computer viruses|the recipient should|although the company|if you are not the named addressee|please notify the sender|an official partner|innova-.*\.png|liicon\.png|cp-cfc-.*\.png)/i;
+    var footer=/(?:this email and any files transmitted|click here to learn how we collect|not willing to innovate|confidential and intended solely|computer viruses can be transmitted|you don't often get email)/i;
+    // Favor the newest substantive job section, even inside a forwarded thread.
+    var segments=[], current=[];
+    function flush(){if(current.length){segments.push(current);current=[];}}
+    for(var i=0;i<lines.length;i++){
+      var line=lines[i].trim();
+      if(footer.test(line)){flush();continue;}
+      if(/^(?:on .+ wrote:|from\s*:|-------- forwarded message)/i.test(line)){flush();continue;}
+      if(noise.test(line)){flush();continue;}
+      if(!line){if(current.length)current.push('');continue;}
+      if(/^(?:yes|no|hi\b|hello\b|hope you are doing well|can we submit candidates|mayuri saha|satish kumar sinha|lead\s*[-–]\s*recruiting|innova solutions|1455 lincoln parkway|1303 w walnut hill)/i.test(line)) {flush();continue;}
+      if(/\b(?:@|\.png\b|\.jpg\b|\.jpeg\b)\b/i.test(line) && !requirement.test(line)){flush();continue;}
+      current.push(line);
+    }
+    flush();
+    var ranked=segments.map(function(seg){
+      var joined=seg.join('\n');
+      var count=seg.filter(function(l){return requirement.test(l);}).length;
+      var bullets=seg.filter(function(l){return /^[-•*]\s+/.test(l);}).length;
+      return {seg:seg,score:count*5+bullets*2+(role.test(joined)?5:0)};
+    }).sort(function(a,b){return b.score-a.score;});
+    if(!ranked.length || ranked[0].score<5)return '';
+    var chosen=ranked[0].seg.slice();
+    // Include nearby job details, but remove unrelated conversational preamble.
+    while(chosen.length && !requirement.test(chosen[0]) && !role.test(chosen[0]))chosen.shift();
+    while(chosen.length && !chosen[chosen.length-1])chosen.pop();
+    return chosen.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+  }
   function detect(){
     var raw=paste.value.trim(); if(!raw){feedback.textContent='Paste a requirement first.';return;}
     var t=raw.replace(/\r/g,'');
-    var title=firstMatch(t,[/^(?:job\s*title|position\s*title|position|role|title|requirement)\s*[:\-]\s*([^\n]+)/im,/^subject\s*:\s*(?:re\s*:\s*)?(?:urgent\s*[-:]?\s*)?([^\n]+)/im]);
-    if(!title){var heading=t.split('\n').map(function(x){return x.trim();}).find(function(x){return x.length>8 && x.length<90 && /(?:developer|engineer|architect|analyst|administrator|consultant|manager|specialist|lead|tester|scientist|designer|devops|qa|sailpoint)/i.test(x);});title=heading||'';}
-    title=singleLine(title).replace(/^(?:urgent|immediate|hot\s+requirement)\s*[-:]\s*/i,'').slice(0,50);
-    var loc=singleLine(firstMatch(t,[/^(?:job\s*location|work\s*location|location|onsite\s*location|city|worksite)\s*[:\-]\s*([^\n]+)/im, /\b(?:located\s+in|based\s+in)\s+([A-Za-z][A-Za-z .,-]{2,45})/i]));
-    var duration=singleLine(firstMatch(t,[/^(?:duration|contract\s*duration|length\s*of\s*contract|term)\s*[:\-]\s*([^\n]+)/im,/\b(\d{1,2}\s*(?:\+\s*)?(?:months?|mos?|years?|yrs?)(?:\s*(?:\+|extendable|extension))?)\b/i]));
-    var rate=firstMatch(t,[/^(?:pay\s*rate|bill\s*rate|rate|hourly\s*rate|budget)\s*[:\-]?\s*\$?\s*(\d{2,4})(?:\s*(?:\/hr|per\s*hour|hourly))?/im,/\$\s*(\d{2,4})\s*(?:\/\s*(?:hr|hour)|per\s*hour)/i]);
-    var client=singleLine(firstMatch(t,[/^(?:end\s*client|client\s*name|end\s*customer|customer\s*name)\s*[:\-]\s*([^\n]+)/im]));
-    var email=firstMatch(t,[/^(?:contact\s*email|recruiter\s*email|email\s*id|email|contact)\s*[:\-]\s*([^\s\n<>;,]+@[^\s\n<>;,]+)/im, /\b([A-Z0-9._%+\-]+@[A-Z0-9.\-]+\.[A-Z]{2,})\b/i]);
-    var jt=firstMatch(t,[/^(?:employment\s*type|job\s*type|engagement\s*type|position\s*type)\s*[:\-]\s*([^\n]+)/im]);
-    var classification=jt||((title+'\n'+t.slice(0,1200)));
-    var type=''; if(/contract\s*(?:to|[- ]?2)\s*hire|c2h/i.test(classification))type='2';else if(/\b(?:full[ -]?time|permanent|fte)\b/i.test(classification))type='4';else if(/\bw2\b/i.test(classification))type='3';else if(/\b(?:contract|c2c|corp\s*to\s*corp)\b/i.test(classification))type='1';
+    var lines=bodyLines(t);
+    var title=singleLine(firstMatch(t,[/^\s*(?:job\s*title|position\s*title|position|role|title|requirement)\s*[:\-]\s*([^\n]+)/im]));
+    // Subject is only used if it actually describes a job, not a reply such as
+    // "Tried Reaching You", "Re: Hello", or "Following up".
+    if(!title){
+      var roleLine=lines.find(function(line){
+        return line.length<110 && /\b(?:full[ -]?stack|developer|engineer|architect|analyst|administrator|consultant|programmer|specialist|data scientist|devops|qa|tester|designer)\b/i.test(line)
+          && !/\b(?:we are looking for|we need|job description|experience with|must have|should have|responsibilities)\b/i.test(line);
+      });
+      title=roleLine||'';
+    }
+    if(!title){
+      var subj=firstMatch(t,[/^\s*subject\s*:\s*(?:re\s*:\s*|fw[d]?\s*:\s*)*([^\n]+)/im]);
+      if(/\b(?:developer|engineer|architect|analyst|consultant|administrator|specialist|devops|full[ -]?stack)\b/i.test(subj))title=subj;
+    }
+    title=singleLine(title).replace(/^(?:urgent|immediate|hot\s+requirement)\s*[-:]\s*/i,'').replace(/^[\-•]\s*/,'').replace(/[.!,;]+$/,'').slice(0,50);
+    var loc=singleLine(firstMatch(t,[/^\s*(?:job\s*location|work\s*location|location|onsite\s*location|city|worksite)\s*(?:is|:|\-)\s*([^\n]+)/im,/\b(?:located\s+in|based\s+in)\s+([A-Za-z][A-Za-z .,-]{2,55})/i]));
+    loc=loc.replace(/[.\s]+$/,'');
+    var duration=singleLine(firstMatch(t,[/^\s*(?:duration|contract\s*duration|length\s*of\s*contract|term)\s*[:\-]\s*([^\n]+)/im,/\b(\d{1,2}\s*(?:\+\s*)?(?:months?|mos?|years?|yrs?)(?:\s*(?:\+|extendable|extension))?)\b/i]));
+    var rate=firstMatch(t,[/^\s*(?:pay\s*rate|bill\s*rate|rate|hourly\s*rate|budget)\s*[:\-]?\s*\$?\s*(\d{2,4})(?:\s*(?:\/hr|per\s*hour|hourly))?/im,/\$\s*(\d{2,4})\s*(?:\/\s*(?:hr|hour)|per\s*hour)/i]);
+    var client=singleLine(firstMatch(t,[/^\s*(?:end\s*client|client\s*name|end\s*customer|customer\s*name)\s*[:\-]\s*([^\n]+)/im]));
+    var email=extractEmail(t);
+    var jt=firstMatch(t,[/^\s*(?:employment\s*type|job\s*type|engagement\s*type|position\s*type)\s*[:\-]\s*([^\n]+)/im]);
+    // A question about C2C in an email thread does not establish that the job is C2C.
+    var classification=jt || lines.filter(function(x){return /\b(?:c2c|w2|fte|contract|full[ -]?time|permanent)\b/i.test(x) && !/\?|can we|do you|would you/i.test(x);}).slice(0,4).join('\n');
+    var type='';if(/contract\s*(?:to|[- ]?2)\s*hire|c2h/i.test(classification))type='2';else if(/\b(?:full[ -]?time|permanent|fte)\b/i.test(classification))type='4';else if(/\bw2\b/i.test(classification))type='3';else if(/\b(?:contract|c2c|corp\s*to\s*corp)\b/i.test(classification))type='1';
     setField(fields.title,title);setField(fields.location,loc.slice(0,60));setField(fields.duration,duration.slice(0,20));setField(fields.rate,rate);setField(fields.client,client.slice(0,30));setField(fields.email,email.slice(0,50));setField(fields.jobtype,type);
-    // Match the longest specific skill name first. Require word boundaries to avoid partial terms.
     var options=Array.prototype.slice.call(fields.skill.options).filter(function(o){return o.value;});
-    options.sort(function(a,b){return b.text.trim().length-a.text.trim().length;});
-    var haystack=(title+'\n'+t).toLowerCase();var chosen='';
+    var chosen='', bestScore=0;
+    // Prefer role/title matches, then weighted technical stack matches. Exact
+    // skill names from the database are authoritative; never fabricate an ID.
+    var titleLow=title.toLowerCase(), bodyLow=t.toLowerCase();
     for(var i=0;i<options.length;i++){
-      var name=options[i].text.trim().toLowerCase(); if(name.length<2)continue;
+      var name=options[i].text.trim().toLowerCase();if(name.length<2)continue;
       var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      if(new RegExp('(^|[^a-z0-9])'+escaped+'(?=$|[^a-z0-9])','i').test(haystack)){chosen=options[i].value;break;}
+      var re=new RegExp('(^|[^a-z0-9])'+escaped+'(?=$|[^a-z0-9])','i');
+      var score=(re.test(titleLow)?100:0)+(re.test(bodyLow)?10:0)+Math.min(name.length,30)/100;
+      // "JavaScript" and "Java" must be distinguished by boundaries.
+      // Full-stack Java roles commonly use "Java Developer" in the skill list.
+      if(/\bjava\b/i.test(titleLow) && /\bjava\b/i.test(name))score+=35;
+      if(score>bestScore && score>=10){bestScore=score;chosen=options[i].value;}
     }
     if(chosen)fields.skill.value=chosen;
-    fields.description.value=raw;
+    var jobOnly=extractJobDescription(t);
+    fields.description.value=jobOnly;
+    if(!jobOnly){feedback.textContent='No clear job description found. Review the pasted text and enter the job description manually.';return;}
     var detected=[title,loc,duration,rate,client,email,type,chosen].filter(Boolean).length;
-    feedback.textContent='Detected '+detected+' of 8 fields. Please verify all values, especially email, skill, rate and job type, before saving.';
+    var missing=[];if(!title)missing.push('job title');if(!loc)missing.push('location');if(!duration)missing.push('duration');if(!email)missing.push('recruiter email');if(!chosen)missing.push('skill');
+    feedback.textContent='Detected '+detected+' of 8 fields.'+(missing.length?' Please review or enter: '+missing.join(', ')+'.':'')+' Review all values before saving.';
   }
+  var pasteTimer;
+  paste.addEventListener('input',function(){clearTimeout(pasteTimer);pasteTimer=setTimeout(detect,350);});
+  paste.addEventListener('paste',function(){clearTimeout(pasteTimer);pasteTimer=setTimeout(detect,120);});
   document.getElementById('spr_detect').addEventListener('click',detect);
   document.getElementById('spr_clear').addEventListener('click',function(){paste.value='';feedback.textContent='Pasted text cleared; form fields were left unchanged.';});
   document.getElementById('spr_form').addEventListener('submit',function(){document.getElementById('spr_hidden_paste').value=paste.value;});
