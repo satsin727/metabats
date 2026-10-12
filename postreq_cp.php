@@ -15,7 +15,7 @@ try {
     $auth = $conn->prepare('SELECT uid, name, level, sess, def_lid FROM users WHERE uid = ?');
     $auth->execute([(int)$_SESSION['id']]);
     $dta = $auth->fetch();
-    if (!$dta || !isset($_SESSION['username']) || !hash_equals((string)$dta['sess'], (string)$_SESSION['username']) || !in_array((int)$dta['level'], [1,2], true)) {
+    if (!$dta || !isset($_SESSION['username']) || !hash_equals((string)$dta['sess'], (string)$_SESSION['username']) || !in_array((int)$dta['level'], [1,2,3], true)) {
         header('Location: login.php'); exit;
     }
     $skills = $conn->query('SELECT sid, skillname FROM skill ORDER BY skillname ASC')->fetchAll();
