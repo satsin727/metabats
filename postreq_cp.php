@@ -225,28 +225,59 @@ require('includes/menu.php');
     if(!duration){var effectiveType=type||fields.jobtype.value;duration=effectiveType==='4'?'FTE':(effectiveType==='3'?'6+ months W2':'6+ months');}
     setField(fields.title,title);setField(fields.location,loc.slice(0,60));setField(fields.duration,duration.slice(0,20));setField(fields.rate,rate);setField(fields.client,client.slice(0,30));setField(fields.email,email.slice(0,50));setField(fields.jobtype,type);
     var options=Array.prototype.slice.call(fields.skill.options).filter(function(o){return o.value;});
-    var chosen='', bestScore=0;
-    // Prefer role/title matches, then weighted technical stack matches. Exact
-    // skill names from the database are authoritative; never fabricate an ID.
-    var titleLow=title.toLowerCase(), bodyLow=t.toLowerCase();
-    for(var i=0;i<options.length;i++){
-      var name=options[i].text.trim().toLowerCase();if(name.length<2)continue;
-      var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-      var re=new RegExp('(^|[^a-z0-9])'+escaped+'(?=$|[^a-z0-9])','i');
-      var score=(re.test(titleLow)?100:0)+(re.test(bodyLow)?10:0)+Math.min(name.length,30)/100;
-      // "JavaScript" and "Java" must be distinguished by boundaries.
-      // Full-stack Java roles commonly use "Java Developer" in the skill list.
-      if(/\bjava\b/i.test(titleLow) && /\bjava\b/i.test(name))score+=35;
-      if(score>bestScore && score>=10){bestScore=score;chosen=options[i].value;}
+    var titleLow=title.toLowerCase(), bodyLow=(extractJobDescription(t)||t).toLowerCase();
+    // Role-family classification is based primarily on the job title, not incidental
+    // mentions of technologies in a long description. First matching family wins.
+    var families=[
+      {label:'Sailpoint', test:/\b(?:sail\s*point|identity\s*(?:and|&)\s*access\s*management|identity\s*governance|iga|iam|identitynow|identity\s*security\s*cloud|isc)\b/i},
+      {label:'Data Engineer', test:/\b(?:data\s*(?:scientist|science|analyst|engineer|engineering|fabric|warehouse|architect|analytics)|big\s*data|bigdata|databricks?|data\s*bricks?|pyspark|spark\s*engineer|etl\s*developer|ai\s*engineer|machine\s*learning\s*engineer|ml\s*engineer|mlops\s*engineer)\b/i},
+      {label:'Devops', test:/\b(?:dev\s*ops|devops|cloud\s*(?:engineer|engineering|administrator|architect)|build\s*(?:and|&)\s*release|release\s*engineer|site\s*reliability|sre|platform\s*engineer|systems?\s*(?:engineer|administrator)|infrastructure\s*engineer|ci\s*\/\s*cd\s*engineer)\b/i},
+      {label:'BA', test:/\b(?:business\s*analyst|business\s*analysis|project\s*(?:coordinator|analyst|manager)|program\s*manager|business\s*systems?\s*analyst|\bba\b)\b/i}
+    ];
+    var normalized=function(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');};
+    var chosen='', family='', matchedBy='';
+    for(var f=0;f<families.length;f++){
+      if(families[f].test.test(titleLow)){family=families[f].label;break;}
     }
-    if(chosen)fields.skill.value=chosen;
+    // Only fall back to description if the title is absent or generic.
+    if(!family && (!titleLow || /^(?:urgent|requirement|opening|position|hiring|job|opportunity)/i.test(titleLow))){
+      for(var f2=0;f2<families.length;f2++){
+        if(families[f2].test.test(bodyLow)){family=families[f2].label;break;}
+      }
+    }
+    if(family){
+      var target=normalized(family);
+      var match=options.find(function(o){return normalized(o.text.trim())===target;});
+      // Accept conventional spelling variants, but never silently map to a
+      // different category or invent a skill ID.
+      if(!match && target==='sailpoint')match=options.find(function(o){return /^sail\s*point(?:\s+isc)?$/i.test(o.text.trim());});
+      if(!match && target==='devops')match=options.find(function(o){return /^dev\s*ops$/i.test(o.text.trim());});
+      if(!match && target==='dataengineer')match=options.find(function(o){return /^data\s*engineer(?:ing)?$/i.test(o.text.trim());});
+      if(!match && target==='ba')match=options.find(function(o){return /^(?:ba|business\s*analyst)$/i.test(o.text.trim());});
+      if(match){chosen=match.value;matchedBy='role family';}
+    }
+    if(!chosen){
+      var bestScore=0;
+      for(var i=0;i<options.length;i++){
+        var name=options[i].text.trim().toLowerCase();if(name.length<2)continue;
+        var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+        var re=new RegExp('(^|[^a-z0-9])'+escaped+'(?=$|[^a-z0-9])','i');
+        var score=(re.test(titleLow)?100:0)+(re.test(bodyLow)?10:0)+Math.min(name.length,30)/100;
+        if(/\bjava\b/i.test(titleLow) && /\bjava\b/i.test(name))score+=35;
+        if(score>bestScore && score>=10){bestScore=score;chosen=options[i].value;}
+      }
+      if(chosen)matchedBy='skill name';
+    }
+    if(chosen){fields.skill.value=chosen;fields.skill.dataset.autoDetected='1';}
+    else {fields.skill.value='';fields.skill.dataset.autoDetected='0';}
     var jobOnly=extractJobDescription(t);
     fields.description.value=jobOnly;
     if(!jobOnly){feedback.textContent='No clear job description found. Review the pasted text and enter the job description manually.';return;}
     var detected=[title,loc,duration,rate,client,email,type,chosen].filter(Boolean).length;
     var missing=[];if(!title)missing.push('job title');if(!loc)missing.push('location');if(!duration)missing.push('duration');if(!email)missing.push('recruiter email');if(!chosen)missing.push('skill');
-    feedback.textContent='Detected '+detected+' of 8 fields.'+(missing.length?' Please review or enter: '+missing.join(', ')+'.':'')+' Review all values before saving.';
+    feedback.textContent=(chosen?'Skill suggested from '+matchedBy+': '+fields.skill.options[fields.skill.selectedIndex].text+'. ':'No matching skill was found in the dropdown. ')+'Detected '+detected+' of 8 fields.'+(missing.length?' Please review or enter: '+missing.join(', ')+'.':'')+' Review all values before saving.';
   }
+  fields.skill.addEventListener('change',function(){this.dataset.autoDetected='0';});
   fields.jobtype.addEventListener('change',function(){
     var current=fields.duration.value.trim();
     if(current==='' || current==='FTE' || current==='6+ months' || current==='6+ months W2'){
