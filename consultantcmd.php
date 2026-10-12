@@ -28,10 +28,10 @@ $fields = [
  'co_phonenumber'=>'Original Phone Number', 'covisa'=>'Original Visa Status',
  'relocation'=>'Relocation', 'lastssn'=>'Last 5 SSN', 'passportnumber'=>'Passport Number',
  'passportcountry'=>'Passport Country', 'nda'=>'NDA Signed',
- 'dateadded'=>'Date Added', 'end_date'=>'End Date', 'linkedin'=>'LinkedIn URL'
+
 ];
-$dateFields = ['dob', 'dateadded', 'end_date'];
-$requiredDates = ['dob', 'dateadded']; // Both are NOT NULL DATE columns in the supplied schema.
+$dateFields = ['dob'];
+$requiredDates = ['dob'];
 $dateValue = static function ($value) {
     if ($value === null || $value === '' || $value === '0000-00-00') return '';
     $dt = DateTimeImmutable::createFromFormat('!Y-m-d', (string)$value);
@@ -53,8 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (in_array($name, $dateFields, true)) {
                 if ($value === '') {
                     if (in_array($name, $requiredDates, true)) $errors[] = "$label is required.";
-                    // Preserve the legacy zero date for an empty end_date, since this schema has NOT NULL.
-                    $value = $name === 'end_date' ? '0000-00-00' : $value;
                 } elseif (!$dateValue($value)) { $errors[] = "$label must be a valid YYYY-MM-DD date."; }
                 if ($name === 'dob' && $dateValue($value) && $value > date('Y-m-d')) $errors[] = 'DOB cannot be in the future.';
             }
@@ -98,23 +96,36 @@ require('includes/menu.php');
  <?php else: ?>
  <form method="post" action="consultantcmd.php?do=edit&amp;id=<?= (int)$cid ?>">
  <input type="hidden" name="csrf" value="<?= $esc($csrf) ?>">
- <div class="form-group"><label for="skill">Role (Skill)</label><select id="skill" name="skill" class="form-control" required>
- <?php foreach ($skills as $skill): ?><option value="<?= (int)$skill['sid'] ?>" <?= (int)$record['skill'] === (int)$skill['sid'] ? 'selected' : '' ?>><?= $esc($skill['skillname']) ?></option><?php endforeach; ?>
- </select></div>
- <?php foreach ($fields as $name => $label):
-    $isDate = in_array($name, $dateFields, true);
-    $value = $isDate ? $dateValue($record[$name] ?? '') : ($record[$name] ?? '');
-    $required = in_array($name, ['cfname', 'clname', 'colocation', 'co_phonenumber', 'covisa', 'relocation', 'nda', 'dob', 'dateadded'], true);
+ <table width="100%" border="0" cellspacing="0" cellpadding="0">
+ <?php
+ $layout = [
+   ['cfname','First Name'], ['cmname','Middle Name'], ['clname','Last Name'],
+   ['skill','Role (Skill)'], ['dob','DOB'], ['co_email','Consultant Original Email'],
+   ['colocation','Consultant Original Location'], ['co_phonenumber','Consultant Original Phone number'],
+   ['covisa','Consultant Original visa'], ['relocation','Relocation'], ['lastssn','Last 5 SSN'],
+   ['passportnumber','Passport Number'], ['passportcountry','Passport Country'], ['nda','NDA (Agreement) Signed']
+ ];
+ foreach ($layout as [$name,$label]):
+ $value = $record[$name] ?? '';
+ if ($name === 'dob') $value = $dateValue($value);
  ?>
- <div class="form-group"><label for="<?= $esc($name) ?>"><?= $esc($label) ?><?= $required ? ' *' : '' ?></label>
- <?php if ($name === 'nda'): ?>
- <select id="nda" name="nda" class="form-control" required><?php foreach (['Yes', 'No', 'Not Required'] as $choice): ?><option value="<?= $esc($choice) ?>" <?= $value === $choice ? 'selected' : '' ?>><?= $esc($choice) ?></option><?php endforeach; ?></select>
+ <tr><td width="25%" align="left" valign="top"><label for="<?= $esc($name) ?>"><?= $esc($label) ?><?= $name === 'dob' ? ' (MM/DD/YYYY)' : '' ?>:&nbsp;&nbsp;&nbsp;</label></td>
+ <td width="90%" align="left" valign="top">
+ <?php if ($name === 'skill'): ?>
+ <select id="skill" name="skill" class="form-control-in" required>
+ <?php foreach ($skills as $skill): ?><option value="<?= (int)$skill['sid'] ?>" <?= (int)$record['skill'] === (int)$skill['sid'] ? 'selected' : '' ?>><?= $esc($skill['skillname']) ?></option><?php endforeach; ?>
+ </select>
+ <?php elseif ($name === 'nda'): ?>
+ <select id="nda" name="nda" class="form-control-in">
+ <?php foreach (['Yes','No','Not Required'] as $choice): ?><option value="<?= $esc($choice) ?>" <?= $value === $choice ? 'selected' : '' ?>><?= $esc($choice) ?></option><?php endforeach; ?>
+ </select>
  <?php else: ?>
- <input id="<?= $esc($name) ?>" name="<?= $esc($name) ?>" class="form-control" type="<?= $isDate ? 'date' : ($name === 'co_email' ? 'email' : 'text') ?>" value="<?= $esc($value) ?>" <?= $required ? 'required' : '' ?> <?= $name === 'dob' ? 'max="'.date('Y-m-d').'"' : '' ?> <?= $name === 'lastssn' ? 'inputmode="numeric" maxlength="5"' : '' ?>>
+ <input id="<?= $esc($name) ?>" name="<?= $esc($name) ?>" class="form-control-in" type="<?= $name === 'dob' ? 'date' : ($name === 'co_email' ? 'email' : 'text') ?>" value="<?= $esc($value) ?>" <?= $name === 'dob' ? 'required max="'.date('Y-m-d').'"' : '' ?> <?= $name === 'lastssn' ? 'inputmode="numeric" maxlength="5"' : '' ?>>
  <?php endif; ?>
- </div>
+ </td></tr><tr><td colspan="2">&nbsp;</td></tr>
  <?php endforeach; ?>
- <button type="submit" name="update" value="1" class="btn btn-primary">Update</button> <a class="btn btn-default" href="admin.php?action=listconsultants">Cancel</a>
+ <tr><td align="left"><button type="submit" name="update" value="1" class="btn btn-primary">Update</button></td><td></td></tr>
+ </table>
  </form>
  <?php endif; ?>
  </div></div></div></div>

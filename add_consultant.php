@@ -52,6 +52,7 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 					<div class="panel-body">
 
 					<form action="#" method="post">
+<?php if (!empty($addConsultantError)) { ?><div class="alert alert-danger"><?php echo htmlspecialchars($addConsultantError, ENT_QUOTES, 'UTF-8'); ?></div><?php } ?>
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
           <tr>
 <div class="form-group">
@@ -80,8 +81,8 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 									<?php } ?></select></td>
 </div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
-									<td width="25%" align="left" valign="top"><label>DOB (MM/DD/YYYY):&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="dob" class="form-control-in" placeholder="DOB"></td>
+									<td width="25%" align="left" valign="top"><label>DOB:&nbsp;&nbsp;&nbsp;</label></td>
+								<td width="90%" align="left" valign="top">	<input type="date" name="dob" class="form-control-in" value="<?php echo htmlspecialchars($_POST['dob'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" max="<?php echo date('Y-m-d'); ?>" required></td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 
 <div class="form-group">
@@ -138,8 +139,8 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 
 <div class="form-group">
-									<td width="25%" align="left" valign="top"><label>Last 4 SSN:&nbsp;&nbsp;&nbsp;</label></td>
-								<td width="90%" align="left" valign="top">	<input name="lastssn" class="form-control-in" placeholder="Last 5 SSN"></td>
+									<td width="25%" align="left" valign="top"><label>Last SSN Digits:&nbsp;&nbsp;&nbsp;</label></td>
+								<td width="90%" align="left" valign="top">	<input name="lastssn" class="form-control-in" placeholder="Last SSN Digits"></td>
 </div></tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 <div class="form-group">
 									<td width="25%" align="left" valign="top"><label>Passport Number:&nbsp;&nbsp;&nbsp;</label></td>
@@ -230,80 +231,92 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 
 <?php
 
-if(isset($_POST['save']))
-		{
-		$cfname = $_POST['cfname'];
-		$cmname = $_POST['cmname'];
-		$clname = $_POST['clname'];
-		$skill = $_POST['skill'];
-		$co_email = $_POST['co_email'];
-		$dob = $_POST['dob'];
-		$status="1";
-		$cm_email = "0";
-		$cm_password = "0";	
-		$cp_email = "0";
-		$cp_password = "0";
-		$colocation = $_POST['colocation'];
-		$cmlocation = "0";
-		$co_phonenumber = $_POST['co_phonenumber'];
-		$cm_phonenumber = "0";
-		$covisa = $_POST['covisa'];
-		$cmvisa = "0";
+if (isset($_POST['save'])) {
+    $cfname = trim((string)($_POST['cfname'] ?? ''));
+    $cmname = trim((string)($_POST['cmname'] ?? ''));
+    $clname = trim((string)($_POST['clname'] ?? ''));
+    $skill = filter_var($_POST['skill'] ?? null, FILTER_VALIDATE_INT);
+    $co_email = trim((string)($_POST['co_email'] ?? ''));
+    $dob = trim((string)($_POST['dob'] ?? ''));
+    $colocation = trim((string)($_POST['colocation'] ?? ''));
+    $co_phonenumber = trim((string)($_POST['co_phonenumber'] ?? ''));
+    $covisa = trim((string)($_POST['covisa'] ?? ''));
+    $relocation = trim((string)($_POST['relocation'] ?? ''));
+    $lastssnInput = trim((string)($_POST['lastssn'] ?? ''));
+    $passportnumber = trim((string)($_POST['passportnumber'] ?? ''));
+    $passportcountry = trim((string)($_POST['passportcountry'] ?? ''));
+    $nda = (string)($_POST['nda'] ?? 'No');
 
+    $parsedDob = DateTimeImmutable::createFromFormat('!Y-m-d', $dob);
+    $validDob = $parsedDob !== false && $parsedDob->format('Y-m-d') === $dob
+        && $dob <= date('Y-m-d');
 
-		$relocation = $_POST['relocation']; 
+    if ($cfname === '' || $clname === '' || !$skill || !$validDob) {
+        echo '<script>alert(' . json_encode('Please provide first name, last name, skill, and a valid DOB using the calendar.') . ');</script>';
+    } elseif ($lastssnInput !== '' && !ctype_digit($lastssnInput)) {
+        echo '<script>alert(' . json_encode('SSN digits must contain numbers only.') . ');</script>';
+    } else {
+        try {
+            $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-		$resume = "0"; //resume
+            // Check duplicate original email only when it is populated.
+            $exists = false;
+            if ($co_email !== '') {
+                $check = $conn->prepare('SELECT cid FROM consultants WHERE co_email = :email LIMIT 1');
+                $check->execute([':email' => $co_email]);
+                $exists = (bool)$check->fetchColumn();
+            }
 
-		$visacopy = "0"; //visa copy
-
-		$dlcopy = "0"; //dlcopy
-
-		$stateid = "0"; //state id
-
-		$lastssn = $_POST['lastssn'];
-
-		$passportcopy = "0"; //passport copy
-		
-		$passportnumber = $_POST['passportnumber'];
-		$passportcountry = $_POST['passportcountry'];
-		$bachelordegree = "0";
-		$buniversity = "0";
-		$byear = "0";
-		$masterdegree = "0";
-		$muniversity = "0";
-		$myear = "0";				
-		$nda = $_POST['nda'];
-		$dateadded = date("Y-m-d");
-
-
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		if(isset($co_email ))
-		{
-		 $query = "select * from consultants where `co_email` = \"$co_email\"";
-		 $ins= $conn->prepare($query);
-		 $ins->execute();
-		 $dta = $ins->fetch();
-		}
-
-		 if(isset($dta['cid']))
-		 {
-echo "<script>
-alert('This Consultant already exist in Database. Please check with Admin.');
-window.location.href='admin.php?action=listconsultants';
-</script>"; 
-		 }
-else {
-		 $inquery = "INSERT INTO `consultants` (`cid`, `status`, `cfname`, `cmname`, `clname`, `skill`, `co_email`, `cm_email`, `cm_password`, `cp_email`, `cp_password`, `colocation`, `cmlocation`, `co_phonenumber`, `cm_phonenumber`, `covisa`, `cmvisa`, `relocation`, `resume`, `visacopy`, `dlcopy`, `stateid`, `lastssn`, `passportcopy`,`dob`, `passportnumber`, `passportcountry`, `bachelordegree`, `buniversity`, `byear`, `masterdegree`, `muniversity`, `myear`, `dateadded`, `nda`) VALUES (NULL, '$status', '$cfname', '$cmname', '$clname', '$skill', '$co_email', '$cm_email', '$cm_password', '$cp_email', '$cp_password', '$colocation', '$cmlocation', '$co_phonenumber', '$cm_phonenumber', '$covisa', '$cmvisa', '$relocation', '$resume', '$visacopy', '$dlcopy', '$stateid', '$lastssn', '$dob', '$passportcopy', '$passportnumber', '$passportcountry', '$bachelordegree', '$buniversity', '$byear', '$masterdegree', '$muniversity', '$myear', '$dateadded', '$nda');";
-		$ins= $conn->prepare($inquery);
-		$ins->execute();
-		echo "<script>
-alert('Consultant Added !!!');
-window.location.href='admin.php?action=listconsultants';
-</script>";
+            if ($exists) {
+                echo '<script>alert(' . json_encode('This Consultant already exists in Database. Please check with Admin.') . ');</script>';
+            } else {
+                // dateadded is generated server-side; never taken from the form.
+                // Columns not entered here retain the original application defaults.
+                $sql = "INSERT INTO consultants
+                    (status, cfname, cmname, clname, skill, co_email, cm_email,
+                     cm_password, cp_email, cp_password, colocation, cmlocation,
+                     co_phonenumber, cm_phonenumber, covisa, cmvisa, relocation,
+                     resume, visacopy, dlcopy, stateid, lastssn, passportcopy,
+                     dob, passportnumber, passportcountry, bachelordegree,
+                     buniversity, byear, masterdegree, muniversity, myear,
+                     dateadded, nda)
+                    VALUES
+                    (1, :cfname, :cmname, :clname, :skill, :co_email, '0',
+                     '0', '0', '0', :colocation, '0',
+                     :co_phonenumber, '0', :covisa, '0', :relocation,
+                     '0', '0', '0', '0', :lastssn, '0',
+                     :dob, :passportnumber, :passportcountry, '0',
+                     '0', 0, '0', '0', 0,
+                     :dateadded, :nda)";
+                $insert = $conn->prepare($sql);
+                $insert->execute([
+                    ':cfname' => $cfname,
+                    ':cmname' => $cmname,
+                    ':clname' => $clname,
+                    ':skill' => $skill,
+                    ':co_email' => $co_email,
+                    ':colocation' => $colocation,
+                    ':co_phonenumber' => $co_phonenumber,
+                    ':covisa' => $covisa,
+                    ':relocation' => $relocation,
+                    ':lastssn' => $lastssnInput === '' ? 0 : (int)$lastssnInput,
+                    ':dob' => $dob,
+                    ':passportnumber' => $passportnumber,
+                    ':passportcountry' => $passportcountry,
+                    ':dateadded' => date('Y-m-d'),
+                    ':nda' => $nda,
+                ]);
+                echo '<script>alert(' . json_encode('Consultant Added !!!') . ');window.location.href="admin.php?action=listconsultants";</script>';
+            }
+        } catch (PDOException $e) {
+            error_log('Add consultant failed: ' . $e->getMessage());
+            echo '<script>alert(' . json_encode('Unable to save consultant. Please contact the administrator.') . ');</script>';
+        } finally {
+            $conn = null;
+        }
+    }
 }
-		}
-		$conn=null;
 
 }
 else
