@@ -208,7 +208,32 @@ require('includes/menu.php');
     title=singleLine(title).replace(/^(?:urgent|immediate|hot\s+requirement)\s*[-:]\s*/i,'').replace(/^[\-•]\s*/,'').replace(/[.!,;]+$/,'').slice(0,50);
     var loc=singleLine(firstMatch(t,[/^\s*(?:job\s*location|work\s*location|location|onsite\s*location|city|worksite)\s*(?:is|:|\-)\s*([^\n]+)/im,/\b(?:located\s+in|based\s+in)\s+([A-Za-z][A-Za-z .,-]{2,55})/i]));
     loc=loc.replace(/[.\s]+$/,'');
-    var duration=singleLine(firstMatch(t,[/^\s*(?:duration|contract\s*duration|length\s*of\s*contract|term)\s*[:\-]\s*([^\n]+)/im,/\b(\d{1,2}\s*(?:\+\s*)?(?:months?|mos?|years?|yrs?)(?:\s*(?:\+|extendable|extension))?)\b/i]));
+    // Contract duration must never be inferred from required experience.
+    // Only explicit engagement/contract-term wording can supply a duration.
+    function extractContractDuration(text){
+      var rows=text.split('\n');
+      var durationUnit=String.raw`(?:months?|mos?\.?|years?|yrs?\.?)`;
+      var amount=String.raw`(?:\d{1,2}\s*(?:\+|to|[-–]\s*\d{1,2})?\s*${durationUnit})`;
+      var termValue=new RegExp(String.raw`(${amount}(?:\s*(?:\+|extendable|extension|renewable))?)`,'i');
+      var termLabel=/\b(?:contract\s*(?:duration|length|term|period)|duration\s*(?:of\s*(?:the\s*)?(?:contract|assignment|project))?|duration|length\s*of\s*(?:contract|assignment|engagement)|engagement\s*(?:duration|term|length)|assignment\s*(?:duration|length)|project\s*duration|contract\s*term)\b/i;
+      var experience=/\b(?:experience|exp\.?|experienced|minimum\s+experience|years?\s+of|yrs?\s+of|hands[- ]on|proficiency|background)\b/i;
+      for(var i=0;i<rows.length;i++){
+        var line=rows[i].trim();
+        if(!termLabel.test(line) || experience.test(line))continue;
+        // Support 'Duration: 12 months', 'Contract length - 6 months',
+        // and a value on the immediately following line.
+        var value=line.replace(/^.*?\b(?:contract\s*(?:duration|length|term|period)|duration|length\s*of\s*(?:contract|assignment|engagement)|engagement\s*(?:duration|term|length)|assignment\s*(?:duration|length)|project\s*duration)\b\s*(?:is|:|=|[-–])?\s*/i,'');
+        var match=value.match(termValue);
+        if(!match && !value && i+1<rows.length)match=rows[i+1].trim().match(termValue);
+        if(match)return singleLine(match[1]);
+        if(/\b(?:fte|full[- ]time|permanent)\b/i.test(value))return 'FTE';
+      }
+      // Allow unlabelled time only when directly tied to a contract/assignment.
+      var inline=new RegExp(String.raw`\b(?:contract|assignment|engagement)\s+(?:for\s+|of\s+|is\s+)?(${amount})`,'i');
+      var inlineMatch=text.match(inline);
+      return inlineMatch?singleLine(inlineMatch[1]):'';
+    }
+    var duration=extractContractDuration(t);
     var rate=firstMatch(t,[/^\s*(?:pay\s*rate|bill\s*rate|rate|hourly\s*rate|budget)\s*[:\-]?\s*\$?\s*(\d{2,4})(?:\s*(?:\/hr|per\s*hour|hourly))?/im,/\$\s*(\d{2,4})\s*(?:\/\s*(?:hr|hour)|per\s*hour)/i]);
     var client=singleLine(firstMatch(t,[/^\s*(?:end\s*client|client\s*name|end\s*customer|customer\s*name)\s*[:\-]\s*([^\n]+)/im]));
     var email=extractEmail(t);
