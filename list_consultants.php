@@ -58,7 +58,7 @@ $data = $ins->fetchAll();
 						        <th data-field="Skill" data-sortable="true">Skill</th>
 						        <th data-field="name"  data-sortable="true">Name</th>
 						        <th data-field="location" data-sortable="true">Location</th>
-						        <th data-field="Visa Status" >Visa Status</th>
+						        <th data-field="Visa Status"  data-sortable="true">Visa Status</th>
 						        <th data-field="details" >Add Details</th>
 						    </tr>
 						    </thead>

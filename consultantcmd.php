@@ -115,7 +115,7 @@ $conn=null;
 								$ins3->execute(); 
 								$dta3 = $ins3->fetchAll(); 
 								foreach( $dta3 as $row3) { ?>
-										<option value="<?php echo $row3['sid']; ?>" <?php if(trim($udata['skill'])===$row3['sid']) { echo "selected"; } ?>><?php echo $row3['skillname']; ?></option>
+										<option value="<?php echo $row3['sid']; ?>" <?php if(trim($udata['skill'])==$row3['sid']) { echo "selected"; } ?>><?php echo $row3['skillname']; ?></option>
 									<?php } ?></select></td>
 </div> </tr> <tr><td><label>&nbsp;&nbsp;&nbsp;</label></td></tr> <tr>
 
