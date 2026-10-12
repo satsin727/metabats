@@ -62,6 +62,9 @@ switch ( $action ) {
   case 'postreq':
     postreq();
     break;
+  case 'postreq_cp':
+    postreq_cp();
+    break;
   case 'showreqs':
     showreqs();
     break;
@@ -225,6 +228,7 @@ function updatedhotlist() {  $selected = "updatedhotlist"; require( "updatedhotl
 function showreports() {  $selected = "showreports"; require( "reportdashboard.php" ); }
 //function rc() {  $selected = "rc"; require( "rateconfirmation.php" ); }
 function postreq() {  $selected = "postreq"; require( "postrek.php" ); }
+function postreq_cp() {  $selected = "postreq"; require( "postrek_cp.php" ); }
 function showreqs() {  $selected = "showreqs"; require( "showrek.php" ); }
 function showteamreqs() {  $selected = "showteamreqs"; require( "showrek_teamreqs.php" ); }
 function showallreqs() {  $selected = "showallreqs"; require( "showallrek.php" ); }
