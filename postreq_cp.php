@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save'])) {
     $duration = spr_post('rduration'); $email = strtolower(spr_post('cemail'));
     $description = spr_post('rdesc'); $skillId = (int)spr_post('skillid');
     $jobtype = (int)spr_post('jobtype'); $source = (int)spr_post('req_source');
+    if ($duration === '') { $duration = $jobtype === 4 ? 'FTE' : ($jobtype === 3 ? '6+ months W2' : '6+ months'); }
     $tier = (int)spr_post('ttype'); $nationality = (int)spr_post('nationality');
     $uid = (int)spr_post('uid'); $endClient = spr_post('rend_client');
     $rateRaw = spr_post('rrate');
@@ -215,6 +216,13 @@ require('includes/menu.php');
     // A question about C2C in an email thread does not establish that the job is C2C.
     var classification=jt || lines.filter(function(x){return /\b(?:c2c|w2|fte|contract|full[ -]?time|permanent)\b/i.test(x) && !/\?|can we|do you|would you/i.test(x);}).slice(0,4).join('\n');
     var type='';if(/contract\s*(?:to|[- ]?2)\s*hire|c2h/i.test(classification))type='2';else if(/\b(?:full[ -]?time|permanent|fte)\b/i.test(classification))type='4';else if(/\bw2\b/i.test(classification))type='3';else if(/\b(?:contract|c2c|corp\s*to\s*corp)\b/i.test(classification))type='1';
+    // Explicit duration in the requirement takes priority. Otherwise use the
+    // requested default for the detected employment type.
+    if(type==='4' && !duration)duration='FTE';
+    else if(type==='3' && !duration)duration='6+ months W2';
+    else if((type==='1'||type==='2') && !duration)duration='6+ months';
+    // When no employment type is detected, use the selected dropdown (Contract by default).
+    if(!duration){var effectiveType=type||fields.jobtype.value;duration=effectiveType==='4'?'FTE':(effectiveType==='3'?'6+ months W2':'6+ months');}
     setField(fields.title,title);setField(fields.location,loc.slice(0,60));setField(fields.duration,duration.slice(0,20));setField(fields.rate,rate);setField(fields.client,client.slice(0,30));setField(fields.email,email.slice(0,50));setField(fields.jobtype,type);
     var options=Array.prototype.slice.call(fields.skill.options).filter(function(o){return o.value;});
     var chosen='', bestScore=0;
@@ -239,6 +247,12 @@ require('includes/menu.php');
     var missing=[];if(!title)missing.push('job title');if(!loc)missing.push('location');if(!duration)missing.push('duration');if(!email)missing.push('recruiter email');if(!chosen)missing.push('skill');
     feedback.textContent='Detected '+detected+' of 8 fields.'+(missing.length?' Please review or enter: '+missing.join(', ')+'.':'')+' Review all values before saving.';
   }
+  fields.jobtype.addEventListener('change',function(){
+    var current=fields.duration.value.trim();
+    if(current==='' || current==='FTE' || current==='6+ months' || current==='6+ months W2'){
+      fields.duration.value=this.value==='4'?'FTE':(this.value==='3'?'6+ months W2':'6+ months');
+    }
+  });
   var pasteTimer;
   paste.addEventListener('input',function(){clearTimeout(pasteTimer);pasteTimer=setTimeout(detect,350);});
   paste.addEventListener('paste',function(){clearTimeout(pasteTimer);pasteTimer=setTimeout(detect,120);});
