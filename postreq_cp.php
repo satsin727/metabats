@@ -15,7 +15,7 @@ try {
     $auth = $conn->prepare('SELECT uid, name, level, sess, def_lid FROM users WHERE uid = ?');
     $auth->execute([(int)$_SESSION['id']]);
     $dta = $auth->fetch();
-    if (!$dta || !isset($_SESSION['username']) || !hash_equals((string)$dta['sess'], (string)$_SESSION['username']) || !in_array((int)$dta['level'], [1,2,3], true)) {
+    if (!$dta || !isset($_SESSION['username']) || !hash_equals((string)$dta['sess'], (string)$_SESSION['username']) || !in_array((int)$dta['level'], [1,2], true)) {
         header('Location: login.php'); exit;
     }
     $skills = $conn->query('SELECT sid, skillname FROM skill ORDER BY skillname ASC')->fetchAll();
@@ -249,22 +249,35 @@ require('includes/menu.php');
     // When no employment type is detected, use the selected dropdown (Contract by default).
     if(!duration){var effectiveType=type||fields.jobtype.value;duration=effectiveType==='4'?'FTE':(effectiveType==='3'?'6+ months W2':'6+ months');}
     setField(fields.title,title);setField(fields.location,loc.slice(0,60));setField(fields.duration,duration.slice(0,20));setField(fields.rate,rate);setField(fields.client,client.slice(0,30));setField(fields.email,email.slice(0,50));setField(fields.jobtype,type);
-    var options=Array.prototype.slice.call(fields.skill.options).filter(function(o){return o.value;});
     var titleLow=title.toLowerCase(), bodyLow=(extractJobDescription(t)||t).toLowerCase();
     // Role-family classification is based primarily on the job title, not incidental
     // mentions of technologies in a long description. First matching family wins.
+    // Match the exact skill categories configured in the BATS dropdown.
+    // Order matters: specific technologies take precedence over broad families.
     var families=[
-      {label:'Sailpoint', test:/\b(?:sail\s*point|identity\s*(?:and|&)\s*access\s*management|identity\s*governance|iga|iam|identitynow|identity\s*security\s*cloud|isc)\b/i},
-      {label:'Data Engineer', test:/\b(?:data\s*(?:scientist|science|analyst|engineer|engineering|fabric|warehouse|architect|analytics)|big\s*data|bigdata|databricks?|data\s*bricks?|pyspark|spark\s*engineer|etl\s*developer|ai\s*engineer|machine\s*learning\s*engineer|ml\s*engineer|mlops\s*engineer)\b/i},
-      {label:'Devops', test:/\b(?:dev\s*ops|devops|cloud\s*(?:engineer|engineering|administrator|architect)|build\s*(?:and|&)\s*release|release\s*engineer|site\s*reliability|sre|platform\s*engineer|systems?\s*(?:engineer|administrator)|infrastructure\s*engineer|ci\s*\/\s*cd\s*engineer)\b/i},
-      {label:'BA', test:/\b(?:business\s*analyst|business\s*analysis|project\s*(?:coordinator|analyst|manager)|program\s*manager|business\s*systems?\s*analyst|\bba\b)\b/i}
+      {label:'OKTA Developer', test:/\b(?:okta|auth0)\b/i},
+      {label:'Ping Identity Engineer', test:/\b(?:ping\s*(?:identity|federate|access|directory|one)|pingfederate|pingaccess|pingone)\b/i},
+      {label:'CyberArk Engineer', test:/\b(?:cyber\s*ark|pam\s*(?:engineer|developer|administrator|architect)|privileged\s*access\s*management)\b/i},
+      {label:'ForgeRock', test:/\b(?:forge\s*rock|forgerock|ping\s*am|ping\s*idm)\b/i},
+      {label:'SailPoint Developer', test:/\b(?:sail\s*point|identity\s*(?:and|&)\s*access\s*management|identity\s*governance|iga|iam|identitynow|identity\s*security\s*cloud|sailpoint\s*isc|identityiq)\b/i},
+      {label:'Power BI Developer', test:/\b(?:power\s*bi|powerbi|dax\s*(?:developer|engineer)|fabric\s*bi\s*developer)\b/i},
+      {label:'Data Engineer', test:/\b(?:data\s*(?:scientist|science|analyst|engineer|engineering|fabric|warehouse|architect|analytics)|big\s*data|bigdata|databricks?|data\s*bricks?|pyspark|spark\s*engineer|etl\s*developer|ai\s*engineer|artificial\s*intelligence\s*engineer|machine\s*learning\s*engineer|ml\s*engineer|mlops\s*engineer)\b/i},
+      {label:'DevOps Engineer', test:/\b(?:dev\s*ops|devops|cloud\s*(?:engineer|engineering|administrator|architect)|build\s*(?:and|&)\s*release|release\s*engineer|site\s*reliability|sre|platform\s*engineer|systems?\s*(?:engineer|administrator)|infrastructure\s*engineer|ci\s*\/\s*cd\s*engineer)\b/i},
+      {label:'Cybersecurity', test:/\b(?:cyber\s*security|cybersecurity|security\s*(?:analyst|engineer|architect|consultant)|soc\s*analyst|threat\s*(?:hunter|analyst)|siem\s*engineer|incident\s*responder|vulnerability\s*management)\b/i},
+      {label:'Blockchain Developer', test:/\b(?:block\s*chain|blockchain|web3|smart\s*contract|solidity|ethereum\s*developer)\b/i},
+      {label:'iOS Developer', test:/\b(?:ios\s*(?:developer|engineer|application)|iphone\s*(?:developer|engineer)|swiftui|swift\s*developer|objective[\s-]*c\s*developer)\b/i},
+      {label:'UI/UX', test:/\b(?:ui\s*\/\s*ux|ux\s*\/\s*ui|user\s*experience\s*(?:designer|researcher)|user\s*interface\s*designer|ux\s*designer|ui\s*designer|product\s*designer|figma\s*designer)\b/i},
+      {label:'.Net Developer', test:/\b(?:\.net|dot\s*net|asp\s*\.\s*net|c#|blazor|wpf|vb\s*\.\s*net)\b/i},
+      {label:'Java Developer', test:/\b(?:java\s*(?:developer|engineer|programmer|architect|full\s*stack)|spring\s*boot|spring\s*framework|j2ee|jee\s*developer)\b/i},
+      {label:'Business Analyst', test:/\b(?:business\s*analyst|business\s*analysis|project\s*(?:coordinator|analyst|manager)|program\s*manager|business\s*systems?\s*analyst|\bba\b)\b/i}
     ];
     var normalized=function(s){return (s||'').toLowerCase().replace(/[^a-z0-9]/g,'');};
+    var options=Array.prototype.slice.call(fields.skill.options).filter(function(o){return o.value;});
     var chosen='', family='', matchedBy='';
+    // Prefer the title. Use the description only if the title is missing/generic.
     for(var f=0;f<families.length;f++){
       if(families[f].test.test(titleLow)){family=families[f].label;break;}
     }
-    // Only fall back to description if the title is absent or generic.
     if(!family && (!titleLow || /^(?:urgent|requirement|opening|position|hiring|job|opportunity)/i.test(titleLow))){
       for(var f2=0;f2<families.length;f2++){
         if(families[f2].test.test(bodyLow)){family=families[f2].label;break;}
@@ -273,12 +286,6 @@ require('includes/menu.php');
     if(family){
       var target=normalized(family);
       var match=options.find(function(o){return normalized(o.text.trim())===target;});
-      // Accept conventional spelling variants, but never silently map to a
-      // different category or invent a skill ID.
-      if(!match && target==='sailpoint')match=options.find(function(o){return /^sail\s*point(?:\s+isc)?$/i.test(o.text.trim());});
-      if(!match && target==='devops')match=options.find(function(o){return /^dev\s*ops$/i.test(o.text.trim());});
-      if(!match && target==='dataengineer')match=options.find(function(o){return /^data\s*engineer(?:ing)?$/i.test(o.text.trim());});
-      if(!match && target==='ba')match=options.find(function(o){return /^(?:ba|business\s*analyst)$/i.test(o.text.trim());});
       if(match){chosen=match.value;matchedBy='role family';}
     }
     if(!chosen){
@@ -288,7 +295,6 @@ require('includes/menu.php');
         var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
         var re=new RegExp('(^|[^a-z0-9])'+escaped+'(?=$|[^a-z0-9])','i');
         var score=(re.test(titleLow)?100:0)+(re.test(bodyLow)?10:0)+Math.min(name.length,30)/100;
-        if(/\bjava\b/i.test(titleLow) && /\bjava\b/i.test(name))score+=35;
         if(score>bestScore && score>=10){bestScore=score;chosen=options[i].value;}
       }
       if(chosen)matchedBy='skill name';
