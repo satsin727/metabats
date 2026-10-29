@@ -74,6 +74,9 @@ switch ( $action ) {
   case 'showreports':
     showreports();
     break;
+  case 'emaildistribution':
+    require 'email_distribution.php';
+    break;
   case 'showallreqs':
     showallreqs();
     break;

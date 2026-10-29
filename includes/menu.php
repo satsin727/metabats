@@ -28,7 +28,7 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
                         </a>
                         <ul class="dropdown-menu" role="menu">
                             <li><a href="#"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Profile</a></li>
-                            <li><a href="#"><svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> Settings</a></li>
+                            <?php if (isset($dta['level']) && (int)$dta['level'] === 1) { ?><li><a href="admin.php?action=emaildistribution&amp;page=settings"><svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> Email Settings</a></li><?php } ?>
                             <li><a href="admin.php?action=logout"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> Logout</a></li>
                         </ul>
                     </li>
@@ -187,6 +187,43 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
                     </li>
                     <?php } ?>
 
+                </ul>
+            </li>
+
+            <!-- ========================================== -->
+            <!-- REQUIREMENT EMAIL DISTRIBUTION -->
+            <!-- ========================================== -->
+            <?php
+            $emailPage = isset($_GET['page']) ? (string) $_GET['page'] : 'requirements';
+            $emailActive = ($selected === 'emaildistribution');
+            $emailLinks = [
+                ['requirements', 'Select & Share Requirements', 'clipboard-with-paper'],
+                ['queue', 'Email Queue & Scheduled', 'calendar'],
+                ['history', 'Sharing History & Export', 'line-graph']
+            ];
+            if (isset($dta['level']) && (int)$dta['level'] === 1) {
+                $emailLinks[] = ['lists', 'Recipient Lists & Contacts', 'male-user'];
+                $emailLinks[] = ['templates', 'Email Templates', 'app-window'];
+                $emailLinks[] = ['settings', 'SMTP & Sending Settings', 'gear'];
+            }
+            ?>
+            <li class="parent <?php echo $emailActive ? 'active' : ''; ?>">
+                <a data-toggle="collapse" href="#sub-email-distribution" aria-expanded="<?php echo $emailActive ? 'true' : 'false'; ?>" aria-controls="sub-email-distribution">
+                    <svg class="glyph stroked upload"><use xlink:href="#stroked-upload"></use></svg>
+                    Email Distribution
+                    <span class="caret" style="float:right; margin-top:8px;"></span>
+                </a>
+                <ul class="children collapse <?php echo $emailActive ? 'in' : ''; ?>" id="sub-email-distribution">
+                    <?php foreach ($emailLinks as $emailLink) {
+                        $isEmailLinkActive = $emailActive && $emailPage === $emailLink[0];
+                    ?>
+                    <li class="<?php echo $isEmailLinkActive ? 'active' : ''; ?>">
+                        <a class="<?php echo $isEmailLinkActive ? 'active' : ''; ?>" href="admin.php?action=emaildistribution&amp;page=<?php echo urlencode($emailLink[0]); ?>" <?php echo $isEmailLinkActive ? 'aria-current="page"' : ''; ?>>
+                            <svg class="glyph stroked <?php echo htmlspecialchars($emailLink[2], ENT_QUOTES, 'UTF-8'); ?>"><use xlink:href="#stroked-<?php echo htmlspecialchars($emailLink[2], ENT_QUOTES, 'UTF-8'); ?>"></use></svg>
+                            <?php echo htmlspecialchars($emailLink[1], ENT_QUOTES, 'UTF-8'); ?>
+                        </a>
+                    </li>
+                    <?php } ?>
                 </ul>
             </li>
 
