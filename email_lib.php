@@ -99,8 +99,39 @@ function em_req(int $id, ? array $user = null): ? array {
     }
     return $row;
 }
+/** Convert stored HTML job descriptions to readable plain text for outgoing emails. */
+function em_job_description_text(string $html): string {
+    // Convert layout tags to line breaks before stripping HTML tags.
+    $html = preg_replace('~<br\s*/?>~i', "\n", $html);
+    $html = preg_replace('~</(?:p|div|li|tr|h[1-6])\s*>~i', "\n", $html);
+    $html = preg_replace('~<li\b[^>]*>~i', '- ', $html);
+    $html = preg_replace('~</t[dh]\s*>~i', '  ', $html);
+    $text = strip_tags($html);
+
+    // Decode &nbsp;, &amp;, &#160; and other HTML entities.
+    $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    // Normalize Unicode non-breaking spaces to ordinary spaces.
+    $text = str_replace("\xC2\xA0", ' ', $text);
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
+    $lines = explode("\n", $text);
+    $lines = array_map(static function (string $line): string {
+        $line = preg_replace('/[\t ]+/u', ' ', $line);
+        return trim($line);
+    }, $lines);
+    $text = implode("\n", $lines);
+    $text = preg_replace('/\n{3,}/', "\n\n", $text);
+    return trim($text);
+}
+
 function em_replacements(array $r): array {
-    return ['{{req_id}}' => (string)$r['reqid'], '{{job_title}}' => (string)$r['job_title'], '{{location}}' => (string)$r['rlocation'], '{{employment_type}}' => (string)$r['emp_type'], '{{client}}' => (string)$r['companyname'], '{{job_description}}' => trim(strip_tags((string)$r['rdesc']))];
+    return [
+        '{{req_id}}' => (string)$r['reqid'],
+        '{{job_title}}' => (string)$r['job_title'],
+        '{{location}}' => (string)$r['rlocation'],
+        '{{employment_type}}' => (string)$r['emp_type'],
+        '{{client}}' => (string)$r['companyname'],
+        '{{job_description}}' => em_job_description_text((string)($r['rdesc'] ?? '')),
+    ];
 }
 function em_recipient_map(array $groups): array {
     $result = ['to' => [], 'cc' => [], 'bcc' => []];
