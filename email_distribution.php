@@ -174,10 +174,50 @@ $templates = $db->query('SELECT * FROM em_templates WHERE active=1 ORDER BY name
 if (!is_file(__DIR__.'/includes/header.php') || !is_file(__DIR__.'/includes/menu.php'))throw new RuntimeException('BATS layout files missing: includes/header.php or includes/menu.php');
 require __DIR__.'/includes/header.php';
 require __DIR__.'/includes/menu.php';
-?><style>.em-wrap{max-width:1300px;margin:25px auto;padding:18px}.em-wrap .panel{border:1px solid #ddd;border-radius:8px;padding:18px;margin:14px 0;background:#fff}.em-wrap input:not([type=checkbox]),.em-wrap select,.em-wrap textarea{max-width:100%;padding:7px;border:1px solid #ccc;border-radius:4px}.em-wrap label{margin:8px 12px 8px 0;display:inline-block}.em-wrap .btn{margin:3px}.em-wrap table{width:100%;border-collapse:collapse}.em-wrap td,.em-wrap th{padding:7px;border-bottom:1px solid #ddd;text-align:left}.em-wrap .muted{color:#666}.em-wrap .scroll{overflow:auto}.em-wrap .tag{background:#eee;padding:2px 6px;border-radius:5px}</style>
+?>
+<style>
+/* Align with the existing BATS fixed Bootstrap sidebar (3/12 or 2/12). */
+.em-main { min-width: 0; float: right; }
+.em-wrap { width: 100%; max-width: 1500px; margin: 24px auto; padding: 14px 20px 32px; box-sizing: border-box; min-width: 0; }
+.em-wrap *, .em-wrap *::before, .em-wrap *::after { box-sizing: border-box; }
+.em-wrap h2 { margin: 0 0 16px; font-size: 25px; line-height: 1.3; }
+.em-nav { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.em-nav .btn { margin: 0; white-space: normal; }
+.em-wrap .panel { min-width: 0; width: 100%; border: 1px solid #dce2e8; border-radius: 8px; padding: 18px; margin: 14px 0; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.03); }
+.em-wrap .panel h4 { margin-top: 0; margin-bottom: 14px; }
+.em-wrap input:not([type=checkbox]), .em-wrap select, .em-wrap textarea { max-width: 100%; min-width: 0; padding: 7px 9px; border: 1px solid #cbd3db; border-radius: 4px; }
+.em-wrap input[type=checkbox] { margin-right: 5px; }
+.em-wrap label { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 5px; margin: 0; min-width: 0; font-weight: 500; }
+.em-wrap label:has(input[type=checkbox]) { flex-direction: row; align-items: center; }
+.em-wrap .btn { margin: 2px; }
+.em-wrap .em-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; }
+.em-wrap .em-filters label { flex: 0 1 auto; }
+.em-wrap .em-filters input[name=q] { width: 220px; }
+.em-wrap .em-filters select[name=client] { width: 175px; }
+.em-wrap .em-filters select[name=skill] { width: 190px; }
+.em-wrap .em-filters input[type=date] { width: 160px; }
+.em-wrap .em-filters .btn { margin: 0; }
+.em-wrap .scroll { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.em-wrap table { width: 100%; border-collapse: collapse; }
+.em-wrap th, .em-wrap td { padding: 9px 8px; border-bottom: 1px solid #e3e8ed; text-align: left; vertical-align: top; }
+.em-wrap th { white-space: nowrap; }
+.em-wrap .scroll table { min-width: 780px; }
+.em-wrap .muted { color: #667085; }
+.em-wrap .tag { display: inline-block; background: #eef1f5; padding: 3px 7px; border-radius: 5px; margin: 2px; }
+.em-wrap textarea { width: 100%; }
+@media (max-width: 767px) {
+  .em-main { float: none; width: 100%; margin-left: 0; }
+  .em-wrap { margin: 12px auto; padding: 12px; }
+  .em-wrap .panel { padding: 12px; }
+  .em-wrap h2 { font-size: 21px; }
+  .em-wrap .em-filters label, .em-wrap .em-filters input, .em-wrap .em-filters select { width: 100% !important; }
+  .em-wrap .em-filters .btn { width: 100%; }
+}
+</style>
+<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 em-main">
 <div class="em-wrap"><h2>Requirement Email Distribution</h2>
-<nav><a class="btn btn-default" href="admin.php?action=emaildistribution&page=requirements">Requirements</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=queue">Queue</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=history">History / Export</a><?php if ((int)$u['level'] === 1): ?><a class="btn btn-default" href="admin.php?action=emaildistribution&page=lists">Recipient Lists</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=templates">Templates</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=settings">SMTP Settings</a><?php endif;
-?></nav>
+<div class="em-nav"><a class="btn btn-default" href="admin.php?action=emaildistribution&page=requirements">Requirements</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=queue">Queue</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=history">History / Export</a><?php if ((int)$u['level'] === 1): ?><a class="btn btn-default" href="admin.php?action=emaildistribution&page=lists">Recipient Lists</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=templates">Templates</a><a class="btn btn-default" href="admin.php?action=emaildistribution&page=settings">SMTP Settings</a><?php endif;
+?></div>
 <?php if (isset($_GET['notice'])): ?><div class="alert alert-success"><?= em_h($_GET['notice']) ?></div><?php endif;
 ?><?php if ($error): ?><div class="alert alert-danger"><?= em_h($error) ?></div><?php endif;
 ?><?php if ($page === 'requirements'): $type = (string)($_GET['type'] ?? '');
@@ -229,7 +269,7 @@ $q->execute($params);
 $rows = $q->fetchAll();
 $clients = $db->query('SELECT cid,companyname FROM clients ORDER BY companyname LIMIT 2000')->fetchAll();
 $skills = $db->query('SELECT sid,skillname FROM skill ORDER BY skillname')->fetchAll();
-?> <div class="panel"><h4>Filter requirements</h4><form method="get"><input type="hidden" name="action" value="emaildistribution"><input type="hidden" name="page" value="requirements">
+?> <div class="panel"><h4>Filter requirements</h4><form method="get" class="em-filters"><input type="hidden" name="action" value="emaildistribution"><input type="hidden" name="page" value="requirements">
  <label>Search <input name="q" value="<?= em_h($term) ?>" placeholder="Job, location, client"></label><label>Type <select name="type"><option value="">All</option><?php foreach (['C2C', 'W2', 'FTE', 'C2H'] as $v): ?><option <?= ($type === $v ? 'selected': '') ?>><?= em_h($v) ?></option><?php endforeach;
 ?></select></label>
  <label>Client <select name="client"><option value="0">All clients</option><?php foreach ($clients as $c): ?><option value="<?= $c['cid'] ?>" <?= $client == (int)$c['cid'] ? 'selected': '' ?>><?= em_h($c['companyname']) ?></option><?php endforeach;
@@ -334,5 +374,6 @@ $params['p'] = $histPage + 1;
 ?><div class="panel scroll"><h4>Recent Audit and Delivery Logs</h4><table><tr><th>UTC / DB Time</th><th>Event</th><th>Campaign</th><th>Message</th><th>User</th><th>Detail</th></tr><?php foreach ($logs as $l): ?><tr><td><?= em_h($l['created_at']) ?></td><td><?= em_h($l['event']) ?></td><td><?= em_h($l['campaign_id']) ?></td><td><?= em_h($l['message_id']) ?></td><td><?= em_h($l['name']) ?></td><td><?= em_h($l['detail']) ?></td></tr><?php endforeach;
 ?></table></div><?php endif;
 ?></div>
+</div><!-- /.em-main -->
 <?php require __DIR__.'/includes/footer.php';
 ?>
