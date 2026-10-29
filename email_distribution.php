@@ -12,6 +12,21 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         em_require_post();
         $op = (string)($_POST['op'] ?? '');
+        if ($op === 'run_worker') {
+            em_admin($u);
+            if ($page !== 'queue') {
+                throw new RuntimeException('Invalid queue action');
+            }
+            // Release the PHP session lock before a potentially slow SMTP connection.
+            // The login and CSRF checks have already completed above.
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                session_write_close();
+            }
+            require_once __DIR__ . '/email_worker_core.php';
+            $result = em_process_one_due_message();
+            // Redirect without leaking SMTP errors into the URL.
+            $notice = $result;
+        }
         if ($op === 'settings') {
             em_admin($u);
             $email = trim((string)($_POST['smtp_email'] ?? ''));
@@ -317,7 +332,22 @@ foreach ($templates as $t)if ((int)$t['id'] === $editId)$editing = $t;
 ?><p><button class="btn btn-primary">Save Settings</button></p><p class="muted">Gmail STARTTLS port 587. SMTP passwords are encrypted using EMAIL_SECRET_KEY. Do not put the key in the web root.</p></form></div>
 <?php elseif ($page === 'queue'): $stats = $db->query('SELECT status,COUNT(*) n FROM em_messages GROUP BY status')->fetchAll();
 $campaigns = $db->query("SELECT c.*,u.name,(SELECT COUNT(*) FROM em_messages m WHERE m.campaign_id=c.id) total,(SELECT COUNT(*) FROM em_messages m WHERE m.campaign_id=c.id AND m.status='sent') sent,(SELECT COUNT(*) FROM em_messages m WHERE m.campaign_id=c.id AND m.status='failed') failed,(SELECT COUNT(*) FROM em_messages m WHERE m.campaign_id=c.id AND m.status='scheduled') pending FROM em_campaigns c LEFT JOIN users u ON u.uid=c.created_by ORDER BY c.id DESC LIMIT 100")->fetchAll();
-?> <div class="panel"><h4>Queue Overview</h4><?php foreach ($stats as $s): ?><span class="tag"><?= em_h($s['status']) ?>: <?= (int)$s['n'] ?></span> <?php endforeach;
+?>
+<div class="panel">
+    <h4>Manual Queue Processing</h4>
+    <p>Run one due message immediately without terminal access. Normal scheduling, pause state, rate limits, and sending windows still apply.</p>
+    <?php if ((int)$u['level'] === 1): ?>
+        <form method="post" action="admin.php?action=emaildistribution&amp;page=queue">
+            <input type="hidden" name="csrf" value="<?= em_h(em_csrf()) ?>">
+            <input type="hidden" name="op" value="run_worker">
+            <button type="submit" class="btn btn-primary" onclick="return confirm('Process one due email now?')">Run Email Queue Now</button>
+        </form>
+    <?php else: ?>
+        <p class="muted">Only administrators can manually run the queue. Automatic cron processing is available for all campaigns.</p>
+    <?php endif; ?>
+    <?php if ($notice): ?><div class="alert alert-info"><?= em_h($notice) ?></div><?php endif; ?>
+</div>
+<div class="panel"><h4>Queue Overview</h4><?php foreach ($stats as $s): ?><span class="tag"><?= em_h($s['status']) ?>: <?= (int)$s['n'] ?></span> <?php endforeach;
 ?><p>Queue: <?= $settings['queue_paused'] ? 'PAUSED': 'ACTIVE' ?>. Limit: <?= (int)$settings['hourly_limit'] ?> messages/hour, <?= (int)$settings['daily_recipient_limit'] ?> recipients/day.</p></div>
  <div class="panel scroll"><h4>Recent Campaigns</h4><table><tr><th>Campaign</th><th>Created By</th><th>Scheduled (UTC)</th><th>Messages</th><th>Sent</th><th>Failed</th><th>State</th><th></th></tr><?php foreach ($campaigns as $c): ?><tr><td>#<?= $c['id'] ?></td><td><?= em_h($c['name']) ?></td><td><?= em_h($c['scheduled_at']) ?></td><td><?= $c['total'] ?></td><td><?= $c['sent'] ?></td><td><?= $c['failed'] ?></td><td><?= em_h($c['status']) ?></td><td><?php if ($c['pending'] > 0 && ((int)$u['level'] === 1 || (int)$c['created_by'] === (int)$u['uid'])): ?><form method="post"><input type="hidden" name="csrf" value="<?= em_csrf() ?>"><input type="hidden" name="op" value="cancel"><input type="hidden" name="campaign_id" value="<?= $c['id'] ?>"><button class="btn btn-danger btn-xs" onclick="return confirm('Cancel all unsent messages in this campaign?')">Cancel Pending</button></form><?php endif;
 ?></td></tr><?php endforeach;
