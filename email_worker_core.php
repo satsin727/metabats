@@ -3,6 +3,8 @@
 require_once __DIR__ . '/email_lib.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 function em_process_one_due_message(): string
 {
     $db = em_db();
@@ -27,8 +29,7 @@ function em_process_one_due_message(): string
             $end = $settings['send_end'];
             $allowed = $start <= $end ? ($clock >= $start && $clock <= $end): ($clock >= $start || $clock <= $end);
             if (!$allowed) {
-                echo "Outside sending window\n";
-                exit;
+                return "Outside sending window";
             }
         }
         // Stale processing messages require manual reconciliation: SMTP may have accepted them
@@ -38,9 +39,11 @@ function em_process_one_due_message(): string
             $db->prepare("UPDATE em_messages SET status='failed',last_error='Interrupted send; check SMTP logs before manually resending' WHERE id=? AND status='processing'")->execute([$r['id']]);
             em_log('processing_interrupted', 'Manual reconciliation required', (int)$r['id'], (int)$r['campaign_id']);
         }
-        $last = $db->query("SELECT sent_at FROM em_messages WHERE status='sent' ORDER BY sent_at DESC LIMIT 1")->fetchColumn();
-        if ($last && time() - strtotime($last) < (int)$settings['min_gap_seconds']) {
-            return "Waiting for minimum gap";
+        // Compare UTC timestamps in MySQL rather than interpreting UTC as PHP's local timezone.
+        $elapsed = $db->query("SELECT TIMESTAMPDIFF(SECOND, MAX(sent_at), UTC_TIMESTAMP()) FROM em_messages WHERE status='sent'")->fetchColumn();
+        if ($elapsed !== null && (int)$elapsed < (int)$settings['min_gap_seconds']) {
+            $remaining = (int)$settings['min_gap_seconds'] - (int)$elapsed;
+            return "Waiting for minimum gap (" . max(1, $remaining) . " seconds remaining)";
         }
         $hourly = (int)$db->query("SELECT COUNT(*) FROM em_messages WHERE status='sent' AND sent_at >= UTC_TIMESTAMP()-INTERVAL 1 HOUR")->fetchColumn();
         if ($hourly >= (int)$settings['hourly_limit']) {

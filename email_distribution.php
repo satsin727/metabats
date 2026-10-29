@@ -27,7 +27,7 @@ try {
             // Redirect without leaking SMTP errors into the URL.
             $notice = $result;
         }
-        if ($op === 'settings') {
+        elseif ($op === 'settings') {
             em_admin($u);
             $email = trim((string)($_POST['smtp_email'] ?? ''));
             if (!filter_var($email, FILTER_VALIDATE_EMAIL))throw new RuntimeException('Valid Gmail address required');
@@ -177,7 +177,9 @@ try {
             $db->commit();
             em_redirect('queue', 'Pending messages cancelled');
         }
-        throw new RuntimeException('Unknown action');
+        if ($op !== 'run_worker') {
+            throw new RuntimeException('Unknown action');
+        }
     }
 }
 catch (Throwable $e) {
