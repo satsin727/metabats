@@ -684,3 +684,25 @@ function em_queue_summary(array $u, string $day, string $type, $groupIds): array
     } catch (Throwable $e) { $db->rollBack(); throw $e; }
     return ['campaign_id' => $camp, 'parts' => count($parts) * count($groups), 'total' => $total, 'groups' => count($groups)];
 }
+
+/* ---------------- Simple email formatting: **bold** and __underline__ ---------------- */
+/** True when the text uses the formatting markers (then the email is sent as HTML + plain-text copy). */
+function em_has_format(string $text): bool {
+    return (bool)preg_match('/\*\*(?=\S)[^\n]*?\S\*\*|__(?=\S)[^\n]*?\S__/', $text);
+}
+/** Plain text -> safe HTML: escapes everything, then **x** -> bold, __x__ -> underline, line breaks kept. */
+function em_text_to_html(string $text): string {
+    $h = htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $h = preg_replace('/\*\*(?=\S)([^\n]*?\S)\*\*/', '<b>$1</b>', $h);
+    $h = preg_replace('/__(?=\S)([^\n]*?\S)__/', '<u>$1</u>', $h);
+    $h = str_replace(["\r\n", "\r"], "\n", $h);
+    $paras = preg_split('/\n{2,}/', trim($h));
+    $out = '';
+    foreach ($paras as $p) $out .= '<p style="margin:0 0 12px">' . nl2br($p, false) . '</p>';
+    return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#222">' . $out . '</div>';
+}
+/** Plain-text copy for mail apps that do not show HTML: markers removed. */
+function em_text_plain(string $text): string {
+    $t = preg_replace('/\*\*(?=\S)([^\n]*?\S)\*\*/', '$1', $text);
+    return preg_replace('/__(?=\S)([^\n]*?\S)__/', '$1', $t);
+}

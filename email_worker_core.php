@@ -109,9 +109,15 @@ function em_process_one_due_message(?string $only = null): string
             foreach ($rc['to'] ?? [] as $a)$mail->addAddress($a);
             foreach ($rc['cc'] ?? [] as $a)$mail->addCC($a);
             foreach ($rc['bcc'] ?? [] as $a)$mail->addBCC($a);
-            $mail->isHTML(false);
-            $mail->Subject = $item['subject'];
-            $mail->Body = $item['body'];
+            $formatted = em_has_format((string)$item['body']);   // **bold** / __underline__ used?
+            $mail->isHTML($formatted);
+            $mail->Subject = em_text_plain((string)$item['subject']);
+            if ($formatted) {
+                $mail->Body = em_text_to_html((string)$item['body']);
+                $mail->AltBody = em_text_plain((string)$item['body']);
+            } else {
+                $mail->Body = $item['body'];   // unchanged plain-text email
+            }
             $mail->send();
             $db->prepare("UPDATE em_messages SET status='sent',sent_at=UTC_TIMESTAMP(),locked_at=NULL,last_error=NULL,smtp_message_id=? WHERE id=?")->execute([$mail->getLastMessageID(), $item['id']]);
             em_log('smtp_accepted', 'SMTP accepted message', (int)$item['id'], (int)$item['campaign_id']);

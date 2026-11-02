@@ -465,13 +465,15 @@ endif; ?>
   $('#em-modal-x').addEventListener('click', closeModal);
   bg.addEventListener('click', function (e) { if (e.target === bg) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+  // same rules as em_text_to_html(): **bold**, __underline__ (preview shows exactly what the email will look like)
+  function fmt(t) { return esc(t).replace(/\*\*(?=\S)([^\n]*?\S)\*\*/g, '<b>$1</b>').replace(/__(?=\S)([^\n]*?\S)__/g, '<u>$1</u>'); }
   function mailHtml(m) {
     if (m.channel === 'chat') return '<div class="em-mail"><div class="em-mail-h"><div><b>Google Chat</b> → ' + esc(m.list_name) + '</div><div class="muted">' + (m.reqid ? 'Req #' + esc(m.reqid) : 'Summary') + '</div></div><div class="em-mail-b">' + esc(m.body) + '</div></div>';
     var rc = m.recipients || { to: m.to, cc: m.cc, bcc: m.bcc };
     return '<div class="em-mail"><div class="em-mail-h"><div><b>To:</b> ' + esc((rc.to || []).join(', ')) + '</div>' +
       ((rc.cc || []).length ? '<div><b>CC:</b> ' + esc(rc.cc.join(', ')) + '</div>' : '') + ((rc.bcc || []).length ? '<div><b>BCC:</b> ' + esc(rc.bcc.join(', ')) + '</div>' : '') +
       '<div><b>Subject:</b> ' + esc(m.subject) + '</div><div class="muted">Req #' + esc(m.reqid) + ' · group: ' + esc(m.list_name) + '</div></div>' +
-      '<div class="em-mail-b">' + esc(m.body) + '</div></div>';
+      '<div class="em-mail-b">' + fmt(m.body) + '</div></div>';
   }
 
   /* ---------- Requirements page ---------- */
