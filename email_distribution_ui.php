@@ -233,6 +233,14 @@ for ($n = max(1, $pg - 3); $n <= min($pages, $pg + 3); $n++): $url = 'admin.php?
 /* ===================== TODAY'S QUEUE (live): Google Chat + Email ===================== */
 $canSummary = in_array((int)$u['level'], [1, 2], true); ?>
 <div class="panel">
+<?php [, , $qLabel] = em_period('today'); ?>
+ <h4>Today's Queue <small id="em-q-label">— <?= em_h($qLabel) ?></small></h4>
+ <p class="muted">Everything queued or sent today, plus anything still waiting. Refreshes every 15 seconds without reloading.</p>
+ <p>Last refresh: <b id="em-q-now"><?= em_h($todayLocal->format('m/d/Y g:i:s A')) ?></b> · Queue: <b id="em-q-state" class="<?= (int)$settings['queue_paused'] === 1 ? 'text-danger' : 'text-success' ?>"><?= (int)$settings['queue_paused'] === 1 ? 'PAUSED' : 'ACTIVE' ?></b>
+ <?php if ((int)$settings['queue_paused'] === 1 && $isAdmin): ?> <a href="admin.php?action=emaildistribution&amp;page=settings">(un-pause in settings)</a><?php endif; ?></p>
+ <div id="em-q-error" class="alert alert-danger" style="display:none"></div>
+ <button class="btn btn-default" id="em-q-refresh">Refresh now</button>
+</div>
 
 <div class="panel" id="em-chat-panel">
  <h4><span class="label label-primary" style="font-size:13px">Google Chat</span> queue</h4>
@@ -537,7 +545,9 @@ endif; ?>
     var statusCell = function (m) { return '<span class="label label-' + (badge[m.status] || 'default') + '">' + esc(m.status) + '</span>' + (m.error ? '<div class="muted">' + esc(m.error.slice(0, 160)) + '</div>' : ''); };
     var load = function () {
       api('today_queue', null, 'GET').then(function (j) {
-        $('#em-q-label').textContent = '— ' + j.label; $('#em-q-now').textContent = j.now; $('#em-q-state').textContent = j.paused ? 'PAUSED' : 'ACTIVE';
+        $('#em-q-error').style.display = 'none';
+        $('#em-q-label').textContent = '— ' + j.label; $('#em-q-now').textContent = j.now;
+        $('#em-q-state').textContent = j.paused ? 'PAUSED' : 'ACTIVE'; $('#em-q-state').className = j.paused ? 'text-danger' : 'text-success';
         var chat = j.rows.filter(function (m) { return m.channel === 'chat'; }), mail = j.rows.filter(function (m) { return m.channel !== 'chat'; });
         $('#em-qc-stats').innerHTML = statsHtml(j.by_channel.chat);
         $('#em-qc-limits').textContent = 'Limits: ' + j.chat_hourly + ' messages/hour, at least ' + j.chat_gap + ' s apart.' + (j.chat_ready ? '' : ' (Google Chat is not set up)');
@@ -552,7 +562,10 @@ endif; ?>
             '</td><td>' + statusCell(m) + '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.chat) + '</td><td>' + esc(m.by) + '</td><td>' + cancelBtn(m) + '</td></tr>';
         }).join('') : '<tr><td colspan="11" class="muted">No emails today.</td></tr>';
         $$('.em-q-cancel').forEach(function (b) { b.onclick = function () { if (!confirm('Cancel this message?')) return; api('cancel', { message_id: b.getAttribute('data-id') }).then(function () { toast('Cancelled'); load(); }).catch(function (e) { toast(e.message, true); }); }; });
-      }).catch(function (e) { toast(e.message, true); });
+      }).catch(function (e) {   // show the reason in the page instead of leaving the queue blank
+        var box = $('#em-q-error'); box.textContent = 'Could not load the queue: ' + e.message; box.style.display = '';
+        ['#em-qc-body', '#em-qe-body'].forEach(function (id) { var t = $(id); if (t && /Loading/.test(t.textContent)) t.innerHTML = '<tr><td colspan="11" class="text-danger">Could not load — see the message above.</td></tr>'; });
+      });
     };
     load(); setInterval(load, 15000);
     $('#em-q-refresh').onclick = load;
