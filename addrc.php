@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,14 +34,14 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 //			$data = $conn->query("select * from app_data where `app_id` = $app_id")->fetch();
 
 
-		$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= $app_id and `rcdone` = 1")->fetchColumn();
+		$isdual = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `app_id`= " . bats_q($app_id) . " and `rcdone` = 1"))->fetchColumn();
 		if($isdual!=0)
 		{
 			echo "<script>alert('RC Already Added. Please focus.');window.close();</script>"; 
 		}
 		else
 		{
-			$conn->query("UPDATE `app_data` SET `rcdone` = '1', `rcdate` = '$currentdatetime', `rateperhour` = $rate, `t1ip_name`= '$t1ip_name', `ars_status` =7 WHERE `app_id` = $app_id");
+			$conn->query(("UPDATE `app_data` SET `rcdone` = '1', `rcdate` = " . bats_q("$currentdatetime") . ", `rateperhour` = " . bats_q($rate) . ", `t1ip_name`= " . bats_q("$t1ip_name") . ", `ars_status` =7 WHERE `app_id` = " . bats_q($app_id)));
 			echo "<script>alert('Rate Added.');window.close();</script>"; }
 		}
 		else

@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,24 +34,24 @@ $uid = $dta['uid'];
 $eciid = $_GET['eciid'];
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
-		$query = "select * from eci AS A LEFT JOIN app_data AS B ON A.app_id = B.app_id where A.app_id = $eciid order by A.datetime desc";
+		$query = ("select * from eci AS A LEFT JOIN app_data AS B ON A.app_id = B.app_id where A.app_id = " . bats_q($eciid) . " order by A.datetime desc");
 	}
 	else
 	{
-		$query = "select * from eci AS A LEFT JOIN app_data AS B ON A.app_id = B.app_id where A.app_id = $eciid and B.uid = $uid order by A.datetime desc";
+		$query = ("select * from eci AS A LEFT JOIN app_data AS B ON A.app_id = B.app_id where A.app_id = " . bats_q($eciid) . " and B.uid = " . bats_q($uid) . " order by A.datetime desc");
 	}
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
 
-$consultantid = $conn->query("select consultant_id from app_data where app_id = $eciid")->fetchColumn();
-$skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-$skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-$cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-$clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-$ipname = $conn->query("select t1ip_name from app_data where app_id = $eciid")->fetchColumn();
-$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn();
-$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+$consultantid = bats_col('app_data', 'app_id', $eciid, 'consultant_id');
+$skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+$skill = bats_col('skill', 'sid', $skillid, 'skillname');
+$cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');
+$clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+$ipname = bats_col('app_data', 'app_id', $eciid, 't1ip_name');
+$reqid = bats_col('app_data', 'app_id', $eciid, 'reqid');
+$clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">

@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -44,7 +45,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 													<?php
 												if($add=='marketdetails')
 												{
-																					$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																					$conn = bats_db();
 																					$query ="Select * FROM consultants where `cid` = :cid";
 																					$ins= $conn->prepare($query);
 																					$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -120,7 +121,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																					$cmvisa = $_POST['cmvisa'];
 
 
-																					$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																					$conn = bats_db();
 																					 $query = "select * from consultants where `cid` = :cid";
 																					 $ins= $conn->prepare($query);
 																					 $ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -130,7 +131,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																					 if($dta['cid'])
 																					 {
 
-																					 $inquery = "UPDATE `consultants` SET `cm_email` = '$cm_email', `cm_password` = '$cm_password', `cp_email` = '$cp_email', `cp_password` = '$cp_password', `cmlocation` = '$cmlocation', `cm_phonenumber` = '$cm_phonenumber', `cmvisa` = '$cmvisa' WHERE `cid` = :cid;";
+																					 $inquery = ("UPDATE `consultants` SET `cm_email` = " . bats_q("$cm_email") . ", `cm_password` = " . bats_q("$cm_password") . ", `cp_email` = " . bats_q("$cp_email") . ", `cp_password` = " . bats_q("$cp_password") . ", `cmlocation` = " . bats_q("$cmlocation") . ", `cm_phonenumber` = " . bats_q("$cm_phonenumber") . ", `cmvisa` = " . bats_q("$cmvisa") . " WHERE `cid` = :cid;");
 																					$ins= $conn->prepare($inquery);
 																					$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
 																					$ins->execute();																					
@@ -142,7 +143,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 												if($add=='educationdetails')
 												{
-																					$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																					$conn = bats_db();
 																					$query ="Select * FROM consultants where `cid` = :cid";
 																					$ins= $conn->prepare($query);
 																					$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -215,7 +216,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																					$myear = $_POST['myear'];
 
 
-																					$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																					$conn = bats_db();
 																					 $query = "select * from consultants where `cid` = :cid";
 																					 $ins= $conn->prepare($query);
 																					 $ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -225,7 +226,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																					 if($dta['cid'])
 																					 {
 
-																					 $inquery = "UPDATE `consultants` SET `bachelordegree` = '$bachelordegree', `buniversity` = '$buniversity', `byear` = '$byear', `masterdegree` = '$masterdegree', `muniversity` = '$muniversity', `myear` = '$myear' WHERE `cid` = :cid";
+																					 $inquery = ("UPDATE `consultants` SET `bachelordegree` = " . bats_q("$bachelordegree") . ", `buniversity` = " . bats_q("$buniversity") . ", `byear` = " . bats_q("$byear") . ", `masterdegree` = " . bats_q("$masterdegree") . ", `muniversity` = " . bats_q("$muniversity") . ", `myear` = " . bats_q("$myear") . " WHERE `cid` = :cid");
 																					$ins= $conn->prepare($inquery);
 																					$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
 																					$ins->execute();																					
@@ -238,7 +239,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 
 											if($add=='files')
 											{
-																						$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																						$conn = bats_db();
 																						$query ="Select * FROM consultants where `cid` = :cid";
 																						$ins= $conn->prepare($query);
 																						$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -412,7 +413,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																					
 																						
 
-																									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+																									$conn = bats_db();
 																									 $query = "select * from consultants where `cid` = :cid";
 																									 $ins= $conn->prepare($query);
 																									 $ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -422,7 +423,7 @@ if($dta['level'] == 1 || $dta['level'] == 2|| $dta['level'] == 3)
 																									 if($dta['cid'])
 																									 {
 
-																									 $inquery = "UPDATE `consultants` SET `resume` = '$resume', `visacopy` = '$visacopy', `dlcopy` = '$dlcopy', `stateid` = '$stateid', `passportcopy` = '$passportcopy' WHERE `consultants`.`cid` = :cid;";
+																									 $inquery = ("UPDATE `consultants` SET `resume` = " . bats_q("$resume") . ", `visacopy` = " . bats_q("$visacopy") . ", `dlcopy` = " . bats_q("$dlcopy") . ", `stateid` = " . bats_q("$stateid") . ", `passportcopy` = " . bats_q("$passportcopy") . " WHERE `consultants`.`cid` = :cid;");
 																									$ins= $conn->prepare($inquery);
 																									$ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
 																									$ins->execute();																						

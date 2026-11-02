@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -74,8 +74,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 )
 if(isset($_POST['save']))
 		{
 		$skillname = $_POST['skillname'];
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "INSERT INTO `skill` (`sid`, `skillname`) VALUES (NULL, '$skillname');";
+		$conn = bats_db();
+		$inquery = ("INSERT INTO `skill` (`sid`, `skillname`) VALUES (NULL, " . bats_q("$skillname") . ");");
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		header( "Location: admin.php?action=showreqs" ); 

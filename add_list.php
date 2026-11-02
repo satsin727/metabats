@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -77,8 +77,8 @@ if(isset($_POST['save']))
 		$date = date("Y-m-d H:i:s");
 		$status="1";
 		$total="0";
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query = "INSERT INTO `lists` (`listid`, `listname`, `uid`, `date`, `status`, `total`) VALUES (NULL,'$listname', '$uid', '$date', '$status', '$total');";
+		$conn = bats_db();
+		$query = ("INSERT INTO `lists` (`listid`, `listname`, `uid`, `date`, `status`, `total`) VALUES (NULL," . bats_q("$listname") . ", " . bats_q("$uid") . ", " . bats_q("$date") . ", " . bats_q("$status") . ", " . bats_q("$total") . ");");
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		header( "Location: admin.php?action=listall" );

@@ -1,6 +1,7 @@
 <?php
 
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -12,7 +13,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -29,18 +30,18 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$reqid = $_POST['reqid'];
 //			$rate = $_POST['rate'];
 			$consultant_id = $_POST['cid'];
-			$data = $conn->query("select * from req where `reqid` = $reqid")->fetch();
+			$data = $conn->query(("select * from req where `reqid` = " . bats_q($reqid)))->fetch();
 			$client_id = $data['cid'];	
 			$currentdatetime =date('Y-m-d H:i:s');
 
-			$isdual = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `uid` = $uid and `consultant_id` = $consultant_id")->fetchColumn();
+			$isdual = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= " . bats_q($reqid) . " and `uid` = " . bats_q($uid) . " and `consultant_id` = " . bats_q($consultant_id)))->fetchColumn();
 			if($isdual!=0)
 			{
 				echo "<script>alert('Application Already Added. Avoid multiple application');window.close();</script>"; 
 			}
 			else
 			{
-			$conn->query("INSERT INTO `app_data` (`uid`, `reqid`, `client_id`, `consultant_id`, `appdate`) VALUES ($uid, $reqid, $client_id, $consultant_id, '$currentdatetime')");
+			$conn->query(("INSERT INTO `app_data` (`uid`, `reqid`, `client_id`, `consultant_id`, `appdate`) VALUES ($uid, $reqid, $client_id, $consultant_id, " . bats_q("$currentdatetime") . ")"));
 			echo "<script>alert('Application Added.');window.close();</script>"; }
 		}
 		else
@@ -50,18 +51,18 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				$reqid=$_GET['reqid'];
 			}	
 
-			$data = $conn->query("select * from req where `reqid` = $reqid")->fetch();
+			$data = $conn->query(("select * from req where `reqid` = " . bats_q($reqid)))->fetch();
 			$skillid = $data['skillid'];
 
 
 			if($dta['level'] ==1 || $dta['level'] == 2)
 				{
-					$qcid = "select * from consultants where status = 1 and skill = $skillid order by cfname asc";
+					$qcid = ("select * from consultants where status = 1 and skill = " . bats_q($skillid) . " order by cfname asc");
 				}
 			else 
 				{ 
-					$rmid = $conn->query("select rmid from users where uid = $sessid")->fetchColumn();
-					$qcid = "select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid = $rmid and B.skill = $skillid and B.status = 1 order by B.cfname asc"; 
+					$rmid = $conn->query(("select rmid from users where uid = " . bats_q($sessid)))->fetchColumn();
+					$qcid = ("select * from assigned AS A INNER JOIN consultants AS B ON A.cid = B.cid where uid = " . bats_q($rmid) . " and B.skill = " . bats_q($skillid) . " and B.status = 1 order by B.cfname asc"); 
 				}	
 
 			$cq= $conn->prepare($qcid);

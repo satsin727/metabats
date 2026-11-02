@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/config.php'; // starts the 7-day session
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 
 $sessid = $_SESSION['id'];
 
@@ -9,7 +10,7 @@ $numberofrecords = 30;
 
 try {
 
-    $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $conn = bats_db();
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     // If no search term or search term is empty

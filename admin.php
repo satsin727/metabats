@@ -1,4 +1,5 @@
 <?php require ( "config.php");
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 $action = isset( $_GET['action']) ? $_GET['action']: "";
 $username = isset( $_SESSION['username']) ? $_SESSION['username']: "";
 if ( $action != "login" && $action != "logout" && !$username) {
@@ -99,7 +100,7 @@ function login() {
         $phash = md5($mdemail.$code);
         $uhash = md5($u);
         $conn = null;
-        $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
+        $conn = bats_db();
         $query = "select * from users where `username` = :u";
         $ins = $conn->prepare($query);
         $ins->bindValue( ":u", $u, PDO::PARAM_STR);
@@ -124,7 +125,7 @@ window.location.href='lout.php?id="."$rid"."';
                 $_SESSION['id'] = $dta['uid'];
                 $_SESSION['date'] = $date;
                 $ip = $_SERVER['REMOTE_ADDR'];
-                $q2 = "UPDATE `users` SET `sess` = \"".$_SESSION['username']."\", `date` = \"".$date."\", `lastloginip` = \"".$ip."\" WHERE `users`.`uid` = \"".$dta['uid']."\" ";
+                $q2 = "UPDATE `users` SET `sess` = " . bats_q($_SESSION['username']) . ", `date` = \"".$date."\", `lastloginip` = " . bats_q($ip) . " WHERE `users`.`uid` = \"".$dta['uid']."\" ";
                 $inssess = $conn->prepare($q2);
                 $inssess->execute();
                 header( "Location: admin.php");
@@ -155,7 +156,7 @@ function logout() {
     $uid = $_SESSION['id'];
     unset ($_SESSION['id']);
     unset ($_SESSION['date']);
-    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $conn = bats_db();
     $q4 = "UPDATE `users` set `sess` = \"0\" where `uid` = :id ";
     $lout = $conn->prepare($q4);
     $lout->bindValue( ":id", $uid, PDO::PARAM_INT);
@@ -316,7 +317,7 @@ function clientlistdownload() {
         header( "Location: admin.php");
         exit;
     }
-    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $conn = bats_db();
     $query = "select * from users where `uid` = :u";
     $ins = $conn->prepare($query);
     $ins->bindValue( ":u", $sessid, PDO::PARAM_STR);
@@ -326,9 +327,9 @@ function clientlistdownload() {
         $dsql = "SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.status = 1 group by A.remail";
     }
     else {
-        $dsql = "SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.uid = $sessid AND A.status = 1 group by A.remail";
+        $dsql = ("SELECT Distinct A.uid, A.companyname, A.rname, A.rfname, A.remail, A.rphone, A.rlocation, A.rtimezon, A.tier, B.name FROM clients A LEFT JOIN users B ON A.uid = B.uid where A.uid = " . bats_q($sessid) . " AND A.status = 1 group by A.remail");
     }
-    $connd = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $connd = bats_db();
     $dins = $connd->prepare($dsql);
     $dins->execute();
     $date = date("Y-m-d H:i:s");
@@ -355,6 +356,7 @@ function clientlistdownload() {
     ob_clean();
     flush();
     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
     exit();
     /*echo "<script>
 alert('$lineData');

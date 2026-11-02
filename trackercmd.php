@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -53,55 +54,55 @@ if(isset($_GET['appcd_id']))
 			{
                 $consultantid = $_GET['appcd_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1 and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         if(isset($_GET['rccd_id']))
 			{
                 $consultantid = $_GET['rccd_id'];
                 $rc = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
             
         if(isset($_GET['subcd_id']))
             {
                 $consultantid = $_GET['subcd_id'];                
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and subdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND subdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(subdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['ecicd_id']))
 			{
                 $consultantid = $_GET['ecicd_id'];
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(eci_date) = DATE(" . bats_q("$curdate") . ")  and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
             }
         
             if(isset($_GET['appcw_id']))
 			{
                 $consultantid = $_GET['appcw_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['rccw_id']))
 			{
                 $consultantid = $_GET['rccw_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
             
         if(isset($_GET['subcw_id']))
 			{
                 $consultantid = $_GET['subcw_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['ecicw_id']))
 			{
                 $consultantid = $_GET['ecicw_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
             
@@ -109,28 +110,28 @@ if(isset($_GET['appcd_id']))
 			{
                 $consultantid = $_GET['appcm_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['rccm_id']))
 			{
                 $consultantid = $_GET['rccm_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
             
         if(isset($_GET['subcm_id']))
 			{
                 $consultantid = $_GET['subcm_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['ecicm_id']))
 			{
                 $consultantid = $_GET['ecicm_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
 
@@ -139,28 +140,28 @@ if(isset($_GET['appcd_id']))
         {
             $consultantid = $_GET['appcy_id'];
             $app = 1;
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and YEAR(appdate) = YEAR('$curdate')";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
         }
     
     if(isset($_GET['rccy_id']))
         {
             $consultantid = $_GET['rccy_id'];
             $rc = 1;                
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
         }
         
     if(isset($_GET['subcy_id']))
         {
             $consultantid = $_GET['subcy_id'];
             $sub = 1;
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
         }
     
     if(isset($_GET['ecicy_id']))
         {
             $consultantid = $_GET['ecicy_id'];                
             $eci = 1;
-            $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+            $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
         //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
         }
 
@@ -168,28 +169,28 @@ if(isset($_GET['appcd_id']))
         {
             $consultantid = $_GET['appcall_id'];
             $app = 1;
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1");
         }
         
     if(isset($_GET['rccall_id']))
         {
             $consultantid = $_GET['rccall_id'];
             $app = 1;
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status` = 1";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status` = 1");
         }
         
     if(isset($_GET['subcall_id']))
         {
             $consultantid = $_GET['subcall_id'];
             $app = 1;
-            $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1  and `subdone` = 1 and `status` = 1";
+            $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1  and `subdone` = 1 and `status` = 1");
         }
     
     if(isset($_GET['ecicall_id']))
         {
             $consultantid = $_GET['ecicall_id'];                
             $eci = 1;
-            $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
+            $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `status` = 1");
         //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
         }
 
@@ -203,14 +204,14 @@ if(isset($_GET['appcd_id']))
                 $app = 1;
                 $total=1;                
                 $download = "dapp";
-                $query = "SELECT * FROM `app_data` WHERE  `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE  `status` = 1 and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
             }
             if(isset($_GET['rccdt_id']))
             {
                 $rc = 1;                
                 $total=1;
                 $download = "drc";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
             }
 
             if(isset($_GET['subcdt_id']))
@@ -218,7 +219,7 @@ if(isset($_GET['appcd_id']))
                 $sub = 1;
                 $total=1;                
                 $download = "dsub";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and subdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND subdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
             }
 
             if(isset($_GET['ecicdt_id']))
@@ -226,7 +227,7 @@ if(isset($_GET['appcd_id']))
                 $eci = 1;
                 $total=1;
                 $download = "deci";
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = DATE('$curdate') and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(eci_date) = DATE(" . bats_q("$curdate") . ") and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc");
             }
 
             if(isset($_GET['appcwt_id']))
@@ -234,7 +235,7 @@ if(isset($_GET['appcd_id']))
                 $app = 1;
                 $total=1;
                 $download = "wapp";
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
             }
 
             if(isset($_GET['rccwt_id']))
@@ -242,7 +243,7 @@ if(isset($_GET['appcd_id']))
                 $rc = 1;  
                 $total=1;    
                 $download = "wrc";          
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
             }
 
             if(isset($_GET['subcwt_id']))
@@ -250,7 +251,7 @@ if(isset($_GET['appcd_id']))
                 $sub = 1;
                 $total=1;
                 $download = "wsub";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
             }
 
             if(isset($_GET['ecicwt_id']))
@@ -258,7 +259,7 @@ if(isset($_GET['appcd_id']))
                 $eci = 1;
                 $total=1;
                 $download = "weci";
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc");
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
 
@@ -266,14 +267,14 @@ if(isset($_GET['appcd_id']))
             {
                 $app = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
                 $download = "mapp";
             }
             if(isset($_GET['appcyt_id']))
             {
                 $app = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1  and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
                 $download = "yapp";
             }
 
@@ -281,7 +282,7 @@ if(isset($_GET['appcd_id']))
             {
                 $rc = 1;   
                 $total=1;             
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
                 $download = "mrc";
             }
 
@@ -290,7 +291,7 @@ if(isset($_GET['appcd_id']))
             {
                 $rc = 1;   
                 $total=1;             
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
                 $download = "yrc";
             }
 
@@ -298,7 +299,7 @@ if(isset($_GET['appcd_id']))
             {
                 $sub = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
                 $download = "msub";
             }
 
@@ -307,7 +308,7 @@ if(isset($_GET['appcd_id']))
             {
                 $sub = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
                 $download = "ysub";
             }
 
@@ -316,7 +317,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");
                 $download = "meci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -333,7 +334,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");
                 $download = "yeci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -346,55 +347,55 @@ if(isset($_GET['appcd_id']))
                 {
                     $consultantid = $_GET['appcd_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultantid`= $consultantid and `status` = 1 and `uid` = $uid and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultantid`= " . bats_q($consultantid) . " and `status` = 1 and `uid` = " . bats_q($uid) . " and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             if(isset($_GET['rccd_id']))
                 {
                     $consultantid = $_GET['rccd_id'];
                     $rc = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `uid` = $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
                 
             if(isset($_GET['subcd_id']))
                 {
                     $consultantid = $_GET['subcd_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `uid` = $uid and `status`= 1 and DATE(subdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and subdate >= DATE(" . bats_q("$curdate") . ") AND subdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(subdate) = DATE(" . bats_q("$curdate") . ") and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['ecicd_id']))
                 {
                     $consultantid = $_GET['ecicd_id'];
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and DATE(eci_date) = DATE('$curdate') and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `sm_id` = " . bats_q($uid) . " and `status` = 1 and eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(eci_date) = DATE(" . bats_q("$curdate") . ") and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['appcw_id']))
                 {
                     $consultantid = $_GET['appcw_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `uid` = $uid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `uid` = " . bats_q($uid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['rccw_id']))
                 {
                     $consultantid = $_GET['rccw_id'];
                     $rc = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
                 
             if(isset($_GET['subcw_id']))
                 {
                     $consultantid = $_GET['subcw_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `uid` = $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['ecicw_id']))
                 {
                     $consultantid = $_GET['ecicw_id'];
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `sm_id` = $uid and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . " and `eci_happened` =1 and `sm_id` = " . bats_q($uid) . " and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                   //  $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `sm_id` = $uid and `status` = 1";
                 }
                         
@@ -402,28 +403,28 @@ if(isset($_GET['appcd_id']))
                 {
                     $consultantid = $_GET['appcm_id'];
                     $app = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['rccm_id']))
                 {
                     $consultantid = $_GET['rccm_id'];
                     $rc = 1;                
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
                 
             if(isset($_GET['subcm_id']))
                 {
                     $consultantid = $_GET['subcm_id'];
                     $sub = 1;
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['ecicm_id']))
                 {
                     $consultantid = $_GET['ecicm_id'];                
                     $eci = 1;
-                    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid  and `sm_id` = $uid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `sm_id` = " . bats_q($uid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                 //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
                 }
                                         
@@ -431,28 +432,28 @@ if(isset($_GET['appcd_id']))
             {
                 $consultantid = $_GET['appcy_id'];
                 $app = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `status` = 1  YEAR(appdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `status` = 1  YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['rccy_id']))
             {
                 $consultantid = $_GET['rccy_id'];
                 $rc = 1;                
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
             
         if(isset($_GET['subcy_id']))
             {
                 $consultantid = $_GET['subcy_id'];
                 $sub = 1;
-                $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid  and `uid` = $uid and `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `uid` = " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
             }
         
         if(isset($_GET['ecicy_id']))
             {
                 $consultantid = $_GET['ecicy_id'];                
                 $eci = 1;
-                $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid  and `sm_id` = $uid and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+                $query = ("SELECT * FROM `eci` WHERE `consultant_id`= " . bats_q($consultantid) . "  and `sm_id` = " . bats_q($uid) . " and `eci_happened` =1 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
     
@@ -462,14 +463,14 @@ if(isset($_GET['appcd_id']))
                 $app = 1;
                 $total=1;                
                 $download = "dapp";
-                $query = "SELECT * FROM `app_data` WHERE  `status` = 1  and`uid`= $uid and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE  `status` = 1  and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
             }
             if(isset($_GET['rccdt_id']))
             {
                 $rc = 1;                
                 $total=1;
                 $download = "drc";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
             }
 
             if(isset($_GET['subcdt_id']))
@@ -477,7 +478,7 @@ if(isset($_GET['appcd_id']))
                 $sub = 1;
                 $total=1;                
                 $download = "dsub";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and subdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND subdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
             }
 
             if(isset($_GET['ecicdt_id']))
@@ -485,7 +486,7 @@ if(isset($_GET['appcd_id']))
                 $eci = 1;
                 $total=1;
                 $download = "deci";
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= $uid and DATE(eci_date) = DATE('$curdate') and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= " . bats_q($uid) . " and eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(eci_date) = DATE(" . bats_q("$curdate") . ") and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc");
             }
 
             if(isset($_GET['appcwt_id']))
@@ -493,7 +494,7 @@ if(isset($_GET['appcd_id']))
                 $app = 1;
                 $total=1;
                 $download = "wapp";
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
             }
 
             if(isset($_GET['rccwt_id']))
@@ -501,7 +502,7 @@ if(isset($_GET['appcd_id']))
                 $rc = 1;  
                 $total=1;    
                 $download = "wrc";          
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
             }
 
             if(isset($_GET['subcwt_id']))
@@ -509,7 +510,7 @@ if(isset($_GET['appcd_id']))
                 $sub = 1;
                 $total=1;
                 $download = "wsub";
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and `subdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
             }
 
             if(isset($_GET['ecicwt_id']))
@@ -517,7 +518,7 @@ if(isset($_GET['appcd_id']))
                 $eci = 1;
                 $total=1;
                 $download = "weci";
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= " . bats_q($uid) . " and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc");
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
 
@@ -525,14 +526,14 @@ if(isset($_GET['appcd_id']))
             {
                 $app = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
                 $download = "mapp";
             }
             if(isset($_GET['appcyt_id']))
             {
                 $app = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and YEAR(appdate) = YEAR('$curdate') order by appdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc");
                 $download = "yapp";
             }
 
@@ -540,7 +541,7 @@ if(isset($_GET['appcd_id']))
             {
                 $rc = 1;   
                 $total=1;             
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
                 $download = "mrc";
             }
 
@@ -549,7 +550,7 @@ if(isset($_GET['appcd_id']))
             {
                 $rc = 1;   
                 $total=1;             
-                $query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");
                 $download = "yrc";
             }
 
@@ -557,7 +558,7 @@ if(isset($_GET['appcd_id']))
             {
                 $sub = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and`uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `subdone` = 1 and`uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
                 $download = "msub";
             }
 
@@ -566,7 +567,7 @@ if(isset($_GET['appcd_id']))
             {
                 $sub = 1;
                 $total=1;
-                $query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate') order by subdate asc";
+                $query = ("SELECT * FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");
                 $download = "ysub";
             }
 
@@ -575,7 +576,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= " . bats_q($uid) . " and `eci_round` = 3 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");
                 $download = "meci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -583,7 +584,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= " . bats_q($uid) . " and `eci_round` = 3 and `status` = 1 order by eci_req_date asc");
                 $download = "teci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -592,7 +593,7 @@ if(isset($_GET['appcd_id']))
             {               
                 $eci = 1;
                 $total=1;
-                $query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";
+                $query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= " . bats_q($uid) . " and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");
                 $download = "yeci";
             //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
             }
@@ -605,16 +606,16 @@ $data = $ins->fetchAll();
 
 if($total==0)
 {
-    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-    $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
-    $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+    $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+    $skill = bats_col('skill', 'sid', $skillid, 'skillname');
+    $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');
+    $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+    $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+    $cmnumber = bats_col('consultants', 'cid', $consultantid, 'cm_phonenumber');
+    $conumber = bats_col('consultants', 'cid', $consultantid, 'co_phonenumber');
 }
 /*
-$reqid = $conn->query("select reqid from app_data where app_id = $eciid")->fetchColumn(); */
+$reqid = bats_col('app_data', 'app_id', $eciid, 'reqid'); */
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
@@ -671,13 +672,13 @@ foreach( $data as $row) {
 $consultantid = $row['consultant_id'];
     if($total==1)
 {
-    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-    $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
-    $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+    $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+    $skill = bats_col('skill', 'sid', $skillid, 'skillname');
+    $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+    $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+    $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+    $cmnumber = bats_col('consultants', 'cid', $consultantid, 'cm_phonenumber');
+    $conumber = bats_col('consultants', 'cid', $consultantid, 'co_phonenumber');
 }
 
 if($app == 1 || $rc == 1 || $sub == 1)
@@ -695,24 +696,24 @@ elseif($eci == 1) {
 }
 
 
-								$q3 = "SELECT * from clients where `cid` = $cid";
+								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
 
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
 
-								$q5 = "SELECT * from req where `reqid` = $reqid";
+								$q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
 								$ins6= $conn->prepare($q5);
 								$ins6->execute(); 
 								$dta5 = $ins6->fetch();
 
-$ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+$ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+$clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
 	?>
     <tr>
@@ -742,7 +743,7 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 
 		<td> 
 		<?php
-		$ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+		$ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
 		/*
 		    <option value="1">Connected</option>
     <option value="2">Not Connected</option>

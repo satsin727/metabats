@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,7 +33,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 )
 }
 elseif ($dta['level'] == 3)
 {
-$query = "SELECT * FROM `consultants` INNER JOIN assigned on `consultants`.`cid`=`assigned`.`cid` where `assigned`.`uid` = $uid  order by cfname asc";}
+$query = ("SELECT * FROM `consultants` INNER JOIN assigned on `consultants`.`cid`=`assigned`.`cid` where `assigned`.`uid` = " . bats_q($uid) . "  order by cfname asc");}
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -67,11 +67,11 @@ $conn=null;
 <?php
 $i=1;
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 foreach( $data as $row) { 	
 
 $sid = $row['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch(); 

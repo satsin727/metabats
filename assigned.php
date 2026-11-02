@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -34,7 +34,7 @@ $query = "select * from assigned";
 }
 elseif ($dta['level'] == 3)
 {
-$query = "select * from assigned where `uid` = $rmid"; }
+$query = ("select * from assigned where `uid` = " . bats_q($rmid)); }
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -68,12 +68,12 @@ $i=1;
 foreach( $data as $row) { 
 $cid=$row['cid'];
 $uid=$row['uid'];
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from users where `uid` = $uid AND `status` = 1";
+$conn = bats_db();
+$query = ("select * from users where `uid` = " . bats_q($uid) . " AND `status` = 1");
 $ins= $conn->prepare($query);
 $ins->execute();
 $udata = $ins->fetch();
-$query2 = "select * from consultants where `cid` = $cid AND `status` = 1";
+$query2 = ("select * from consultants where `cid` = " . bats_q($cid) . " AND `status` = 1");
 $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
@@ -81,7 +81,7 @@ $cdata = $ins2->fetch();
 if(isset($cdata['cid']) && isset($udata['uid']))
 {
 								$sid = $cdata['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch(); 

@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -105,7 +105,7 @@ else
                               }
                               else
                               {
-                              $query = "select * from users where `uid` = $uid and status = 1 order by name asc";
+                              $query = ("select * from users where `uid` = " . bats_q($uid) . " and status = 1 order by name asc");
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
@@ -120,24 +120,24 @@ else
                                                 <?php
                                                 $uid = $row['uid'];
                                                 
-                                                $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+                                                $conn = bats_db();
                                                 
                                                 if($dta['level'] == 1 || $dta['level'] == 2)
                                                 {
 
-                                                  $qeci = "select distinct app_id from eci where sm_id = $uid and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+                                                  $qeci = ("select distinct app_id from eci where sm_id = " . bats_q($uid) . " and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
                                                   
 
-                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1 and DATE(appdate) = DATE('$curdate')")->fetchColumn();
-                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
+                                                  $dapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1 and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $drc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $dsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -146,13 +146,13 @@ else
                                                   $deci_num = $c;
                                                   
 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $wrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $wsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -160,13 +160,13 @@ else
                                                   }
                                                   $weci_num = $c;
                                                   
-                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $mapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $mrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $msub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -174,13 +174,13 @@ else
                                                   }                                                 
                                                   $meci_num = $c;
                                                   
-                                                  $yapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $yrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $ysub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $yapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $yrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $ysub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if( date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -193,18 +193,18 @@ else
                                                 {
                                                  // $uid =  $_SESSION['id'];
                                                  
-                                                 $qeci = "select distinct app_id from eci where sm_id = $uid and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+                                                 $qeci = ("select distinct app_id from eci where sm_id = " . bats_q($uid) . " and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                                                  $ins= $conn->prepare($qeci);
                                                  $ins->execute();
                                                  $deci = $ins->fetchAll();
 
-                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1 and `uid` = $uid and DATE(appdate) = DATE('$curdate')")->fetchColumn();
-                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
+                                                  $dapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1 and `uid` = " . bats_q($uid) . " and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $drc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $dsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -213,13 +213,13 @@ else
                                                   $deci_num = $c;
                                                   
 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $wapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and `uid` = " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $wrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $wsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -227,13 +227,13 @@ else
                                                   }
                                                   $weci_num = $c;
                                                   
-                                                  $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $mapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $mrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $msub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -241,13 +241,13 @@ else
                                                   }                                                 
                                                   $meci_num = $c;
                                                   
-                                                  $yapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `status` = 1  and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $yrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                                                  $ysub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `uid`= $uid and `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                                                  $yapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $yrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                                                  $ysub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `uid`= " . bats_q($uid) . " and `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if( date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -294,24 +294,24 @@ else
                                       <td>Total</td>
 <?php
 
-                  $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+                  $conn = bats_db();
                   //$curdate =date('Y-m-d');
                   
                   if($dta['level'] == 1 || $dta['level'] == 2)
                   {
-                    $qeci = "select distinct app_id from eci where `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+                    $qeci = ("select distinct app_id from eci where `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                     $ins= $conn->prepare($qeci);
                     $ins->execute();
                     $deci = $ins->fetchAll();
                     
-                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and DATE(appdate) = DATE('$curdate')")->fetchColumn();
-                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                //    $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
+                    $dtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $dtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $dtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                //    $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and eci_date >= DATE('$curdate') AND eci_date < DATE('$curdate') + INTERVAL 1 DAY AND DATE(eci_date) = DATE('$curdate')")->fetchColumn();
                     $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -321,15 +321,15 @@ else
 
 
 
-                    $wtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
+                    $wtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $wtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $wtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), DATE('$curdate') - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), DATE('$curdate') + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
                   
                     $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                                                     if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                                                     {
                                                       $c++;
@@ -339,14 +339,14 @@ else
 
 
 
-                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                    $mtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $mtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $mtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
                    
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
@@ -354,15 +354,15 @@ else
                     }
                     $mteci_num = $c;
 
-                    $ytapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $ytrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $ytsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
+                    $ytapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $ytrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $ytsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
 
 
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
@@ -375,19 +375,19 @@ else
                   {
                    
                     
-                    $qeci = "select distinct app_id from eci where sm_id = $uid and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
+                    $qeci = ("select distinct app_id from eci where sm_id = " . bats_q($uid) . " and `eci_happened` = 1 and `eci_round` = 3 and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")");
                     $ins= $conn->prepare($qeci);
                     $ins->execute();
                     $deci = $ins->fetchAll();
 
-                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = $uid and DATE(appdate) = DATE('$curdate')")->fetchColumn();
-                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = DATE('$curdate')")->fetchColumn();
-                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(subdate) = DATE('$curdate')")->fetchColumn();
-                    //$dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = DATE('$curdate')")->fetchColumn();
+                    $dtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = " . bats_q($uid) . " and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $dtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $dtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and subdate >= DATE(" . bats_q("$curdate") . ") AND subdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(subdate) = DATE(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    //$dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and eci_date >= DATE('$curdate') AND eci_date < DATE('$curdate') + INTERVAL 1 DAY AND DATE(eci_date) = DATE('$curdate')")->fetchColumn();
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("d",strtotime($date)) == date("d",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
@@ -396,14 +396,14 @@ else
                     $dteci_num = $c;
 
 
-                    $wtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $wtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $wtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
+                    $wtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $wtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $wtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    //$wteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), DATE('$curdate') - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), DATE('$curdate') + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("W",strtotime($date)) == date("W",strtotime(date("m/d/y"))) && date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
@@ -412,14 +412,14 @@ else
                     $wteci_num = $c;
 
 
-                    $mtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $mtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `uid` = $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $mtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    //$mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
+                    $mtapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $mtrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $mtsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    //$mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), LAST_DAY('$curdate') - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), LAST_DAY('$curdate') + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("m",strtotime($date)) == date("m",strtotime(date("m/d/y"))) && date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;
@@ -428,14 +428,14 @@ else
                     $mteci_num = $c;
 
 
-                    $ytapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = $uid and YEAR(appdate) = YEAR('$curdate')")->fetchColumn();
-                    $ytrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `uid` = $uid and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    $ytsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = $uid and YEAR(rcdate) = YEAR('$curdate')")->fetchColumn();
-                    //$mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
+                    $ytapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1  and `uid` = " . bats_q($uid) . " and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $ytrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `uid` = " . bats_q($uid) . " and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    $ytsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `status`= 1 and `uid` = " . bats_q($uid) . " and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")"))->fetchColumn();
+                    //$mteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `eci_round` = 3 and `status` = 1 and `sm_id` = $uid and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), LAST_DAY('$curdate') - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), LAST_DAY('$curdate') + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')")->fetchColumn();
                     $c=0;
                     foreach($deci as $ueci)
                     { $a = $ueci['app_id'];
-                      $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+                      $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
                       if(date("y",strtotime($date)) == date("y",strtotime(date("m/d/y"))) )
                       {
                         $c++;

@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -46,8 +47,8 @@ if(isset($_GET['do']))
 		<?php
 	if($do=='changestatus')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+		$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -56,7 +57,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 		{
 			if($status==1) 
 			{ 
-				$inquery = "UPDATE `lists` SET `status` = '0' WHERE `listid` = $listid";
+				$inquery = ("UPDATE `lists` SET `status` = '0' WHERE `listid` = " . bats_q($listid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>
@@ -68,7 +69,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 
 			if($status==0) 
 			{ 
-				$inquery = "UPDATE `lists` SET `status` = '1' WHERE `listid` = $listid";
+				$inquery = ("UPDATE `lists` SET `status` = '1' WHERE `listid` = " . bats_q($listid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>
@@ -90,8 +91,8 @@ echo "<script>
 
 	if($do=='addcontact')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -163,8 +164,8 @@ echo "<script>
 } //do add contact
 			elseif($do=='uploadlist')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();

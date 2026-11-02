@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -51,7 +52,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$appid = $_POST['postid'];
 
 		//	$qc ="UPDATE `app_data` SET `ars_status` = $ars_status WHERE `app_data`.`app_id` = $postid";
-            $conn->query("UPDATE `app_data` SET `ars_status` = $ars_status WHERE `app_data`.`app_id` = $appid")->execute();
+            $conn->query(("UPDATE `app_data` SET `ars_status` = " . bats_q($ars_status) . " WHERE `app_data`.`app_id` = " . bats_q($appid)))->execute();
 			echo "<script>alert('Status Updated.');window.close();</script>";
 		}
 		else{
@@ -66,7 +67,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                   if(isset($_GET['appid']))
 			{
 				$appid=$_GET['appid']; 
-                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $appid")->fetchColumn();?>
+                $ars_status = $conn->query(("SELECT `ars_status` FROM `app_data` WHERE `app_id` = " . bats_q($appid)))->fetchColumn();?>
                 <option value="1" <?php if($ars_status ==1) { echo "selected"; } ?>>Connected</option>
                 <option value="2" <?php if($ars_status ==2) { echo "selected"; } ?>>Not Connected</option>
                 <option value="3" <?php if($ars_status ==3) { echo "selected"; } ?>>Voicemail</option>
@@ -86,7 +87,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			elseif(isset($_GET['rcid']))
 			{
 				$appid=$_GET['rcid'];
-                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $appid")->fetchColumn();?>
+                $ars_status = $conn->query(("SELECT `ars_status` FROM `app_data` WHERE `app_id` = " . bats_q($appid)))->fetchColumn();?>
 
                 <option value="4" <?php if($ars_status ==4) { echo "selected"; } ?>>No Response/Not Submitted</option>
                 <option value="5" <?php if($ars_status ==5) { echo "selected"; } ?>>Cancelled</option>
@@ -100,7 +101,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			elseif(isset($_GET['subid']))
 			{
 				$appid=$_GET['subid']; 
-                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $appid")->fetchColumn();?>
+                $ars_status = $conn->query(("SELECT `ars_status` FROM `app_data` WHERE `app_id` = " . bats_q($appid)))->fetchColumn();?>
                 
             <option value="8"  <?php if($ars_status ==8) { echo "selected"; } ?>>Got Test</option>
             <option value="9" <?php if($ars_status ==9) { echo "selected"; } ?>>Got Screening</option>

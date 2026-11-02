@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -40,8 +40,8 @@ $queryv = "select distinct * from clients where `status` = 1 group by `remail`";
 }
 elseif ($dta['level'] == 3)
 {
-$queryv = "select distinct * from clients where `uid` = $uid AND `status` = 1 group by `remail`"; }
-$connv = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$queryv = ("select distinct * from clients where `uid` = " . bats_q($uid) . " AND `status` = 1 group by `remail`"); }
+$connv = bats_db();
 $insv= $connv->prepare($queryv);
 $insv->execute();
 $datav = $insv->fetchAll();

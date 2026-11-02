@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -77,8 +78,8 @@ elseif(isset($_GET['conscom_id']))
 if($com_type==1)
 {
 	$conn=null;
-	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-	$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = $com_type and `com_postid` = $com_postid order by datetime desc";
+	$conn = bats_db();
+	$query = ("select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = " . bats_q($com_type) . " and `com_postid` = " . bats_q($com_postid) . " order by datetime desc");
 	$ins= $conn->prepare($query);
 	$ins->execute();
 	$data = $ins->fetchAll();
@@ -90,7 +91,7 @@ if($com_type==1)
 		echo $row['comment']."\n<br><br>";
 	}
 
-	$rquery = "select * from app_data where `reqid` = $com_postid";
+	$rquery = ("select * from app_data where `reqid` = " . bats_q($com_postid));
 	$rins= $conn->prepare($rquery);
 	$rins->execute();
 	$rdata = $rins->fetchAll();
@@ -98,7 +99,7 @@ if($com_type==1)
 	foreach($rdata as $comment)
 	{	
 		$app_id = $comment['app_id'];
-		$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = $app_id) and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
+		$query = ("select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = " . bats_q($app_id) . ") and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc");
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$data = $ins->fetchAll();
@@ -116,8 +117,8 @@ if($com_type==1)
 }
 else
 {
-	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-	$query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = $com_type and `com_postid` = $com_postid order by datetime desc";
+	$conn = bats_db();
+	$query = ("select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = " . bats_q($com_type) . " and `com_postid` = " . bats_q($com_postid) . " order by datetime desc");
 	$ins= $conn->prepare($query);
 	$ins->execute();
 	$data = $ins->fetchAll();

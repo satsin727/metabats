@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -32,19 +33,19 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			if(isset($_POST['cf']))
 			{
 				$cfeedback = $_POST['cfeedback'];
-				$conn->query("UPDATE `eci` SET `eci_client_feedback` = '$cfeedback', `eci_cfeedback_datetime` = '$currentdatetime' WHERE `eci_id` = $eci_id");
+				$conn->query(("UPDATE `eci` SET `eci_client_feedback` = " . bats_q("$cfeedback") . ", `eci_cfeedback_datetime` = " . bats_q("$currentdatetime") . " WHERE `eci_id` = " . bats_q($eci_id)));
 				echo "<script>alert('Client feedback added.');window.close();</script>";
 			}
 			elseif(isset($_POST['uf']))
 			{
 				$ufeedback = $_POST['ufeedback'];
-				$conn->query("UPDATE `eci` SET `eci_usteam_feedback` = '$ufeedback' WHERE `eci_id` = $eci_id");
+				$conn->query(("UPDATE `eci` SET `eci_usteam_feedback` = " . bats_q("$ufeedback") . " WHERE `eci_id` = " . bats_q($eci_id)));
 				echo "<script>alert('US Team feedback after Interview added.');window.close();</script>";
 			}
 			elseif(isset($_POST['nh']))
 			{
 				$nh_reason = $_POST['nhreason'];
-				$conn->query("UPDATE `eci` SET `nh_reason` = $nh_reason WHERE `eci_id` = $eci_id");
+				$conn->query(("UPDATE `eci` SET `nh_reason` = " . bats_q($nh_reason) . " WHERE `eci_id` = " . bats_q($eci_id)));
 				echo "<script>alert('Not happened reason added.');window.close();</script>";
 			}
 

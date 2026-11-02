@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -52,7 +53,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			
 		
 		//	$qc ="UPDATE `app_data` SET `ars_status` = $ars_status WHERE `app_data`.`app_id` = $postid";
-            $conn->query("UPDATE `app_data` SET `subto` = $sub_status WHERE `app_data`.`app_id` = $appid")->execute();
+            $conn->query(("UPDATE `app_data` SET `subto` = " . bats_q($sub_status) . " WHERE `app_data`.`app_id` = " . bats_q($appid)))->execute();
 			echo "<script>alert('Sub Status Updated.');window.close();</script>";}
 		
 		else{
@@ -65,7 +66,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				<select name="sub_status">
 				<?php
 				$appid=$_GET['subid']; 
-                $sub_status = $conn->query("SELECT `subto` FROM `app_data` WHERE `app_id` = $appid")->fetchColumn();?>
+                $sub_status = $conn->query(("SELECT `subto` FROM `app_data` WHERE `app_id` = " . bats_q($appid)))->fetchColumn();?>
                 <option value="1" <?php if($sub_status ==1) { echo "selected"; } ?>>Submitted to T2</option>
                 <option value="2" <?php if($sub_status ==2) { echo "selected"; } ?>>Submitted to T1</option>
                 <option value="3" <?php if($sub_status ==3) { echo "selected"; } ?>>Submitted to IP</option>

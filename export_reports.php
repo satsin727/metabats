@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 
 require_once("config.php");
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 
 if (!isset($_SESSION['id']) || (int)$_SESSION['id'] <= 0) {
     http_response_code(403);
@@ -13,7 +14,7 @@ if (!isset($_SESSION['id']) || (int)$_SESSION['id'] <= 0) {
 $sessid = (int)$_SESSION['id'];
 
 try {
-    $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+    $conn = bats_db();
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     http_response_code(500);

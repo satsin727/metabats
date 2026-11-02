@@ -1,8 +1,9 @@
 <?php
 require_once __DIR__ . '/config.php'; // starts the 7-day session
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 require_once("config.php");
 
-$conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+$conn = bats_db();
 
 if (isset($_SESSION['id'])) {
     $sessid = $_SESSION['id'];

@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -31,7 +32,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 $uid = $sessid;
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $skill=0;
 if(isset($_GET['m']) && isset($_GET['y']))
 {
@@ -44,26 +45,26 @@ if(isset($_GET['m']) && isset($_GET['y']))
     
     if(isset($_GET['app'])==1)
     {
-        $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and A.status = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         if($skill=0)
         {
-            $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         }
     }
     elseif(isset($_GET['rc'])==1)
     {
-        $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         if($skill=0)
         {
-            $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         }
     }
     elseif(isset($_GET['sub'])==1)
     {
-        $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = $skill and A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         if($skill=0)
         {
-            $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = $m AND YEAR(A.appdate) = $y ) order by A.appdate asc";
+            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
         }
    
     }
@@ -128,13 +129,13 @@ foreach( $data as $row) {
 $consultantid = $row['consultant_id'];
     if($total==1)
 {
-    $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-    $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-    $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-    $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-    $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-    $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
-    $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+    $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+    $skill = bats_col('skill', 'sid', $skillid, 'skillname');
+    $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+    $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+    $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+    $cmnumber = bats_col('consultants', 'cid', $consultantid, 'cm_phonenumber');
+    $conumber = bats_col('consultants', 'cid', $consultantid, 'co_phonenumber');
 }
 
 if($app == 1 || $rc == 1 || $sub == 1)
@@ -152,24 +153,24 @@ elseif($eci == 1) {
 }
 
 
-								$q3 = "SELECT * from clients where `cid` = $cid";
+								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
 
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
 
-								$q5 = "SELECT * from req where `reqid` = $reqid";
+								$q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
 								$ins6= $conn->prepare($q5);
 								$ins6->execute(); 
 								$dta5 = $ins6->fetch();
 
-$ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-$clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+$ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+$clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
 	?>
     <tr>
@@ -194,7 +195,7 @@ $clientname = $conn->query("select rend_client from req where reqid = $reqid")->
 
 		<td> 
 		<?php
-		$ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+		$ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
 		/*
 		    <option value="1">Connected</option>
     <option value="2">Not Connected</option>

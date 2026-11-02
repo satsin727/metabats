@@ -71,7 +71,8 @@ padding-left:10px;
 <?php
 
 require("../config.php");
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+require_once dirname(__DIR__) . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+$conn = bats_db();
 $tdreqcount = "SELECT count(*) FROM `req` WHERE `skillid` = 6 and `datetime` >= CURDATE()";
 $indcount= $conn->prepare($tdreqcount);
 $indcount->execute();
@@ -138,13 +139,13 @@ $i=1;
 foreach( $data as $row) { 	
 
 $sid = $row['skillid'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch();
 						
 $uid = $row['uid'];
-								$q3 = "select * from users where `uid` = $uid";
+								$q3 = ("select * from users where `uid` = " . bats_q($uid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();

@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -30,8 +31,8 @@ require("includes/menu.php");
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3 )
 {
 		$listid= $_POST['lid'];
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+		$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();	
 		$udata = $ins->fetch();
@@ -80,17 +81,17 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
             $col6 = $data[5];
             $col7 = $data[6];
 			$col8 = $data[7];
-			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+			$conn = bats_db();
 			if($status!=0)
 			{
 			$domain = substr($col4, strpos($col4, '@') + 1);
-			$csql = "SELECT COUNT(*) FROM `clients` WHERE `lid` = '$listid' AND `uid` = '$userid' AND `status` = 1 AND `remail` LIKE '$col4'";
+			$csql = ("SELECT COUNT(*) FROM `clients` WHERE `lid` = " . bats_q("$listid") . " AND `uid` = " . bats_q("$userid") . " AND `status` = 1 AND `remail` LIKE " . bats_q("$col4"));
 			$cinsql = $conn->prepare($csql);
 			$cinsql->execute();
 			$rowcounts =  $cinsql->fetchColumn();
 			if($rowcounts == 0)
 			{ 
-			$sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, '$listid', '$userid', '$col1','$col2','$col3','$col4', '$domain','$rphone','$col6','$col7','$col8','$status','$target')";
+			$sql = ("INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) values (Null, " . bats_q("$listid") . ", " . bats_q("$userid") . ", " . bats_q("$col1") . "," . bats_q("$col2") . "," . bats_q("$col3") . "," . bats_q("$col4") . ", " . bats_q("$domain") . "," . bats_q("$rphone") . "," . bats_q("$col6") . "," . bats_q("$col7") . "," . bats_q("$col8") . "," . bats_q("$status") . "," . bats_q("$target") . ")");
 			
 			$count= $count+1;
 			
@@ -99,13 +100,13 @@ while ( ($data = fgetcsv($handle) ) !== FALSE ) {
 
 
 			$insl->execute();
-			$totalupdatequery ="UPDATE `lists` SET `total` = '$count' WHERE `listid` = '$listid';";
+			$totalupdatequery =("UPDATE `lists` SET `total` = " . bats_q("$count") . " WHERE `listid` = " . bats_q("$listid") . ";");
 			$ins= $conn->prepare($totalupdatequery);
 			$ins->execute(); 
 			}
 			else
 			{
-					$sql = "UPDATE clients SET `companyname` = '$col1', `rname` = '$col2', `rfname` = '$col3', `rphone`= '$rphone' where remail = '$col4'";
+					$sql = ("UPDATE clients SET `companyname` = " . bats_q("$col1") . ", `rname` = " . bats_q("$col2") . ", `rfname` = " . bats_q("$col3") . ", `rphone`= " . bats_q("$rphone") . " where remail = " . bats_q("$col4"));
 					$insl= $conn->prepare($sql);
 					$insl->execute();
 

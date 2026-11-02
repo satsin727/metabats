@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,7 +33,7 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 	}
 	else { $status = 1; }
 
-$query = "select * from consultants where status = $status order by cfname asc";
+$query = ("select * from consultants where status = " . bats_q($status) . " order by cfname asc");
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -70,8 +70,8 @@ foreach( $data as $row) { ?>
   		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1; ?></td>
   		<?php
 								$sid = $row['skill'];
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-								$q2 = "select * from skill where `sid` = $sid";
+								$conn2 = bats_db();
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute(); 
 								$dta2 = $ins2->fetch(); 

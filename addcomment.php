@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 require( "includes/header.php" );
 if($_SESSION['id'])
 {
@@ -12,7 +13,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -95,10 +96,10 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			{
 					$end_date = date('Y-m-d', strtotime($_POST['end_date']));
 
-					$conn->query("UPDATE `consultants` SET `end_date` = '$end_date' WHERE `cid` = $com_postid");
+					$conn->query(("UPDATE `consultants` SET `end_date` = " . bats_q("$end_date") . " WHERE `cid` = " . bats_q($com_postid)));
 			}
 			
-			$qc = "INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, '$currentdatetime');";
+			$qc = ("INSERT INTO `comments` (`com_id`, `com_type`, `uid`, `com_postid`, `reqcom_id`, `appcom_id`, `rccom_id`, `subcom_id`, `ecicom_id`, `pocom_id`, `conscom_id`, `imp_issue`, `comment`, `datetime`) VALUES ( null, $com_type, $uid, $com_postid, $reqcom_id, $appcom_id, $rccom_id, $subcom_id, $ecicom_id, $pocom_id, $conscom_id, $issue, :comment, " . bats_q("$currentdatetime") . ");");
 			$insq= $conn->prepare($qc);
 			$insq->bindValue( ":comment", $comment, PDO::PARAM_STR );
 			$insq->execute();

@@ -11,7 +11,7 @@ else
 
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -35,7 +35,7 @@ if($dta['level'] == 1)
 	$query = "select * from req where status =1 order by datetime desc";
 }
 else {
-	$query = "select * from req where status =1 && uid = $uid order by datetime desc";
+	$query = ("select * from req where status =1 && uid = " . bats_q($uid) . " order by datetime desc");
 }
 
 
@@ -76,12 +76,12 @@ $i=1;
 foreach( $data as $row) { 
 
 $sid = $row['skillid'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch();
 $cid = $row['cid'];
-								$q3 = "select * from clients where `cid` = $cid";
+								$q3 = ("select * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();

@@ -1,5 +1,5 @@
 <?php
-$conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+$conn = bats_db();
 $query = "SELECT * FROM users WHERE `sess` = :sess";
 $ins = $conn->prepare($query);
 $ins->bindValue(":sess", $_SESSION['username'], PDO::PARAM_STR);

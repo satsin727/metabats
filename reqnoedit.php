@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,7 +34,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		if($do=='editreqid')
 	    {
 
-			$data = $conn->query("select * from req where `reqid` = $reqid")->fetch();
+			$data = $conn->query(("select * from req where `reqid` = " . bats_q($reqid)))->fetch();
 			$client_id = $data['cid'];	
 			$date = $data['datetime'];
             $time = strtotime($date);
@@ -43,7 +44,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
             $req_id = "W".$curweek.$curdate."-".$data['ureq_id'];
 
 			$conn=null;
-			$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+			$conn = bats_db();
 			$query = "select * from req where `reqid` = :reqid";
 			$ins= $conn->prepare($query);
 			$ins->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
@@ -86,8 +87,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
         $ureq_id = $_POST['ureq_id'];
        
         $conn=null;
-        $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-        $query = "update req set ureq_id = :u where reqid = $reqid";
+        $conn = bats_db();
+        $query = ("update req set ureq_id = :u where reqid = " . bats_q($reqid));
         $ins= $conn->prepare($query);
         $ins->bindValue( ":u", $ureq_id, PDO::PARAM_STR );
         $ins->execute();

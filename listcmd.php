@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -12,7 +13,7 @@ else
 
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -50,8 +51,8 @@ if(isset($_GET['do']))
 		
 	if($do=='changestatus')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+		$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -60,7 +61,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 		{
 			if($status==1) 
 			{ 
-				$inquery = "UPDATE `lists` SET `status` = '0' WHERE `listid` = $listid";
+				$inquery = ("UPDATE `lists` SET `status` = '0' WHERE `listid` = " . bats_q($listid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>
@@ -72,7 +73,7 @@ if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 
 			if($status==0) 
 			{ 
-				$inquery = "UPDATE `lists` SET `status` = '1' WHERE `listid` = $listid";
+				$inquery = ("UPDATE `lists` SET `status` = '1' WHERE `listid` = " . bats_q($listid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>
@@ -95,8 +96,8 @@ echo "<script>
 elseif($do=='editcontact')
 	{ 
 		$cid=$_GET['id'];
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+		$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -104,8 +105,8 @@ elseif($do=='editcontact')
 		$conn = null;
 if($udata['uid']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 	{  
-		$dconn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM clients where cid = $cid";
+		$dconn = bats_db();
+		$query =("Select * FROM clients where cid = " . bats_q($cid));
 		$ins= $dconn->prepare($query);
 		$ins->execute();
 		$ucdata = $ins->fetch();
@@ -190,8 +191,8 @@ echo "<script>
 
 	elseif($do=='addcontact')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -280,8 +281,8 @@ echo "<script>
 
 			elseif($do=='uploadlist')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM lists where listid = $listid";
+$conn = bats_db();
+		$query =("Select * FROM lists where listid = " . bats_q($listid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -332,17 +333,17 @@ elseif($do=='download')
 
 if($dta['level'] == 1 || $dta['level'] == 2)
 {
-	$dsql="SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = '$listid' AND `status` = 1";
+	$dsql=("SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = " . bats_q("$listid") . " AND `status` = 1");
 }
 else
 {
-	$dsql="SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = '$listid' AND `uid` = '$userid' AND `status` = 1";
+	$dsql=("SELECT `companyname`, `rname`, `rfname`, `remail`, `rphone`, `rlocation`, `rtimezon`, `tier` FROM `clients` WHERE `lid` = " . bats_q("$listid") . " AND `uid` = " . bats_q("$userid") . " AND `status` = 1");
 }
-	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+	$conn = bats_db();
 	$dins= $conn->prepare($dsql);
 	$dins->execute();
 
-	$lnquery ="SELECT * FROM `lists` WHERE `listid` = '$listid' AND `status` = 1";
+	$lnquery =("SELECT * FROM `lists` WHERE `listid` = " . bats_q("$listid") . " AND `status` = 1");
 	$lins=$conn->prepare($lnquery);
 	$lins->execute();
 	$ldata=$lins->fetch();
@@ -370,6 +371,7 @@ fclose($fp);
             ob_clean();
             flush();
 			readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
 			exit();
 //header( "Location: admin.php?action=listall" ); 
 
@@ -380,8 +382,8 @@ elseif($do=='delete')
 { 
 	$listid=$_GET['lid'];
 	$cid=$_GET['id'];
-	$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-	$inquery = "UPDATE `clients` SET `status` = '0' WHERE `clients`.`cid` = $cid;";
+	$conn = bats_db();
+	$inquery = ("UPDATE `clients` SET `status` = '0' WHERE `clients`.`cid` = " . bats_q($cid) . ";");
 	$ins= $conn->prepare($inquery);
 	$ins->execute();
 	$conn=null;
@@ -394,12 +396,12 @@ elseif($do=='viewlist')
 
 if($dta['level'] == 1 || $dta['level'] == 2 )
 {
-	$queryv = "select * from clients where `lid` = $listid AND `status` = 1";
+	$queryv = ("select * from clients where `lid` = " . bats_q($listid) . " AND `status` = 1");
 }
 elseif ($dta['level'] == 3)
 {
-$queryv = "select * from clients where `lid` = '$listid' AND `uid` = $userid AND `status` = 1"; }
-$connv = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$queryv = ("select * from clients where `lid` = " . bats_q("$listid") . " AND `uid` = " . bats_q($userid) . " AND `status` = 1"); }
+$connv = bats_db();
 $insv= $connv->prepare($queryv);
 $insv->execute();
 $datav = $insv->fetchAll();

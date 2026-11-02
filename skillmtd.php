@@ -15,7 +15,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -75,7 +75,7 @@ require("includes/header.php");
         </tr>
     <tbody>
         <?php
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $q = "select distinct sid, skillname from skill as A Left JOIN consultants as B on A.sid = B.skill where B.status=1 order by A.sid";
 $ins= $conn->prepare($q);
 $ins->execute();
@@ -85,17 +85,17 @@ foreach( $data as $row)
 {
 
     $skill = $row['sid'];
-    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-        $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
+    $app = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and ( A.appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $rc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and ( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $sub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+        $qeci = ("select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = " . bats_q($skill));
         $ins= $conn->prepare($qeci);
         $ins->execute();
         $deci = $ins->fetchAll();
         $c=0;
         foreach($deci as $ueci)
         { $a = $ueci['app_id'];
-        $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+        $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
         if( date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
         {
             $c++;
@@ -117,9 +117,9 @@ foreach( $data as $row)
 } ?>
 
 <?php
- $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtapp = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( A.appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtrc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtsub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
@@ -127,7 +127,7 @@ foreach( $data as $row)
     $c=0;
     foreach($deci as $ueci)
     { $a = $ueci['app_id'];
-    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
     if( date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
     {
         $c++;
@@ -166,7 +166,7 @@ foreach( $data as $row)
         </tr>
     <tbody>
         <?php
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $q = "select distinct sid, skillname from skill as A Left JOIN consultants as B on A.sid = B.skill where B.status=1 order by A.sid";
 $ins= $conn->prepare($q);
 $ins->execute();
@@ -176,20 +176,20 @@ foreach( $data as $row)
 {
 
     $skill = $row['sid'];
-    $reqs = $conn->query("select COUNT(distinct ureq_id) from req where status = 1 and skillid = $skill and ( DATE(datetime) = DATE('$cdate') AND MONTH(datetime) = MONTH('$cdate') AND YEAR(datetime) = YEAR('$cdate') ) order by datetime asc")->fetchColumn();
-    $worked = $conn->query("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 and A.skillid = $skill AND B.rcdone =1 and ( DATE(A.datetime) = DATE('$cdate') AND MONTH(A.datetime) = MONTH('$cdate') AND YEAR(A.datetime) = YEAR('$cdate') ) order by A.datetime asc")->fetchColumn();
+    $reqs = $conn->query(("select COUNT(distinct ureq_id) from req where status = 1 and skillid = " . bats_q($skill) . " and ( datetime >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) = DATE(" . bats_q("$cdate") . ") AND MONTH(datetime) = MONTH(" . bats_q("$cdate") . ") AND YEAR(datetime) = YEAR(" . bats_q("$cdate") . ") ) order by datetime asc"))->fetchColumn();
+    $worked = $conn->query(("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 and A.skillid = " . bats_q($skill) . " AND B.rcdone =1 and ( A.datetime >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.datetime < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.datetime) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.datetime) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.datetime) = YEAR(" . bats_q("$cdate") . ") ) order by A.datetime asc"))->fetchColumn();
     
-    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-        $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
+    $app = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and ( A.appdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.appdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.appdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $rc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and ( A.rcdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.rcdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $sub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.rcdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+        $qeci = ("select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = " . bats_q($skill));
         $ins= $conn->prepare($qeci);
         $ins->execute();
         $deci = $ins->fetchAll();
         $c=0;
         foreach($deci as $ueci)
         { $a = $ueci['app_id'];
-        $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+        $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
         if( date("d",strtotime($date)) == date("d",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
         {
             $c++;
@@ -215,12 +215,12 @@ foreach( $data as $row)
 } ?>
 
 <?php
-    $treqs = $conn->query("select COUNT(distinct ureq_id) from req where status = 1 and ( DATE(datetime) = DATE('$cdate') AND MONTH(datetime) = MONTH('$cdate') AND YEAR(datetime) = YEAR('$cdate') ) order by datetime asc")->fetchColumn();
-    $tworked = $conn->query("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 AND B.rcdone =1 and ( DATE(A.datetime) = DATE('$cdate') AND MONTH(A.datetime) = MONTH('$cdate') AND YEAR(A.datetime) = YEAR('$cdate') ) order by A.datetime asc")->fetchColumn();
+    $treqs = $conn->query(("select COUNT(distinct ureq_id) from req where status = 1 and ( datetime >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) = DATE(" . bats_q("$cdate") . ") AND MONTH(datetime) = MONTH(" . bats_q("$cdate") . ") AND YEAR(datetime) = YEAR(" . bats_q("$cdate") . ") ) order by datetime asc"))->fetchColumn();
+    $tworked = $conn->query(("select COUNT(distinct A.ureq_id) from req AS A LEFT JOIN app_data AS B ON A.reqid= B.reqid where A.status = 1 and B.status = 1 AND B.rcdone =1 and ( A.datetime >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.datetime < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.datetime) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.datetime) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.datetime) = YEAR(" . bats_q("$cdate") . ") ) order by A.datetime asc"))->fetchColumn();
   
- $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( DATE(A.appdate) = DATE('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( DATE(A.rcdate) = DATE('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtapp = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( A.appdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.appdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.appdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtrc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( A.rcdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.rcdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtsub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(DATE(" . bats_q("$cdate") . "), MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.rcdate < LEAST(DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY) AND DATE(A.rcdate) = DATE(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
@@ -228,7 +228,7 @@ foreach( $data as $row)
     $c=0;
     foreach($deci as $ueci)
     { $a = $ueci['app_id'];
-    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
     if( date("d",strtotime($date)) == date("d",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
     {
         $c++;
@@ -268,7 +268,7 @@ foreach( $data as $row)
         </tr>
     <tbody>
         <?php
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $q = "select distinct sid, skillname from skill as A Left JOIN consultants as B on A.sid = B.skill where B.status=1 order by A.sid";
 $ins= $conn->prepare($q);
 $ins->execute();
@@ -278,17 +278,17 @@ foreach( $data as $row)
 {
 
     $skill = $row['sid'];
-    $app = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $rc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and ( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-    $sub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = $skill and rcdone = 1 and subdone = 1 and( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
-        $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = $skill";
+    $app = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and ( A.appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.appdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $rc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and ( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.rcdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+    $sub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and B.skill = " . bats_q($skill) . " and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.rcdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+        $qeci = ("select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1 and skill_id = " . bats_q($skill));
         $ins= $conn->prepare($qeci);
         $ins->execute();
         $deci = $ins->fetchAll();
         $c=0;
         foreach($deci as $ueci)
         { $a = $ueci['app_id'];
-        $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+        $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
         if( date("W",strtotime($date)) == date("W",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
         {
             $c++;
@@ -310,9 +310,9 @@ foreach( $data as $row)
 } ?>
 
 <?php
- $mtapp = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( WEEK(A.appdate) = WEEK('$cdate') AND MONTH(A.appdate) = MONTH('$cdate') AND YEAR(A.appdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtrc = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
- $mtsub = $conn->query("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( WEEK(A.rcdate) = WEEK('$cdate') AND MONTH(A.rcdate) = MONTH('$cdate') AND YEAR(A.rcdate) = YEAR('$cdate') ) order by A.appdate asc")->fetchColumn();
+ $mtapp = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and  ( A.appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.appdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.appdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.appdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtrc = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.rcdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
+ $mtsub = $conn->query(("select COUNT(*) from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and( A.rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$cdate") . "),1), LAST_DAY(" . bats_q("$cdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") - INTERVAL 6 DAY) AND A.rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$cdate") . ")+1,1), LAST_DAY(" . bats_q("$cdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$cdate") . ") + INTERVAL 7 DAY) AND WEEK(A.rcdate) = WEEK(" . bats_q("$cdate") . ") AND MONTH(A.rcdate) = MONTH(" . bats_q("$cdate") . ") AND YEAR(A.rcdate) = YEAR(" . bats_q("$cdate") . ") ) order by A.appdate asc"))->fetchColumn();
     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `eci_round` = 3  and `status` = 1";
     $ins= $conn->prepare($qeci);
     $ins->execute();
@@ -320,7 +320,7 @@ foreach( $data as $row)
     $c=0;
     foreach($deci as $ueci)
     { $a = $ueci['app_id'];
-    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= $a")->fetchColumn();
+    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `eci_happened` =1 and `eci_round` = 3 and `app_id`= " . bats_q($a)))->fetchColumn();
     if( date("W",strtotime($date)) == date("W",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate))  && date("y",strtotime($date)) == date("y",strtotime($cdate)) )
     {
         $c++;

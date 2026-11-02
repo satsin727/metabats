@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -46,8 +47,8 @@ if(isset($_GET['do']))
 		<?php
 	if($do=='delete')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `consultants` SET `status` = '0' WHERE `cid` = $cid";
+		$conn = bats_db();
+		$inquery = ("UPDATE `consultants` SET `status` = '0' WHERE `cid` = " . bats_q($cid));
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
@@ -60,7 +61,7 @@ if(isset($_GET['do']))
 	if($do=='edit')
 	{ 
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from consultants where `cid` = :cid";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":cid", $cid, PDO::PARAM_INT );
@@ -101,15 +102,15 @@ $conn=null;
 								<td width="15%" align="left" valign="top"><label>Role(Skill):</label>
 								<?php
 								$sid = $udata['skill'];
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-								$q2 = "select * from skill where `sid` = $sid";
+								$conn2 = bats_db();
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute(); 
 								$dta2 = $ins2->fetch(); 
 								$conn2=null; ?>
 								<td width="90%" align="left" valign="top">	<select name="skill" class="form-control-in">
 								 <?php
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+								$conn2 = bats_db();
 								$q3 = "select * from skill";
 								$ins3= $conn2->prepare($q3);
 								$ins3->execute(); 
@@ -200,9 +201,9 @@ if(isset($_POST['update']))
 		$passportnumber = $_POST['passportnumber'];
 		$passportcountry = $_POST['passportcountry'];
 		$nda = $_POST['nda'];
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$conn = bats_db();
 		 
-		 $inquery = "UPDATE `consultants` SET `status` = '$status', `cfname` = '$cfname', `cmname` = '$cmname', `clname` = '$clname', `skill` = '$skill', `co_email` = '$co_email', `colocation` = '$colocation', `co_phonenumber` = '$co_phonenumber', `covisa` = '$covisa', `relocation` = '$relocation', `lastssn` = '$lastssn', `dob` = '$dob', `passportnumber` = '$passportnumber', `passportcountry` = '$passportcountry', `nda` = '$nda' WHERE `cid` = $cid";
+		 $inquery = ("UPDATE `consultants` SET `status` = " . bats_q("$status") . ", `cfname` = " . bats_q("$cfname") . ", `cmname` = " . bats_q("$cmname") . ", `clname` = " . bats_q("$clname") . ", `skill` = " . bats_q("$skill") . ", `co_email` = " . bats_q("$co_email") . ", `colocation` = " . bats_q("$colocation") . ", `co_phonenumber` = " . bats_q("$co_phonenumber") . ", `covisa` = " . bats_q("$covisa") . ", `relocation` = " . bats_q("$relocation") . ", `lastssn` = " . bats_q("$lastssn") . ", `dob` = " . bats_q("$dob") . ", `passportnumber` = " . bats_q("$passportnumber") . ", `passportcountry` = " . bats_q("$passportcountry") . ", `nda` = " . bats_q("$nda") . " WHERE `cid` = " . bats_q($cid));
 		
 		$ins= $conn->prepare($inquery);
 		$ins->execute();

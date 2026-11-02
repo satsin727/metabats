@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -35,7 +35,7 @@ $query = "select * from lists where `status` = 1";
 }
 elseif ($dta['level'] == 3)
 {	
-$query = "select * from lists where `uid` = $uid AND `status` = 1"; }
+$query = ("select * from lists where `uid` = " . bats_q($uid) . " AND `status` = 1"); }
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -70,7 +70,7 @@ $i=1;
 foreach( $data as $row) {
 $listuid=$row['uid'];
 $query = "select * from users where `uid` = :u";
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $listuid, PDO::PARAM_INT );
 $ins->execute();
@@ -81,7 +81,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 )
 $ins3= $conn->prepare("SELECT COUNT(*) FROM `clients` WHERE `lid`=:lid and `status` = 1");
 }
 else{
-$ins3= $conn->prepare("SELECT COUNT(*) FROM `clients` WHERE `lid`=:lid and `uid` = $listuid  and `status` = 1");
+$ins3= $conn->prepare(("SELECT COUNT(*) FROM `clients` WHERE `lid`=:lid and `uid` = " . bats_q($listuid) . "  and `status` = 1"));
 }
 $ins3->bindValue( ":lid", $row['listid'], PDO::PARAM_INT );
 $ins3->execute();

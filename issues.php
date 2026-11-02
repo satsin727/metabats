@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_INT );
@@ -32,11 +32,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
-		$query = "select * from issues where status = $status order by datetime desc";
+		$query = ("select * from issues where status = " . bats_q($status) . " order by datetime desc");
 	}
 	else
 	{
-		$query = "select * from issues where status = $status and sm_id = $sessid order by datetime desc";
+		$query = ("select * from issues where status = " . bats_q($status) . " and sm_id = " . bats_q($sessid) . " order by datetime desc");
 	}
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -73,12 +73,12 @@ $i=1;
 foreach( $data as $row) { 
 $cid=$row['consultant_id'];
 $uid=$row['sm_id'];
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from users where `uid` = $uid";
+$conn = bats_db();
+$query = ("select * from users where `uid` = " . bats_q($uid));
 $ins= $conn->prepare($query);
 $ins->execute();
 $udata = $ins->fetch();
-$query2 = "select * from consultants where `cid` = $cid";
+$query2 = ("select * from consultants where `cid` = " . bats_q($cid));
 $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
@@ -89,7 +89,7 @@ $myFormatForView = date("m/d/y", $time);
 if(isset($cdata['cid']) && isset($udata['uid']))
 {
 								$sid = $cdata['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch(); 

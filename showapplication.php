@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -33,22 +33,22 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(appdate) < 3 order by appdate desc";
+		$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($smid) . " and rcdone= 0  and subdone= 0 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(appdate) < 3 order by appdate desc");
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(appdate) <= 3 order by appdate desc";
+			$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(appdate) <= 3 order by appdate desc");
 		}
 		if($dta['level'] == 2)
 		{
-			$query = "select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner JOIN users AS C ON A.uid = C.uid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(appdate) <= 3 order by appdate desc";
+			$query = ("select * from app_data AS A Inner JOIN consultants AS B ON A.consultant_id = B.cid Inner JOIN users AS C ON A.uid = C.uid where A.status =1 and rcdone= 0  and subdone= 0 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(appdate) <= 3 order by appdate desc");
 		}
 		if($dta['level'] == 3)
 		{
-			$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $smid and rcdone= 0  and subdone= 0 and TO_DAYS('$curdate') - TO_DAYS(appdate) <= 3 order by appdate desc";
+			$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($smid) . " and rcdone= 0  and subdone= 0 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(appdate) <= 3 order by appdate desc");
 		}
 	}
 
@@ -92,18 +92,18 @@ $i=1;
 foreach( $data as $row) { 
 
 $sid = $row['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch();
 $cid = $row['client_id'];
-								$q3 = "SELECT * from clients where `cid` = $cid";
+								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
 $uid = $row['uid'];	
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
@@ -116,7 +116,7 @@ $eci_num = 0;
 
 $app_id = $row['app_id'];
 $reqid = $row['reqid'];
-								$q5 = "SELECT * from req	 where `reqid` = $reqid";
+								$q5 = ("SELECT * from req	 where `reqid` = " . bats_q($reqid));
 								$ins6= $conn->prepare($q5);
 								$ins6->execute(); 
 								$dta5 = $ins6->fetch();
@@ -140,7 +140,7 @@ $eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid a
      	
 		<td> 
 		<?php
-		$ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+		$ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
 		/*
 		    <option value="1">Connected</option>
     <option value="2">Not Connected</option>

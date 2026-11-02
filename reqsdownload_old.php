@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -12,7 +13,7 @@ else
 $weekly = $monthly = $yearly = $unique = 0;
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -46,11 +47,11 @@ if($download == "allreqs")
         $weekly=1;
 		if(isset($_GET['sid']))
 		{
-		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 	
+		$query = ("SELECT * FROM `req` WHERE `status` = 1 and skillid = " . bats_q($sid) . " and datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(datetime) =  WEEK(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 	
 		}
 		
 		else {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(datetime) =  WEEK(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
 		}
 	}
     else if($_GET['showmonthly']==1)
@@ -58,10 +59,10 @@ if($download == "allreqs")
         $monthly=1;
 		if(isset($_GET['sid']))
 		{
-		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 	
+		$query = ("SELECT * FROM `req` WHERE `status` = 1 and skillid = " . bats_q($sid) . " and datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 	
 		}
 		else {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
 		}
 	}
 	    else if($_GET['showyearly']==1)
@@ -69,30 +70,30 @@ if($download == "allreqs")
         $yearly=1;
 		if(isset($_GET['sid']))
 		{
-		$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and YEAR(datetime) =  YEAR('$curdate')"; 	
+		$query = ("SELECT * FROM `req` WHERE `status` = 1 and skillid = " . bats_q($sid) . " and datetime >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND datetime < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 	
 		}
 		else {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and datetime >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND datetime < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
 		}
 	}
 	else if($unique==1)
     {
 		if(isset($_GET['sid']))
 		{
-			$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+			$query = ("SELECT * FROM `req` WHERE `status` = 1 and skillid = " . bats_q($sid) . " and datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ") GROUP BY (ureq_id)"); 
 		}
 		else {
-		 $query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate') GROUP BY (ureq_id)"; 
+		 $query = ("SELECT * FROM `req` WHERE `status` = 1  and datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ") GROUP BY (ureq_id)"); 
 		}
     }
     else 
     {    
 		if(isset($_GET['sid']))
 		{
-			$query = "SELECT * FROM `req` WHERE `status` = 1 and skillid = $sid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+			$query = ("SELECT * FROM `req` WHERE `status` = 1 and skillid = " . bats_q($sid) . " and datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
 		}
 		else {
-		$query = "SELECT * FROM `req` WHERE `status` = 1  and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+		$query = ("SELECT * FROM `req` WHERE `status` = 1  and datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
 		}
    }
 
@@ -118,7 +119,7 @@ $reqSources = [
 
 
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -152,42 +153,42 @@ $data = $ins->fetchAll();
                             $skillid = $row['skillid'];
 						$selectedValue = $row['req_source'] ?? "17";
 						$reqsource = $reqSources[$selectedValue];
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                             $jobtype = $row['jobtype'];
                         if($jobtype == 1) { $job = "Contract";} else { $job = "Contract to hire"; }
                             $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
 
-                            $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                            $jd = $conn->query(("select rdesc from jd where reqid = " . bats_q($reqid)))->fetchColumn();
                         $jdtext = strip_tags($jd);
                         $jdtext = str_replace('&nbsp;', '', $jdtext);
 
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
-						$appcount = $conn->query("select count(*) from app_data where reqid = $reqid")->fetchColumn();
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
+						$appcount = $conn->query(("select count(*) from app_data where reqid = " . bats_q($reqid)))->fetchColumn();
                         //posted by SM
                         if($weekly==1 || $monthly==1 || $yearly==1)
                         {
 							if($appcount == 0)
 							{
-							$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1";	
+							$sm_query = ("select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = " . bats_q("$reqid") . " and A.status=1");	
 							}
 							else{
-							$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1";
+							$sm_query = ("select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = " . bats_q("$reqid") . " and A.status=1 and B.status=1");
 							}
                         }
                         else{
 							if($unique==1)
 							{
-								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+								$sm_query = ("select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = " . bats_q("$ureq_id") . " and A.status=1 and B.status=1 and B.datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(B.datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(B.datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(B.datetime) =  YEAR(" . bats_q("$curdate") . ") order by A.uid asc");
 							}
 							else 
 							{
 								if($appcount == 0)
 								{
-								$sm_query = "select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and DATE(A.datetime) =  DATE('$curdate') and MONTH(A.datetime) =  MONTH('$curdate') and YEAR(A.datetime) =  YEAR('$curdate') order by A.uid asc";
+								$sm_query = ("select * from req as A Left Join app_data as B ON A.reqid  = B.reqid where A.reqid = " . bats_q("$reqid") . " and A.status=1 and A.datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND A.datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(A.datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(A.datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(A.datetime) =  YEAR(" . bats_q("$curdate") . ") order by A.uid asc");
 								}
 								else{
-								$sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = '$reqid' and A.status=1 and B.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate') order by A.uid asc";
+								$sm_query = ("select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where A.reqid = " . bats_q("$reqid") . " and A.status=1 and B.status=1 and B.datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(B.datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(B.datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(B.datetime) =  YEAR(" . bats_q("$curdate") . ") order by A.uid asc");
 								}
 							}
                         }
@@ -221,15 +222,15 @@ $data = $ins->fetchAll();
 									$uid = $row['uid'];
 									$cid = $row['cid'];
 								}
-                                $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                $smn = bats_col('users', 'uid', $uid, 'name');
 								$consultantid = $sm['consultant_id'];
 								if(!empty($consultantid))
 								{
-                                $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+                                $consultantname = bats_col('consultants', 'cid', $consultantid, 'cfname');
 								}
 																
-                                $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                                $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+                                $bpemail = bats_col('clients', 'cid', $cid, 'remail');
+                                $bpphone = bats_col('clients', 'cid', $cid, 'rphone');
 
                                 $bpcontact = $bpcontact.$bpemail."/".$bpphone."\n";
 
@@ -267,7 +268,7 @@ $data = $ins->fetchAll();
 									$sreqid = $reqid;
 									$ssmid = $uid ;
 									if (!empty($appid)) {
-										$com_query = "SELECT * FROM comments WHERE uid = $uid and ((com_postid = $reqid AND reqcom_id = 1) OR (com_postid = $appid AND appcom_id = 1) OR (com_postid = $appid AND rccom_id = 1) OR (com_postid = $appid AND subcom_id = 1) OR (com_postid = $appid AND ecicom_id = 1))";
+										$com_query = ("SELECT * FROM comments WHERE uid = " . bats_q($uid) . " and ((com_postid = " . bats_q($reqid) . " AND reqcom_id = 1) OR (com_postid = " . bats_q($appid) . " AND appcom_id = 1) OR (com_postid = " . bats_q($appid) . " AND rccom_id = 1) OR (com_postid = " . bats_q($appid) . " AND subcom_id = 1) OR (com_postid = " . bats_q($appid) . " AND ecicom_id = 1))");
 										
 										$cins= $conn->prepare($com_query);
 										$cins->execute();
@@ -286,7 +287,7 @@ $data = $ins->fetchAll();
 											$uid = $comment['uid'];
 											$scuid = $comment['uid'];
 											
-											$smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+											$smname = bats_col('users', 'uid', $uid, 'name');
 											$comments = $comments.$smname.": ".trim($comment['comment'])." at ".$comment['datetime']."\n";
 											}
 										}
@@ -419,6 +420,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
 
 }

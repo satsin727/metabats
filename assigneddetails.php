@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -30,8 +31,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 		{
 				$uid = $dta['uid'];
 				$id = $_GET['id'];
-				$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-				$query = "select * from assigned where `id` = $id";
+				$conn = bats_db();
+				$query = ("select * from assigned where `id` = " . bats_q($id));
 				$ins= $conn->prepare($query);
 				$ins->execute();
 				$data = $ins->fetch();
@@ -39,7 +40,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 				{
 
 					$cid=$data['cid'];
-					$query2 = "select * from consultants where `cid` = $cid";
+					$query2 = ("select * from consultants where `cid` = " . bats_q($cid));
 					$ins2= $conn->prepare($query2);
 					$ins2->execute();
 					$cdata = $ins2->fetch();

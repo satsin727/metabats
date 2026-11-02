@@ -77,6 +77,7 @@ if(isset($_GET['id']))
 {
 
 require("../config.php");
+require_once dirname(__DIR__) . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 
 if($_SESSION['id'])
 {
@@ -84,7 +85,7 @@ $sessid = $_SESSION['id'];
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -94,7 +95,7 @@ $dta = $ins->fetch();
 $reqid=$_GET['id'];
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from req where `reqid` = :reqid";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
@@ -116,7 +117,7 @@ $data3 = $ins3->fetch();
       <td>
 
       <?php   
-      $rquery = "select * from app_data where `reqid` = $reqid";
+      $rquery = ("select * from app_data where `reqid` = " . bats_q($reqid));
       $rins= $conn->prepare($rquery);
       $rins->execute();
       $rdata = $rins->fetchAll();
@@ -128,13 +129,13 @@ $data3 = $ins3->fetch();
           $myFormatForView = date("m/d/y g:i A", $time); 
         echo "<br>Date: ".$myFormatForView;
           $uid = $data['uid'];
-        echo "<br>SM name: ".$conn->query("SELECT name from users where uid = $uid")->fetchColumn();
+        echo "<br>SM name: ".bats_col('users', 'uid', $uid, 'name');
           $cur_date = date("dmy", $time); 
           $curweek = date("W", $time); 
 	      echo "<br>Req ID: "."W".$curweek.$cur_date."-".$data['ureq_id']; ?><a target="_blank" href="../reqnoedit.php?do=editreqid&rid=<?php echo $data['reqid']; ?>"><img src="../images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> <?php
           $cid = $data['cid'];
-        echo "<br>BP Email: ".$conn->query("SELECT remail from clients where cid = $cid")->fetchColumn();
-        echo "<br>BP Phone: ".$conn->query("SELECT rphone from clients where cid = $cid")->fetchColumn();
+        echo "<br>BP Email: ".bats_col('clients', 'cid', $cid, 'remail');
+        echo "<br>BP Phone: ".bats_col('clients', 'cid', $cid, 'rphone');
         echo "<br>Rate: "."$".$data['rrate']."/hr";
         echo "<br>End Client: ".$data['rend_client'];
           if($data['ttype'] == 1) { echo "<br>Tier 1 req? Yes"; } else { echo "<br>Tier 1 req? No"; }
@@ -167,7 +168,7 @@ $data3 = $ins3->fetch();
           foreach($rdata as $row)
           {
             $consultant_id = $row['consultant_id'];
-            echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
+            echo bats_col('consultants', 'cid', $consultant_id, 'cfname')." ".bats_col('consultants', 'cid', $consultant_id, 'clname'); 
             echo "<br>";
           }
 
@@ -181,7 +182,7 @@ $data3 = $ins3->fetch();
               if($row['rcdone']==1)
               {
                 $consultant_id = $row['consultant_id'];
-                echo $conn->query("SELECT cfname from consultants where cid = $consultant_id")->fetchColumn()." ".$conn->query("SELECT clname from consultants where cid = $consultant_id")->fetchColumn(); 
+                echo bats_col('consultants', 'cid', $consultant_id, 'cfname')." ".bats_col('consultants', 'cid', $consultant_id, 'clname'); 
                 echo "<br>";
               }
             }
@@ -208,8 +209,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
 
                     $conn=null;
-                    $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-                    $query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = 1 and `com_postid` = $reqid order by datetime desc";
+                    $conn = bats_db();
+                    $query = ("select * from comments as A INNER JOIN users as B ON A.uid = B.uid where `com_type` = 1 and `com_postid` = " . bats_q($reqid) . " order by datetime desc");
                     $ins= $conn->prepare($query);
                     $ins->execute();
                     $data = $ins->fetchAll();
@@ -226,7 +227,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     {	
                       $app_id = $comment['app_id'];
                       
-                      $query = "select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = $app_id) and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc";
+                      $query = ("select * from comments as A INNER JOIN users as B ON A.uid = B.uid where (`com_postid` = " . bats_q($app_id) . ") and (`com_type` = 2 OR `com_type` = 3 OR `com_type` = 4 ) order by datetime desc");
                       $ins= $conn->prepare($query);
                       $ins->execute();
                       $data = $ins->fetchAll();

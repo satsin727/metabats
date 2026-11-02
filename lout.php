@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if(isset($_SESSION['id']))
 {
 $sessid = $_SESSION['id'];
@@ -13,7 +14,7 @@ else
 $uid = $_SESSION['id'];
 
 $conn=null;
- $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
+ $conn = bats_db();
  $q4 = "UPDATE `users` set `sess` = \"0\" where `uid` = :id ";
  $lout= $conn->prepare($q4);
  $lout->bindValue( ":id", $uid, PDO::PARAM_INT );

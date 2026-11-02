@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_INT );
@@ -44,12 +44,12 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 { 
 $uid = $_POST['userid'];
 $cid = $_POST['consultantid'];
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 /*$q= "Select * from assigned where `cid`= $cid and `uid` = $uid;";
 $ins= $conn->prepare($q);
 $ins->execute();
 $udata = $ins->fetch();*/
-$ifalreadyassigned = $conn->query("SELECT COUNT(*)from assigned where `cid`= $cid and `uid` = $uid")->fetchColumn();
+$ifalreadyassigned = $conn->query(("SELECT COUNT(*)from assigned where `cid`= " . bats_q($cid) . " and `uid` = " . bats_q($uid)))->fetchColumn();
 if($ifalreadyassigned!=0)
 {
 echo "<script>
@@ -58,7 +58,7 @@ alert('Consultant to this user already assigned.!!!');
 }
 
 else {
-	$query = "INSERT INTO `assigned` (`id`, `cid`, `uid`) VALUES (NULL, '$cid', '$uid');";
+	$query = ("INSERT INTO `assigned` (`id`, `cid`, `uid`) VALUES (NULL, " . bats_q("$cid") . ", " . bats_q("$uid") . ");");
 	$ins= $conn->prepare($query);
 	$ins->execute();
 	
@@ -72,7 +72,7 @@ else {
 									<td width="10%" align="left" valign="top"><label>Select User</label> </td>									
 								<td width="30%" align="left" valign="top">	<select name="userid" class="form-control-in">
 									<?php
-									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+									$conn = bats_db();
 									$query = "select * from users where `status` = 1 and `level`= 2 order by name asc";
 									$ins= $conn->prepare($query);
 									$ins->execute();
@@ -87,7 +87,7 @@ else {
 								<td width="30%" align="left" valign="top">	<select name="consultantid" class="form-control-in">
 
 									<?php
-									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+									$conn = bats_db();
 									$query2 = "select * from consultants where `status` = 1 order by cfname asc";
 									$ins2= $conn->prepare($query2);
 									$ins2->execute();
@@ -119,7 +119,7 @@ else {
 						   <tbody>
 <?php
 $i=1;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from assigned";
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -128,12 +128,12 @@ $conn=null;
 foreach( $data as $row) { 
 $cid=$row['cid'];
 $uid=$row['uid'];
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from users where `uid` = $uid AND `status` = 1";
+$conn = bats_db();
+$query = ("select * from users where `uid` = " . bats_q($uid) . " AND `status` = 1");
 $ins= $conn->prepare($query);
 $ins->execute();
 $udata = $ins->fetch();
-$query2 = "select * from consultants where `cid` = $cid AND `status` = 1";
+$query2 = ("select * from consultants where `cid` = " . bats_q($cid) . " AND `status` = 1");
 $ins2= $conn->prepare($query2);
 $ins2->execute();
 $cdata = $ins2->fetch();
@@ -141,7 +141,7 @@ $cdata = $ins2->fetch();
 if(isset($cdata['cid']) && isset($udata['uid']))
 {
 								$sid = $cdata['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch(); 

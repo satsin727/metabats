@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -49,7 +50,7 @@ if(isset($_GET['do']))
 		
 	if($do=='changestatus')
 	{
-		$query ="Select * FROM eci where eci_id = $eciid";
+		$query =("Select * FROM eci where eci_id = " . bats_q($eciid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -58,7 +59,7 @@ if($udata['sm_id']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 		{
 			if($status==1) 
 			{ 
-				$inquery = "UPDATE `eci` SET `eci_happened` = '0' WHERE `eci_id` = $eciid";
+				$inquery = ("UPDATE `eci` SET `eci_happened` = '0' WHERE `eci_id` = " . bats_q($eciid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>
@@ -70,7 +71,7 @@ if($udata['sm_id']==$userid || $dta['level'] == 1 || $dta['level'] == 2 )
 
 			if($status==0) 
 			{ 
-                $inquery = "UPDATE `eci` SET `eci_happened` = '1' WHERE `eci_id` = $eciid";
+                $inquery = ("UPDATE `eci` SET `eci_happened` = '1' WHERE `eci_id` = " . bats_q($eciid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 				echo "<script>

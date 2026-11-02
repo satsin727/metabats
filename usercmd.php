@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -46,8 +47,8 @@ if(isset($_GET['do']))
 		<?php
 	if($do=='changestatus')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$query ="Select * FROM users where uid = $uid";
+		$conn = bats_db();
+		$query =("Select * FROM users where uid = " . bats_q($uid));
 		$ins= $conn->prepare($query);
 		$ins->execute();
 		$udata = $ins->fetch();
@@ -55,7 +56,7 @@ if(isset($_GET['do']))
 
 if($status==1) 
 	{ 
-		$inquery = "UPDATE `users` SET `status` = '0' WHERE `uid` = $uid";
+		$inquery = ("UPDATE `users` SET `status` = '0' WHERE `uid` = " . bats_q($uid));
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		echo "<script>
@@ -67,7 +68,7 @@ if($status==1)
 
 if($status==0) 
 	{ 
-		$inquery = "UPDATE `users` SET `status` = '1' WHERE `uid` = $uid";
+		$inquery = ("UPDATE `users` SET `status` = '1' WHERE `uid` = " . bats_q($uid));
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		echo "<script>
@@ -80,8 +81,8 @@ if($status==0)
 	}
 	if($do=='delete')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "DELETE FROM `users` WHERE `uid` = $uid";
+		$conn = bats_db();
+		$inquery = ("DELETE FROM `users` WHERE `uid` = " . bats_q($uid));
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		header( "Location: admin.php?action=listusers" );
@@ -89,7 +90,7 @@ if($status==0)
 	if($do=='edit')
 	{ 
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $uid, PDO::PARAM_INT );
@@ -169,21 +170,21 @@ if(isset($_POST['update']))
 	    $level=$_POST['level'];
 	    $status=1;
 		$ptext = $code;
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$csql = "SELECT COUNT(*) FROM `users` WHERE `password` = '$p'";
+		$conn = bats_db();
+		$csql = ("SELECT COUNT(*) FROM `users` WHERE `password` = " . bats_q("$p"));
 		
 		$cinsql = $conn->prepare($csql);
 		$cinsql->execute();
 		$rowcounts =  $cinsql->fetchColumn();
 		if($rowcounts == 0)
 			{
-				$inquery = "UPDATE `users` SET `username` = '$username', `name` = '$name', `uhash` = '$uhash', `companyname` = '$companyname', `email` = '$email', `password` = '$password', `level` = '$level', `status` = '$status', `ptext` = '$ptext' WHERE `users`.`uid` = $uid";
+				$inquery = ("UPDATE `users` SET `username` = " . bats_q("$username") . ", `name` = " . bats_q("$name") . ", `uhash` = " . bats_q("$uhash") . ", `companyname` = " . bats_q("$companyname") . ", `email` = " . bats_q("$email") . ", `password` = " . bats_q("$password") . ", `level` = " . bats_q("$level") . ", `status` = " . bats_q("$status") . ", `ptext` = " . bats_q("$ptext") . " WHERE `users`.`uid` = " . bats_q($uid));
 				$ins= $conn->prepare($inquery);
 				$ins->execute();
 			}
 		else
 		{
-			$inquery = "UPDATE `users` SET `username` = '$username', `name` = '$name', `uhash` = '$uhash', `companyname` = '$companyname', `email` = '$email', `level` = '$level', `status` = '$status', `ptext` = '$ptext' WHERE `users`.`uid` = $uid";
+			$inquery = ("UPDATE `users` SET `username` = " . bats_q("$username") . ", `name` = " . bats_q("$name") . ", `uhash` = " . bats_q("$uhash") . ", `companyname` = " . bats_q("$companyname") . ", `email` = " . bats_q("$email") . ", `level` = " . bats_q("$level") . ", `status` = " . bats_q("$status") . ", `ptext` = " . bats_q("$ptext") . " WHERE `users`.`uid` = " . bats_q($uid));
 			$ins= $conn->prepare($inquery);
 			$ins->execute();
 		}

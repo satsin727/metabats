@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -43,19 +44,19 @@ if($download == "allreqs")
     if($_GET['showweekly']==1)
     {
         $weekly=1;
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and `uid` = $smid and WEEK(datetime) =  WEEK('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and `uid` = " . bats_q($smid) . " and datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(datetime) =  WEEK(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
     }
     else if($_GET['showmonthly']==1)
     {
         $monthly=1;
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and `uid` = $smid and  MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and `uid` = " . bats_q($smid) . " and  datetime >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
     }
     else 
     {
-        $query = "SELECT * FROM `req` WHERE `status` = 1  and `uid` = $smid and DATE(datetime) =  DATE('$curdate') and MONTH(datetime) =  MONTH('$curdate') and YEAR(datetime) =  YEAR('$curdate')"; 
+        $query = ("SELECT * FROM `req` WHERE `status` = 1  and `uid` = " . bats_q($smid) . " and datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(datetime) =  YEAR(" . bats_q("$curdate") . ")"); 
     }
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -85,27 +86,27 @@ $data = $ins->fetchAll();
 
                         $ureq_id = $row['ureq_id'];
                             $skillid = $row['skillid'];
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                             $jobtype = $row['jobtype'];
                         if($jobtype == 1) { $job = "Contract";} else { $job = "Contract to hire"; }
                             $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
 
-                            $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                            $jd = $conn->query(("select rdesc from jd where reqid = " . bats_q($reqid)))->fetchColumn();
                         $jdtext = strip_tags($jd);
                         $jdtext = str_replace('&nbsp;', '', $jdtext);
 
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
 
                         //posted by SM
                         if($weekly==1 OR $monthly==1)
                         {
-                            $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = '$reqid' and  B.uid = $smid and A.status=1";
+                            $sm_query = ("select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.reqid = " . bats_q("$reqid") . " and  B.uid = " . bats_q($smid) . " and A.status=1");
                         }
                 
                         else{
-                        $sm_query = "select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = '$ureq_id' and  B.uid = $smid and A.status=1 and DATE(B.datetime) =  DATE('$curdate') and MONTH(B.datetime) =  MONTH('$curdate') and YEAR(B.datetime) =  YEAR('$curdate')";
+                        $sm_query = ("select * from app_data as A Left Join req as B ON A.reqid  = B.reqid where B.ureq_id = " . bats_q("$ureq_id") . " and  B.uid = " . bats_q($smid) . " and A.status=1 and B.datetime >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.datetime < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(B.datetime) =  DATE(" . bats_q("$curdate") . ") and MONTH(B.datetime) =  MONTH(" . bats_q("$curdate") . ") and YEAR(B.datetime) =  YEAR(" . bats_q("$curdate") . ")");
                         }
                         $sins= $conn->prepare($sm_query);
                         $sins->execute();
@@ -124,15 +125,15 @@ $data = $ins->fetchAll();
 
                                */
                                 $uid = $sm['uid'];
-                                $smn = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                $smn = bats_col('users', 'uid', $uid, 'name');
 
                                     $consultantid = $sm['consultant_id'];
 
-                                    $consultantname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
+                                    $consultantname = bats_col('consultants', 'cid', $consultantid, 'cfname');
 
                                 $cid = $sm['client_id'];
-                                $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                                $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+                                $bpemail = bats_col('clients', 'cid', $cid, 'remail');
+                                $bpphone = bats_col('clients', 'cid', $cid, 'rphone');
 
                                 $bpcontact = $bpcontact.$bpemail."/".$bpphone."\n";
 
@@ -176,7 +177,7 @@ $data = $ins->fetchAll();
                                 $appdata = $appdata.$smn." has applied ".$consultantname." through ".$bpemail." and did ".$rcdone." RC, ".$subdone." Sub."."\n"; 
                             
                                 $appid = $sm['app_id'];
-                                    $com_query = "select * from comments where com_postid = $appid and uid = $smid";
+                                    $com_query = ("select * from comments where com_postid = " . bats_q($appid) . " and uid = " . bats_q($smid));
                                     $cins= $conn->prepare($com_query);
                                     $cins->execute();
                                     $commentdata = $cins->fetchAll();
@@ -184,7 +185,7 @@ $data = $ins->fetchAll();
                                 foreach($commentdata as $comment)
                                 {
                                     $uid = $comment['uid'];
-                                    $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                    $smname = bats_col('users', 'uid', $uid, 'name');
                                     $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
                                 }
                                 
@@ -239,6 +240,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
 
 }

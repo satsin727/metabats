@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -48,7 +49,7 @@ if(isset($_GET['do']))
 		if(isset($_GET['appid']))
 		{
 			$app_id = $_GET['appid'];
-			$conn->query("UPDATE `app_data` SET `status` = '0', `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id");
+			$conn->query(("UPDATE `app_data` SET `status` = '0', `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = " . bats_q($app_id)));
 			echo "<script>
 			alert('Application Deleted');
 			window.location.href='admin.php?action=showapplications';
@@ -57,7 +58,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['rcid']))
 		{
 			$app_id = $_GET['rcid'];
-			$conn->query("UPDATE `app_data` SET `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id and `status` = 1");
+			$conn->query(("UPDATE `app_data` SET `rcdone` = '0', `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = " . bats_q($app_id) . " and `status` = 1"));
 			echo "<script>
 			alert('RC Deleted');
 			window.location.href='admin.php?action=showrc';
@@ -66,7 +67,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['subid']))
 		{
 			$app_id = $_GET['subid'];
-			$conn->query("UPDATE `app_data` SET `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = $app_id and `status` = 1");
+			$conn->query(("UPDATE `app_data` SET `subdone` = '0', `hasinterview`= 0 WHERE `app_id` = " . bats_q($app_id) . " and `status` = 1"));
 			echo "<script>
 			alert('Sub Deleted');
 			window.location.href='admin.php?action=showsub';
@@ -75,7 +76,7 @@ if(isset($_GET['do']))
 		elseif(isset($_GET['eciid']))
 		{
 			$eci_id = $_GET['eciid'];
-			$conn->query("UPDATE `eci` SET `status` = '0' WHERE `eci_id` = $eci_id");
+			$conn->query(("UPDATE `eci` SET `status` = '0' WHERE `eci_id` = " . bats_q($eci_id)));
 			echo "<script>
 			alert('ECI Deleted');
 			window.location.href='admin.php?action=showeci';
@@ -87,7 +88,7 @@ if(isset($_GET['do']))
 	elseif($do=='addsub')
 	{
 			$app_id = $_GET['rcid'];
-			$conn->query("UPDATE `app_data` SET `subdone` = '1', `subdate` = '$currentdatetime', `subto` = 1, `ars_status` =7 WHERE `app_id` = $app_id");
+			$conn->query(("UPDATE `app_data` SET `subdone` = '1', `subdate` = " . bats_q("$currentdatetime") . ", `subto` = 1, `ars_status` =7 WHERE `app_id` = " . bats_q($app_id)));
 			echo "<script>
 			alert('Sub Added');
 			window.location.href='admin.php?action=showrc';

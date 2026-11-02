@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -101,7 +101,7 @@ if(isset($_POST['save']))
 		$consultant_id=$_POST['consultant_id'];		
 
 
-		$inquery = "INSERT INTO `issues` (`headline`, `issuedesc`, `sm_id`, `consultant_id`) VALUES (:headline, '$issuedesc', '$sm_id', '$consultant_id');";
+		$inquery = ("INSERT INTO `issues` (`headline`, `issuedesc`, `sm_id`, `consultant_id`) VALUES (:headline, " . bats_q("$issuedesc") . ", " . bats_q("$sm_id") . ", " . bats_q("$consultant_id") . ");");
 		$ins= $conn->prepare($inquery);
 		$ins->bindParam(':headline', $headline, PDO::PARAM_STR);
 		$ins->execute();

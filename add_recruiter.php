@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -111,7 +111,7 @@ if(isset($_POST['save']))
 		$ptext = $code;
 		$lastloginip = "0.0.0.0";
 		$date = date("Y-m-d H:i:s");
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$conn = bats_db();
 		 $query = "select * from users where `email` = :email";
 		 $ins= $conn->prepare($query);
 		 $ins->bindValue( ":email", $email, PDO::PARAM_STR );
@@ -126,7 +126,7 @@ window.location.href='admin.php?action=listusers';
 </script>"; 
 		 }
 else {
-		 $inquery = "INSERT INTO `users` (`uid`,`username`, `name`, `uhash`, `companyname`,`email`, `password`, `sess`, `level`, `status`, `ptext`, `lastloginip`, `date`) VALUES (NULL, '$username', '$name', '$uhash', '$companyname', '$email', '$password', '$sess', '$level', '$status', '$ptext', '$lastloginip', '$date');";
+		 $inquery = ("INSERT INTO `users` (`uid`,`username`, `name`, `uhash`, `companyname`,`email`, `password`, `sess`, `level`, `status`, `ptext`, `lastloginip`, `date`) VALUES (NULL, " . bats_q("$username") . ", " . bats_q("$name") . ", " . bats_q("$uhash") . ", " . bats_q("$companyname") . ", " . bats_q("$email") . ", " . bats_q("$password") . ", " . bats_q("$sess") . ", " . bats_q("$level") . ", " . bats_q("$status") . ", " . bats_q("$ptext") . ", " . bats_q("$lastloginip") . ", " . bats_q("$date") . ");");
 		
 		$ins= $conn->prepare($inquery);
 		$ins->execute();

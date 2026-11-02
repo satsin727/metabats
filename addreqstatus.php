@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -31,7 +32,7 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
 			$client_id = $data['cid'];	
 			$currentdatetime =date('Y-m-d H:i:s'); */
 
-			$conn->query("Update req set reqstatus = $reqstatusid where reqid = $reqid");
+			$conn->query(("Update req set reqstatus = " . bats_q($reqstatusid) . " where reqid = " . bats_q($reqid)));
 			echo "<script>alert('Status updated.');window.close();</script>"; 
 		}
 		else

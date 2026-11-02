@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -40,8 +41,8 @@ if(isset($_GET['do']))
 
 	if($do=='close')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `issues` SET `status` = 0 WHERE `issueid` = $id";
+		$conn = bats_db();
+		$inquery = ("UPDATE `issues` SET `status` = 0 WHERE `issueid` = " . bats_q($id));
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		$conn=null;
@@ -49,8 +50,8 @@ if(isset($_GET['do']))
 	}
     if($do=='view')
     { 
-        $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-        $query = "select * from issues where `issueid` =  $id;";
+        $conn = bats_db();
+        $query = ("select * from issues where `issueid` =  " . bats_q($id) . ";");
         $ins= $conn->prepare($query);
         $ins->execute();
         $data = $ins->fetch();
@@ -98,8 +99,8 @@ if(isset($_GET['do']))
     }
 	if($do=='reopen')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `issues` SET `status` = 1 WHERE `issueid` = $id";
+		$conn = bats_db();
+		$inquery = ("UPDATE `issues` SET `status` = 1 WHERE `issueid` = " . bats_q($id));
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		$conn=null;
@@ -108,8 +109,8 @@ if(isset($_GET['do']))
 
 	if($do=='edit')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from issues where `issueid` =  $id;";
+$conn = bats_db();
+$query = ("select * from issues where `issueid` =  " . bats_q($id) . ";");
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetch();
@@ -179,7 +180,7 @@ if(isset($_POST['update']))
     $consultant_id=$_POST['consultant_id'];		
 
 
-    $inquery = "UPDATE issues SET `headline` = :headline, `issuedesc` = '$issuedesc', `consultant_id`= '$consultant_id' where issueid = '$issueid'";
+    $inquery = ("UPDATE issues SET `headline` = :headline, `issuedesc` = " . bats_q("$issuedesc") . ", `consultant_id`= " . bats_q("$consultant_id") . " where issueid = " . bats_q("$issueid"));
     $ins= $conn->prepare($inquery);	
 	$ins->bindParam(':headline', $headline, PDO::PARAM_STR);
     $ins->execute();

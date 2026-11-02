@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -99,8 +100,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
         if($dta['level'] == 1 || $dta['level'] == 2)
         {
             $smname = str_replace(' ', '', $data[1]);
-            $userid = $conn->query("SELECT uid FROM `users` WHERE `name` = '$smname'")->fetchColumn();
-            $listid = $conn->query("SELECT def_lid FROM `users` WHERE `uid` = '$userid'")->fetchColumn();
+            $userid = $conn->query(("SELECT uid FROM `users` WHERE `name` = " . bats_q("$smname")))->fetchColumn();
+            $listid = $conn->query(("SELECT def_lid FROM `users` WHERE `uid` = " . bats_q("$userid")))->fetchColumn();
 
         }
 
@@ -108,22 +109,22 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
         if($status!=0 && $userid != null)
         {
             
-            $rowcounts =  $conn->query("SELECT COUNT(*) FROM `clients` WHERE `remail` = '$col4'")->fetchColumn();
+            $rowcounts =  $conn->query(("SELECT COUNT(*) FROM `clients` WHERE `remail` = " . bats_q("$col4")))->fetchColumn();
             if($rowcounts == 0)
             { 
-                $sql = "INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `domain`, `rphone`,`status`) 
-                values (Null, '$listid', '$userid', '$companyname','$rname','$col4','$domain','$rphone','$status')";
+                $sql = ("INSERT into clients (`cid`, `lid`, `uid`, `companyname`, `rname`, `remail`, `domain`, `rphone`,`status`) 
+                values (Null, " . bats_q("$listid") . ", " . bats_q("$userid") . ", " . bats_q("$companyname") . "," . bats_q("$rname") . "," . bats_q("$col4") . "," . bats_q("$domain") . "," . bats_q("$rphone") . "," . bats_q("$status") . ")");
                 $insl= $conn->prepare($sql);
                 $insl->execute();
             }
             else{
-                $sql = "UPDATE clients SET `companyname` = '$companyname', `rname` = '$rname', `rphone`= '$rphone' where remail = '$col4'";
+                $sql = ("UPDATE clients SET `companyname` = " . bats_q("$companyname") . ", `rname` = " . bats_q("$rname") . ", `rphone`= " . bats_q("$rphone") . " where remail = " . bats_q("$col4"));
                 $insl= $conn->prepare($sql);
                 $insl->execute();
             }
-            $client_id = $conn->query("SELECT cid FROM `clients` WHERE `remail` = '$col4'")->fetchColumn();
+            $client_id = $conn->query(("SELECT cid FROM `clients` WHERE `remail` = " . bats_q("$col4")))->fetchColumn();
             
-            $sql = "INSERT into client_call (`cid`, `dialed_date`, `connected`, `smid`, `comment`, `special_notes`) values ($client_id, '$dialed_date','$connected','$userid','$comment','$special_notes')";
+            $sql = ("INSERT into client_call (`cid`, `dialed_date`, `connected`, `smid`, `comment`, `special_notes`) values ($client_id, " . bats_q("$dialed_date") . "," . bats_q("$connected") . "," . bats_q("$userid") . "," . bats_q("$comment") . "," . bats_q("$special_notes") . ")");
             $insl= $conn->prepare($sql);    
             $insl->execute();
         }

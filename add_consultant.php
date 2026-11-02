@@ -12,7 +12,7 @@ else
 //testing
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -71,7 +71,7 @@ if($dta['level'] == 1 || $dta['level'] == 2)
 								<td width="15%" align="left" valign="top"><label>Role(Skill):</label></td>
 								<td width="90%" align="left" valign="top">	<select name="skill" class="form-control-in">
 								<?php
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+								$conn2 = bats_db();
 								$q2 = "select * from skill";
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute();
@@ -257,7 +257,7 @@ if (isset($_POST['save'])) {
         echo '<script>alert(' . json_encode('SSN digits must contain numbers only.') . ');</script>';
     } else {
         try {
-            $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);
+            $conn = bats_db();
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             // Check duplicate original email only when it is populated.

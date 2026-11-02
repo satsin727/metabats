@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -47,11 +48,11 @@ if(isset($_POST['saveeci']))
 
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1 and app_id = $app_id order by subdate desc";
+		$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1 and app_id = " . bats_q($app_id) . " order by subdate desc");
 	}
 	else
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and subdone= 1 and app_id = $app_id order by subdate desc";
+		$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($uid) . " and subdone= 1 and app_id = " . bats_q($app_id) . " order by subdate desc");
 	} 
 	$ins= $conn->prepare($query);
 	$ins->execute();
@@ -64,15 +65,15 @@ if(isset($_POST['saveeci']))
 	$currentdatetime =date('Y-m-d H:i:s');
 
 //	$query = "INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, '$eci_type', '$eci_date', '$eci_time', '$eci_req_date', $eci_round, '0', NULL, NULL, 1, '', CURRENT_TIMESTAMP)";
-	$conn->query("INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, '$eci_type', '$eci_date', '$eci_time', '$eci_req_date', $eci_round, '0', NULL, NULL, 1, '', '$currentdatetime')");
+	$conn->query(("INSERT INTO `eci` (`eci_id`, `sm_id`, `t2id`, `t1id`, `app_id`, `req_id`, `consultant_id`, `skill_id`, `eci_type`, `eci_date`, `eci_time`, `eci_req_date`, `eci_round`, `eci_happened`, `eci_client_feedback`, `eci_usteam_feedback`, `status`, `nh_reason`, `datetime`) VALUES (NULL, $sm_id, $t2id, '', $app_id, $req_id, $consultant_id, $skill_id, " . bats_q("$eci_type") . ", " . bats_q("$eci_date") . ", " . bats_q("$eci_time") . ", " . bats_q("$eci_req_date") . ", $eci_round, '0', NULL, NULL, 1, '', " . bats_q("$currentdatetime") . ")"));
 
 	if($dta['level'] == 1 || $dta['level'] == 2)
 	{
-	$conn->query("UPDATE `app_data` SET `hasinterview` = '1', `ars_status` =7 WHERE `app_id` = $app_id");
+	$conn->query(("UPDATE `app_data` SET `hasinterview` = '1', `ars_status` =7 WHERE `app_id` = " . bats_q($app_id)));
 	}
 	else
 	{
-	$conn->query("UPDATE `app_data` SET `hasinterview` = '1', `ars_status` =7 WHERE `app_id` = $app_id and `uid` = $sm_id");
+	$conn->query(("UPDATE `app_data` SET `hasinterview` = '1', `ars_status` =7 WHERE `app_id` = " . bats_q($app_id) . " and `uid` = " . bats_q($sm_id)));
 	} 
 //	$cid = $conn->lastInsertId();
 //	$conn->query("UPDATE `app_data` SET `hasinterview` = '1', `ars_status` =7 WHERE `app_id` = $app_id and `uid` = $uid");

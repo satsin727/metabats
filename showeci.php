@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -34,7 +34,7 @@ $uid = $dta['uid'];
 	}
 	else
 	{
-		$query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = $uid and hasinterview = 1 order by rcdate desc";
+		$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($uid) . " and hasinterview = 1 order by rcdate desc");
 	}
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -76,18 +76,18 @@ $i=1;
 foreach( $data as $row) { 
 
 $sid = $row['skill'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch();
 $cid = $row['client_id'];
-								$q3 = "SELECT * from clients where `cid` = $cid";
+								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
 $uid = $row['uid'];	
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
@@ -100,13 +100,13 @@ $eci_num = 0;
 */
 $app_id = $row['app_id'];
 $reqid = $row['reqid'];
-								$q5 = "SELECT * from req where `reqid` = $reqid";
+								$q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
 								$ins6= $conn->prepare($q5);
 								$ins6->execute(); 
 								$dta5 = $ins6->fetch();
 
 
-$eci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `app_id`= $app_id and `eci_happened` = 1")->fetchColumn();
+$eci_num = $conn->query(("SELECT COUNT(*) FROM `eci` WHERE `app_id`= " . bats_q($app_id) . " and `eci_happened` = 1"))->fetchColumn();
 
   /*	                              
 								$q6 = "SELECT * from eci where `app_id` = $app_id";

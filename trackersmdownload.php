@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -34,44 +35,44 @@ $download = $_GET['download'];
 
 if($download == "mapp")
 {
-$query = "SELECT * FROM `app_data` WHERE `status` = 1 and`uid`= $uid and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')  order by appdate asc"; }
+$query = ("SELECT * FROM `app_data` WHERE `status` = 1 and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")  order by appdate asc"); }
 elseif($download == "mrc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= $uid and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1 and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");}
 elseif($download == "msub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1  and`uid`= $uid and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `subdone` = 1 and  `rcdone` = 1 and `status`= 1  and`uid`= " . bats_q($uid) . " and subdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND subdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(subdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");}
 elseif($download == "meci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= $uid and MONTH(eci_date) = MONTH('$curdate')  and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+{$query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and `status` = 1  and`uid`= " . bats_q($uid) . " and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ")  and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");}
 elseif($download == "wapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc"); }
 elseif($download == "wrc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and WEEK(rcdate) = WEEK('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ")  and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");}
 elseif($download == "wsub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and WEEK(subdate) = WEEK('$curdate') and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= " . bats_q($uid) . " and  `rcdone` = 1 and `status`= 1 and subdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND subdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(subdate) = WEEK(" . bats_q("$curdate") . ") and MONTH(subdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");}
 elseif($download == "weci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= $uid  and `status` = 1 and WEEK(eci_date) = WEEK('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')  order by eci_req_date asc";}
+{$query = ("SELECT * FROM `eci` WHERE `eci_happened` =1 and`uid`= " . bats_q($uid) . "  and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK(" . bats_q("$curdate") . ")  and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ")  order by eci_req_date asc");}
 elseif($download == "dapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc"); }
 elseif($download == "drc")
-{$query = "SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= $uid and `status`= 1 and DATE(rcdate) = DATE('$curdate')  and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate') order by rcdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `rcdone` = 1  and`uid`= " . bats_q($uid) . " and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ")  and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ") order by rcdate asc");}
 elseif($download == "dsub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and DATE(subdate) = DATE('$curdate')  and MONTH(subdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= " . bats_q($uid) . " and  `rcdone` = 1 and `status`= 1 and subdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND subdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(subdate) = DATE(" . bats_q("$curdate") . ")  and MONTH(subdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");}
 elseif($download == "deci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and DATE(eci_date) = DATE('$curdate')  and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc";}
+{$query = ("SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= " . bats_q($uid) . " and `status` = 1 and eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(eci_date) = DATE(" . bats_q("$curdate") . ")  and MONTH(eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc");}
 elseif($download == "yapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= $uid and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = ("SELECT * FROM `app_data` WHERE `status` = 1   and`uid`= " . bats_q($uid) . " and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc"); }
 elseif($download == "allapp")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= $uid order by appdate asc"; }
+{$query = ("SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= " . bats_q($uid) . " order by appdate asc"); }
 elseif($download == "yrc")
-{$query = "SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= $uid and  `rcdone` = 1 and YEAR(appdate) = YEAR('$curdate') order by appdate asc"; }
+{$query = ("SELECT * FROM `app_data` WHERE `status` = 1  and`uid`= " . bats_q($uid) . " and  `rcdone` = 1 and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") order by appdate asc"); }
 elseif($download == "yeci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 and YEAR(eci_date) = YEAR('$curdate') order by eci_req_date asc"; }
+{$query = ("SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= " . bats_q($uid) . " and `status` = 1 and eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(eci_date) = YEAR(" . bats_q("$curdate") . ") order by eci_req_date asc"); }
 elseif($download == "teci")
-{$query = "SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= $uid and `status` = 1 order by eci_req_date asc"; }
+{$query = ("SELECT * FROM `eci` WHERE `eci_happened` =1  and`uid`= " . bats_q($uid) . " and `status` = 1 order by eci_req_date asc"); }
 elseif($download == "ysub")
-{$query = "SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= $uid and  `rcdone` = 1 and `status`= 1 and YEAR(subdate) = YEAR('$curdate') order by subdate asc";}
+{$query = ("SELECT * FROM `app_data` WHERE `subdone` = 1  and`uid`= " . bats_q($uid) . " and  `rcdone` = 1 and `status`= 1 and subdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND subdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(subdate) = YEAR(" . bats_q("$curdate") . ") order by subdate asc");}
 
 $conn = null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetchAll();
@@ -91,26 +92,26 @@ $data = $ins->fetchAll();
                         $date = date("m/d/y", $time);
 
                                 $uid = $row['uid'];
-                                $q4 = "SELECT * from users where `uid` = $uid";
+                                $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
                         $sm = $dta4['name'];
 
                                 $consultantid = $row['consultant_id'];
-                                $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-                                $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-                                $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+                                $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+                                $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+                                $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
                                 
                         $consultantname = $cfname." ".$cmname." ".$clname;
 
-                                $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                                $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                         
                                 $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
-                                $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
-                                $udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
+                                $ureq_id = bats_col('req', 'reqid', $reqid, 'ureq_id');
+                                $udate = bats_col('req', 'reqid', $reqid, 'datetime');
                                 $utime = strtotime($udate);
                                 $cur_date = date("dmy", $utime); 
                                 $curweek = date("W", $utime); 
@@ -123,18 +124,18 @@ $data = $ins->fetchAll();
                       //  $jdtext = str_replace('€', '', $jdtext);
                         
                                 $cid = $row['client_id'];
-                        $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
-                        $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
-                        $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();                        
-                        $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
-                        $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
-                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();    
+                        $bpcompany = bats_col('clients', 'cid', $cid, 'companyname');
+                        $bpname = bats_col('clients', 'cid', $cid, 'rname');
+                        $bpemail = bats_col('clients', 'cid', $cid, 'remail');
+                        $bpphone = bats_col('clients', 'cid', $cid, 'rphone');                        
+                        $bplocation = bats_col('clients', 'cid', $cid, 'rlocation');
+                        $bptier = bats_col('clients', 'cid', $cid, 'tier');      
+                        $bptimezone = bats_col('clients', 'cid', $cid, 'rtimezon');    
                     
 
                                 $app_id = $row['app_id'];
-                        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                        $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
                        
                         if(isset($ipname) && isset($clientname))
@@ -155,7 +156,7 @@ $data = $ins->fetchAll();
                         }
 
                         
-                                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                                $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                                 if($ars_status == 1)
                                 {
                                     $status =  "Connected";
@@ -228,7 +229,7 @@ $data = $ins->fetchAll();
                                 {
                                     $status =  "Rejected - Due to Linkedin";
                                 }
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                        $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and appcom_id = 1"))->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -243,15 +244,15 @@ $data = $ins->fetchAll();
                             if($row['subdone']==0)
                             {
                                 $subdone = "No";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();    
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and rccom_id = 1"))->fetchColumn();    
                             }
                             else {
                                 $subdone = "Yes";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and subcom_id = 1"))->fetchColumn();
                             }
                             if($comment=="")
                             {
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and appcom_id = 1"))->fetchColumn();
                             }
                         }
                         else
@@ -275,6 +276,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
 				}
 
@@ -293,26 +295,26 @@ $data = $ins->fetchAll();
                         $date = date("m/d/y", $time);
 
                                 $uid = $row['uid'];
-                                $q4 = "SELECT * from users where `uid` = $uid";
+                                $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
                         $sm = $dta4['name'];
 
                                 $consultantid = $row['consultant_id'];
-                                $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-                                $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-                                $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+                                $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+                                $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+                                $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
                                 
                         $consultantname = $cfname." ".$cmname." ".$clname;
 
-                                $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                                $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                         
                                 $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
-                        /*        $ureq_id = $conn->query("select ureq_id from req where reqid = $reqid")->fetchColumn();
-                                $udate = $conn->query("select datetime from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
+                        /*        $ureq_id = bats_col('req', 'reqid', $reqid, 'ureq_id');
+                                $udate = bats_col('req', 'reqid', $reqid, 'datetime');
                                 $utime = strtotime($udate);
                                 $cur_date = date("dmy", $utime); 
                                 $curweek = date("W", $utime); 
@@ -331,23 +333,23 @@ $data = $ins->fetchAll();
                         $bplocation = $cdata['rlocation'];
                         $bptier = $cdata['tier'];
                         $bptimezone = $cdata['rtimezon']; */
-                        $bpcompany = $conn->query("SELECT companyname from clients where `cid` = $cid")->fetchColumn();
-                        $bpname = $conn->query("SELECT rname from clients where `cid` = $cid")->fetchColumn();
-                        $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();                        
-                        $bplocation = $conn->query("SELECT rlocation from clients where `cid` = $cid")->fetchColumn();
-                        $bptier = $conn->query("SELECT tier from clients where `cid` = $cid")->fetchColumn();      
-                        $bptimezone = $conn->query("SELECT rtimezon from clients where `cid` = $cid")->fetchColumn();   
-                    //    $bpuid = $conn->query("SELECT uid from clients where `cid` = $cid")->fetchColumn(); 
-                    //    $bpsm = $conn->query("SELECT name from users where `uid` = $bpuid")->fetchColumn();                      
+                        $bpcompany = bats_col('clients', 'cid', $cid, 'companyname');
+                        $bpname = bats_col('clients', 'cid', $cid, 'rname');
+                        $bpemail = bats_col('clients', 'cid', $cid, 'remail');
+                        $bpphone = bats_col('clients', 'cid', $cid, 'rphone');                        
+                        $bplocation = bats_col('clients', 'cid', $cid, 'rlocation');
+                        $bptier = bats_col('clients', 'cid', $cid, 'tier');      
+                        $bptimezone = bats_col('clients', 'cid', $cid, 'rtimezon');   
+                    //    $bpuid = bats_col('clients', 'cid', $cid, 'uid'); 
+                    //    $bpsm = bats_col('users', 'uid', $bpuid, 'name');                      
                                 $app_id = $row['app_id'];
-                        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                        $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
                        
 
                     
-                                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                                $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                                 if($ars_status == 1)
                                 {
                                     $status =  "Connected";
@@ -420,7 +422,7 @@ $data = $ins->fetchAll();
                                 {
                                     $status =  "Rejected - Due to Linkedin";
                                 }
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                        $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and appcom_id = 1"))->fetchColumn();
                         /*
                         $appid = $row['app_id'];
                                     $com_query = "select * from comments where com_postid = $appid";
@@ -431,7 +433,7 @@ $data = $ins->fetchAll();
                                 foreach($commentdata as $comment)
                                 {
                                     $uid = $comment['uid'];
-                                    $smname = $conn->query("SELECT name from users where `uid` = $uid")->fetchColumn();
+                                    $smname = bats_col('users', 'uid', $uid, 'name');
                                     $comments = $comments.$smname.": ".$comment['comment']." at ".$comment['datetime']."\n";
                                 }
                                 
@@ -451,15 +453,15 @@ $data = $ins->fetchAll();
                             if($row['subdone']==0)
                             {
                                 $subdone = "No";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();    
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and rccom_id = 1"))->fetchColumn();    
                             }
                             else {
                                 $subdone = "Yes";
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and subcom_id = 1"))->fetchColumn();
                             }
                             if($comment=="")
                             {
-                                $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and appcom_id = 1")->fetchColumn();
+                                $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and appcom_id = 1"))->fetchColumn();
                             }
                         }
                         else
@@ -483,6 +485,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
                     
 				}
@@ -501,26 +504,26 @@ $data = $ins->fetchAll();
                         $date = date("m/d/y", $time);
 
                                 $uid = $row['uid'];
-                                $q4 = "SELECT * from users where `uid` = $uid";
+                                $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
                         $sm = $dta4['name'];
 
                                 $consultantid = $row['consultant_id'];
-                                $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-                                $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-                                $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+                                $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+                                $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+                                $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
                                 
                         $consultantname = $cfname." ".$cmname." ".$clname;
 
-                                $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                                $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                         
                                 $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
                       
-                        $jd = $conn->query("select rdesc from jd where reqid = $reqid")->fetchColumn();
+                        $jd = $conn->query(("select rdesc from jd where reqid = " . bats_q($reqid)))->fetchColumn();
                         $jdtext = strip_tags(html_entity_decode($jd));
                         $jdtext = str_replace('â€¢Â', '', $jdtext);
                         $jdtext = str_replace('Â', '', $jdtext);                        
@@ -528,13 +531,13 @@ $data = $ins->fetchAll();
                         $jdtext = str_replace('â€“', '', $jdtext);
                         
                             $cid = $row['client_id'];
-                        $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
-                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+                        $bpemail = bats_col('clients', 'cid', $cid, 'remail');
+                        $bpphone = bats_col('clients', 'cid', $cid, 'rphone');
                         
 
                                 $app_id = $row['app_id'];
-                        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                        $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
                         if(isset($ipname) && isset($clientname))
                         {
@@ -554,7 +557,7 @@ $data = $ins->fetchAll();
                         }
 
                         
-                                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                                $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                                 if($ars_status == 1)
                                 {
                                     $status =  "Connected";
@@ -628,7 +631,7 @@ $data = $ins->fetchAll();
                                     $status =  "Rejected - Due to Linkedin";
                                 }
                        
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and rccom_id = 1")->fetchColumn();
+                        $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and rccom_id = 1"))->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -640,14 +643,14 @@ $data = $ins->fetchAll();
                         if($row['subdone']==1)
                         {
                             $subdone = "Yes";
-                            $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                            $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and subcom_id = 1"))->fetchColumn();
                         }
                         else
                         {
                             $subdone = "No";
                         }
 
-                        $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
+                        $layer = bats_col('clients', 'cid', $cid, 'tier');
                         $rate = $row['rateperhour'];
                     
                         $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$jdtext,$bpemail,$bpphone,$layer,$rate,$client,$subdone,$status,$comment);
@@ -665,6 +668,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
 				}
 
@@ -684,34 +688,34 @@ $data = $ins->fetchAll();
                         $date = date("m/d/y", $time);
 
                                 $uid = $row['uid'];
-                                $q4 = "SELECT * from users where `uid` = $uid";
+                                $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
                         $sm = $dta4['name'];
 
                                 $consultantid = $row['consultant_id'];
-                                $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-                                $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-                                $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+                                $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+                                $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+                                $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
                                 
                         $consultantname = $cfname." ".$cmname." ".$clname;
 
-                                $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                                $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
                         
                                 $reqid = $row['reqid'];
-                        $location = $conn->query("select rlocation from req where reqid = $reqid")->fetchColumn();
+                        $location = bats_col('req', 'reqid', $reqid, 'rlocation');
                        
                                 $cid = $row['client_id'];
-                        $bpemail = $conn->query("SELECT remail from clients where `cid` = $cid")->fetchColumn();
+                        $bpemail = bats_col('clients', 'cid', $cid, 'remail');
 
-                        $bpphone = $conn->query("SELECT rphone from clients where `cid` = $cid")->fetchColumn();
+                        $bpphone = bats_col('clients', 'cid', $cid, 'rphone');
                         
 
                                 $app_id = $row['app_id'];
-                        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-                        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                        $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+                        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
                         $client = "NA";
                         if($ipname != "" && $clientname !="")
                         {
@@ -726,7 +730,7 @@ $data = $ins->fetchAll();
                         $client = $ipname;
                         }
                         
-                                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                                $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                                 if($ars_status == 1)
                                 {
                                     $status =  "Connected";
@@ -800,7 +804,7 @@ $data = $ins->fetchAll();
                                     $status =  "Rejected - Due to Linkedin";
                                 }
                        
-                        $comment = $conn->query("SELECT `comment` FROM `comments` WHERE `com_postid` = $app_id and subcom_id = 1")->fetchColumn();
+                        $comment = $conn->query(("SELECT `comment` FROM `comments` WHERE `com_postid` = " . bats_q($app_id) . " and subcom_id = 1"))->fetchColumn();
                         if(isset($row['feedback']))
                         {
                             $feedback = $row['feedback'];
@@ -819,7 +823,7 @@ $data = $ins->fetchAll();
                         }
 
 
-                        $layer = $conn->query("SELECT `tier` FROM `clients` WHERE `cid` = $cid")->fetchColumn();
+                        $layer = bats_col('clients', 'cid', $cid, 'tier');
                         $rate = $row['rateperhour'];
                     
                         $lineData = array($i,$date,$sm,$consultantname,$skill,$location,$bpemail,$bpphone,$layer,$rate,$client,$hasinterview,$status,$comment);
@@ -837,6 +841,7 @@ $data = $ins->fetchAll();
                     ob_clean();
                     flush();
                     readfile($filename);
+            @unlink($filename); // do not leave client data in tmp/
                     exit();
 				}
 

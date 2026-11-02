@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -46,8 +47,8 @@ if(isset($_GET['do']))
 
 	if($do=='delete')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "DELETE FROM `assigned` WHERE `id` = $id;";
+		$conn = bats_db();
+		$inquery = ("DELETE FROM `assigned` WHERE `id` = " . bats_q($id) . ";");
 		$ins= $conn->prepare($inquery);
 		$ins->execute();
 		$conn=null;
@@ -58,8 +59,8 @@ if(isset($_GET['do']))
 { 
 $uid = $_POST['userid'];
 $cid = $_POST['consultantid'];
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "UPDATE `assigned` SET `cid` = '$cid', `uid` = '$uid' WHERE `id` = $id;";
+$conn = bats_db();
+$query = ("UPDATE `assigned` SET `cid` = " . bats_q("$cid") . ", `uid` = " . bats_q("$uid") . " WHERE `id` = " . bats_q($id) . ";");
 $ins= $conn->prepare($query);
 $ins->execute();
 header( "Location: admin.php?action=assign" );
@@ -67,8 +68,8 @@ header( "Location: admin.php?action=assign" );
 }
 	if($do=='change')
 	{ 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-$query = "select * from assigned where `id` =  $id;";
+$conn = bats_db();
+$query = ("select * from assigned where `id` =  " . bats_q($id) . ";");
 $ins= $conn->prepare($query);
 $ins->execute();
 $data = $ins->fetch();
@@ -83,7 +84,7 @@ $conn=null;
 									<td width="10%" align="left" valign="top"><label>Select User</label> </td>									
 								<td width="30%" align="left" valign="top">
 									<?php
-									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+									$conn = bats_db();
 									$query = "select * from users where `status` = 1";
 									$ins= $conn->prepare($query);
 									$ins->execute();
@@ -101,7 +102,7 @@ $conn=null;
 								<td width="30%" align="left" valign="top">	<select name="consultantid" class="form-control-in">
 
 									<?php
-									$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+									$conn = bats_db();
 									$query2 = "select * from consultants where `status` = 1";
 									$ins2= $conn->prepare($query2);
 									$ins2->execute();

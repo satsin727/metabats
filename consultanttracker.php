@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -54,14 +55,14 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['appcd_id'];
                         $app = 1;
                         $download = "dapp";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1 and DATE(appdate) = DATE('$curdate') and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1 and appdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 if(isset($_GET['rccd_id']))
                     {
                         $consultantid = $_GET['rccd_id'];
                         $rc = 1;
                         $download = "drc";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                     
                 if(isset($_GET['subcd_id']))
@@ -69,7 +70,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['subcd_id'];                
                         $sub = 1;
                         $download = "dsub";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and DATE(rcdate) = DATE('$curdate') and MONTH(rcdate) = MONTH('$curdate') and YEAR(subdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$curdate") . ") AND rcdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = DATE(" . bats_q("$curdate") . ") and MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and subdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND subdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(subdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 
                 if(isset($_GET['ecicd_id']))
@@ -77,7 +78,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['ecicd_id'];
                         $eci = 1;
                         $download = "deci";
-                        $query = "SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$consultantid and DATE(B.eci_date) = DATE('$curdate')  and MONTH(B.eci_date) = MONTH('$curdate') and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1";
+                        $query = ("SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($consultantid) . " and B.eci_date >= GREATEST(DATE(" . bats_q("$curdate") . "), MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.eci_date < LEAST(DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY, MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND DATE(B.eci_date) = DATE(" . bats_q("$curdate") . ")  and MONTH(B.eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1");
                     }
                 
                     if(isset($_GET['appcw_id']))
@@ -85,7 +86,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['appcw_id'];
                         $app = 1;
                         $download = "wapp";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and WEEK(appdate) = WEEK('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 
                 if(isset($_GET['rccw_id']))
@@ -93,7 +94,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['rccw_id'];
                         $rc = 1;
                         $download = "wrc";                
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                     
                 if(isset($_GET['subcw_id']))
@@ -101,7 +102,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['subcw_id'];
                         $sub = 1;
                         $download = "wsub";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(rcdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 
                 if(isset($_GET['ecicw_id']))
@@ -109,8 +110,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['ecicw_id'];                
                         $eci = 1;
                         $download = "weci";
-                   //     $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
-                        $query = "SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$consultantid and WEEK(B.eci_date) = WEEK('$curdate')  and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1";
+                   //     $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), DATE('$curdate') - INTERVAL 6 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), DATE('$curdate') + INTERVAL 7 DAY) AND WEEK(eci_date) = WEEK('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($consultantid) . " and B.eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND B.eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(B.eci_date) = WEEK(" . bats_q("$curdate") . ")  and YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1");
                     }
                     
                 if(isset($_GET['appcm_id']))
@@ -118,7 +119,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['appcm_id'];
                         $app = 1;
                         $download = "mapp";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and MONTH(appdate) = MONTH('$curdate') and YEAR(appdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 
                 if(isset($_GET['rccm_id']))
@@ -126,7 +127,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['rccm_id'];
                         $rc = 1;
                         $download = "mrc";                
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                     
                 if(isset($_GET['subcm_id']))
@@ -134,7 +135,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['subcm_id'];
                         $sub = 1;
                         $download = "msub";
-                        $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$curdate') and YEAR(rcdate) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `subdone` = 1 and `status`= 1 and rcdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND rcdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(rcdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                     }
                 
                 if(isset($_GET['ecicm_id']))
@@ -142,8 +143,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $consultantid = $_GET['ecicm_id'];                
                         $eci = 1;
                         $download = "meci";
-                     //   $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
-                        $query = "SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$consultantid and MONTH(B.eci_date) = MONTH('$curdate')  and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1";
+                     //   $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and eci_date >= GREATEST(MAKEDATE(YEAR('$curdate'),1), LAST_DAY('$curdate') - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND eci_date < LEAST(MAKEDATE(YEAR('$curdate')+1,1), LAST_DAY('$curdate') + INTERVAL 1 DAY) AND MONTH(eci_date) = MONTH('$curdate') and YEAR(eci_date) = YEAR('$curdate')";
+                        $query = ("SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($consultantid) . " and B.eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(B.eci_date) = MONTH(" . bats_q("$curdate") . ")  and YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1");
                     }
 
                         
@@ -152,7 +153,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['appcy_id'];
                     $app = 1;
                     $download = "yapp";
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1  and YEAR(appdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1  and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['rccy_id']))
@@ -160,7 +161,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['rccy_id'];
                     $rc = 1;
                     $download = "yrc";                
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
                 
             if(isset($_GET['subcy_id']))
@@ -168,7 +169,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['subcy_id'];
                     $sub = 1;
                     $download = "ysub";
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and YEAR(rcdate) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and rcdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND rcdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(rcdate) = YEAR(" . bats_q("$curdate") . ")");
                 }
             
             if(isset($_GET['ecicy_id']))
@@ -176,8 +177,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['ecicy_id'];                
                     $eci = 1;
                     $download = "yeci";
-                //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and YEAR(eci_date) = YEAR('$curdate')";
-                    $query = "SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$consultantid and YEAR(B.eci_date) = YEAR('$curdate') and A.status = 1";
+                //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1 and eci_date >= MAKEDATE(YEAR('$curdate'),1) AND eci_date < MAKEDATE(YEAR('$curdate')+1,1) AND YEAR(eci_date) = YEAR('$curdate')";
+                    $query = ("SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($consultantid) . " and B.eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND B.eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1");
                 }
 
             if(isset($_GET['appcall_id']))
@@ -185,7 +186,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['appcall_id'];
                     $app = 1;
                     $download = "allapp";                    
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `status` = 1";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `status` = 1");
                 }
                 
             if(isset($_GET['rccall_id']))
@@ -193,7 +194,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['rccall_id'];
                     $rc = 1;
                     $download = "allrc"; 
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1 and `status` = 1";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1 and `status` = 1");
                 }
                 
             if(isset($_GET['subcall_id']))
@@ -201,7 +202,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $consultantid = $_GET['subcall_id'];
                     $sub = 1;
                     $download = "allsub"; 
-                    $query = "SELECT * FROM `app_data` WHERE `consultant_id`= $consultantid and `rcdone` = 1  and `subdone` = 1 and `status` = 1";
+                    $query = ("SELECT * FROM `app_data` WHERE `consultant_id`= " . bats_q($consultantid) . " and `rcdone` = 1  and `subdone` = 1 and `status` = 1");
                 }
             
             if(isset($_GET['ecicall_id']))
@@ -210,7 +211,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     $eci = 1;
                     $download = "alleci"; 
                 //    $query = "SELECT * FROM `eci` WHERE `consultant_id`= $consultantid and `eci_happened` =1 and `status` = 1";
-                    $query = "SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=$consultantid and A.status = 1";
+                    $query = ("SELECT * FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($consultantid) . " and A.status = 1");
                 }
 
         $ins= $conn->prepare($query);
@@ -219,13 +220,13 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
         if($total==0)
         {
-            $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-            $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-            $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();
-            $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-            $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-            $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
-            $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+            $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+            $skill = bats_col('skill', 'sid', $skillid, 'skillname');
+            $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');
+            $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+            $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+            $cmnumber = bats_col('consultants', 'cid', $consultantid, 'cm_phonenumber');
+            $conumber = bats_col('consultants', 'cid', $consultantid, 'co_phonenumber');
         }
         ?>
 
@@ -283,13 +284,13 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         $consultantid = $row['consultant_id'];
             if($total==1)
         {
-            $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-            $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
-            $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-            $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-            $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
-            $cmnumber = $conn->query("select cm_phonenumber from consultants where cid = $consultantid")->fetchColumn();
-            $conumber = $conn->query("select co_phonenumber from consultants where cid = $consultantid")->fetchColumn();
+            $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+            $skill = bats_col('skill', 'sid', $skillid, 'skillname');
+            $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+            $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+            $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
+            $cmnumber = bats_col('consultants', 'cid', $consultantid, 'cm_phonenumber');
+            $conumber = bats_col('consultants', 'cid', $consultantid, 'co_phonenumber');
         }
 
         if($app == 1 || $rc == 1 || $sub == 1)
@@ -307,24 +308,24 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         }
 
 
-                                        $q3 = "SELECT * from clients where `cid` = $cid";
+                                        $q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
                                         $ins4= $conn->prepare($q3);
                                         $ins4->execute(); 
                                         $dta3 = $ins4->fetch();
 
 
-                                        $q4 = "SELECT * from users where `uid` = $uid";
+                                        $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
                                         $ins5= $conn->prepare($q4);
                                         $ins5->execute(); 
                                         $dta4 = $ins5->fetch();
 
-                                        $q5 = "SELECT * from req where `reqid` = $reqid";
+                                        $q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
                                         $ins6= $conn->prepare($q5);
                                         $ins6->execute(); 
                                         $dta5 = $ins6->fetch();
 
-        $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-        $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+        $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+        $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
 
             ?>
             <tr>
@@ -354,7 +355,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 
                 <td> 
                 <?php
-                $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                 /*
                     <option value="1">Connected</option>
             <option value="2">Not Connected</option>
@@ -450,7 +451,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['allissues'];
             $all = 1;
             $download = "allissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1) order by A.datetime desc";
+            $query = ("select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = " . bats_q($consultantid) . " and (A.appcom_id = 1 OR A.rccom_id = 1 OR A.subcom_id = 1 OR A.ecicom_id = 1 OR A.pocom_id =1) order by A.datetime desc");
         }
      
         if(isset($_GET['appissues']))
@@ -458,14 +459,14 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['appissues'];
             $app = 1;
             $download = "appissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.appcom_id = 1 order by A.datetime desc";
+            $query = ("select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = " . bats_q($consultantid) . " and A.appcom_id = 1 order by A.datetime desc");
         }    
         if(isset($_GET['rcissues']))
         {
             $consultantid = $_GET['rcissues'];
             $rc = 1;
             $download = "rcissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.rccom_id = 1 order by A.datetime desc";
+            $query = ("select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = " . bats_q($consultantid) . " and A.rccom_id = 1 order by A.datetime desc");
        }
 
         if(isset($_GET['subissues']))
@@ -473,7 +474,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['subissues'];
             $sub = 1;
             $download = "subissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.subcom_id = 1 order by A.datetime desc";
+            $query = ("select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = " . bats_q($consultantid) . " and A.subcom_id = 1 order by A.datetime desc");
        }
 
         if(isset($_GET['eciissues']))
@@ -481,11 +482,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['eciissues'];
             $eci = 1;
             $download = "eciissues";
-            $query = "select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = $consultantid and A.ecicom_id = 1 order by A.datetime desc";
+            $query = ("select * from comments as A Inner Join  app_data as B on A.com_postid = B.app_id where B.status = 1 and B.consultant_id = " . bats_q($consultantid) . " and A.ecicom_id = 1 order by A.datetime desc");
        }  
-       $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-       $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-       $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+       $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+       $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+       $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
        
         
         $ins= $conn->prepare($query);
@@ -523,8 +524,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     elseif($row['subcom_id']==1) { $date = $row['rcdate'];  $sub=1;}
                     elseif($row['ecicom_id']==1) { $date = $row['eci_date']; $eci = 1; $eci_time = $row['eci_time'];  }
 
-                        $skillid = $conn->query("select skill from consultants where cid = $consultantid")->fetchColumn();
-                        $skill = $conn->query("SELECT skillname FROM `skill` WHERE `sid`= $skillid")->fetchColumn();
+                        $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
+                        $skill = bats_col('skill', 'sid', $skillid, 'skillname');
 
                         
                         $app_id = $row['app_id'];
@@ -533,23 +534,23 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                         $uid = $row['uid'];	
                        
         
-                        $q3 = "SELECT * from clients where `cid` = $cid";
+                        $q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
                         $ins4= $conn->prepare($q3);
                         $ins4->execute(); 
                         $dta3 = $ins4->fetch();
 
-                        $q4 = "SELECT * from users where `uid` = $uid";
+                        $q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
                         $ins5= $conn->prepare($q4);
                         $ins5->execute(); 
                         $dta4 = $ins5->fetch();
 
-                        $q5 = "SELECT * from req where `reqid` = $reqid";
+                        $q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
                         $ins6= $conn->prepare($q5);
                         $ins6->execute(); 
                         $dta5 = $ins6->fetch();
             
-                    $ipname = $conn->query("select t1ip_name from app_data where app_id = $app_id")->fetchColumn();
-                    $clientname = $conn->query("select rend_client from req where reqid = $reqid")->fetchColumn();
+                    $ipname = bats_col('app_data', 'app_id', $app_id, 't1ip_name');
+                    $clientname = bats_col('req', 'reqid', $reqid, 'rend_client');
                     
                     ?>
                     <tr>
@@ -561,7 +562,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     <td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Phone: ".$dta3['rphone']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td>
                     <td> 
                     <?php
-                    $ars_status = $conn->query("SELECT `ars_status` FROM `app_data` WHERE `app_id` = $app_id")->fetchColumn();
+                    $ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
                     /*
                             <option value="1">Connected</option>
                     <option value="2">Not Connected</option>
@@ -645,11 +646,11 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
             $consultantid = $_GET['noteid'];
             $all = 1;
             $download = "allissues";
-            $query = "select * from issues where consultant_id = $consultantid order by datetime desc";
+            $query = ("select * from issues where consultant_id = " . bats_q($consultantid) . " order by datetime desc");
         }
-        $cfname = $conn->query("select cfname from consultants where cid = $consultantid")->fetchColumn();    
-        $cmname = $conn->query("select cmname from consultants where cid = $consultantid")->fetchColumn();
-        $clname = $conn->query("select clname from consultants where cid = $consultantid")->fetchColumn();
+        $cfname = bats_col('consultants', 'cid', $consultantid, 'cfname');    
+        $cmname = bats_col('consultants', 'cid', $consultantid, 'cmname');
+        $clname = bats_col('consultants', 'cid', $consultantid, 'clname');
 
         $ins= $conn->prepare($query);
         $ins->execute();
@@ -686,7 +687,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
                     <td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
                     <td data-search="<?php $date = $row['datetime']; $time = strtotime($date); $myFormatForView = date("m/d/y", $time); echo $myFormatForView;  ?>"><?php echo $myFormatForView;  ?></td>
                     <td data-search="<?php echo $row['headline']; ?>"><a href="issuecmd.php?do=view&id=<?php echo $row['issueid']; ?>"><?php echo $row['headline'];  ?></a></td>
-                    <td data-search="<?php $smid = $row['sm_id']; $smname = $conn->query("SELECT name FROM `users` WHERE `uid`= $smid")->fetchColumn(); echo $smname; ?>"><?php echo $smname;  ?></td>
+                    <td data-search="<?php $smid = $row['sm_id']; $smname = bats_col('users', 'uid', $smid, 'name'); echo $smname; ?>"><?php echo $smname;  ?></td>
                     <td> 
                     <a href="issuecmd.php?do=edit&id=<?php echo $row['issueid']; ?>"><img src="images/b_edit.png" alt="Change" width="16" height="16" border="0" title="Change" /></a>
                             &nbsp;&nbsp;&nbsp; 

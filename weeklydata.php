@@ -8,7 +8,7 @@ else
 	header( "Location: admin.php" ); exit; 
 
 }
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -91,11 +91,11 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
                             if($dta['level'] == 1 || $dta['level'] == 2)
                               {
-                              $query = "select * from consultants where (end_date = '0000-00-00' or (MONTH(end_date)>= MONTH('$cdate') AND YEAR(end_date)>= YEAR('$cdate')) ) order by cfname asc";
+                              $query = ("select * from consultants where (end_date = '0000-00-00' or (MONTH(end_date)>= MONTH(" . bats_q("$cdate") . ") AND YEAR(end_date)>= YEAR(" . bats_q("$cdate") . ")) ) order by cfname asc");
                               }
                               else
                               {
-                              $query = "select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = $uid and (end_date = '0000-00-00' or MONTH(end_date)>= MONTH('$cdate')) order by B.cfname asc";
+                              $query = ("select * from assigned AS A LEFT JOIN consultants AS B ON A.cid = B.cid where A.uid = " . bats_q($uid) . " and (end_date = '0000-00-00' or MONTH(end_date)>= MONTH(" . bats_q("$cdate") . ")) order by B.cfname asc");
                               }
                           $ins= $conn->prepare($query);
                           $ins->execute();
@@ -107,8 +107,8 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
                                                 <?php
                                                                         $sid = $row['skill'];
-                                                                        $conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-                                                                        $q2 = "select * from skill where `sid` = $sid";
+                                                                        $conn2 = bats_db();
+                                                                        $q2 = ("select * from skill where `sid` = " . bats_q($sid));
                                                                         $ins2= $conn2->prepare($q2);
                                                                         $ins2->execute(); 
                                                                         $dta2 = $ins2->fetch(); 
@@ -140,22 +140,22 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                         
                                                 <?php
                                                 $cid = $row['cid'];
-                                                $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+                                                $conn = bats_db();
                                                 
                                                 if($dta['level'] == 1 || $dta['level'] == 2)
                                                 {
                                                 
-                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and DATE(appdate) = '$cdate'")->fetchColumn();
-                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = '$cdate'")->fetchColumn();
-                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and DATE(rcdate) = '$cdate'")->fetchColumn();
-                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` = 1 and `eci_round` = 3  and `status` = 1 ";
+                                                  $dapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `status` = 1 and appdate >= DATE(" . bats_q("$cdate") . ") AND appdate < DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = " . bats_q("$cdate")))->fetchColumn();
+                                                  $drc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$cdate") . ") AND rcdate < DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = " . bats_q("$cdate")))->fetchColumn();
+                                                  $dsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and rcdate >= DATE(" . bats_q("$cdate") . ") AND rcdate < DATE(" . bats_q("$cdate") . ") + INTERVAL 1 DAY AND DATE(rcdate) = " . bats_q("$cdate")))->fetchColumn();
+                                                  $qeci = ("select distinct app_id from eci where consultant_id = " . bats_q($cid) . " and `eci_happened` = 1 and `eci_round` = 3  and `status` = 1 ");
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `app_id`= " . bats_q($a) . " and eci_happened = 1 and `eci_round` = 3"))->fetchColumn();
                                                     if(date("d",strtotime($date)) == date("d",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                     {
                                                       $c++;
@@ -163,17 +163,17 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   }
                                                   $deci_num = $c;
                                                 
-                                                  $wapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and WEEK(appdate) = WEEK('$cdate')")->fetchColumn();
-                                                  $wrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$cdate')")->fetchColumn();
-                                                  $wsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK('$cdate')")->fetchColumn();
-                                                  $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3  and `status` = 1";
+                                                  $wapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `status` = 1  and WEEK(appdate) = WEEK(" . bats_q("$cdate") . ")"))->fetchColumn();
+                                                  $wrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(" . bats_q("$cdate") . ")"))->fetchColumn();
+                                                  $wsub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and WEEK(rcdate) = WEEK(" . bats_q("$cdate") . ")"))->fetchColumn();
+                                                  $qeci = ("select distinct app_id from eci where consultant_id = " . bats_q($cid) . " and `eci_happened` =1 and `eci_round` = 3  and `status` = 1");
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
                                                   $deci = $ins->fetchAll();
                                                   $c=0;
                                                   foreach($deci as $ueci)
                                                   { $a = $ueci['app_id'];
-                                                    $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
+                                                    $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `app_id`= " . bats_q($a) . " and eci_happened = 1 and `eci_round` = 3"))->fetchColumn();
                                                     if(date("W",strtotime($date)) == date("W",strtotime($cdate)) && date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)) )
                                                     {
                                                       $c++;
@@ -181,18 +181,18 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                   }
                                                   $weci_num = $c;
                                                 
-                                                $mapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1  and MONTH(appdate) = MONTH('$cdate')")->fetchColumn();
-                                                $mrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$cdate')")->fetchColumn();
-                                                $msub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH('$cdate')")->fetchColumn();
+                                                $mapp_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `status` = 1  and MONTH(appdate) = MONTH(" . bats_q("$cdate") . ")"))->fetchColumn();
+                                                $mrc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(" . bats_q("$cdate") . ")"))->fetchColumn();
+                                                $msub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and MONTH(rcdate) = MONTH(" . bats_q("$cdate") . ")"))->fetchColumn();
                                                
-                                                $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `eci_round` = 3  and `status` = 1";
+                                                $qeci = ("select distinct app_id from eci where consultant_id = " . bats_q($cid) . " and `eci_happened` =1 and `eci_round` = 3  and `status` = 1");
                                                 $ins= $conn->prepare($qeci);
                                                 $ins->execute();
                                                 $deci = $ins->fetchAll();
                                                 $c=0;
                                                 foreach($deci as $ueci)
                                                 { $a = $ueci['app_id'];
-                                                  $date = $conn->query("SELECT eci_date FROM `eci` WHERE `app_id`= $a and eci_happened = 1 and `eci_round` = 3")->fetchColumn();
+                                                  $date = $conn->query(("SELECT eci_date FROM `eci` WHERE `app_id`= " . bats_q($a) . " and eci_happened = 1 and `eci_round` = 3"))->fetchColumn();
                                                   if(date("m",strtotime($date)) == date("m",strtotime($cdate)) && date("Y",strtotime($date)) == date("Y",strtotime($cdate)))
                                                   {
                                                     $c++;
@@ -205,10 +205,10 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 else
                                                 {
                                                  // $uid =  $_SESSION['id'];
-                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()")->fetchColumn();
-                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                                                  //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
+                                                  $dapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `status` = 1 and `uid` = $uid and appdate >= DATE(CURDATE()) AND appdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(appdate) = CURDATE()")->fetchColumn();
+                                                  $drc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `status`= 1 and `uid` = $uid and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                                                  $dsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= $cid and `rcdone` = 1 and `subdone` = 1 and `status`= 1 and `uid` = $uid and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                                                  //$deci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `consultant_id`= $cid and `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and eci_date >= DATE(CURDATE()) AND eci_date < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(eci_date) = CURDATE()")->fetchColumn();
                                                   $qeci = "select distinct app_id from eci where consultant_id = $cid and `eci_happened` =1 and `sm_id` = $uid  and `status` = 1";
                                                   $ins= $conn->prepare($qeci);
                                                   $ins->execute();
@@ -303,15 +303,15 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                       <td>Total</td> 
 <?php
 /*
-                  $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+                  $conn = bats_db();
                   
                   if($dta['level'] == 1 || $dta['level'] == 2)
                   {
-                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and DATE(appdate) = CURDATE()")->fetchColumn();
-                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
-                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and DATE(rcdate) = CURDATE()")->fetchColumn();
-                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
-                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and DATE(eci_date) = CURDATE()")->fetchColumn();
+                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `status` = 1 and appdate >= DATE(CURDATE()) AND appdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(appdate) = CURDATE()")->fetchColumn();
+                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `rcdone` = 1 and `status`= 1 and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `subdone` = 1 and `rcdone` = 1 and `status`= 1 and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and eci_date >= DATE(CURDATE()) AND eci_date < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(eci_date) = CURDATE()")->fetchColumn();
+                    // $dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE `eci_happened` =1 and `status` = 1 and eci_date >= DATE(CURDATE()) AND eci_date < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(eci_date) = CURDATE()")->fetchColumn();
                       
                     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1";
                                                   $ins= $conn->prepare($qeci);
@@ -372,10 +372,10 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                   /*
                   else
                   {
-                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = $uid and DATE(appdate) = CURDATE()")->fetchColumn();
-                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `rcdone` = 1 and `status`= 1 and `uid` = $uid and DATE(rcdate) = CURDATE()")->fetchColumn();
-                    //$dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and DATE(eci_date) = CURDATE()")->fetchColumn();
+                    $dtapp_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `status` = 1 and `uid` = $uid and appdate >= DATE(CURDATE()) AND appdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(appdate) = CURDATE()")->fetchColumn();
+                    $dtrc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `rcdone` = 1 and `status`= 1 and `uid` = $uid and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                    $dtsub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE  `subdone` = 1 and `rcdone` = 1 and `status`= 1 and `uid` = $uid and rcdate >= DATE(CURDATE()) AND rcdate < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(rcdate) = CURDATE()")->fetchColumn();
+                    //$dteci_num = $conn->query("SELECT COUNT(*) FROM `eci` WHERE  `eci_happened` =1 and `status` = 1 and `sm_id` = $uid and eci_date >= DATE(CURDATE()) AND eci_date < DATE(CURDATE()) + INTERVAL 1 DAY AND DATE(eci_date) = CURDATE()")->fetchColumn();
                     $qeci = "select distinct app_id from eci where `eci_happened` =1  and `status` = 1 and `sm_id` = $uid";
                     $ins= $conn->prepare($qeci);
                     $ins->execute();

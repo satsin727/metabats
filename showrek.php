@@ -10,7 +10,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -31,18 +31,18 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 	if(isset($_GET['smid']))
 	{
 		$smid=$_GET['smid'];
-		$query = "select * from req where status =1 and uid = $smid and TO_DAYS('$curdate') - TO_DAYS(datetime) <= 1 order by datetime desc";
+		$query = ("select * from req where status =1 and uid = " . bats_q($smid) . " and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(datetime) <= 1 order by datetime desc");
 	}
 	else
 	{
 		
 		if($dta['level'] == 1)
 		{
-			$query = "select * from req where status =1 and TO_DAYS('$curdate') - TO_DAYS(datetime) < 1 and uid != 77 order by datetime desc";
+			$query = ("select * from req where status =1 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(datetime) < 1 and uid != 77 order by datetime desc");
 		}
 		if($dta['level'] == 2 || $dta['level'] == 3)
 		{
-			$query = "select * from req where status =1 and uid = $smid and TO_DAYS('$curdate') - TO_DAYS(datetime) <= 1 order by datetime desc";
+			$query = ("select * from req where status =1 and uid = " . bats_q($smid) . " and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(datetime) <= 1 order by datetime desc");
 		}
 	}
 
@@ -91,18 +91,18 @@ $i=1;
 foreach( $data as $row) { 
 
 $sid = $row['skillid'];
-								$q2 = "select * from skill where `sid` = $sid";
+								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
 								$ins3= $conn->prepare($q2);
 								$ins3->execute(); 
 								$dta2 = $ins3->fetch();
 $cid = $row['cid'];
-								$q3 = "SELECT * from clients where `cid` = $cid";
+								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
 								$ins4= $conn->prepare($q3);
 								$ins4->execute(); 
 								$dta3 = $ins4->fetch();
 
 $uid = $row['uid'];
-								$q4 = "SELECT * from users where `uid` = $uid";
+								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
 								$ins5= $conn->prepare($q4);
 								$ins5->execute(); 
 								$dta4 = $ins5->fetch();
@@ -113,10 +113,10 @@ $eci_num = 0;
 
 $reqid = $row['reqid'];
 
-$app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `status` = 1")->fetchColumn();
-$rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `rcdone` =1 and `status` = 1")->fetchColumn();
-$sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `subdone` =1 and `rcdone` =1 and `status` = 1")->fetchColumn();
-$eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `hasinterview` =1 and `subdone` =1 and `rcdone` =1 and `status` = 1")->fetchColumn();
+$app_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= " . bats_q($reqid) . " and `status` = 1"))->fetchColumn();
+$rc_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= " . bats_q($reqid) . " and `rcdone` =1 and `status` = 1"))->fetchColumn();
+$sub_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= " . bats_q($reqid) . " and `subdone` =1 and `rcdone` =1 and `status` = 1"))->fetchColumn();
+$eci_num = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= " . bats_q($reqid) . " and `hasinterview` =1 and `subdone` =1 and `rcdone` =1 and `status` = 1"))->fetchColumn();
 
 $reqSources = [
     1  => "Inbox",
@@ -193,22 +193,22 @@ $selectedValue = $row['req_source'] ?? "17";
     	<td> App: 
 		<?php 
 		
-		$cd_appquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and A.status = 1";
+		$cd_appquery = ("SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = " . bats_q($reqid) . " and A.status = 1");
 		$rqp= $conn->prepare($cd_appquery);
 		$rqp->execute(); 
 		$cappdata = $rqp->fetchAll();
 		
-		$cd_rcquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and rcdone = 1 and A.status = 1";
+		$cd_rcquery = ("SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = " . bats_q($reqid) . " and rcdone = 1 and A.status = 1");
 		$rqp= $conn->prepare($cd_rcquery);
 		$rqp->execute(); 
 		$crcdata = $rqp->fetchAll();
 
-		$cd_subquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and rcdone = 1 and subdone = 1 and A.status = 1";
+		$cd_subquery = ("SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = " . bats_q($reqid) . " and rcdone = 1 and subdone = 1 and A.status = 1");
 		$rqp= $conn->prepare($cd_subquery);
 		$rqp->execute(); 
 		$csubdata = $rqp->fetchAll();
 
-		$cd_eciquery = "SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = $reqid and rcdone = 1 and subdone = 1 and hasinterview = 1 and A.status = 1";
+		$cd_eciquery = ("SELECT DISTINCT * FROM `app_data` AS A LEFT JOIN consultants as B on A.consultant_id = B.cid where A.reqid = " . bats_q($reqid) . " and rcdone = 1 and subdone = 1 and hasinterview = 1 and A.status = 1");
 		$rqp= $conn->prepare($cd_eciquery);
 		$rqp->execute(); 
 		$cecidata = $rqp->fetchAll();

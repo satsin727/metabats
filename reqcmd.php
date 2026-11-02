@@ -1,5 +1,6 @@
 <?php
 require( "config.php" );
+require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -11,7 +12,7 @@ else
 }
 
 $conn=null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from users where `uid` = :u";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":u", $sessid, PDO::PARAM_STR );
@@ -49,8 +50,8 @@ if(isset($_GET['do']))
 		<?php
 	if($do=='delete')
 	{
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `req` SET `status` = '0' WHERE `reqid` = $reqid";
+		$conn = bats_db();
+		$inquery = ("UPDATE `req` SET `status` = '0' WHERE `reqid` = " . bats_q($reqid));
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
@@ -63,8 +64,8 @@ if(isset($_GET['do']))
 	elseif($do=='qupdate')
 	{
 		$conn = null;
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `req` SET `qualified` = '1' WHERE `reqid` = $reqid";
+		$conn = bats_db();
+		$inquery = ("UPDATE `req` SET `qualified` = '1' WHERE `reqid` = " . bats_q($reqid));
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
@@ -74,8 +75,8 @@ if(isset($_GET['do']))
 	elseif($do=='nqupdate')
 	{
 		$conn = null;
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-		$inquery = "UPDATE `req` SET `qualified` = '0' WHERE `reqid` = $reqid";
+		$conn = bats_db();
+		$inquery = ("UPDATE `req` SET `qualified` = '0' WHERE `reqid` = " . bats_q($reqid));
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
 									$conn=null;
@@ -85,7 +86,7 @@ if(isset($_GET['do']))
 	elseif($do=='qallupdate')
 	{
 		$conn = null;
-		$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+		$conn = bats_db();
 		$inquery = "update req as a right join app_data as b on a.reqid = b.reqid  set a.qualified = 1 where b.rcdone = 1";
 									$ins= $conn->prepare($inquery);
 									$ins->execute();
@@ -96,7 +97,7 @@ if(isset($_GET['do']))
 	elseif($do=='edit')
 	{ 
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from req where `reqid` = :reqid";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":reqid", $reqid, PDO::PARAM_INT );
@@ -131,7 +132,7 @@ $conn=null;
 									$sid = $udata['skillid'];
 
 								$q2 = "select * from skill";
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+								$conn2 = bats_db();
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute();
 								$dta2 = $ins2->fetchAll();
@@ -144,7 +145,7 @@ $conn=null;
 									if($dta['level'] == 1)
 									{
 									$conn2 = null;
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+								$conn2 = bats_db();
 								$q2 = "select * from users";
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute();
@@ -173,7 +174,7 @@ $conn=null;
 									
 									<?php
 										$cid = $udata['cid'];
-										$q3 = "select * from clients where `cid` = $cid";
+										$q3 = ("select * from clients where `cid` = " . bats_q($cid));
 										$ins3= $conn2->prepare($q3);
 										$ins3->execute();
 										$dta3= $ins3->fetch();
@@ -200,8 +201,8 @@ $conn=null;
 <div class="form-group">
 									<td width="15%" align="left" valign="top"><label>Job Description:&nbsp;&nbsp;&nbsp;</label></td>
 									<?php
-								$conn2 = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
-								$q2 = "select * from jd where reqid = $reqid";
+								$conn2 = bats_db();
+								$q2 = ("select * from jd where reqid = " . bats_q($reqid));
 								$ins2= $conn2->prepare($q2);
 								$ins2->execute();
 								$desc = $ins2->fetch();
@@ -256,7 +257,7 @@ $reqid = $_POST['reqid'];
 $remail = trim(strtolower($_POST['cemail']));
 $domain = substr($remail, strpos($remail, '@') + 1);
 $conn= null;
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 $query = "select * from clients where `remail` = :remail";
 $ins= $conn->prepare($query);
 $ins->bindValue( ":remail", $remail, PDO::PARAM_STR );
@@ -267,7 +268,7 @@ if($cdta['cid']!= null)
 	$cid = $cdta['cid'];
 	}
 else {
-	$cinsertquery = $conn->prepare("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES ('1', :uid, NULL, NULL, NULL, :remail, '$domain', NULL, NULL, NULL, NULL, '1', 'manual');");
+	$cinsertquery = $conn->prepare(("INSERT INTO `clients` (`lid`, `uid`, `companyname`, `rname`, `rfname`, `remail`,  `domain`, `rphone`, `rlocation`, `rtimezon`, `tier`, `status`, `filetarget`) VALUES ('1', :uid, NULL, NULL, NULL, :remail, " . bats_q("$domain") . ", NULL, NULL, NULL, NULL, '1', 'manual');"));
 	$cinsertquery->bindValue( ":uid", $uid, PDO::PARAM_INT );
 	$cinsertquery->bindValue( ":remail", $remail, PDO::PARAM_STR );
 	$cinsertquery->execute();
@@ -275,9 +276,9 @@ else {
 }
 $conn= null;
 
-$conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
+$conn = bats_db();
 
- $que= $conn->prepare("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `cid` = '$cid', `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = $reqid");
+ $que= $conn->prepare(("Update `req` SET `uid` = :uid, `jobtype` = :jobtype, `rlocation` = :rlocation, `rduration` = :rduration, `cid` = " . bats_q("$cid") . ", `rrate` = :rrate, `rend_client` = :rend_client, `skillid` = :skillid WHERE `reqid` = " . bats_q($reqid)));
  $que->bindValue( ":uid", $uid, PDO::PARAM_INT );
  $que->bindValue( ":jobtype", $jobtype, PDO::PARAM_INT );
  $que->bindValue( ":rlocation", $rlocation, PDO::PARAM_STR );
@@ -287,7 +288,7 @@ $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );
  $que->bindValue( ":skillid", $skillid, PDO::PARAM_INT );
  $que->execute();
  
- $que1= $conn->prepare("Update `jd` SET `rdesc` = :rdesc WHERE `reqid` = $reqid");
+ $que1= $conn->prepare(("Update `jd` SET `rdesc` = :rdesc WHERE `reqid` = " . bats_q($reqid)));
  $que1->bindValue( ":rdesc", $rdesc, PDO::PARAM_STR );
  $que1->execute();
  
