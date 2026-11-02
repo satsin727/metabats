@@ -233,10 +233,6 @@ for ($n = max(1, $pg - 3); $n <= min($pages, $pg + 3); $n++): $url = 'admin.php?
 /* ===================== TODAY'S QUEUE (live): Google Chat + Email ===================== */
 $canSummary = in_array((int)$u['level'], [1, 2], true); ?>
 <div class="panel">
- <h4>Today's Queue <small id="em-q-label"></small></h4>
- <p class="muted">Everything queued or sent today, plus anything still waiting. Refreshes every 15 seconds without reloading. Last refresh: <span id="em-q-now">—</span> · Queue: <b id="em-q-state">—</b></p>
- <button class="btn btn-default" id="em-q-refresh">Refresh now</button>
-</div>
 
 <div class="panel" id="em-chat-panel">
  <h4><span class="label label-primary" style="font-size:13px">Google Chat</span> queue</h4>
