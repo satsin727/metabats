@@ -31,33 +31,9 @@ require("includes/menu.php");
 
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
-	$smid=$dta['uid'];
-
-	if(isset($_GET['smid']))
-	{
-		$smid=$_GET['smid'];
-		$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($smid) . " and subdone= 1  and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(A.subdate) <= 30 order by subdate desc");
-	}
-	else
-	{
-		
-		if($dta['level'] == 1)
-		{
-			$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and subdone= 1  and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(A.subdate) <= 60 order by subdate desc");
-		}
-		if($dta['level'] == 2)
-		{
-			$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid  Inner Join users as C ON A.uid = C.uid where A.status =1 and subdone= 1 and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(A.subdate) <= 30 order by subdate desc");
-		}
-		if($dta['level'] == 3)
-		{
-			$query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status =1 and uid = " . bats_q($smid) . " and subdone= 1  and TO_DAYS(" . bats_q("$curdate") . ") - TO_DAYS(A.subdate) <= 30 order by subdate desc");
-		}
-	}
-
-$ins= $conn->prepare($query);
-$ins->execute();
-$data = $ins->fetchAll();
+	// Rows are loaded page by page from showsub_ajax.php (server-side pagination).
+	$ajaxUrl = 'showsub_ajax.php?date=' . rawurlencode($curdate);
+	if (isset($_GET['smid'])) { $ajaxUrl .= '&smid=' . rawurlencode($_GET['smid']); }
 ?>
 
 <div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
@@ -72,7 +48,7 @@ $data = $ins->fetchAll();
 				<div class="panel panel-default">
 					<div class="panel-heading"><!-- <a href="admin.php?action=postreq"><button name="addauser" class="btn btn-primary">Post Req</button></a>&nbsp;&nbsp;&nbsp;<a href="admin.php?action=addskill"><button name="addauser" class="btn btn-primary">Add Skill</button></a> --></div>
 					<div class="panel-body">
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table" data-url="<?php echo htmlspecialchars($ajaxUrl, ENT_QUOTES); ?>" data-side-pagination="server" data-cache="false" data-page-size="50" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-order="desc">
 						    <thead>
 						    <tr>
 						        <th data-field="Datetime"  data-sortable="true">Datetime</th>
@@ -93,147 +69,6 @@ $data = $ins->fetchAll();
 						    </tr>
 						    </thead>
 						   <tbody>
-<?php
-$i=1;
-foreach( $data as $row) { 
-
-$sid = $row['skill'];
-								$q2 = ("select * from skill where `sid` = " . bats_q($sid));
-								$ins3= $conn->prepare($q2);
-								$ins3->execute(); 
-								$dta2 = $ins3->fetch();
-$cid = $row['client_id'];
-								$q3 = ("SELECT * from clients where `cid` = " . bats_q($cid));
-								$ins4= $conn->prepare($q3);
-								$ins4->execute(); 
-								$dta3 = $ins4->fetch();
-
-$uid = $row['uid'];	
-								$q4 = ("SELECT * from users where `uid` = " . bats_q($uid));
-								$ins5= $conn->prepare($q4);
-								$ins5->execute(); 
-								$dta4 = $ins5->fetch();
-
-/*
-$app_num = 0;
-$rc_num = 0;
-$sub_num = 0;
-$eci_num = 0;
-*/
-$app_id = $row['app_id'];
-$reqid = $row['reqid'];
-								$q5 = ("SELECT * from req where `reqid` = " . bats_q($reqid));
-								$ins6= $conn->prepare($q5);
-								$ins6->execute(); 
-								$dta5 = $ins6->fetch();
-/*	
-$app_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid")->fetchColumn();
-$rc_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `rcdone` =1")->fetchColumn();
-$sub_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `subdone` =1")->fetchColumn();
-$eci_num = $conn->query("SELECT COUNT(*) FROM `app_data` WHERE `reqid`= $reqid and `hasinterview` =1")->fetchColumn();
-*/
-
-	?>
-    <tr>
-		<td data-search="<?php echo $row['subdate']; ?>"> <?php $time = strtotime($row['subdate']); $myFormatForView = date("m/d/y g:i A", $time); echo $myFormatForView; ?></td>
-    	<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-		<?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?>	<td data-search="<?php echo $dta4['name']; ?>"><a href="admin.php?action=showsub&smid=<?php echo $dta4['uid']; ?>" target="_blank"><?php echo $dta4['name']; ?></a> </td>   <?php } ?>
-		<td data-search="<?php echo $dta2['skillname']; ?>"> <a id="various3" target="_blank" href="leads/view.php?id=<?php echo $row['reqid']; ?>"><?php echo $dta2['skillname']; ?></a></td>
-    	<td data-search="<?php echo $dta5['rlocation']; ?>"> <?php echo $dta5['rlocation']; ?></td>
-		<td data-search="<?php echo $dta3['remail']; ?>"> <a href="#" onClick="alert('\n\n\n\n<?php echo "Name: ".$dta3['rname']; ?>\n\n<?php echo"Email: ".$dta3['remail']; ?>\n\n<?php echo"Company Name: ".$dta3['companyname'];?>')"><?php echo $dta3['remail']; ?></a></td> 
-		<td data-search="<?php $row['cfname']." ".$row['clname']; ?>"> <?php echo $row['cfname']." ".$row['clname']; ?></td>
-        <td data-search="<?php echo $row['rateperhour']; ?>"> <?php echo $row['rateperhour']; ?></td>
-		<td data-search="<?php echo $row['t1ip_name']."/".$dta5["rend_client"]; ?>"> <?php echo $row['t1ip_name']."/".$dta5["rend_client"]; ?></td>
-		
-		<td> 
-		<?php
-		$status = bats_col('app_data', 'app_id', $app_id, 'subto');
-		if($status == 1)
-		{
-			echo "Submitted to T2";
-		}
-		elseif($status == 2)
-		{
-			echo "Submitted to T1";
-		}
-		elseif($status == 3)
-		{
-			echo "Submitted to IP";
-		}
-		elseif($status == 4)
-		{
-			echo "Submitted to End Client";
-		}
-		elseif($status == 5)
-		{
-			echo "In-Process";
-		}
-
-		?>
-		<a href="addsubstatus.php?subid=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addstatus" class="btn btn-primary">Update Status</button></a></td> 
-		 
-		<td> 
-		<?php
-		$ars_status = bats_col('app_data', 'app_id', $app_id, 'ars_status');
-
-		if($ars_status == 1)
-		{
-			echo "Connected&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 2)
-		{
-			echo "Not Connected";
-		}
-		elseif($ars_status == 3)
-		{
-			echo "Voicemail&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 4)
-		{
-			echo "No Response";
-		}
-		elseif($ars_status == 5)
-		{
-			echo "Cancelled&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 6)
-		{
-			echo "Rejected&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 7)
-		{
-			echo "In-Process&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 8)
-		{
-			echo "Got Test&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-		}
-		elseif($ars_status == 9)
-		{
-			echo "Got Screening";
-		}
-		elseif($ars_status == 10)
-		{
-			echo "Submitted to End Client";
-		}  
-
-		?>
-		<!-- <a
-		                    .
-							 p;  /// \\\\\
-							                                            l  href="addstatus.php?subid=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addstatus" class="btn btn-primary">Update Status</button></a></td>  -->
-																	<a href="addstatus.php?subid=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addstatus" class="btn btn-primary">Update Status</button></a></td> 
-		<td> <a href="addeci.php?subid=<?php echo $app_id; ?>"><button name="addsub" class="btn btn-primary">Add ECI</button></a></td> 
-		<td> <a href="comments.php?subcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,'); return false;"><button name="viewcomment" class="btn btn-primary">View Comment</button></a> 
-		<a href="addcomment.php?subcom_id=<?php echo $app_id; ?>" onclick="window.open(this.href,'popupwindow','toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,height=400,width=400,addressbar=no'); return false;"><button name="addcomment" class="btn btn-primary">Add Comment</button></a></td> 
-    <?php   if($dta['level'] == 1 || $dta['level'] == 2) {	?> <td> 	
-  <!--  		<a href="appdata_cmd.php?do=edit&id=<?php echo $row['app_id']; ?>"><img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /></a> -->
-    				<a href ="appdata_cmd.php?do=delete&subid=<?php echo $row['app_id']; ?>" onClick="return confirm('Are you sure you want to remove this submission ?')"><img src="images/b_drop.png" alt="Delete" width="16" height="16" border="0" title="Delete"/></a>
-    	</td><?php } ?>
-    </tr>			
-    <?php
-}
-?>
 						   </tbody>
 						</table>
 					</div>
