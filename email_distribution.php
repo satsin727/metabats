@@ -47,6 +47,10 @@ try {
             $decode = function ($x) { $raw = base64_decode(strrev((string)$x), true); return $raw === false ? '' : $raw; };
             $hook = trim(isset($_POST['gchat_webhook_x']) ? $decode($_POST['gchat_webhook_x']) : (string)($_POST['gchat_webhook'] ?? ''));
             $chatTemplate = isset($_POST['gchat_template_x']) ? $decode($_POST['gchat_template_x']) : (string)($_POST['gchat_template'] ?? '');
+            $field = function ($name) use ($decode) { return trim(isset($_POST[$name . '_x']) ? $decode($_POST[$name . '_x']) : (string)($_POST[$name] ?? '')); };
+            $db->prepare('UPDATE em_settings SET chat_min_gap_seconds=?, chat_hourly_limit=?, gchat_summary_template=?, gchat_summary_skill_line=?, gchat_summary_job_line=? WHERE id=1')
+               ->execute([max(0, min(3600, (int)($_POST['chat_min_gap_seconds'] ?? 2))), max(1, min(1000, (int)($_POST['chat_hourly_limit'] ?? 60))),
+                          $field('gchat_summary_template'), $field('gchat_summary_skill_line'), $field('gchat_summary_job_line')]);
             if ($hook !== '' && !em_gchat_valid_url($hook)) throw new RuntimeException('Google Chat webhook must look like https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...');
             $hookEnc = $hook !== '' ? em_encrypt($hook) : null;
             $clearHook = isset($_POST['gchat_clear']) ? 1 : 0;

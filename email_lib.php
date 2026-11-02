@@ -178,7 +178,9 @@ function em_schema(): void {
     $done = true;
     $db = em_db();
     $want = [
-        'em_settings'  => ['gchat_enabled' => "TINYINT(1) NOT NULL DEFAULT 0", 'gchat_webhook_enc' => "TEXT NULL", 'gchat_template' => "TEXT NULL"],
+        'em_settings'  => ['gchat_enabled' => "TINYINT(1) NOT NULL DEFAULT 0", 'gchat_webhook_enc' => "TEXT NULL", 'gchat_template' => "TEXT NULL",
+                           'chat_min_gap_seconds' => "INT NOT NULL DEFAULT 2", 'chat_hourly_limit' => "INT NOT NULL DEFAULT 60",
+                           'gchat_summary_template' => "TEXT NULL", 'gchat_summary_skill_line' => "TEXT NULL", 'gchat_summary_job_line' => "TEXT NULL"],
         'em_campaigns' => ['post_to_chat' => "TINYINT(1) NOT NULL DEFAULT 0"],
         'em_messages'  => ['chat_status' => "VARCHAR(20) NULL", 'chat_error' => "TEXT NULL", 'resend_of' => "BIGINT NULL", 'channel' => "VARCHAR(10) NOT NULL DEFAULT 'email'"],
     ];
@@ -332,7 +334,7 @@ function em_resend(array $u, int $id, string $subject, string $body, string $to,
     try {
         $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,UTC_TIMESTAMP(),?)')->execute([(int)$u['uid'], (int)$orig['template_id'], $chat ? 1 : 0]);
         $camp = (int)$db->lastInsertId();
-        $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,resend_of,channel) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?,?,?)')
+        $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,resend_of,channel) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP() - INTERVAL 1 SECOND,?,?,?)')
            ->execute([$camp, $orig['reqid'], $orig['list_id'], $orig['list_name'], em_mbcut($subject, 255), $body, json_encode($rec, JSON_THROW_ON_ERROR), $count,
                       ($chat || $isChat) ? 'pending' : null, $id, $isChat ? 'chat' : 'email']);
         $newId = (int)$db->lastInsertId();
@@ -487,4 +489,81 @@ function em_build_chat_campaign(array $u, array $in, bool $save): array {
         throw $e;
     }
     return ['messages' => $messages, 'campaign_id' => $camp, 'scheduled_local' => $scheduled->format('m/d/Y g:i A'), 'channel' => 'chat'];
+}
+
+/* ---------------- Google Chat: daily summary (one message) ---------------- */
+const EM_SUMMARY_TEMPLATE = "*C2C Requirements — {{date}}*\nTotal open C2C requirements: *{{total}}*\n\n*By skill*\n{{skill_summary}}\n\n*Jobs*\n{{jobs_by_skill}}";
+const EM_SUMMARY_SKILL_LINE = "• {{skill}}: {{count}}";
+const EM_SUMMARY_JOB_LINE = "{{n}}. *{{job_title}}* — {{location}} | End client: {{end_client}} | Req #{{req_id}}";
+
+/**
+ * Builds the summary text for the open C2C requirements posted on $day (Y-m-d, local).
+ * Main template placeholders: {{date}} {{total}} {{skill_count}} {{skill_summary}} {{jobs}} {{jobs_by_skill}}
+ * Skill line (repeated per skill): {{skill}} {{count}}
+ * Job line (repeated per requirement): {{n}} {{req_id}} {{job_title}} {{location}} {{end_client}} {{client}} {{domain}}
+ *                                      {{recruiter_email}} {{skill}} {{employment_type}} {{posted}}
+ * Returns [parts (array of message texts, each <= 4000 chars), total, skillCounts].
+ */
+function em_build_summary(string $day, ?array $settings = null): array {
+    $settings = $settings ?? em_settings();
+    if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $day)) $day = (new DateTimeImmutable('now', em_tz()))->format('Y-m-d');
+    $s = em_db()->prepare("SELECT r.reqid, r.job_title, r.rlocation, r.emp_type, r.datetime, r.rend_client, c.companyname, c.remail,
+            COALESCE(NULLIF(c.domain,''), SUBSTRING_INDEX(c.remail,'@',-1)) AS domain, COALESCE(sk.skillname,'Other') AS skillname
+        FROM req r LEFT JOIN clients c ON c.cid=r.cid LEFT JOIN skill sk ON sk.sid=r.skillid
+        WHERE r.status=1 AND r.emp_type='C2C' AND r.datetime >= ? AND r.datetime < ?
+        ORDER BY skillname, r.datetime, r.reqid");
+    $s->execute([$day . ' 00:00:00', date('Y-m-d', strtotime($day . ' +1 day')) . ' 00:00:00']);
+    $rows = $s->fetchAll();
+    $tMain = trim((string)($settings['gchat_summary_template'] ?? '')) !== '' ? (string)$settings['gchat_summary_template'] : EM_SUMMARY_TEMPLATE;
+    $tSkill = trim((string)($settings['gchat_summary_skill_line'] ?? '')) !== '' ? (string)$settings['gchat_summary_skill_line'] : EM_SUMMARY_SKILL_LINE;
+    $tJob = trim((string)($settings['gchat_summary_job_line'] ?? '')) !== '' ? (string)$settings['gchat_summary_job_line'] : EM_SUMMARY_JOB_LINE;
+    $bySkill = [];
+    foreach ($rows as $r) $bySkill[$r['skillname']][] = $r;
+    $skillLines = []; $jobLines = []; $groupBlocks = []; $n = 0;
+    foreach ($bySkill as $skill => $list) {
+        $skillLines[] = strtr($tSkill, ['{{skill}}' => $skill, '{{count}}' => (string)count($list)]);
+        $block = ['*' . $skill . ' (' . count($list) . ')*'];
+        foreach ($list as $r) {
+            $n++;
+            $line = strtr($tJob, ['{{n}}' => (string)$n, '{{req_id}}' => (string)$r['reqid'], '{{job_title}}' => (string)$r['job_title'],
+                '{{location}}' => (string)$r['rlocation'], '{{end_client}}' => (string)($r['rend_client'] ?: '—'), '{{client}}' => (string)$r['companyname'],
+                '{{domain}}' => (string)$r['domain'], '{{recruiter_email}}' => (string)$r['remail'], '{{skill}}' => (string)$skill,
+                '{{employment_type}}' => (string)$r['emp_type'], '{{posted}}' => $r['datetime'] ? date('g:i A', strtotime($r['datetime'])) : '']);
+            $jobLines[] = $line; $block[] = $line;
+        }
+        $groupBlocks[] = implode("\n", $block);
+    }
+    $vars = ['{{date}}' => date('D m/d/Y', strtotime($day)), '{{total}}' => (string)count($rows), '{{skill_count}}' => (string)count($bySkill)];
+    $skillTxt = $skillLines ? implode("\n", $skillLines) : 'No open C2C requirements were posted on this day.';
+    $text = strtr($tMain, $vars + ['{{skill_summary}}' => $skillTxt, '{{jobs}}' => implode("\n", $jobLines), '{{jobs_by_skill}}' => implode("\n\n", $groupBlocks)]);
+    // Google Chat accepts up to 4,096 characters per message: split long summaries at line breaks.
+    $parts = []; $cur = '';
+    foreach (explode("\n", $text) as $line) {
+        $line = em_mbcut($line, 3900);
+        if ($cur !== '' && (function_exists("mb_strlen") ? mb_strlen($cur . "\n" . $line) : strlen($cur . "\n" . $line)) > 3900) { $parts[] = $cur; $cur = $line; }
+        else $cur = $cur === '' ? $line : $cur . "\n" . $line;
+    }
+    if ($cur !== '') $parts[] = $cur;
+    if (count($parts) > 1) foreach ($parts as $i => $p) $parts[$i] = $p . "\n_(part " . ($i + 1) . ' of ' . count($parts) . ')_';
+    $counts = array_map('count', $bySkill);
+    return [$parts, count($rows), $counts];
+}
+
+/** Queue the summary as Google Chat message(s) (same queue and chat limits). */
+function em_queue_summary(array $u, string $day): array {
+    $settings = em_settings();
+    if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) throw new RuntimeException('Google Chat is not set up (SMTP & Google Chat settings).');
+    [$parts, $total] = em_build_summary($day, $settings);
+    $db = em_db();
+    $tpl = (int)$db->query('SELECT id FROM em_templates ORDER BY id LIMIT 1')->fetchColumn();
+    $db->beginTransaction();
+    try {
+        $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,UTC_TIMESTAMP(),1)')->execute([(int)$u['uid'], $tpl]);
+        $camp = (int)$db->lastInsertId();
+        $ins = $db->prepare("INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,channel) VALUES(?,0,?,'Daily summary',?,?,'{}',0,UTC_TIMESTAMP() - INTERVAL 1 SECOND,'pending','chat')");
+        foreach ($parts as $i => $p) $ins->execute([$camp, $i, em_mbcut('Google Chat summary ' . $day . (count($parts) > 1 ? ' (' . ($i + 1) . '/' . count($parts) . ')' : ''), 255), $p]);
+        em_log('chat_summary_queued', 'Summary for ' . $day . ': ' . $total . ' requirement(s), ' . count($parts) . ' message(s)', null, $camp, (int)$u['uid']);
+        $db->commit();
+    } catch (Throwable $e) { $db->rollBack(); throw $e; }
+    return ['campaign_id' => $camp, 'parts' => count($parts), 'total' => $total];
 }

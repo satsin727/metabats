@@ -84,6 +84,14 @@ $to = (string)($_GET['to'] ?? '');
 $share = (string)($_GET['share'] ?? '');
 $term = trim((string)($_GET['q'] ?? ''));
 $pg = max(1, (int)($_GET['p'] ?? 1));
+/* Day view: by default only TODAY's requirements are listed; "Older" / "Newer" move one posting day at a time.
+   It is switched off when a From/To range is given, when "All dates" is chosen, or when searching (search covers all dates). */
+$dayParam = (string)($_GET['day'] ?? '');
+$hasRange = preg_match('/^\d{4}-\d{2}-\d{2}$/', $from) || preg_match('/^\d{4}-\d{2}-\d{2}$/', $to);
+$showAll = !empty($_GET['all']);
+$dayMode = !$hasRange && !$showAll && (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dayParam) || ($term === '' && $clientQ === ''));
+$todayDay = $todayLocal->format('Y-m-d');
+$day = preg_match('/^\d{4}-\d{2}-\d{2}$/', $dayParam) ? $dayParam : $todayDay;
 $per = 40;
 $where = ['r.status=1', "r.emp_type='C2C'"];
 $params = [];
@@ -102,6 +110,23 @@ if ($term !== '') {
 if ($share === 'not_shared') $where[] = "NOT EXISTS(SELECT 1 FROM em_messages x WHERE x.reqid=r.reqid AND x.status IN ('scheduled','processing','sent'))";
 if ($share === 'sent') $where[] = "EXISTS(SELECT 1 FROM em_messages x WHERE x.reqid=r.reqid AND x.status='sent')";
 if ($share === 'scheduled') $where[] = "EXISTS(SELECT 1 FROM em_messages x WHERE x.reqid=r.reqid AND x.status IN ('scheduled','processing'))";
+$olderDay = $newerDay = null;
+if ($dayMode) {
+    $dayStart = $day . ' 00:00:00';
+    $nextStart = date('Y-m-d', strtotime($day . ' +1 day')) . ' 00:00:00';
+    $baseCond = implode(' AND ', $where);
+    // nearest earlier / later posting day that has matching requirements (skips empty days and weekends)
+    $nav = $db->prepare("SELECT (SELECT MAX(r.datetime) FROM req r LEFT JOIN clients c ON c.cid=r.cid WHERE $baseCond AND r.datetime < ?),
+                                (SELECT MIN(r.datetime) FROM req r LEFT JOIN clients c ON c.cid=r.cid WHERE $baseCond AND r.datetime >= ?)");
+    $nav->execute(array_merge($params, [$dayStart], $params, [$nextStart]));
+    [$olderAt, $newerAt] = $nav->fetch(PDO::FETCH_NUM);
+    $olderDay = $olderAt ? substr((string)$olderAt, 0, 10) : null;
+    $newerDay = $newerAt ? substr((string)$newerAt, 0, 10) : null;
+    if ($newerDay !== null && $newerDay > $todayDay) $newerDay = null;
+    $where[] = 'r.datetime >= ? AND r.datetime < ?';
+    $params[] = $dayStart;
+    $params[] = $nextStart;
+}
 $cond = implode(' AND ', $where);
 $count = $db->prepare("SELECT COUNT(*) FROM req r LEFT JOIN clients c ON c.cid=r.cid WHERE $cond");
 $count->execute($params);
@@ -131,9 +156,28 @@ $defaultLists = array_filter([(int)$settings['default_to_list'], (int)$settings[
 
 <form id="em-compose" onsubmit="return false">
 <input type="hidden" name="csrf" value="<?= em_h($csrf) ?>"><input type="hidden" name="campaign_token" id="em-token" value="<?= em_h($campaignToken) ?>">
-<div class="panel scroll"><h4>Open C2C Requirements <small>(<?= number_format($total) ?> found · page <?= $pg ?> of <?= $pages ?>)</small></h4>
+<?php
+$navBase = $_GET; unset($navBase['p'], $navBase['day'], $navBase['all']);
+$navUrl = function (array $extra) use ($navBase) { return 'admin.php?' . http_build_query(array_merge($navBase, ['action' => 'emaildistribution', 'page' => 'requirements'], $extra)); };
+$dayLabel = $day === $todayDay ? 'Today, ' . date('D m/d/Y', strtotime($day)) : date('l, m/d/Y', strtotime($day));
+?>
+<div class="panel scroll">
+<?php if ($dayMode): ?>
+<div class="em-filters" style="margin-bottom:12px;align-items:center">
+ <?php if ($olderDay): ?><a class="btn btn-default" href="<?= em_h($navUrl(['day' => $olderDay])) ?>">&larr; Older (<?= em_h(date('m/d/Y', strtotime($olderDay))) ?>)</a><?php else: ?><span class="btn btn-default disabled">&larr; No older requirements</span><?php endif; ?>
+ <b style="font-size:16px"><?= em_h($dayLabel) ?></b>
+ <?php if ($newerDay): ?><a class="btn btn-default" href="<?= em_h($navUrl(['day' => $newerDay])) ?>">Newer (<?= em_h(date('m/d/Y', strtotime($newerDay))) ?>) &rarr;</a><?php endif; ?>
+ <?php if ($day !== $todayDay): ?><a class="btn btn-default" href="<?= em_h($navUrl([])) ?>">Today</a><?php endif; ?>
+ <input type="date" value="<?= em_h($day) ?>" max="<?= em_h($todayDay) ?>" title="Jump to a day" data-url="<?= em_h($navUrl(['day' => '__DAY__'])) ?>" onchange="if(this.value)location.href=this.getAttribute('data-url').replace('__DAY__',this.value)">
+ <a class="btn btn-link" href="<?= em_h($navUrl(['all' => 1])) ?>">Show all dates</a>
+ <?php if ($gchatReady && in_array((int)$u['level'], [1, 2], true)): ?><a class="btn btn-default" href="admin.php?action=emaildistribution&amp;page=queue&amp;sumday=<?= em_h($day) ?>#em-chat-panel">Google Chat summary of this day…</a><?php endif; ?>
+</div>
+<?php elseif ($showAll || $hasRange): ?>
+<p><a class="btn btn-default btn-sm" href="<?= em_h($navUrl([])) ?>">Back to today's requirements</a></p>
+<?php endif; ?>
+<h4>Open C2C Requirements <small>(<?= number_format($total) ?> found<?= $dayMode ? ' on this day' : ($term !== '' || $clientQ !== '' ? ' · all dates' : '') ?> · page <?= $pg ?> of <?= $pages ?>)</small></h4>
 <table><thead><tr><th><input type="checkbox" id="em-all" title="Select all on this page"></th><th>ID</th><th>Job Title</th><th>Location</th><th>Client / Skill</th><th>Posted</th><th>Sharing</th><th></th></tr></thead><tbody>
-<?php if (!$rows): ?><tr><td colspan="8" class="muted">No open C2C requirements match these filters.</td></tr><?php endif; ?>
+<?php if (!$rows): ?><tr><td colspan="8" class="muted"><?= $dayMode ? 'No open C2C requirements were posted on this day' . ($olderDay ? ' — use “Older” to see earlier ones.' : '.') : 'No open C2C requirements match these filters.' ?></td></tr><?php endif; ?>
 <?php foreach ($rows as $r): $rid = (int)$r['reqid']; ?>
 <tr id="em-row-<?= $rid ?>">
  <td><input class="em-check" type="checkbox" name="reqids[]" value="<?= $rid ?>"></td>
@@ -148,7 +192,7 @@ $defaultLists = array_filter([(int)$settings['default_to_list'], (int)$settings[
 </tr>
 <?php endforeach; ?>
 </tbody></table>
-<div style="margin-top:10px"><?php $base = $_GET; unset($base['p']);
+<div style="margin-top:10px"><?php $base = $_GET; unset($base['p']); if ($dayMode) $base['day'] = $day;
 for ($n = max(1, $pg - 3); $n <= min($pages, $pg + 3); $n++): $url = 'admin.php?' . http_build_query(array_merge($base, ['action' => 'emaildistribution', 'page' => 'requirements', 'p' => $n])); ?>
 <a class="btn btn-<?= $n === $pg ? 'primary' : 'default' ?> btn-sm" href="<?= em_h($url) ?>"><?= $n ?></a><?php endfor; ?></div>
 <p class="muted">Selections apply to the current page. Up to 100 requirements per campaign. "Sharing" refreshes automatically while emails are queued.</p>
@@ -177,15 +221,37 @@ for ($n = max(1, $pg - 3); $n <= min($pages, $pg + 3); $n++): $url = 'admin.php?
 </form>
 
 <?php elseif ($page === 'queue'):
-/* ===================== TODAY'S QUEUE (live) ===================== */ ?>
+/* ===================== TODAY'S QUEUE (live): Google Chat + Email ===================== */
+$canSummary = in_array((int)$u['level'], [1, 2], true); ?>
 <div class="panel">
  <h4>Today's Queue <small id="em-q-label"></small></h4>
- <div id="em-q-stats"></div>
- <p class="muted">Shows everything queued or sent today, plus anything still waiting. Refreshes every 15 seconds without reloading the page. Last refresh: <span id="em-q-now">—</span></p>
- <?php if ($isAdmin): ?><button class="btn btn-primary" id="em-run">Run Email Queue Now</button> <span id="em-run-result" class="muted"></span><?php endif; ?>
+ <p class="muted">Everything queued or sent today, plus anything still waiting. Refreshes every 15 seconds without reloading. Last refresh: <span id="em-q-now">—</span> · Queue: <b id="em-q-state">—</b></p>
  <button class="btn btn-default" id="em-q-refresh">Refresh now</button>
 </div>
-<div class="panel scroll"><table><thead><tr><th>#</th><th>Scheduled</th><th>Req</th><th>Job Title</th><th>Sent To Group</th><th>Recipients</th><th>Status</th><th>Sent</th><th>Chat</th><th>Queued by</th><th></th></tr></thead><tbody id="em-q-body"><tr><td colspan="11" class="muted">Loading…</td></tr></tbody></table></div>
+
+<div class="panel" id="em-chat-panel">
+ <h4><span class="label label-primary" style="font-size:13px">Google Chat</span> queue</h4>
+ <div id="em-qc-stats"></div>
+ <p class="muted" id="em-qc-limits"></p>
+ <?php if ($isAdmin): ?><button class="btn btn-primary" id="em-run-chat" <?= $gchatReady ? '' : 'disabled' ?>>Send Google Chat Now</button> <span id="em-run-chat-result" class="muted"></span><?php endif; ?>
+ <?php if (!$gchatReady): ?><p class="muted">Google Chat is not set up<?= $isAdmin ? ' — add the webhook under SMTP &amp; Google Chat' : '' ?>.</p><?php endif; ?>
+ <?php if ($canSummary && $gchatReady): ?>
+ <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e3e8ed">
+  <b>Daily summary</b> <span class="muted">— one Google Chat message with all open C2C requirements posted on a day, grouped by skill (templates under SMTP &amp; Google Chat).</span><br>
+  <label style="margin-top:8px">Day <input type="date" id="em-sum-day" value="<?= em_h(preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($_GET['sumday'] ?? '')) ? $_GET['sumday'] : $todayLocal->format('Y-m-d')) ?>" max="<?= em_h($todayLocal->format('Y-m-d')) ?>"></label>
+  <button class="btn btn-success" id="em-sum-preview">Preview &amp; send summary</button>
+ </div>
+ <?php endif; ?>
+ <div class="scroll" style="margin-top:12px"><table><thead><tr><th>#</th><th>Scheduled</th><th>Req</th><th>Message</th><th>Status</th><th>Posted</th><th>Queued by</th><th></th></tr></thead><tbody id="em-qc-body"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody></table></div>
+</div>
+
+<div class="panel" id="em-email-panel">
+ <h4><span class="label label-default" style="font-size:13px">Email</span> queue</h4>
+ <div id="em-qe-stats"></div>
+ <p class="muted" id="em-qe-limits"></p>
+ <?php if ($isAdmin): ?><button class="btn btn-primary" id="em-run">Run Email Queue Now</button> <span id="em-run-result" class="muted"></span><?php endif; ?>
+ <div class="scroll" style="margin-top:12px"><table><thead><tr><th>#</th><th>Scheduled</th><th>Req</th><th>Job Title</th><th>Sent To Group</th><th>Recipients</th><th>Status</th><th>Sent</th><th>Chat</th><th>Queued by</th><th></th></tr></thead><tbody id="em-qe-body"><tr><td colspan="11" class="muted">Loading…</td></tr></tbody></table></div>
+</div>
 
 <?php elseif ($page === 'history'):
 /* ===================== HISTORY ===================== */
@@ -309,6 +375,16 @@ $more = count($logs) > 100; $logs = array_slice($logs, 0, 100);
 <?php if (!empty($settings['gchat_webhook_enc'])): ?><label><input type="checkbox" name="gchat_clear"> Remove saved webhook</label><?php endif; ?></p>
 <p><label style="width:100%">Chat message template<textarea id="em-gchat-template" rows="7"><?= em_h(($settings['gchat_template'] ?? '') !== '' ? $settings['gchat_template'] : EM_GCHAT_DEFAULT_TEMPLATE) ?></textarea></label></p>
 <p class="muted">Placeholders: {{req_id}}, {{job_title}}, {{location}}, {{employment_type}}, {{client}}, {{domain}}, {{end_client}}, {{recruiter_email}}, {{list_name}}, {{date}}, {{job_description}}. Google Chat formatting: *bold*, _italic_.</p>
+<p><label>Google Chat messages / rolling hour <input type="number" name="chat_hourly_limit" min="1" max="1000" value="<?= (int)($settings['chat_hourly_limit'] ?? 60) ?>"></label>
+<label>Google Chat minimum gap (seconds) <input type="number" name="chat_min_gap_seconds" min="0" max="3600" value="<?= (int)($settings['chat_min_gap_seconds'] ?? 2) ?>"></label></p>
+<h5 style="margin-top:18px">Daily summary templates</h5>
+<p class="muted">Used by <i>Today's Queue → Daily summary</i>: one message for all open C2C requirements of a day. The two line templates are repeated for every skill and every requirement.</p>
+<p><label style="width:100%">Summary message<textarea id="em-sum-main" data-enc="gchat_summary_template" rows="7"><?= em_h(($settings['gchat_summary_template'] ?? '') !== '' ? $settings['gchat_summary_template'] : EM_SUMMARY_TEMPLATE) ?></textarea></label></p>
+<p class="muted">Placeholders: {{date}}, {{total}}, {{skill_count}}, {{skill_summary}} (all skill lines), {{jobs}} (all job lines), {{jobs_by_skill}} (job lines grouped under each skill).</p>
+<p><label style="width:100%">Skill line (repeated per skill)<input id="em-sum-skill" data-enc="gchat_summary_skill_line" style="width:100%" value="<?= em_h(($settings['gchat_summary_skill_line'] ?? '') !== '' ? $settings['gchat_summary_skill_line'] : EM_SUMMARY_SKILL_LINE) ?>"></label></p>
+<p class="muted">Placeholders: {{skill}}, {{count}}.</p>
+<p><label style="width:100%">Job line (repeated per requirement)<input id="em-sum-job" data-enc="gchat_summary_job_line" style="width:100%" value="<?= em_h(($settings['gchat_summary_job_line'] ?? '') !== '' ? $settings['gchat_summary_job_line'] : EM_SUMMARY_JOB_LINE) ?>"></label></p>
+<p class="muted">Placeholders: {{n}}, {{req_id}}, {{job_title}}, {{location}}, {{end_client}}, {{client}}, {{domain}}, {{recruiter_email}}, {{skill}}, {{employment_type}}, {{posted}}.</p>
 <?php if (!empty($settings['gchat_webhook_enc'])): ?><button type="button" class="btn btn-default" id="em-gchat-test">Send test message</button> <span id="em-gchat-result" class="muted"></span><?php endif; ?>
 </div>
 <p><button class="btn btn-primary">Save Settings</button></p>
@@ -411,26 +487,53 @@ endif; ?>
     $$('.em-preview-one').forEach(function (b) { b.addEventListener('click', function () { preview([b.getAttribute('data-reqid')], true); }); });
   }
 
-  /* ---------- Today's queue ---------- */
+  /* ---------- Today's queue: Google Chat + Email sections ---------- */
   if (PAGE === 'queue') {
     var badge = { sent: 'success', failed: 'danger', cancelled: 'default', scheduled: 'warning', processing: 'info' };
+    var statsHtml = function (st) { return Object.keys(st).map(function (k) { return '<span class="em-stat">' + esc(k) + '<b>' + st[k] + '</b></span>'; }).join(''); };
+    var cancelBtn = function (m) { return m.can_cancel ? '<button class="btn btn-danger btn-xs em-q-cancel" data-id="' + m.id + '">Cancel</button>' : ''; };
+    var statusCell = function (m) { return '<span class="label label-' + (badge[m.status] || 'default') + '">' + esc(m.status) + '</span>' + (m.error ? '<div class="muted">' + esc(m.error.slice(0, 160)) + '</div>' : ''); };
     var load = function () {
       api('today_queue', null, 'GET').then(function (j) {
-        $('#em-q-label').textContent = '— ' + j.label; $('#em-q-now').textContent = j.now;
-        $('#em-q-stats').innerHTML = Object.keys(j.stats).map(function (k) { return '<span class="em-stat">' + esc(k) + '<b>' + j.stats[k] + '</b></span>'; }).join('') +
-          '<p>Queue: <b>' + (j.paused ? 'PAUSED' : 'ACTIVE') + '</b> · limit ' + j.hourly + ' emails/hour, ' + j.daily + ' recipients/day.</p>';
-        $('#em-q-body').innerHTML = j.rows.length ? j.rows.map(function (m) {
-          return '<tr><td>' + m.id + '</td><td style="white-space:nowrap">' + esc(m.scheduled) + '</td><td>' + m.reqid + '</td><td>' + esc(m.job_title) + '</td><td>' + (m.channel === 'chat' ? '<span class="label label-primary">Google Chat</span>' : esc(m.list_name)) + '</td><td>' + (m.channel === 'chat' ? '—' : m.recipients) +
-            '</td><td><span class="label label-' + (badge[m.status] || 'default') + '">' + esc(m.status) + '</span>' + (m.error ? '<div class="muted">' + esc(m.error.slice(0, 140)) + '</div>' : '') +
-            '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.chat) + '</td><td>' + esc(m.by) + '</td><td>' +
-            (m.can_cancel ? '<button class="btn btn-danger btn-xs em-q-cancel" data-id="' + m.id + '">Cancel</button>' : '') + '</td></tr>';
-        }).join('') : '<tr><td colspan="11" class="muted">Nothing queued or sent today.</td></tr>';
-        $$('.em-q-cancel').forEach(function (b) { b.onclick = function () { if (!confirm('Cancel this email?')) return; api('cancel', { message_id: b.getAttribute('data-id') }).then(function () { toast('Cancelled'); load(); }).catch(function (e) { toast(e.message, true); }); }; });
+        $('#em-q-label').textContent = '— ' + j.label; $('#em-q-now').textContent = j.now; $('#em-q-state').textContent = j.paused ? 'PAUSED' : 'ACTIVE';
+        var chat = j.rows.filter(function (m) { return m.channel === 'chat'; }), mail = j.rows.filter(function (m) { return m.channel !== 'chat'; });
+        $('#em-qc-stats').innerHTML = statsHtml(j.by_channel.chat);
+        $('#em-qc-limits').textContent = 'Limits: ' + j.chat_hourly + ' messages/hour, at least ' + j.chat_gap + ' s apart.' + (j.chat_ready ? '' : ' (Google Chat is not set up)');
+        $('#em-qe-stats').innerHTML = statsHtml(j.by_channel.email);
+        $('#em-qe-limits').textContent = 'Limits: ' + j.hourly + ' emails/hour, at least ' + j.email_gap + ' s apart, ' + j.daily + ' recipients/day.';
+        $('#em-qc-body').innerHTML = chat.length ? chat.map(function (m) {
+          return '<tr><td>' + m.id + '</td><td style="white-space:nowrap">' + esc(m.scheduled) + '</td><td>' + (m.reqid ? m.reqid : '<span class="label label-info">Summary</span>') + '</td><td>' +
+            esc(m.reqid ? m.job_title : m.list_name) + '</td><td>' + statusCell(m) + '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.by) + '</td><td>' + cancelBtn(m) + '</td></tr>';
+        }).join('') : '<tr><td colspan="8" class="muted">No Google Chat messages today.</td></tr>';
+        $('#em-qe-body').innerHTML = mail.length ? mail.map(function (m) {
+          return '<tr><td>' + m.id + '</td><td style="white-space:nowrap">' + esc(m.scheduled) + '</td><td>' + m.reqid + '</td><td>' + esc(m.job_title) + '</td><td>' + esc(m.list_name) + '</td><td>' + m.recipients +
+            '</td><td>' + statusCell(m) + '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.chat) + '</td><td>' + esc(m.by) + '</td><td>' + cancelBtn(m) + '</td></tr>';
+        }).join('') : '<tr><td colspan="11" class="muted">No emails today.</td></tr>';
+        $$('.em-q-cancel').forEach(function (b) { b.onclick = function () { if (!confirm('Cancel this message?')) return; api('cancel', { message_id: b.getAttribute('data-id') }).then(function () { toast('Cancelled'); load(); }).catch(function (e) { toast(e.message, true); }); }; });
       }).catch(function (e) { toast(e.message, true); });
     };
     load(); setInterval(load, 15000);
     $('#em-q-refresh').onclick = load;
-    if ($('#em-run')) $('#em-run').onclick = function () { var b = this; b.disabled = true; $('#em-run-result').textContent = 'Running…'; api('run_worker', {}).then(function (j) { $('#em-run-result').textContent = j.result; load(); }).catch(function (e) { $('#em-run-result').textContent = e.message; }).then(function () { b.disabled = false; }); };
+    var runBtn = function (sel, out, op) { if (!$(sel)) return; $(sel).onclick = function () { var b = this; b.disabled = true; $(out).textContent = 'Sending…';
+      api(op, {}).then(function (j) { $(out).textContent = j.result; load(); }).catch(function (e) { $(out).textContent = e.message; }).then(function () { b.disabled = false; }); }; };
+    runBtn('#em-run', '#em-run-result', 'run_worker');
+    runBtn('#em-run-chat', '#em-run-chat-result', 'run_chat');
+    if ($('#em-sum-preview')) $('#em-sum-preview').onclick = function () {
+      var day = $('#em-sum-day').value;
+      openModal('Google Chat summary', '<p class="muted">Building summary…</p>');
+      api('summary_preview', { day: day }, 'GET').then(function (j) {
+        var html = '<p><b>' + j.total + '</b> open C2C requirement(s) posted on ' + esc(day) + ' · ' + j.parts.length + ' Google Chat message' + (j.parts.length === 1 ? '' : 's') + (j.parts.length > 1 ? ' (too long for one message, split automatically)' : '') + '.</p>' +
+          j.parts.map(function (p, i) { return '<div class="em-mail"><div class="em-mail-h"><b>Google Chat</b> message' + (j.parts.length > 1 ? ' ' + (i + 1) + ' of ' + j.parts.length : '') + '</div><div class="em-mail-b">' + esc(p) + '</div></div>'; }).join('');
+        openModal('Google Chat summary — ' + day, html, '<button type="button" class="btn btn-default" id="em-m-close">Close</button> <button type="button" class="btn btn-default" id="em-sum-queue">Add to queue</button>' +
+          (<?= $isAdmin ? 'true' : 'false' ?> ? ' <button type="button" class="btn btn-success" id="em-sum-now">Send now</button>' : ''));
+        $('#em-m-close').onclick = closeModal;
+        var go = function (now, b) { b.disabled = true; b.textContent = now ? 'Sending…' : 'Queueing…';
+          api('summary_queue', { day: day, send_now: now ? 1 : '' }).then(function (r) { closeModal(); toast('Summary queued (' + r.parts + ' message' + (r.parts === 1 ? '' : 's') + ')' + (r.result ? ': ' + r.result : '') + '.'); load(); })
+            .catch(function (e) { b.disabled = false; toast(e.message, true); }); };
+        $('#em-sum-queue').onclick = function () { go(false, this); };
+        if ($('#em-sum-now')) $('#em-sum-now').onclick = function () { go(true, this); };
+      }).catch(function (e) { openModal('Google Chat summary', '<div class="alert alert-danger">' + esc(e.message) + '</div>', ''); });
+    };
   }
 
   /* ---------- History: view + edit & resend ---------- */
@@ -472,8 +575,14 @@ endif; ?>
   if (PAGE === 'settings' && $('#em-settings-form')) {
     var enc = function (v) { var b = btoa(unescape(encodeURIComponent(v || ''))); return b.split('').reverse().join(''); };
     $('#em-settings-form').addEventListener('submit', function () {
+      var f = this;
       $('#em-gchat-webhook-x').value = enc($('#em-gchat-webhook').value.trim());
       $('#em-gchat-template-x').value = enc($('#em-gchat-template').value);
+      $$('[data-enc]', f).forEach(function (el) {   // summary templates: same encoding
+        var name = el.getAttribute('data-enc') + '_x', h = f.querySelector('input[type=hidden][name="' + name + '"]');
+        if (!h) { h = document.createElement('input'); h.type = 'hidden'; h.name = name; f.appendChild(h); }
+        h.value = enc(el.value);
+      });
     });
   }
   /* ---------- Settings: Google Chat test ---------- */

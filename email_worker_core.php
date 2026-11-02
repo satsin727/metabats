@@ -5,7 +5,12 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 
-function em_process_one_due_message(): string
+/**
+ * Sends ONE due message. $only = 'email' or 'chat' limits it to that queue; null = whichever is due first.
+ * Email and Google Chat have their own limits (email: min gap / hourly / daily recipients;
+ * chat: chat min gap / chat hourly), so a waiting email never blocks Google Chat and vice versa.
+ */
+function em_process_one_due_message(?string $only = null): string
 {
     $db = em_db();
     $lock = (int)$db->query("SELECT GET_LOCK('bats_em_worker_global',0)")->fetchColumn();
@@ -36,36 +41,48 @@ function em_process_one_due_message(): string
             $db->prepare("UPDATE em_messages SET status='failed',last_error='Interrupted send; check SMTP logs before manually resending' WHERE id=? AND status='processing'")->execute([$r['id']]);
             em_log('processing_interrupted', 'Manual reconciliation required', (int)$r['id'], (int)$r['campaign_id']);
         }
-        // Compare UTC timestamps in MySQL rather than interpreting UTC as PHP's local timezone.
-        $elapsed = $db->query("SELECT TIMESTAMPDIFF(SECOND, MAX(sent_at), UTC_TIMESTAMP()) FROM em_messages WHERE status='sent'")->fetchColumn();
-        if ($elapsed !== null && (int)$elapsed < (int)$settings['min_gap_seconds']) {
-            $remaining = (int)$settings['min_gap_seconds'] - (int)$elapsed;
-            return "Waiting for minimum gap (" . max(1, $remaining) . " seconds remaining)";
+        $channels = $only === 'chat' ? ['chat'] : ($only === 'email' ? ['email'] : ['email', 'chat']);
+        $item = null; $reasons = []; $password = null;
+        foreach ($channels as $ch) {
+            $due = $db->prepare("SELECT * FROM em_messages WHERE status='scheduled' AND channel=? AND available_at<=UTC_TIMESTAMP() ORDER BY available_at,id LIMIT 1");
+            $due->execute([$ch]);
+            $cand = $due->fetch();
+            if (!$cand) continue;
+            $gapLimit = $ch === 'chat' ? (int)($settings['chat_min_gap_seconds'] ?? 2) : (int)$settings['min_gap_seconds'];
+            $hourLimit = $ch === 'chat' ? (int)($settings['chat_hourly_limit'] ?? 60) : (int)$settings['hourly_limit'];
+            $label = $ch === 'chat' ? 'Google Chat' : 'Email';
+            // Compare UTC timestamps in MySQL rather than interpreting UTC as PHP's local timezone.
+            $st = $db->prepare("SELECT TIMESTAMPDIFF(SECOND, MAX(sent_at), UTC_TIMESTAMP()) FROM em_messages WHERE status='sent' AND channel=?");
+            $st->execute([$ch]);
+            $elapsed = $st->fetchColumn();
+            if ($elapsed !== null && (int)$elapsed < $gapLimit) {
+                $reasons[] = "$label: waiting for minimum gap (" . max(1, $gapLimit - (int)$elapsed) . " seconds remaining)";
+                continue;
+            }
+            $st = $db->prepare("SELECT COUNT(*) FROM em_messages WHERE status='sent' AND channel=? AND sent_at >= UTC_TIMESTAMP()-INTERVAL 1 HOUR");
+            $st->execute([$ch]);
+            if ((int)$st->fetchColumn() >= $hourLimit) { $reasons[] = "$label: hourly limit reached"; continue; }
+            if ($ch === 'chat') {
+                if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) {
+                    $reasons[] = 'Google Chat is disabled or has no webhook (SMTP & Google Chat settings)';
+                    continue;
+                }
+            } else {
+                if (!filter_var($settings['smtp_email'], FILTER_VALIDATE_EMAIL) || empty($settings['smtp_password_enc'])) {
+                    $reasons[] = 'Email: configure Gmail SMTP first';
+                    continue;
+                }
+                $daily = (int)$db->query("SELECT COALESCE(SUM(recipient_count),0) FROM em_messages WHERE status='sent' AND channel='email' AND sent_at >= UTC_TIMESTAMP()-INTERVAL 24 HOUR")->fetchColumn();
+                if ($daily + (int)$cand['recipient_count'] > (int)$settings['daily_recipient_limit']) { $reasons[] = 'Email: daily recipient limit reached'; continue; }
+                $password = em_decrypt($settings['smtp_password_enc']);
+            }
+            $item = $cand;
+            break;
         }
-        $hourly = (int)$db->query("SELECT COUNT(*) FROM em_messages WHERE status='sent' AND sent_at >= UTC_TIMESTAMP()-INTERVAL 1 HOUR")->fetchColumn();
-        if ($hourly >= (int)$settings['hourly_limit']) {
-            return "Hourly limit reached";
-        }
-        $daily = (int)$db->query("SELECT COALESCE(SUM(recipient_count),0) FROM em_messages WHERE status='sent' AND sent_at >= UTC_TIMESTAMP()-INTERVAL 24 HOUR")->fetchColumn();
-        $item = $db->query("SELECT * FROM em_messages WHERE status='scheduled' AND available_at<=UTC_TIMESTAMP() ORDER BY available_at,id LIMIT 1")->fetch();
         if (!$item) {
-            return "No due messages";
+            return $reasons ? implode('; ', $reasons) : 'No due messages';
         }
         $isChat = (($item['channel'] ?? 'email') === 'chat');
-        if ($isChat) {
-            // Google Chat only: same queue, pause switch, window, gap and hourly limit; no SMTP needed.
-            if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) {
-                throw new RuntimeException('Google Chat is disabled or has no webhook (SMTP & Google Chat settings)');
-            }
-        } else {
-            if (!filter_var($settings['smtp_email'], FILTER_VALIDATE_EMAIL) || empty($settings['smtp_password_enc'])) {
-                throw new RuntimeException('Configure Gmail SMTP first');
-            }
-            $password = em_decrypt($settings['smtp_password_enc']);
-            if ($daily + (int)$item['recipient_count'] > (int)$settings['daily_recipient_limit']) {
-                return "Daily recipient limit reached";
-            }
-        }
         $q = $db->prepare("UPDATE em_messages SET status='processing',locked_at=UTC_TIMESTAMP(),attempts=attempts+1 WHERE id=? AND status='scheduled'");
         $q->execute([$item['id']]);
         if (!$q->rowCount()) return "Message already claimed by another worker";
@@ -124,4 +141,23 @@ function em_process_one_due_message(): string
         $db->query("SELECT RELEASE_LOCK('bats_em_worker_global')");
     }
 
+}
+
+/**
+ * "Send Google Chat Now" and cron: post due Google Chat messages one after another,
+ * respecting the chat minimum gap (short waits are slept) and the chat hourly limit.
+ */
+function em_process_chat_burst(int $max = 20, int $maxSeconds = 25): string
+{
+    $t0 = time(); $posted = 0; $last = '';
+    while ($posted < $max && time() - $t0 < $maxSeconds) {
+        $last = em_process_one_due_message('chat');
+        if (strpos($last, 'Google Chat message #') === 0) { $posted++; continue; }
+        if (preg_match('/Google Chat: waiting for minimum gap \((\d+) seconds/', $last, $m) && (int)$m[1] <= 10 && time() - $t0 + (int)$m[1] < $maxSeconds) {
+            sleep((int)$m[1]);
+            continue;
+        }
+        break;
+    }
+    return $posted ? "Posted $posted Google Chat message(s)" . ($last && strpos($last, 'Google Chat message #') !== 0 ? " — then: $last" : '') : ($last ?: 'No due Google Chat messages');
 }

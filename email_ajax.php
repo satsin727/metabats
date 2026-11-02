@@ -50,9 +50,12 @@ case 'today_queue':
         ORDER BY FIELD(m.status,'processing','scheduled','failed','sent','cancelled'), m.available_at, m.id LIMIT 1000");
     $s->execute([$start, $end, $start, $end]);
     $rows = [];
-    $stats = ['scheduled' => 0, 'processing' => 0, 'sent' => 0, 'failed' => 0, 'cancelled' => 0];
+    $zero = ['scheduled' => 0, 'processing' => 0, 'sent' => 0, 'failed' => 0, 'cancelled' => 0];
+    $stats = $zero; $byCh = ['email' => $zero, 'chat' => $zero];
     foreach ($s as $m) {
         $stats[$m['status']] = ($stats[$m['status']] ?? 0) + 1;
+        $chn = $m['channel'] === 'chat' ? 'chat' : 'email';
+        $byCh[$chn][$m['status']] = ($byCh[$chn][$m['status']] ?? 0) + 1;
         $rows[] = ['id' => (int)$m['id'], 'campaign_id' => (int)$m['campaign_id'], 'reqid' => (int)$m['reqid'], 'job_title' => (string)$m['job_title'],
             'list_name' => (string)$m['list_name'], 'channel' => (string)$m['channel'], 'recipients' => (int)$m['recipient_count'], 'status' => $m['status'], 'attempts' => (int)$m['attempts'],
             'scheduled' => em_local($m['available_at']), 'sent' => em_local($m['sent_at']), 'error' => (string)$m['last_error'], 'chat' => (string)$m['chat_status'],
@@ -61,6 +64,8 @@ case 'today_queue':
     }
     $settings = em_settings();
     ea_out(['ok' => true, 'label' => $label, 'now' => (new DateTimeImmutable('now', em_tz()))->format('m/d/Y g:i:s A'), 'rows' => $rows, 'stats' => $stats,
+            'by_channel' => $byCh, 'chat_ready' => !empty($settings['gchat_enabled']) && !empty($settings['gchat_webhook_enc']),
+            'chat_gap' => (int)($settings['chat_min_gap_seconds'] ?? 2), 'chat_hourly' => (int)($settings['chat_hourly_limit'] ?? 60), 'email_gap' => (int)$settings['min_gap_seconds'],
             'paused' => (int)$settings['queue_paused'] === 1, 'hourly' => (int)$settings['hourly_limit'], 'daily' => (int)$settings['daily_recipient_limit']]);
 
 case 'message':
@@ -99,7 +104,31 @@ case 'run_worker':
     em_admin($u);
     if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
     require_once __DIR__ . '/email_worker_core.php';
-    ea_out(['ok' => true, 'result' => em_process_one_due_message()]);
+    ea_out(['ok' => true, 'result' => em_process_one_due_message('email')]);
+
+case 'run_chat':   // "Send Google Chat Now": posts the due Google Chat messages right away (chat limits apply)
+    if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
+    em_admin($u);
+    if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+    require_once __DIR__ . '/email_worker_core.php';
+    ea_out(['ok' => true, 'result' => em_process_chat_burst(20, 25)]);
+
+case 'summary_preview':
+    if (!in_array((int)$u['level'], [1, 2], true)) throw new RuntimeException('Only admins and managers can send the daily summary');
+    [$parts, $total, $counts] = em_build_summary((string)($_REQUEST['day'] ?? ''));
+    ea_out(['ok' => true, 'parts' => $parts, 'total' => $total, 'skills' => $counts]);
+
+case 'summary_queue':
+    if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
+    if (!in_array((int)$u['level'], [1, 2], true)) throw new RuntimeException('Only admins and managers can send the daily summary');
+    $r = em_queue_summary($u, (string)($_POST['day'] ?? ''));
+    $result = '';
+    if (!empty($_POST['send_now']) && (int)$u['level'] === 1) {
+        if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
+        require_once __DIR__ . '/email_worker_core.php';
+        $result = em_process_chat_burst(20, 25);
+    }
+    ea_out(['ok' => true, 'campaign_id' => $r['campaign_id'], 'parts' => $r['parts'], 'total' => $r['total'], 'result' => $result]);
 
 case 'gchat_test':
     if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
