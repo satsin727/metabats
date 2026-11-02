@@ -31,23 +31,10 @@ echo '<div class="col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main">
 if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 {
 
-$uid = $dta['uid'];
-
-
-if($dta['level'] == 1 || $dta['level'] == 2 )
-{
-$queryv = "select distinct * from clients where `status` = 1 group by `remail`";
-}
-elseif ($dta['level'] == 3)
-{
-$queryv = ("select distinct * from clients where `uid` = " . bats_q($uid) . " AND `status` = 1 group by `remail`"); }
-$connv = bats_db();
-$insv= $connv->prepare($queryv);
-$insv->execute();
-$datav = $insv->fetchAll();
-
+// The list is loaded page by page from clientslist_ajax.php (server-side pagination),
+// so the browser no longer receives all 50,000+ rows at once.
 ?>
-						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
+						<table data-toggle="table" data-url="clientslist_ajax.php" data-side-pagination="server" data-cache="false" data-page-size="50" data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-order="asc">
 						    <thead>
 						    <tr>
 						        <th data-field="ID" data-sortable="false">ID</th>
@@ -64,34 +51,6 @@ $datav = $insv->fetchAll();
 						    </tr>
 						    </thead>
 						   <tbody>
-<?php
-$i=1;
-foreach( $datav as $row) {
-?>
-    <tr>
-  		<td data-order="<?php echo $i; ?>"> <?php echo $i; $i=$i+1;  ?></td>
-    	<td data-search="<?php echo $row['companyname']; ?>"> <?php echo $row['companyname']; ?></td>
-    	<td data-search="<?php echo $row['rname']; ?>"> <?php echo $row['rname']; ?></td>    	
-    	<td data-search="<?php echo $row['remail']; ?>"> <?php echo $row['remail']; ?></td>
-    	<td data-search="<?php echo $row['rphone']; ?>"> <?php echo $row['rphone']; ?></td>
-    	<td data-search="<?php echo $row['rlocation']; ?>"> <?php echo $row['rlocation']; ?></td>    	
-    	<td data-search="<?php echo $row['rtimezon']; ?>"> <?php echo $row['rtimezon']; ?></td>   	
-    	<td data-search="<?php echo $row['tier']; ?>"> <?php echo $row['tier']; ?></td>
-    	<?php /* <td> 
-		<a href="listcmd.php?do=addcontact&lid=<?php echo $row['listid']; ?>">Add Contact<!--<img src="images/b_edit.png" alt="Edit" width="16" height="16" border="0" title="Edit" /> --></a>
-    				 &nbsp;&nbsp;&nbsp;
-    				<a href ="listcmd.php?do=download&lid=<?php echo $row['listid']; ?>" onClick="return confirm('Are you sure you want to Download ?')">Download List</a>
-    				 &nbsp;&nbsp;&nbsp;
-    				<?php if($dta['level'] == 1 || $dta['level'] == 2 )
-{
-	?> <a href="listcmd.php?do=changestatus&lid=<?php echo $row['listid']; ?>"><?php if($row['status']==1) { echo "Deactivate"; } else echo "Activate"; ?></a>
-    				 &nbsp;&nbsp;&nbsp; <?php } ?>
-    				<a href="listcmd.php?do=viewlist&lid=<?php echo $row['listid']; ?>">View List</a>
-    	</td>  */ ?>
-    </tr>
-    <?php
-}
-?>
 						   </tbody>
 						</table>
 						
