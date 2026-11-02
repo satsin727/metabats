@@ -18,10 +18,6 @@ function em_process_one_due_message(): string
         if (!$settings || (int)$settings['queue_paused'] === 1) {
             return "Queue paused or not configured";
         }
-        if (!filter_var($settings['smtp_email'], FILTER_VALIDATE_EMAIL) || empty($settings['smtp_password_enc'])) {
-            throw new RuntimeException('Configure Gmail SMTP first');
-        }
-        $password = em_decrypt($settings['smtp_password_enc']);
         $now = new DateTimeImmutable('now', new DateTimeZone('UTC'));
         $tz = new DateTimeZone($settings['timezone_name']);
         $clock = $now->setTimezone($tz)->format('H:i:s');
@@ -55,13 +51,31 @@ function em_process_one_due_message(): string
         if (!$item) {
             return "No due messages";
         }
-        if ($daily + (int)$item['recipient_count'] > (int)$settings['daily_recipient_limit']) {
-            return "Daily recipient limit reached";
+        $isChat = (($item['channel'] ?? 'email') === 'chat');
+        if ($isChat) {
+            // Google Chat only: same queue, pause switch, window, gap and hourly limit; no SMTP needed.
+            if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) {
+                throw new RuntimeException('Google Chat is disabled or has no webhook (SMTP & Google Chat settings)');
+            }
+        } else {
+            if (!filter_var($settings['smtp_email'], FILTER_VALIDATE_EMAIL) || empty($settings['smtp_password_enc'])) {
+                throw new RuntimeException('Configure Gmail SMTP first');
+            }
+            $password = em_decrypt($settings['smtp_password_enc']);
+            if ($daily + (int)$item['recipient_count'] > (int)$settings['daily_recipient_limit']) {
+                return "Daily recipient limit reached";
+            }
         }
         $q = $db->prepare("UPDATE em_messages SET status='processing',locked_at=UTC_TIMESTAMP(),attempts=attempts+1 WHERE id=? AND status='scheduled'");
         $q->execute([$item['id']]);
         if (!$q->rowCount()) return "Message already claimed by another worker";
         try {
+            if ($isChat) {
+                em_gchat_post(em_decrypt($settings['gchat_webhook_enc']), (string)$item['body']);
+                $db->prepare("UPDATE em_messages SET status='sent',sent_at=UTC_TIMESTAMP(),locked_at=NULL,last_error=NULL,chat_status='posted',chat_error=NULL WHERE id=?")->execute([$item['id']]);
+                em_log('gchat_posted', 'Google Chat only message posted for requirement ' . $item['reqid'], (int)$item['id'], (int)$item['campaign_id']);
+                return "Google Chat message #" . $item['id'] . " posted";
+            }
             $rc = json_decode($item['recipients_json'], true, 512, JSON_THROW_ON_ERROR);
             $mail = new PHPMailer(true);
             $mail->isSMTP();
@@ -89,14 +103,15 @@ function em_process_one_due_message(): string
         catch (Throwable $e) {
             $msg = em_mbcut($e->getMessage(), 800);
             $attempt = (int)$item['attempts'] + 1;
-            $temporary = preg_match('/(?:^|\D)4[0-9]{2}(?:\D|$)|4\.7\.|timed? out|connection|temporar|try again/i', $msg) === 1;
+            $temporary = preg_match('/(?:^|\D)4[0-9]{2}(?:\D|$)|4\.7\.|timed? out|connection|temporar|try again/i', $msg) === 1
+                || ($isChat && preg_match('/HTTP (?:0|429|5\d\d)\b/', $msg) === 1);
             if ($temporary && $attempt < 5) {
                 $minutes = min(240, 5 * (2**($attempt - 1)));
                 $db->prepare("UPDATE em_messages SET status='scheduled',locked_at=NULL,available_at=DATE_ADD(UTC_TIMESTAMP(),INTERVAL $minutes MINUTE),last_error=? WHERE id=?")->execute([$msg, $item['id']]);
                 em_log('retry_scheduled', 'Retry in '.$minutes.' minutes: '.$msg, (int)$item['id'], (int)$item['campaign_id']);
             }
             else {
-                $db->prepare("UPDATE em_messages SET status='failed',locked_at=NULL,last_error=? WHERE id=?")->execute([$msg, $item['id']]);
+                $db->prepare("UPDATE em_messages SET status='failed',locked_at=NULL,last_error=?" . ($isChat ? ",chat_status='failed',chat_error=?" : "") . " WHERE id=?")->execute($isChat ? [$msg, $msg, $item['id']] : [$msg, $item['id']]);
                 em_log('send_failed', $msg, (int)$item['id'], (int)$item['campaign_id']);
             }
             return "Send failed for message #" . $item['id'] . ": " . $msg;

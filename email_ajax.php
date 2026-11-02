@@ -26,7 +26,7 @@ switch ($op) {
 case 'preview':
     if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
     $r = em_build_campaign($u, $_POST, false);
-    ea_out(['ok' => true, 'messages' => $r['messages'], 'scheduled' => $r['scheduled_local']]);
+    ea_out(['ok' => true, 'messages' => $r['messages'], 'scheduled' => $r['scheduled_local'], 'channel' => $r['channel'] ?? 'email']);
 
 case 'queue':
     if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
@@ -36,7 +36,7 @@ case 'queue':
     }
     $r = em_build_campaign($u, $_POST, true);
     $_SESSION['em_campaign_token'] = bin2hex(random_bytes(20));   // ready for the next campaign
-    ea_out(['ok' => true, 'campaign_id' => $r['campaign_id'], 'count' => count($r['messages']), 'scheduled' => $r['scheduled_local'],
+    ea_out(['ok' => true, 'campaign_id' => $r['campaign_id'], 'count' => count($r['messages']), 'channel' => $r['channel'] ?? 'email', 'scheduled' => $r['scheduled_local'],
             'token' => $_SESSION['em_campaign_token'], 'status' => em_share_status((array)($_POST['reqids'] ?? []))]);
 
 case 'status':
@@ -44,7 +44,7 @@ case 'status':
 
 case 'today_queue':
     [$start, $end, $label] = em_period('today');
-    $s = $db->prepare("SELECT m.id,m.campaign_id,m.reqid,r.job_title,m.list_name,m.recipient_count,m.status,m.attempts,m.available_at,m.sent_at,m.last_error,m.chat_status,c.created_by,u.name AS created_name
+    $s = $db->prepare("SELECT m.id,m.campaign_id,m.reqid,r.job_title,m.list_name,m.recipient_count,m.status,m.attempts,m.available_at,m.sent_at,m.last_error,m.chat_status,m.channel,c.created_by,u.name AS created_name
         FROM em_messages m JOIN em_campaigns c ON c.id=m.campaign_id LEFT JOIN users u ON u.uid=c.created_by LEFT JOIN req r ON r.reqid=m.reqid
         WHERE (m.created_at >= ? AND m.created_at < ?) OR (m.available_at >= ? AND m.available_at < ?) OR m.status IN ('scheduled','processing')
         ORDER BY FIELD(m.status,'processing','scheduled','failed','sent','cancelled'), m.available_at, m.id LIMIT 1000");
@@ -54,7 +54,7 @@ case 'today_queue':
     foreach ($s as $m) {
         $stats[$m['status']] = ($stats[$m['status']] ?? 0) + 1;
         $rows[] = ['id' => (int)$m['id'], 'campaign_id' => (int)$m['campaign_id'], 'reqid' => (int)$m['reqid'], 'job_title' => (string)$m['job_title'],
-            'list_name' => (string)$m['list_name'], 'recipients' => (int)$m['recipient_count'], 'status' => $m['status'], 'attempts' => (int)$m['attempts'],
+            'list_name' => (string)$m['list_name'], 'channel' => (string)$m['channel'], 'recipients' => (int)$m['recipient_count'], 'status' => $m['status'], 'attempts' => (int)$m['attempts'],
             'scheduled' => em_local($m['available_at']), 'sent' => em_local($m['sent_at']), 'error' => (string)$m['last_error'], 'chat' => (string)$m['chat_status'],
             'by' => (string)$m['created_name'],
             'can_cancel' => $m['status'] === 'scheduled' && ((int)$u['level'] === 1 || (int)$m['created_by'] === (int)$u['uid'])];
@@ -73,7 +73,7 @@ case 'message':
         'list_name' => (string)$m['list_name'], 'subject' => (string)$m['subject'], 'body' => (string)$m['body'],
         'to' => $rc['to'] ?? [], 'cc' => $rc['cc'] ?? [], 'bcc' => $rc['bcc'] ?? [], 'status' => $m['status'], 'sent' => em_local($m['sent_at']),
         'scheduled' => em_local($m['available_at']), 'error' => (string)$m['last_error'], 'chat_status' => (string)$m['chat_status'],
-        'resend_of' => $m['resend_of'] !== null ? (int)$m['resend_of'] : null, 'post_to_chat' => (int)$m['post_to_chat'] === 1,
+        'resend_of' => $m['resend_of'] !== null ? (int)$m['resend_of'] : null, 'channel' => (string)($m['channel'] ?? 'email'), 'post_to_chat' => (int)$m['post_to_chat'] === 1,
         'can_resend' => !in_array($m['status'], ['scheduled', 'processing'], true) && ((int)$u['level'] === 1 || (int)$m['created_by'] === (int)$u['uid'])]]);
 
 case 'resend':

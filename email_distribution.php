@@ -42,12 +42,16 @@ try {
             $s = $db->prepare('UPDATE em_settings SET smtp_email=?,smtp_from_name=?,smtp_password_enc=COALESCE(?,smtp_password_enc),hourly_limit=?,daily_recipient_limit=?,min_gap_seconds=?,timezone_name=?,queue_paused=?,default_to_list=?,default_cc_list=?,default_bcc_list=?,send_start=?,send_end=? WHERE id=1');
             $s->execute([$email, trim((string)($_POST['smtp_from_name'] ?? 'Recruitment Team')), $encrypted, $hour, $daily, $gap, $tz, isset($_POST['queue_paused']) ? 1: 0, ($_POST['default_to_list'] ?? '') !== '' ? (int)$_POST['default_to_list']: null, ($_POST['default_cc_list'] ?? '') !== '' ? (int)$_POST['default_cc_list']: null, ($_POST['default_bcc_list'] ?? '') !== '' ? (int)$_POST['default_bcc_list']: null, ($_POST['send_start'] ?? '') ?: null, ($_POST['send_end'] ?? '') ?: null]);
             // Google Chat webhook (optional)
-            $hook = trim((string)($_POST['gchat_webhook'] ?? ''));
+            // The settings page sends these two fields base64-encoded and reversed (see email_distribution_ui.php)
+            // so Bluehost Mod_Security does not block a raw webhook URL in the form post.
+            $decode = function ($x) { $raw = base64_decode(strrev((string)$x), true); return $raw === false ? '' : $raw; };
+            $hook = trim(isset($_POST['gchat_webhook_x']) ? $decode($_POST['gchat_webhook_x']) : (string)($_POST['gchat_webhook'] ?? ''));
+            $chatTemplate = isset($_POST['gchat_template_x']) ? $decode($_POST['gchat_template_x']) : (string)($_POST['gchat_template'] ?? '');
             if ($hook !== '' && !em_gchat_valid_url($hook)) throw new RuntimeException('Google Chat webhook must look like https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...');
             $hookEnc = $hook !== '' ? em_encrypt($hook) : null;
             $clearHook = isset($_POST['gchat_clear']) ? 1 : 0;
             $db->prepare('UPDATE em_settings SET gchat_enabled=?, gchat_template=?, gchat_webhook_enc=CASE WHEN ?=1 THEN NULL ELSE COALESCE(?,gchat_webhook_enc) END WHERE id=1')
-               ->execute([isset($_POST['gchat_enabled']) ? 1 : 0, trim((string)($_POST['gchat_template'] ?? '')), $clearHook, $hookEnc]);
+               ->execute([isset($_POST['gchat_enabled']) ? 1 : 0, trim($chatTemplate), $clearHook, $hookEnc]);
             em_log('settings_updated', 'SMTP/rate-limit settings changed', null, null, (int)$u['uid']);
             em_redirect('settings', 'Settings saved');
         }

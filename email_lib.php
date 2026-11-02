@@ -180,7 +180,7 @@ function em_schema(): void {
     $want = [
         'em_settings'  => ['gchat_enabled' => "TINYINT(1) NOT NULL DEFAULT 0", 'gchat_webhook_enc' => "TEXT NULL", 'gchat_template' => "TEXT NULL"],
         'em_campaigns' => ['post_to_chat' => "TINYINT(1) NOT NULL DEFAULT 0"],
-        'em_messages'  => ['chat_status' => "VARCHAR(20) NULL", 'chat_error' => "TEXT NULL", 'resend_of' => "BIGINT NULL"],
+        'em_messages'  => ['chat_status' => "VARCHAR(20) NULL", 'chat_error' => "TEXT NULL", 'resend_of' => "BIGINT NULL", 'channel' => "VARCHAR(10) NOT NULL DEFAULT 'email'"],
     ];
     foreach ($want as $table => $cols) {
         $have = [];
@@ -211,15 +211,16 @@ function em_local(?string $utc, string $fmt = 'm/d/Y g:i A'): string {
 }
 
 /**
- * Period -> [startUtc, endUtc, label, fromLocal, toLocal]. Periods: today, week (Mon-Sun), month, custom.
+ * Period -> [startUtc, endUtc, label, fromLocal, toLocal]. Periods: today, week (last 7 days), month (last 30 days), thismonth, custom.
  * Boundaries are local days (settings timezone) converted to UTC for the DB.
  */
 function em_period(string $period, string $from = '', string $to = ''): array {
     $tz = em_tz();
     $today = new DateTimeImmutable('today', $tz);
     switch ($period) {
-        case 'week':  $start = $today->modify('monday this week'); $end = $start->modify('+7 days'); break;
-        case 'month': $start = $today->modify('first day of this month'); $end = $start->modify('+1 month'); break;
+        case 'week':      $start = $today->modify('-6 days'); $end = $today->modify('+1 day'); break;   // last 7 days incl. today
+        case 'month':     $start = $today->modify('-29 days'); $end = $today->modify('+1 day'); break;  // last 30 days incl. today
+        case 'thismonth': $start = $today->modify('first day of this month'); $end = $today->modify('+1 day'); break;
         case 'custom':
             $f = DateTimeImmutable::createFromFormat('!Y-m-d', $from, $tz) ?: $today;
             $t = DateTimeImmutable::createFromFormat('!Y-m-d', $to, $tz) ?: $f;
@@ -239,6 +240,7 @@ function em_period(string $period, string $from = '', string $to = ''): array {
  * $in uses the same field names as the compose form. Returns ['messages' => [...], 'campaign_id' => ?int].
  */
 function em_build_campaign(array $u, array $in, bool $save): array {
+    if (($in['channel'] ?? 'email') === 'chat') return em_build_chat_campaign($u, $in, $save);
     $db = em_db();
     $reqids = array_values(array_unique(array_filter(array_map('intval', (array)($in['reqids'] ?? [])))));
     $listids = array_values(array_unique(array_filter(array_map('intval', (array)($in['listids'] ?? [])))));
@@ -321,16 +323,18 @@ function em_resend(array $u, int $id, string $subject, string $body, string $to,
     if (in_array($orig['status'], ['scheduled', 'processing'], true)) throw new RuntimeException('This message is still in the queue');
     $subject = trim($subject); $body = trim($body);
     if ($subject === '' || $body === '') throw new RuntimeException('Subject and body are required');
-    $rec = em_recipient_map(['to' => em_addresses($to), 'cc' => em_addresses($cc), 'bcc' => em_addresses($bcc)]);
-    if (!$rec['to']) throw new RuntimeException('At least one To recipient is required');
+    $isChat = ($orig['channel'] ?? 'email') === 'chat';
+    $rec = $isChat ? ['to' => [], 'cc' => [], 'bcc' => []] : em_recipient_map(['to' => em_addresses($to), 'cc' => em_addresses($cc), 'bcc' => em_addresses($bcc)]);
+    if (!$isChat && !$rec['to']) throw new RuntimeException('At least one To recipient is required');
     $count = array_sum(array_map('count', $rec));
     if ($count > 100) throw new RuntimeException('Recipient count exceeds 100 per message');
     $db->beginTransaction();
     try {
         $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,UTC_TIMESTAMP(),?)')->execute([(int)$u['uid'], (int)$orig['template_id'], $chat ? 1 : 0]);
         $camp = (int)$db->lastInsertId();
-        $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,resend_of) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?,?)')
-           ->execute([$camp, $orig['reqid'], $orig['list_id'], $orig['list_name'], em_mbcut($subject, 255), $body, json_encode($rec, JSON_THROW_ON_ERROR), $count, $chat ? 'pending' : null, $id]);
+        $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,resend_of,channel) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?,?,?)')
+           ->execute([$camp, $orig['reqid'], $orig['list_id'], $orig['list_name'], em_mbcut($subject, 255), $body, json_encode($rec, JSON_THROW_ON_ERROR), $count,
+                      ($chat || $isChat) ? 'pending' : null, $id, $isChat ? 'chat' : 'email']);
         $newId = (int)$db->lastInsertId();
         em_log('message_resent', 'Corrected copy of message #' . $id . ' queued as #' . $newId, $newId, $camp, (int)$u['uid']);
         $db->commit();
@@ -442,4 +446,45 @@ function em_report_rows(array $u, string $startUtc, string $endUtc, bool $withJd
     $s = em_db()->prepare($sql);
     $s->execute($p);
     return $s->fetchAll();
+}
+
+/**
+ * Google Chat ONLY campaign: one chat message per requirement, posted through the same queue
+ * (same pause switch, sending window, minimum gap and hourly limit). No emails are sent.
+ */
+function em_build_chat_campaign(array $u, array $in, bool $save): array {
+    $db = em_db();
+    $settings = em_settings();
+    if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) throw new RuntimeException('Google Chat is not set up. An admin can add the webhook under SMTP & Google Chat.');
+    $reqids = array_values(array_unique(array_filter(array_map('intval', (array)($in['reqids'] ?? [])))));
+    if (!$reqids || count($reqids) > 100) throw new RuntimeException('Select 1–100 requirements');
+    $when = trim((string)($in['scheduled_at'] ?? ''));
+    $tz = em_tz();
+    $scheduled = $when !== '' ? DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', $when, $tz) : new DateTimeImmutable('now', $tz);
+    if (!$scheduled || $scheduled < (new DateTimeImmutable('now', $tz))->modify('-2 minutes')) throw new RuntimeException('Invalid or past schedule');
+    $utc = $scheduled->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    $template = (string)($settings['gchat_template'] ?? '');
+    $messages = [];
+    foreach ($reqids as $id) {
+        $r = em_req($id, $u);
+        if (!$r) throw new RuntimeException('Requirement ' . $id . ' is unavailable');
+        $text = em_mbcut(em_gchat_text($template, $r, 'Google Chat'), 4000);
+        $messages[] = ['reqid' => (int)$r['reqid'], 'job_title' => (string)$r['job_title'], 'list_id' => 0, 'list_name' => 'Google Chat', 'channel' => 'chat',
+            'subject' => em_mbcut('Google Chat: ' . $r['job_title'], 255), 'body' => $text, 'recipients' => ['to' => [], 'cc' => [], 'bcc' => []], 'count' => 0];
+    }
+    if (!$save) return ['messages' => $messages, 'campaign_id' => null, 'scheduled_local' => $scheduled->format('m/d/Y g:i A'), 'channel' => 'chat'];
+    $tpl = (int)$db->query('SELECT id FROM em_templates ORDER BY id LIMIT 1')->fetchColumn();
+    $db->beginTransaction();
+    try {
+        $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,?,1)')->execute([(int)$u['uid'], $tpl, $utc]);
+        $camp = (int)$db->lastInsertId();
+        $ins = $db->prepare("INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,channel) VALUES(?,?,0,'Google Chat',?,?,?,0,?,'pending','chat')");
+        foreach ($messages as $m) $ins->execute([$camp, $m['reqid'], $m['subject'], $m['body'], json_encode($m['recipients']), $utc]);
+        em_log('chat_campaign_created', 'Google Chat only: ' . count($messages) . ' requirement(s)', null, $camp, (int)$u['uid']);
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+    return ['messages' => $messages, 'campaign_id' => $camp, 'scheduled_local' => $scheduled->format('m/d/Y g:i A'), 'channel' => 'chat'];
 }
