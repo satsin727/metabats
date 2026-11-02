@@ -5,7 +5,7 @@ $sessid = $_SESSION['id'];
 }
 else
 {
-	header( "Location: admin.php" ); 
+	header( "Location: admin.php" ); exit; 
 
 }
 $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD );

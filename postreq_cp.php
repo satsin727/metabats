@@ -1,6 +1,6 @@
 <?php
 // Smart Post Requirement: include via admin.php?action=... like the original postrek.php.
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
+if (session_status() === PHP_SESSION_NONE) { require_once __DIR__ . '/config.php'; }
 if (empty($_SESSION['id'])) { header('Location: admin.php'); exit; }
 
 function spr_h($value) { return htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }

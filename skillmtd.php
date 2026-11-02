@@ -10,7 +10,7 @@ $sessid = $_SESSION['id'];
 }
 else
 {
-	header( "Location: admin.php" ); 
+	header( "Location: admin.php" ); exit; 
 
 }
 

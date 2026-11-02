@@ -1,1 +1,24 @@
 config.php
+
+# --- Local backups / scratch (never upload) ---
+_backup_*/
+_to_delete/
+php_sessions/
+*.tgz
+
+# --- Private data: uploaded consultant documents, exports, uploaded lists ---
+# Folder structure is kept (.gitkeep + .htaccess), the files inside are not.
+consultants_data/**/*
+!consultants_data/**/
+!consultants_data/**/.gitkeep
+!consultants_data/.htaccess
+tmp/*
+!tmp/.gitkeep
+!tmp/.htaccess
+files/lists/*
+!files/lists/.gitkeep
+!files/lists/.htaccess
+
+# --- Secrets / DB dumps ---
+*.sql
+!db_safe_fixes_*.sql

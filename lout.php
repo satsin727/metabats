@@ -7,9 +7,10 @@ $sessid = $_SESSION['id'];
 else
 {
 	header( "Location: admin.php" ); 
-
+	exit;
 }
-$uid = $_GET['id'];
+// SECURITY FIX: only log out the user who owns this session (was: any id from the URL)
+$uid = $_SESSION['id'];
 
 $conn=null;
  $conn = new PDO( DB_DSN, DB_USERNAME, DB_PASSWORD);
@@ -21,6 +22,7 @@ $conn=null;
   unset ($_SESSION['id']);
   unset ($_SESSION['date']); 
   header( "Location: admin.php" );
+  exit;
   
 ob_flush();
 

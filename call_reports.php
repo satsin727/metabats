@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/config.php'; // starts the 7-day session
 require_once("config.php");
 
 $conn = new PDO(DB_DSN, DB_USERNAME, DB_PASSWORD);

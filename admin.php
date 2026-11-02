@@ -118,6 +118,7 @@ window.location.href='lout.php?id="."$rid"."';
         if ( $uhash == $dta['uhash'] && $phash == $dta['password']) {
             if ($dta['status'] == 1) {
                 // Login successful: Create a session and redirect to the admin homepage
+                session_regenerate_id(true); // new session id on login (prevents session fixation)
                 $date = date("Y-m-d");
                 $_SESSION['username'] = md5(md5($u).$date);
                 $_SESSION['id'] = $dta['uid'];
@@ -127,6 +128,7 @@ window.location.href='lout.php?id="."$rid"."';
                 $inssess = $conn->prepare($q2);
                 $inssess->execute();
                 header( "Location: admin.php");
+                exit;
             }
             else {
                 echo "<script>
@@ -159,6 +161,7 @@ function logout() {
     $lout->bindValue( ":id", $uid, PDO::PARAM_INT);
     $lout->execute();
     header( "Location: admin.php");
+    exit;
 }
 function dashboard() {
     $selected = "dashboard";
