@@ -89,14 +89,13 @@ function em_render(string $template, array $data): string {
     return strtr($template, $data);
 }
 function em_req(int $id, ? array $user = null): ? array {
-    $s = em_db()->prepare('SELECT r.reqid,r.job_title,r.rlocation,r.emp_type,r.datetime,c.companyname,(SELECT j.rdesc FROM jd j WHERE j.reqid=r.reqid ORDER BY j.jd_id DESC LIMIT 1) AS rdesc FROM req r LEFT JOIN clients c ON c.cid=r.cid WHERE r.reqid=? AND r.status=1 LIMIT 1');
+    $s = em_db()->prepare("SELECT r.reqid,r.uid,r.job_title,r.rlocation,r.emp_type,r.datetime,r.rend_client,c.companyname,c.remail,
+            COALESCE(NULLIF(c.domain,''), SUBSTRING_INDEX(c.remail,'@',-1)) AS domain,
+            (SELECT j.rdesc FROM jd j WHERE j.reqid=r.reqid ORDER BY j.jd_id DESC LIMIT 1) AS rdesc
+        FROM req r LEFT JOIN clients c ON c.cid=r.cid WHERE r.reqid=? AND r.status=1 LIMIT 1");
     $s->execute([$id]);
     $row = $s->fetch() ?: null;
-    if ($row && $user && (int)$user['level'] !== 1) {
-        $check = em_db()->prepare('SELECT uid FROM req WHERE reqid=?');
-        $check->execute([$id]);
-        if ((int)$check->fetchColumn() !== (int)$user['uid']) return null;
-    }
+    if ($row && $user && (int)$user['level'] !== 1 && (int)$row['uid'] !== (int)$user['uid']) return null;
     return $row;
 }
 /** Convert stored HTML job descriptions to readable plain text for outgoing emails. */
@@ -130,6 +129,10 @@ function em_replacements(array $r): array {
         '{{location}}' => (string)$r['rlocation'],
         '{{employment_type}}' => (string)$r['emp_type'],
         '{{client}}' => (string)$r['companyname'],
+        '{{end_client}}' => (string)($r['rend_client'] ?? ''),
+        '{{domain}}' => (string)($r['domain'] ?? ''),
+        '{{recruiter_email}}' => (string)($r['remail'] ?? ''),
+        '{{date}}' => (new DateTimeImmutable('now', em_tz()))->format('m/d/Y'),
         '{{job_description}}' => em_job_description_text((string)($r['rdesc'] ?? '')),
     ];
 }
@@ -161,4 +164,282 @@ function em_require_post(): void {
 }
 function em_mbcut(string $value, int $length): string {
     return function_exists('mb_substr') ? mb_substr($value, 0, $length): substr($value, 0, $length);
+}
+
+/* ======================================================================
+ * Added 2026-11: C2C sharing page, previews, AJAX queue, resend, reports,
+ * Google Chat webhook.
+ * ==================================================================== */
+
+/** Adds the new columns once if they are missing (only ADD COLUMN / ADD INDEX, never drops). */
+function em_schema(): void {
+    static $done = false;
+    if ($done) return;
+    $done = true;
+    $db = em_db();
+    $want = [
+        'em_settings'  => ['gchat_enabled' => "TINYINT(1) NOT NULL DEFAULT 0", 'gchat_webhook_enc' => "TEXT NULL", 'gchat_template' => "TEXT NULL"],
+        'em_campaigns' => ['post_to_chat' => "TINYINT(1) NOT NULL DEFAULT 0"],
+        'em_messages'  => ['chat_status' => "VARCHAR(20) NULL", 'chat_error' => "TEXT NULL", 'resend_of' => "BIGINT NULL"],
+    ];
+    foreach ($want as $table => $cols) {
+        $have = [];
+        foreach ($db->query("SHOW COLUMNS FROM `$table`") as $c) $have[strtolower($c['Field'])] = true;
+        foreach ($cols as $col => $def) {
+            if (!isset($have[strtolower($col)])) {
+                try { $db->exec("ALTER TABLE `$table` ADD COLUMN `$col` $def"); }
+                catch (Throwable $e) { error_log("em_schema: $table.$col: " . $e->getMessage()); }
+            }
+        }
+    }
+}
+
+function em_tz(): DateTimeZone {
+    static $tz = null;
+    if ($tz === null) {
+        try { $name = (string)(em_settings()['timezone_name'] ?? 'America/Chicago'); $tz = new DateTimeZone($name); }
+        catch (Throwable $e) { $tz = new DateTimeZone('America/Chicago'); }
+    }
+    return $tz;
+}
+
+/** UTC DB time -> local display time (settings timezone). */
+function em_local(?string $utc, string $fmt = 'm/d/Y g:i A'): string {
+    if ($utc === null || $utc === '') return '';
+    try { return (new DateTimeImmutable($utc, new DateTimeZone('UTC')))->setTimezone(em_tz())->format($fmt); }
+    catch (Throwable $e) { return (string)$utc; }
+}
+
+/**
+ * Period -> [startUtc, endUtc, label, fromLocal, toLocal]. Periods: today, week (Mon-Sun), month, custom.
+ * Boundaries are local days (settings timezone) converted to UTC for the DB.
+ */
+function em_period(string $period, string $from = '', string $to = ''): array {
+    $tz = em_tz();
+    $today = new DateTimeImmutable('today', $tz);
+    switch ($period) {
+        case 'week':  $start = $today->modify('monday this week'); $end = $start->modify('+7 days'); break;
+        case 'month': $start = $today->modify('first day of this month'); $end = $start->modify('+1 month'); break;
+        case 'custom':
+            $f = DateTimeImmutable::createFromFormat('!Y-m-d', $from, $tz) ?: $today;
+            $t = DateTimeImmutable::createFromFormat('!Y-m-d', $to, $tz) ?: $f;
+            if ($t < $f) { [$f, $t] = [$t, $f]; }
+            $start = $f; $end = $t->modify('+1 day'); break;
+        default: $period = 'today'; $start = $today; $end = $today->modify('+1 day');
+    }
+    $utc = new DateTimeZone('UTC');
+    $label = $period === 'today' ? 'Today, ' . $start->format('D m/d/Y')
+        : ($start->format('m/d/Y') . ' - ' . $end->modify('-1 day')->format('m/d/Y'));
+    return [$start->setTimezone($utc)->format('Y-m-d H:i:s'), $end->setTimezone($utc)->format('Y-m-d H:i:s'), $label,
+            $start->format('Y-m-d'), $end->modify('-1 day')->format('Y-m-d'), $period];
+}
+
+/**
+ * Builds (and optionally saves) a campaign: one email per requirement x recipient list.
+ * $in uses the same field names as the compose form. Returns ['messages' => [...], 'campaign_id' => ?int].
+ */
+function em_build_campaign(array $u, array $in, bool $save): array {
+    $db = em_db();
+    $reqids = array_values(array_unique(array_filter(array_map('intval', (array)($in['reqids'] ?? [])))));
+    $listids = array_values(array_unique(array_filter(array_map('intval', (array)($in['listids'] ?? [])))));
+    if (!$reqids || !$listids || count($reqids) > 100 || count($listids) > 20) throw new RuntimeException('Select 1–100 requirements and 1–20 lists');
+    $templateId = (int)($in['template_id'] ?? 0);
+    $q = $db->prepare('SELECT * FROM em_templates WHERE id=? AND active=1');
+    $q->execute([$templateId]);
+    $tpl = $q->fetch();
+    if (!$tpl) throw new RuntimeException('Select a valid template');
+    $extra = ['to' => em_addresses((string)($in['extra_to'] ?? '')), 'cc' => em_addresses((string)($in['extra_cc'] ?? '')), 'bcc' => em_addresses((string)($in['extra_bcc'] ?? ''))];
+    $excluded = array_fill_keys(array_map('strtolower', em_addresses((string)($in['exclude'] ?? ''))), true);
+    $when = trim((string)($in['scheduled_at'] ?? ''));
+    $tz = em_tz();
+    $scheduled = $when !== '' ? DateTimeImmutable::createFromFormat('!Y-m-d\TH:i', $when, $tz) : new DateTimeImmutable('now', $tz);
+    if (!$scheduled || $scheduled < (new DateTimeImmutable('now', $tz))->modify('-2 minutes')) throw new RuntimeException('Invalid or past schedule');
+    $utc = $scheduled->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s');
+    $lq = $db->prepare('SELECT id,name FROM em_lists WHERE id=? AND active=1');
+    $m = $db->prepare("SELECT c.email,lm.recipient_type FROM em_list_members lm JOIN em_contacts c ON c.id=lm.contact_id AND c.active=1 WHERE lm.list_id=?");
+    $payload = [];
+    foreach ($listids as $lid) {
+        $lq->execute([$lid]);
+        $list = $lq->fetch();
+        if (!$list) throw new RuntimeException('Invalid recipient list ' . $lid);
+        $m->execute([$lid]);
+        $groups = ['to' => $extra['to'], 'cc' => $extra['cc'], 'bcc' => $extra['bcc']];
+        foreach (['to', 'cc', 'bcc'] as $kind) $groups[$kind] = array_merge($groups[$kind], em_addresses((string)($in['list_extra'][$lid][$kind] ?? '')));
+        $listExcluded = $excluded + array_fill_keys(array_map('strtolower', em_addresses((string)($in['list_exclude'][$lid] ?? ''))), true);
+        foreach ($m as $member) $groups[$member['recipient_type']][] = $member['email'];
+        $rec = em_recipient_map($groups);
+        foreach ($rec as $role => $addresses) $rec[$role] = array_values(array_filter($addresses, fn($v) => !isset($listExcluded[strtolower($v)])));
+        if (!$rec['to']) throw new RuntimeException('List ' . $list['name'] . ' has no To recipient after exclusions');
+        $total = array_sum(array_map('count', $rec));
+        if ($total > 100) throw new RuntimeException('Recipient count exceeds 100 per message');
+        $payload[] = ['list' => $list, 'recipients' => $rec, 'count' => $total];
+    }
+    $reqs = [];
+    foreach ($reqids as $id) {
+        $r = em_req($id, $u);
+        if (!$r) throw new RuntimeException('Requirement ' . $id . ' is unavailable');
+        $reqs[] = $r;
+    }
+    if (count($reqs) * count($payload) > 500) throw new RuntimeException('Campaign too large');
+    $messages = [];
+    foreach ($reqs as $r) {
+        $rep = em_replacements($r);
+        foreach ($payload as $p) {
+            $messages[] = ['reqid' => (int)$r['reqid'], 'job_title' => (string)$r['job_title'], 'list_id' => (int)$p['list']['id'], 'list_name' => (string)$p['list']['name'],
+                'subject' => em_mbcut(em_render($tpl['subject'], $rep), 255), 'body' => em_render($tpl['body'], $rep),
+                'recipients' => $p['recipients'], 'count' => $p['count']];
+        }
+    }
+    $chat = !empty($in['post_to_chat']) ? 1 : 0;
+    if (!$save) return ['messages' => $messages, 'campaign_id' => null, 'scheduled_local' => $scheduled->format('m/d/Y g:i A')];
+    $db->beginTransaction();
+    try {
+        $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,?,?)')->execute([(int)$u['uid'], $templateId, $utc, $chat]);
+        $camp = (int)$db->lastInsertId();
+        $insert = $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status) VALUES(?,?,?,?,?,?,?,?,?,?)');
+        foreach ($messages as $msg) {
+            $insert->execute([$camp, $msg['reqid'], $msg['list_id'], $msg['list_name'], $msg['subject'], $msg['body'],
+                json_encode($msg['recipients'], JSON_THROW_ON_ERROR), $msg['count'], $utc, $chat ? 'pending' : null]);
+        }
+        em_log('campaign_created', 'Requirements ' . count($reqs) . ', lists ' . count($payload) . ', messages ' . count($messages), null, $camp, (int)$u['uid']);
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+    return ['messages' => $messages, 'campaign_id' => $camp, 'scheduled_local' => $scheduled->format('m/d/Y g:i A')];
+}
+
+/** Queue a corrected copy of an earlier message (History > Edit & Resend). */
+function em_resend(array $u, int $id, string $subject, string $body, string $to, string $cc, string $bcc, bool $chat): int {
+    $db = em_db();
+    $q = $db->prepare('SELECT m.*, c.created_by, c.template_id FROM em_messages m JOIN em_campaigns c ON c.id=m.campaign_id WHERE m.id=?');
+    $q->execute([$id]);
+    $orig = $q->fetch();
+    if (!$orig) throw new RuntimeException('Message not found');
+    if ((int)$u['level'] !== 1 && (int)$orig['created_by'] !== (int)$u['uid']) throw new RuntimeException('Not authorized');
+    if (in_array($orig['status'], ['scheduled', 'processing'], true)) throw new RuntimeException('This message is still in the queue');
+    $subject = trim($subject); $body = trim($body);
+    if ($subject === '' || $body === '') throw new RuntimeException('Subject and body are required');
+    $rec = em_recipient_map(['to' => em_addresses($to), 'cc' => em_addresses($cc), 'bcc' => em_addresses($bcc)]);
+    if (!$rec['to']) throw new RuntimeException('At least one To recipient is required');
+    $count = array_sum(array_map('count', $rec));
+    if ($count > 100) throw new RuntimeException('Recipient count exceeds 100 per message');
+    $db->beginTransaction();
+    try {
+        $db->prepare('INSERT INTO em_campaigns(created_by,template_id,scheduled_at,post_to_chat) VALUES(?,?,UTC_TIMESTAMP(),?)')->execute([(int)$u['uid'], (int)$orig['template_id'], $chat ? 1 : 0]);
+        $camp = (int)$db->lastInsertId();
+        $db->prepare('INSERT INTO em_messages(campaign_id,reqid,list_id,list_name,subject,body,recipients_json,recipient_count,available_at,chat_status,resend_of) VALUES(?,?,?,?,?,?,?,?,UTC_TIMESTAMP(),?,?)')
+           ->execute([$camp, $orig['reqid'], $orig['list_id'], $orig['list_name'], em_mbcut($subject, 255), $body, json_encode($rec, JSON_THROW_ON_ERROR), $count, $chat ? 'pending' : null, $id]);
+        $newId = (int)$db->lastInsertId();
+        em_log('message_resent', 'Corrected copy of message #' . $id . ' queued as #' . $newId, $newId, $camp, (int)$u['uid']);
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+    return $newId;
+}
+
+/** Sharing status of requirements, for the live-refresh of the Sharing column. */
+function em_share_status(array $reqids): array {
+    $reqids = array_values(array_unique(array_filter(array_map('intval', $reqids))));
+    $out = [];
+    if (!$reqids) return $out;
+    $in = implode(',', array_fill(0, count($reqids), '?'));
+    $s = em_db()->prepare("SELECT reqid,
+            SUM(status='sent') AS sent_count, SUM(status IN ('scheduled','processing')) AS queued_count, SUM(status='failed') AS failed_count,
+            GROUP_CONCAT(DISTINCT CASE WHEN status='sent' THEN list_name END ORDER BY list_name SEPARATOR ', ') AS sent_lists,
+            MAX(CASE WHEN status='sent' THEN sent_at END) AS last_sent
+        FROM em_messages WHERE reqid IN ($in) GROUP BY reqid");
+    $s->execute($reqids);
+    foreach ($reqids as $id) $out[$id] = ['sent_count' => 0, 'queued_count' => 0, 'failed_count' => 0, 'sent_lists' => '', 'last_sent' => ''];
+    foreach ($s as $r) {
+        $out[(int)$r['reqid']] = ['sent_count' => (int)$r['sent_count'], 'queued_count' => (int)$r['queued_count'], 'failed_count' => (int)$r['failed_count'],
+            'sent_lists' => (string)$r['sent_lists'], 'last_sent' => em_local($r['last_sent'])];
+    }
+    foreach ($out as $id => $st) $out[$id]['html'] = em_share_html($st);
+    return $out;
+}
+function em_share_html(array $st): string {
+    $parts = [];
+    if ($st['sent_count']) $parts[] = '<span class="label label-success">Sent: ' . (int)$st['sent_count'] . '</span>';
+    if ($st['queued_count']) $parts[] = '<span class="label label-warning">Queued: ' . (int)$st['queued_count'] . '</span>';
+    if ($st['failed_count']) $parts[] = '<span class="label label-danger">Failed: ' . (int)$st['failed_count'] . '</span>';
+    if (!$parts) $parts[] = '<span class="muted">Not shared</span>';
+    $html = implode(' ', $parts);
+    if ($st['sent_lists'] !== '') $html .= '<div class="muted">' . em_h($st['sent_lists']) . ($st['last_sent'] ? ' · ' . em_h($st['last_sent']) : '') . '</div>';
+    return $html;
+}
+
+/* ---------------- Google Chat ---------------- */
+const EM_GCHAT_DEFAULT_TEMPLATE = "*New C2C Requirement* (Req #{{req_id}})\n*{{job_title}}*\nLocation: {{location}}\nEnd client: {{end_client}}\nShared with: {{list_name}}\nDate: {{date}}";
+
+function em_gchat_valid_url(string $url): bool {
+    return (bool)preg_match('~^https://chat\.googleapis\.com/v1/spaces/[^/\s]+/messages\?\S+$~', $url);
+}
+function em_gchat_post(string $url, string $text): void {
+    if (!function_exists('curl_init')) throw new RuntimeException('PHP cURL extension is not available');
+    $text = em_mbcut($text, 4000);
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12, CURLOPT_CONNECTTIMEOUT => 6,
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json; charset=UTF-8'], CURLOPT_POSTFIELDS => json_encode(['text' => $text])]);
+    $res = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $err = curl_error($ch);
+    curl_close($ch);
+    if ($res === false || $code < 200 || $code >= 300) {
+        throw new RuntimeException('Google Chat webhook failed (HTTP ' . $code . ') ' . em_mbcut($err ?: (string)$res, 300));
+    }
+}
+function em_gchat_text(string $template, array $req, string $listName): string {
+    $rep = $req ? em_replacements($req) : [];
+    $rep['{{list_name}}'] = $listName;
+    return em_render($template !== '' ? $template : EM_GCHAT_DEFAULT_TEMPLATE, $rep);
+}
+/** Called by the worker after an email is accepted by SMTP. Posts once per requirement per campaign. */
+function em_gchat_after_send(array $item): void {
+    try {
+        if (($item['chat_status'] ?? null) !== 'pending') return;
+        $db = em_db();
+        $settings = em_settings();
+        if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) {
+            $db->prepare("UPDATE em_messages SET chat_status='skipped', chat_error='Google Chat disabled' WHERE id=?")->execute([$item['id']]);
+            return;
+        }
+        $dup = $db->prepare("SELECT COUNT(*) FROM em_messages WHERE campaign_id=? AND reqid=? AND chat_status='posted'");
+        $dup->execute([$item['campaign_id'], $item['reqid']]);
+        if ((int)$dup->fetchColumn() > 0) {
+            $db->prepare("UPDATE em_messages SET chat_status='skipped', chat_error='Already posted for this requirement' WHERE id=?")->execute([$item['id']]);
+            return;
+        }
+        $lists = $db->prepare("SELECT GROUP_CONCAT(DISTINCT list_name ORDER BY list_name SEPARATOR ', ') FROM em_messages WHERE campaign_id=? AND reqid=?");
+        $lists->execute([$item['campaign_id'], $item['reqid']]);
+        $req = em_req((int)$item['reqid']) ?: ['reqid' => $item['reqid'], 'job_title' => $item['subject'], 'rlocation' => '', 'emp_type' => '', 'companyname' => '', 'rdesc' => ''];
+        em_gchat_post(em_decrypt($settings['gchat_webhook_enc']), em_gchat_text((string)$settings['gchat_template'], $req, (string)$lists->fetchColumn()));
+        $db->prepare("UPDATE em_messages SET chat_status='posted', chat_error=NULL WHERE id=?")->execute([$item['id']]);
+        em_log('gchat_posted', 'Google Chat message posted for requirement ' . $item['reqid'], (int)$item['id'], (int)$item['campaign_id']);
+    } catch (Throwable $e) {
+        try {
+            em_db()->prepare("UPDATE em_messages SET chat_status='failed', chat_error=? WHERE id=?")->execute([em_mbcut($e->getMessage(), 800), $item['id']]);
+            em_log('gchat_failed', em_mbcut($e->getMessage(), 800), (int)$item['id'], (int)$item['campaign_id']);
+        } catch (Throwable $ignore) {}
+    }
+}
+
+/* ---------------- Reports ---------------- */
+/** Sent requirement emails in [startUtc, endUtc). Level 3 users see only campaigns they created. */
+function em_report_rows(array $u, string $startUtc, string $endUtc, bool $withJd): array {
+    $sql = "SELECT m.id, m.reqid, m.list_name, m.sent_at, m.recipient_count, r.job_title, r.rlocation, r.emp_type, r.rend_client,
+                   c.companyname, c.remail, COALESCE(NULLIF(c.domain,''), SUBSTRING_INDEX(c.remail,'@',-1)) AS domain, uu.name AS shared_by"
+         . ($withJd ? ", (SELECT j.rdesc FROM jd j WHERE j.reqid=m.reqid ORDER BY j.jd_id DESC LIMIT 1) AS rdesc" : "")
+         . " FROM em_messages m JOIN em_campaigns cp ON cp.id=m.campaign_id LEFT JOIN users uu ON uu.uid=cp.created_by
+             LEFT JOIN req r ON r.reqid=m.reqid LEFT JOIN clients c ON c.cid=r.cid
+             WHERE m.status='sent' AND m.sent_at >= ? AND m.sent_at < ?" . ((int)$u['level'] === 3 ? " AND cp.created_by = ?" : "")
+         . " ORDER BY m.sent_at DESC, m.id DESC LIMIT 20000";
+    $p = [$startUtc, $endUtc];
+    if ((int)$u['level'] === 3) $p[] = (int)$u['uid'];
+    $s = em_db()->prepare($sql);
+    $s->execute($p);
+    return $s->fetchAll();
 }

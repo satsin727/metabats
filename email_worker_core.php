@@ -13,6 +13,7 @@ function em_process_one_due_message(): string
         return "Another worker is active";
     }
     try {
+        em_schema();
         $settings = em_settings();
         if (!$settings || (int)$settings['queue_paused'] === 1) {
             return "Queue paused or not configured";
@@ -82,6 +83,7 @@ function em_process_one_due_message(): string
             $mail->send();
             $db->prepare("UPDATE em_messages SET status='sent',sent_at=UTC_TIMESTAMP(),locked_at=NULL,last_error=NULL,smtp_message_id=? WHERE id=?")->execute([$mail->getLastMessageID(), $item['id']]);
             em_log('smtp_accepted', 'SMTP accepted message', (int)$item['id'], (int)$item['campaign_id']);
+            em_gchat_after_send($item); // optional Google Chat post (never affects the email status)
             return "SMTP accepted message #" . $item['id'];
         }
         catch (Throwable $e) {

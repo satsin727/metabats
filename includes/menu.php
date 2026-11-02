@@ -193,38 +193,12 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
             <!-- ========================================== -->
             <!-- REQUIREMENT EMAIL DISTRIBUTION -->
             <!-- ========================================== -->
-            <?php
-            $emailPage = isset($_GET['page']) ? (string) $_GET['page'] : 'requirements';
-            $emailActive = ($selected === 'emaildistribution');
-            $emailLinks = [
-                ['requirements', 'Select & Share Requirements', 'clipboard-with-paper'],
-                ['queue', 'Email Queue & Scheduled', 'calendar'],
-                ['history', 'Sharing History & Export', 'line-graph']
-            ];
-            if (isset($dta['level']) && (int)$dta['level'] === 1) {
-                $emailLinks[] = ['lists', 'Recipient Lists & Contacts', 'male-user'];
-                $emailLinks[] = ['templates', 'Email Templates', 'app-window'];
-                $emailLinks[] = ['settings', 'SMTP & Sending Settings', 'gear'];
-            }
-            ?>
-            <li class="parent <?php echo $emailActive ? 'active' : ''; ?>">
-                <a data-toggle="collapse" href="#sub-email-distribution" aria-expanded="<?php echo $emailActive ? 'true' : 'false'; ?>" aria-controls="sub-email-distribution">
+            <?php $emailActive = (isset($_GET['action']) && $_GET['action'] === 'emaildistribution'); ?>
+            <li class="<?php echo $emailActive ? 'active' : ''; ?>">
+                <a href="admin.php?action=emaildistribution&amp;page=requirements" <?php echo $emailActive ? 'aria-current="page"' : ''; ?>>
                     <svg class="glyph stroked upload"><use xlink:href="#stroked-upload"></use></svg>
                     Email Distribution
-                    <span class="caret" style="float:right; margin-top:8px;"></span>
                 </a>
-                <ul class="children collapse <?php echo $emailActive ? 'in' : ''; ?>" id="sub-email-distribution">
-                    <?php foreach ($emailLinks as $emailLink) {
-                        $isEmailLinkActive = $emailActive && $emailPage === $emailLink[0];
-                    ?>
-                    <li class="<?php echo $isEmailLinkActive ? 'active' : ''; ?>">
-                        <a class="<?php echo $isEmailLinkActive ? 'active' : ''; ?>" href="admin.php?action=emaildistribution&amp;page=<?php echo urlencode($emailLink[0]); ?>" <?php echo $isEmailLinkActive ? 'aria-current="page"' : ''; ?>>
-                            <svg class="glyph stroked <?php echo htmlspecialchars($emailLink[2], ENT_QUOTES, 'UTF-8'); ?>"><use xlink:href="#stroked-<?php echo htmlspecialchars($emailLink[2], ENT_QUOTES, 'UTF-8'); ?>"></use></svg>
-                            <?php echo htmlspecialchars($emailLink[1], ENT_QUOTES, 'UTF-8'); ?>
-                        </a>
-                    </li>
-                    <?php } ?>
-                </ul>
             </li>
 
             <!-- ========================================== -->
