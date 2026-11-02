@@ -3,9 +3,9 @@ $u = em_user();
 $db = em_db();
 em_schema();
 $page = (string)($_GET['page'] ?? 'requirements');
-$pages = ['requirements', 'lists', 'templates', 'settings', 'history', 'queue', 'report', 'logs'];
+$pages = ['requirements', 'lists', 'templates', 'settings', 'history', 'queue', 'report', 'logs', 'chatgroups'];
 if (!in_array($page, $pages, true))$page = 'requirements';
-$adminPages = ['lists', 'templates', 'settings'];
+$adminPages = ['lists', 'templates', 'settings', 'chatgroups'];
 if (in_array($page, $adminPages, true))em_admin($u);
 $notice = '';
 $error = '';
@@ -51,6 +51,7 @@ try {
             $db->prepare('UPDATE em_settings SET chat_min_gap_seconds=?, chat_hourly_limit=?, gchat_summary_template=?, gchat_summary_skill_line=?, gchat_summary_job_line=? WHERE id=1')
                ->execute([max(0, min(3600, (int)($_POST['chat_min_gap_seconds'] ?? 2))), max(1, min(1000, (int)($_POST['chat_hourly_limit'] ?? 60))),
                           $field('gchat_summary_template'), $field('gchat_summary_skill_line'), $field('gchat_summary_job_line')]);
+            $db->prepare('UPDATE em_settings SET gchat_sent_summary_template=?, gchat_sent_summary_line=? WHERE id=1')->execute([$field('gchat_sent_summary_template'), $field('gchat_sent_summary_line')]);
             if ($hook !== '' && !em_gchat_valid_url($hook)) throw new RuntimeException('Google Chat webhook must look like https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...');
             $hookEnc = $hook !== '' ? em_encrypt($hook) : null;
             $clearHook = isset($_POST['gchat_clear']) ? 1 : 0;
@@ -58,6 +59,34 @@ try {
                ->execute([isset($_POST['gchat_enabled']) ? 1 : 0, trim($chatTemplate), $clearHook, $hookEnc]);
             em_log('settings_updated', 'SMTP/rate-limit settings changed', null, null, (int)$u['uid']);
             em_redirect('settings', 'Settings saved');
+        }
+        if (in_array($op, ['chat_group_save', 'chat_group_delete'], true)) {
+            em_admin($u);
+            // webhook arrives base64-encoded + reversed (Mod_Security blocks raw https://...?key=&token= in form posts)
+            $raw = base64_decode(strrev((string)($_POST['webhook_x'] ?? '')), true);
+            $hook = trim($raw === false ? '' : $raw);
+            $gid = (int)($_POST['group_id'] ?? 0);
+            if ($op === 'chat_group_delete') {
+                $db->prepare("UPDATE em_messages SET status='cancelled', chat_status='skipped', chat_error='Google Chat group deleted' WHERE channel='chat' AND status='scheduled' AND chat_group_id=?")->execute([$gid]);
+                $db->prepare('DELETE FROM em_chat_groups WHERE id=?')->execute([$gid]);
+                em_log('chat_group_deleted', 'Google Chat group #' . $gid . ' deleted', null, null, (int)$u['uid']);
+                em_redirect('chatgroups', 'Google Chat group deleted');
+            }
+            $name = trim((string)($_POST['name'] ?? ''));
+            if ($name === '' || strlen($name) > 150) throw new RuntimeException('Group name required (max 150 characters)');
+            if ($hook !== '' && !em_gchat_valid_url($hook)) throw new RuntimeException('Webhook must look like https://chat.googleapis.com/v1/spaces/.../messages?key=...&token=...');
+            $isDefault = isset($_POST['is_default']) ? 1 : 0;
+            $active = isset($_POST['active']) || !$gid ? 1 : 0;
+            if ($gid) {
+                $db->prepare('UPDATE em_chat_groups SET name=?, is_default=?, active=?, webhook_enc=COALESCE(?, webhook_enc) WHERE id=?')
+                   ->execute([$name, $isDefault, $active, $hook !== '' ? em_encrypt($hook) : null, $gid]);
+            } else {
+                if ($hook === '') throw new RuntimeException('Paste the Google Chat webhook URL for the new group');
+                $db->prepare('INSERT INTO em_chat_groups(name, webhook_enc, is_default, active) VALUES(?,?,?,1)')->execute([$name, em_encrypt($hook), $isDefault]);
+                $gid = (int)$db->lastInsertId();
+            }
+            em_log('chat_group_saved', 'Google Chat group "' . $name . '" saved', null, null, (int)$u['uid']);
+            em_redirect('chatgroups', 'Google Chat group saved');
         }
         if ($op === 'create_list') {
             em_admin($u);

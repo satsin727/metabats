@@ -8,9 +8,17 @@ $isAdmin = (int)$u['level'] === 1;
 $csrf = em_csrf();
 $campaignToken = $_SESSION['em_campaign_token'] ?? ($_SESSION['em_campaign_token'] = bin2hex(random_bytes(20)));
 $todayLocal = new DateTimeImmutable('now', em_tz());
-$gchatReady = !empty($settings['gchat_enabled']) && !empty($settings['gchat_webhook_enc']);
+$chatGroups = em_chat_groups(true);
+$gchatReady = em_gchat_ready($settings);
+$defaultGroupIds = array_map('intval', array_column(array_filter($chatGroups, fn($g) => (int)$g['is_default'] === 1), 'id'));
+if (!$defaultGroupIds && $chatGroups) $defaultGroupIds = [(int)$chatGroups[0]['id']];
+$groupBoxes = function (string $name, string $id = '') use ($chatGroups, $defaultGroupIds) {
+    $h = '<span' . ($id ? ' id="' . $id . '"' : '') . '>';
+    foreach ($chatGroups as $g) $h .= '<label><input type="checkbox" name="' . $name . '" value="' . (int)$g['id'] . '"' . (in_array((int)$g['id'], $defaultGroupIds, true) ? ' checked' : '') . '> ' . em_h($g['name']) . '</label>';
+    return $h . '</span>';
+};
 $navItems = ['requirements' => 'Share C2C Requirements', 'queue' => "Today's Queue", 'history' => 'History', 'report' => 'Reports', 'logs' => 'Logs'];
-if ($isAdmin) $navItems += ['lists' => 'Recipient Lists', 'templates' => 'Templates', 'settings' => 'SMTP & Google Chat'];
+if ($isAdmin) $navItems += ['lists' => 'Recipient Lists', 'chatgroups' => 'Chat Groups', 'templates' => 'Templates', 'settings' => 'SMTP & Google Chat'];
 ?>
 <style>
 .em-main { min-width: 0; float: right; }
@@ -212,9 +220,10 @@ for ($n = max(1, $pg - 3); $n <= min($pages, $pg + 3); $n++): $url = 'admin.php?
 <details><summary>Additional recipients / exclusions for this campaign</summary>
 <div><label>Additional To<textarea name="extra_to" rows="2" cols="40" placeholder="extra@example.com"></textarea></label><label>Additional CC<textarea name="extra_cc" rows="2" cols="40"></textarea></label><label>Additional BCC<textarea name="extra_bcc" rows="2" cols="40"></textarea></label><label>Exclude addresses<textarea name="exclude" rows="2" cols="40" placeholder="excluded@example.com"></textarea></label></div></details>
 </div>
-<p class="muted" id="em-chat-note" style="display:none">One Google Chat message per selected requirement, using the chat template from SMTP &amp; Google Chat. It goes through the same queue, pause switch, sending window, minimum gap and hourly limit as emails.</p>
+<p class="muted" id="em-chat-note" style="display:none">One Google Chat message per selected requirement and group, using the chat template from SMTP &amp; Google Chat. It goes through the same queue, pause switch, sending window, minimum gap and hourly limit as emails.</p>
 <label>Schedule (<?= em_h($settings['timezone_name']) ?>; blank = now) <input type="datetime-local" name="scheduled_at"></label>
-<p style="margin-top:10px" id="em-also-chat"><?php if ($gchatReady): ?><label><input type="checkbox" name="post_to_chat" value="1" checked> Also post to Google Chat when sent</label><?php else: ?><span class="muted">Google Chat posting is off<?= $isAdmin ? ' (set it up under SMTP &amp; Google Chat)' : '' ?>.</span><?php endif; ?></p>
+<?php if ($gchatReady): ?><div id="em-chat-groups-box" style="margin-top:10px"><b>Google Chat groups:</b> <?= $groupBoxes('chat_groups[]') ?></div><?php endif; ?>
+<p style="margin-top:10px" id="em-also-chat"><?php if ($gchatReady): ?><label><input type="checkbox" name="post_to_chat" value="1" checked id="em-post-chat"> Also post to the selected Google Chat groups when sent</label><?php else: ?><span class="muted">Google Chat posting is off<?= $isAdmin ? ' (enable it under SMTP &amp; Google Chat and add groups under Chat Groups)' : '' ?>.</span><?php endif; ?></p>
 <button type="button" class="btn btn-success" id="em-preview-all">Preview &amp; Queue selected</button>
 <span class="muted" id="em-selected-count">0 selected</span>
 </div>
@@ -234,15 +243,17 @@ $canSummary = in_array((int)$u['level'], [1, 2], true); ?>
  <div id="em-qc-stats"></div>
  <p class="muted" id="em-qc-limits"></p>
  <?php if ($isAdmin): ?><button class="btn btn-primary" id="em-run-chat" <?= $gchatReady ? '' : 'disabled' ?>>Send Google Chat Now</button> <span id="em-run-chat-result" class="muted"></span><?php endif; ?>
- <?php if (!$gchatReady): ?><p class="muted">Google Chat is not set up<?= $isAdmin ? ' — add the webhook under SMTP &amp; Google Chat' : '' ?>.</p><?php endif; ?>
+ <?php if (!$gchatReady): ?><p class="muted">Google Chat is not set up<?= $isAdmin ? ' — enable it under SMTP &amp; Google Chat and add groups under Chat Groups' : '' ?>.</p><?php endif; ?>
  <?php if ($canSummary && $gchatReady): ?>
  <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e3e8ed">
-  <b>Daily summary</b> <span class="muted">— one Google Chat message with all open C2C requirements posted on a day, grouped by skill (templates under SMTP &amp; Google Chat).</span><br>
+  <b>Summaries</b> <span class="muted">— one Google Chat message per group: either all open C2C requirements posted on a day, or all requirements emailed on a day with the send date/time (templates under SMTP &amp; Google Chat).</span><br>
+  <label style="margin-top:8px">Summary of <select id="em-sum-type"><option value="posted">Open C2C requirements posted that day</option><option value="sent">Requirements emailed that day (with send date/time)</option></select></label>
   <label style="margin-top:8px">Day <input type="date" id="em-sum-day" value="<?= em_h(preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)($_GET['sumday'] ?? '')) ? $_GET['sumday'] : $todayLocal->format('Y-m-d')) ?>" max="<?= em_h($todayLocal->format('Y-m-d')) ?>"></label>
+  <div style="margin:6px 0"><b>Send to:</b> <?= $groupBoxes('sum_groups[]', 'em-sum-groups') ?></div>
   <button class="btn btn-success" id="em-sum-preview">Preview &amp; send summary</button>
  </div>
  <?php endif; ?>
- <div class="scroll" style="margin-top:12px"><table><thead><tr><th>#</th><th>Scheduled</th><th>Req</th><th>Message</th><th>Status</th><th>Posted</th><th>Queued by</th><th></th></tr></thead><tbody id="em-qc-body"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody></table></div>
+ <div class="scroll" style="margin-top:12px"><table><thead><tr><th>#</th><th>Scheduled</th><th>Req</th><th>Message → group</th><th>Status</th><th>Posted</th><th>Queued by</th><th></th></tr></thead><tbody id="em-qc-body"><tr><td colspan="8" class="muted">Loading…</td></tr></tbody></table></div>
 </div>
 
 <div class="panel" id="em-email-panel">
@@ -369,10 +380,8 @@ $more = count($logs) > 100; $logs = array_slice($logs, 0, 100);
 <p class="muted">Gmail STARTTLS port 587. SMTP passwords are encrypted using EMAIL_SECRET_KEY.</p>
 </div>
 <div class="panel"><h4>Google Chat (webhook)</h4>
-<p class="muted">In Google Chat: open the space → <i>Apps &amp; integrations</i> → <i>Webhooks</i> → add a webhook and paste its URL here. When enabled, a message is posted to the space once per requirement when its email is sent (if "Also post to Google Chat" was ticked when queueing).</p>
+<p class="muted">Webhooks are managed per group under <a href="admin.php?action=emaildistribution&amp;page=chatgroups"><b>Chat Groups</b></a> (<?= count($chatGroups) ?> active). Here you switch Google Chat on/off and set the message templates and limits.</p>
 <p><label><input type="checkbox" name="gchat_enabled" <?= !empty($settings['gchat_enabled']) ? 'checked' : '' ?>> Enable Google Chat posting</label></p>
-<p><label style="width:100%">Webhook URL <input type="password" id="em-gchat-webhook" style="width:100%" autocomplete="off" placeholder="<?= !empty($settings['gchat_webhook_enc']) ? 'Saved (encrypted). Leave blank to keep it.' : 'https://chat.googleapis.com/v1/spaces/…/messages?key=…&token=…' ?>"></label>
-<?php if (!empty($settings['gchat_webhook_enc'])): ?><label><input type="checkbox" name="gchat_clear"> Remove saved webhook</label><?php endif; ?></p>
 <p><label style="width:100%">Chat message template<textarea id="em-gchat-template" rows="7"><?= em_h(($settings['gchat_template'] ?? '') !== '' ? $settings['gchat_template'] : EM_GCHAT_DEFAULT_TEMPLATE) ?></textarea></label></p>
 <p class="muted">Placeholders: {{req_id}}, {{job_title}}, {{location}}, {{employment_type}}, {{client}}, {{domain}}, {{end_client}}, {{recruiter_email}}, {{list_name}}, {{date}}, {{job_description}}. Google Chat formatting: *bold*, _italic_.</p>
 <p><label>Google Chat messages / rolling hour <input type="number" name="chat_hourly_limit" min="1" max="1000" value="<?= (int)($settings['chat_hourly_limit'] ?? 60) ?>"></label>
@@ -385,10 +394,42 @@ $more = count($logs) > 100; $logs = array_slice($logs, 0, 100);
 <p class="muted">Placeholders: {{skill}}, {{count}}.</p>
 <p><label style="width:100%">Job line (repeated per requirement)<input id="em-sum-job" data-enc="gchat_summary_job_line" style="width:100%" value="<?= em_h(($settings['gchat_summary_job_line'] ?? '') !== '' ? $settings['gchat_summary_job_line'] : EM_SUMMARY_JOB_LINE) ?>"></label></p>
 <p class="muted">Placeholders: {{n}}, {{req_id}}, {{job_title}}, {{location}}, {{end_client}}, {{client}}, {{domain}}, {{recruiter_email}}, {{skill}}, {{employment_type}}, {{posted}}.</p>
-<?php if (!empty($settings['gchat_webhook_enc'])): ?><button type="button" class="btn btn-default" id="em-gchat-test">Send test message</button> <span id="em-gchat-result" class="muted"></span><?php endif; ?>
+<h5 style="margin-top:18px">"Requirements emailed" summary templates</h5>
+<p class="muted">Used by <i>Today's Queue → Summaries → Requirements emailed that day</i>. Uses the same skill line as above. Remove {{sent_date}} / {{sent_time}} from the line if you don't want the send date/time.</p>
+<p><label style="width:100%">Summary message<textarea data-enc="gchat_sent_summary_template" rows="6"><?= em_h(($settings['gchat_sent_summary_template'] ?? '') !== '' ? $settings['gchat_sent_summary_template'] : EM_SENT_SUMMARY_TEMPLATE) ?></textarea></label></p>
+<p class="muted">Placeholders: {{date}}, {{total}} (requirements), {{total_emails}}, {{skill_count}}, {{skill_summary}}, {{jobs}}, {{jobs_by_skill}}.</p>
+<p><label style="width:100%">Line (repeated per emailed requirement)<input data-enc="gchat_sent_summary_line" style="width:100%" value="<?= em_h(($settings['gchat_sent_summary_line'] ?? '') !== '' ? $settings['gchat_sent_summary_line'] : EM_SENT_SUMMARY_LINE) ?>"></label></p>
+<p class="muted">Placeholders: everything from the job line above, plus {{sent_date}}, {{sent_time}}, {{sent_at}} (date + time), {{last_sent_time}}, {{lists}} (email groups), {{emails}} (number of emails).</p>
 </div>
 <p><button class="btn btn-primary">Save Settings</button></p>
 </form>
+
+<?php elseif ($page === 'chatgroups'):
+/* ===================== GOOGLE CHAT GROUPS ===================== */
+$allGroups = em_chat_groups(false); ?>
+<div class="panel"><h4>Add Google Chat group</h4>
+<p class="muted">In Google Chat: open the space → <i>Apps &amp; integrations</i> → <i>Webhooks</i> → add a webhook, copy its URL and paste it here. Each group = one Google Chat space.</p>
+<form method="post" class="em-enc-form em-filters"><input type="hidden" name="csrf" value="<?= em_h($csrf) ?>"><input type="hidden" name="op" value="chat_group_save"><input type="hidden" name="webhook_x">
+ <label>Group name <input name="name" required maxlength="150" placeholder="e.g. Java Bench Team"></label>
+ <label style="flex:1 1 380px">Webhook URL <input type="password" class="em-hook" style="width:100%" autocomplete="off" required placeholder="https://chat.googleapis.com/v1/spaces/…/messages?key=…&amp;token=…"></label>
+ <label><input type="checkbox" name="is_default"> Selected by default</label>
+ <button class="btn btn-primary">Add group</button>
+</form></div>
+<div class="panel scroll"><h4>Google Chat groups</h4><p class="muted">"Default" groups are pre-selected when sharing. Switch a group off with "Active" to hide it without deleting it.</p><table><tbody>
+<?php if (!$allGroups): ?><tr><td colspan="5" class="muted">No groups yet. Add one above.</td></tr><?php endif; ?>
+<?php foreach ($allGroups as $g): ?>
+<tr><td colspan="5"><form method="post" class="em-enc-form em-filters" style="align-items:center"><input type="hidden" name="csrf" value="<?= em_h($csrf) ?>"><input type="hidden" name="op" value="chat_group_save"><input type="hidden" name="group_id" value="<?= (int)$g['id'] ?>"><input type="hidden" name="webhook_x">
+ <label>Name <input name="name" value="<?= em_h($g['name']) ?>" required maxlength="150"></label>
+ <label style="flex:1 1 300px">Webhook <input type="password" class="em-hook" style="width:100%" autocomplete="off" placeholder="Saved (encrypted). Leave blank to keep it."></label>
+ <label><input type="checkbox" name="is_default" <?= (int)$g['is_default'] ? 'checked' : '' ?>> Default</label>
+ <label><input type="checkbox" name="active" <?= (int)$g['active'] ? 'checked' : '' ?>> Active</label>
+ <button class="btn btn-primary btn-sm">Save</button>
+ <button type="button" class="btn btn-default btn-sm em-group-test" data-id="<?= (int)$g['id'] ?>">Send test</button>
+ <button type="submit" class="btn btn-danger btn-sm" name="op" value="chat_group_delete" onclick="return confirm('Delete this Google Chat group? Its unsent messages will be cancelled.')">Delete</button>
+ <span class="muted em-group-result"></span>
+</form></td></tr>
+<?php endforeach; ?>
+</tbody></table></div>
 
 <?php elseif ($page === 'lists' || $page === 'templates'):
 /* ===================== LISTS / TEMPLATES (unchanged) ===================== */
@@ -425,7 +466,7 @@ endif; ?>
   bg.addEventListener('click', function (e) { if (e.target === bg) closeModal(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
   function mailHtml(m) {
-    if (m.channel === 'chat') return '<div class="em-mail"><div class="em-mail-h"><div><b>Google Chat</b> message (no email)</div><div class="muted">Req #' + esc(m.reqid) + '</div></div><div class="em-mail-b">' + esc(m.body) + '</div></div>';
+    if (m.channel === 'chat') return '<div class="em-mail"><div class="em-mail-h"><div><b>Google Chat</b> → ' + esc(m.list_name) + '</div><div class="muted">' + (m.reqid ? 'Req #' + esc(m.reqid) : 'Summary') + '</div></div><div class="em-mail-b">' + esc(m.body) + '</div></div>';
     var rc = m.recipients || { to: m.to, cc: m.cc, bcc: m.bcc };
     return '<div class="em-mail"><div class="em-mail-h"><div><b>To:</b> ' + esc((rc.to || []).join(', ')) + '</div>' +
       ((rc.cc || []).length ? '<div><b>CC:</b> ' + esc(rc.cc.join(', ')) + '</div>' : '') + ((rc.bcc || []).length ? '<div><b>BCC:</b> ' + esc(rc.bcc.join(', ')) + '</div>' : '') +
@@ -458,16 +499,19 @@ endif; ?>
       var fd = new FormData(form); fd.delete('reqids[]'); reqids.forEach(function (id) { fd.append('reqids[]', id); }); return fd;
     }
     var channel = function () { var c = $('[name="channel"]:checked', form); return c ? c.value : 'email'; };
-    var syncChannel = function () { var chat = channel() === 'chat'; $('#em-email-only').style.display = chat ? 'none' : ''; $('#em-chat-note').style.display = chat ? '' : 'none'; $('#em-also-chat').style.display = chat ? 'none' : ''; };
-    $$('[name="channel"]', form).forEach(function (r) { r.addEventListener('change', syncChannel); }); syncChannel();
+    var syncChannel = function () { var chat = channel() === 'chat'; $('#em-email-only').style.display = chat ? 'none' : ''; $('#em-chat-note').style.display = chat ? '' : 'none'; $('#em-also-chat').style.display = chat ? 'none' : '';
+      if ($('#em-chat-groups-box')) $('#em-chat-groups-box').style.display = (chat || ($('#em-post-chat') && $('#em-post-chat').checked)) ? '' : 'none'; };
+    $$('[name="channel"]', form).forEach(function (r) { r.addEventListener('change', syncChannel); }); if ($('#em-post-chat')) $('#em-post-chat').addEventListener('change', syncChannel); syncChannel();
     function preview(reqids, allowQueue) {
       if (!reqids.length) { toast('Select at least one requirement', true); return; }
       if (channel() === 'email' && !$$('[name="listids[]"]:checked', form).length) { toast('Select at least one recipient list', true); return; }
+      var needGroups = channel() === 'chat' || ($('#em-post-chat') && $('#em-post-chat').checked);
+      if (needGroups && $('#em-chat-groups-box') && !$$('[name="chat_groups[]"]:checked', form).length) { toast('Select at least one Google Chat group', true); return; }
       openModal('Email preview', '<p class="muted">Building preview…</p>');
       api('preview', composeData(reqids)).then(function (j) {
         var n = j.messages.length;
         var isChat = j.channel === 'chat', noun = isChat ? 'Google Chat message' : 'email';
-        var head = isChat ? '<p><b>' + n + ' ' + noun + (n === 1 ? '' : 's') + '</b> will be posted to the Google Chat space (no email). Scheduled: <b>' + esc(j.scheduled) + '</b>.</p>'
+        var head = isChat ? '<p><b>' + n + ' ' + noun + (n === 1 ? '' : 's') + '</b> will be posted (requirements × selected groups, no email). Scheduled: <b>' + esc(j.scheduled) + '</b>.</p>'
                           : '<p><b>' + n + ' email' + (n === 1 ? '' : 's') + '</b> will be sent (' + reqids.length + ' requirement' + (reqids.length === 1 ? '' : 's') + ' × selected lists). Scheduled: <b>' + esc(j.scheduled) + '</b>.</p>';
         var body = head + j.messages.slice(0, 50).map(mailHtml).join('') + (n > 50 ? '<p class="muted">… and ' + (n - 50) + ' more with the same template.</p>' : '');
         var foot = '<button type="button" class="btn btn-default" id="em-m-cancel">Close</button>' + (allowQueue ? ' <button type="button" class="btn btn-success" id="em-m-queue">Queue ' + n + ' ' + noun + (n === 1 ? '' : 's') + '</button>' : '');
@@ -503,7 +547,7 @@ endif; ?>
         $('#em-qe-limits').textContent = 'Limits: ' + j.hourly + ' emails/hour, at least ' + j.email_gap + ' s apart, ' + j.daily + ' recipients/day.';
         $('#em-qc-body').innerHTML = chat.length ? chat.map(function (m) {
           return '<tr><td>' + m.id + '</td><td style="white-space:nowrap">' + esc(m.scheduled) + '</td><td>' + (m.reqid ? m.reqid : '<span class="label label-info">Summary</span>') + '</td><td>' +
-            esc(m.reqid ? m.job_title : m.list_name) + '</td><td>' + statusCell(m) + '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.by) + '</td><td>' + cancelBtn(m) + '</td></tr>';
+            esc(m.reqid ? m.job_title : m.subject) + '<div class="muted">→ ' + esc(m.list_name) + '</div></td><td>' + statusCell(m) + '</td><td style="white-space:nowrap">' + esc(m.sent) + '</td><td>' + esc(m.by) + '</td><td>' + cancelBtn(m) + '</td></tr>';
         }).join('') : '<tr><td colspan="8" class="muted">No Google Chat messages today.</td></tr>';
         $('#em-qe-body').innerHTML = mail.length ? mail.map(function (m) {
           return '<tr><td>' + m.id + '</td><td style="white-space:nowrap">' + esc(m.scheduled) + '</td><td>' + m.reqid + '</td><td>' + esc(m.job_title) + '</td><td>' + esc(m.list_name) + '</td><td>' + m.recipients +
@@ -519,16 +563,19 @@ endif; ?>
     runBtn('#em-run', '#em-run-result', 'run_worker');
     runBtn('#em-run-chat', '#em-run-chat-result', 'run_chat');
     if ($('#em-sum-preview')) $('#em-sum-preview').onclick = function () {
-      var day = $('#em-sum-day').value;
+      var day = $('#em-sum-day').value, type = $('#em-sum-type').value;
+      var groups = $$('#em-sum-groups input:checked').map(function (x) { return x.value; }), gnames = $$('#em-sum-groups input:checked').map(function (x) { return x.parentNode.textContent.trim(); });
+      if (!groups.length) { toast('Select at least one Google Chat group', true); return; }
       openModal('Google Chat summary', '<p class="muted">Building summary…</p>');
-      api('summary_preview', { day: day }, 'GET').then(function (j) {
-        var html = '<p><b>' + j.total + '</b> open C2C requirement(s) posted on ' + esc(day) + ' · ' + j.parts.length + ' Google Chat message' + (j.parts.length === 1 ? '' : 's') + (j.parts.length > 1 ? ' (too long for one message, split automatically)' : '') + '.</p>' +
+      api('summary_preview', { day: day, type: type }, 'GET').then(function (j) {
+        var what = type === 'sent' ? ' requirement(s) emailed on ' + esc(day) + ' (' + j.emails + ' email' + (j.emails === 1 ? '' : 's') + ')' : ' open C2C requirement(s) posted on ' + esc(day);
+        var html = '<p><b>' + j.total + '</b>' + what + ' · will be posted to <b>' + esc(gnames.join(', ')) + '</b> · ' + j.parts.length + ' message' + (j.parts.length === 1 ? '' : 's') + ' per group' + (j.parts.length > 1 ? ' (too long for one message, split automatically)' : '') + '.</p>' +
           j.parts.map(function (p, i) { return '<div class="em-mail"><div class="em-mail-h"><b>Google Chat</b> message' + (j.parts.length > 1 ? ' ' + (i + 1) + ' of ' + j.parts.length : '') + '</div><div class="em-mail-b">' + esc(p) + '</div></div>'; }).join('');
         openModal('Google Chat summary — ' + day, html, '<button type="button" class="btn btn-default" id="em-m-close">Close</button> <button type="button" class="btn btn-default" id="em-sum-queue">Add to queue</button>' +
           (<?= $isAdmin ? 'true' : 'false' ?> ? ' <button type="button" class="btn btn-success" id="em-sum-now">Send now</button>' : ''));
         $('#em-m-close').onclick = closeModal;
         var go = function (now, b) { b.disabled = true; b.textContent = now ? 'Sending…' : 'Queueing…';
-          api('summary_queue', { day: day, send_now: now ? 1 : '' }).then(function (r) { closeModal(); toast('Summary queued (' + r.parts + ' message' + (r.parts === 1 ? '' : 's') + ')' + (r.result ? ': ' + r.result : '') + '.'); load(); })
+          api('summary_queue', { day: day, type: type, 'chat_groups[]': groups, send_now: now ? 1 : '' }).then(function (r) { closeModal(); toast('Summary queued (' + r.parts + ' message' + (r.parts === 1 ? '' : 's') + ')' + (r.result ? ': ' + r.result : '') + '.'); load(); })
             .catch(function (e) { b.disabled = false; toast(e.message, true); }); };
         $('#em-sum-queue').onclick = function () { go(false, this); };
         if ($('#em-sum-now')) $('#em-sum-now').onclick = function () { go(true, this); };
@@ -576,7 +623,7 @@ endif; ?>
     var enc = function (v) { var b = btoa(unescape(encodeURIComponent(v || ''))); return b.split('').reverse().join(''); };
     $('#em-settings-form').addEventListener('submit', function () {
       var f = this;
-      $('#em-gchat-webhook-x').value = enc($('#em-gchat-webhook').value.trim());
+      if ($('#em-gchat-webhook')) $('#em-gchat-webhook-x').value = enc($('#em-gchat-webhook').value.trim());
       $('#em-gchat-template-x').value = enc($('#em-gchat-template').value);
       $$('[data-enc]', f).forEach(function (el) {   // summary templates: same encoding
         var name = el.getAttribute('data-enc') + '_x', h = f.querySelector('input[type=hidden][name="' + name + '"]');
@@ -585,6 +632,14 @@ endif; ?>
       });
     });
   }
+  /* ---------- Chat Groups page ---------- */
+  if (PAGE === 'chatgroups') {
+    var enc2 = function (v) { return btoa(unescape(encodeURIComponent(v || ''))).split('').reverse().join(''); };
+    $$('.em-enc-form').forEach(function (f) { f.addEventListener('submit', function () { var h = f.querySelector('.em-hook'); f.querySelector('[name=webhook_x]').value = enc2(h ? h.value.trim() : ''); if (h) h.value = ''; }); });
+    $$('.em-group-test').forEach(function (b) { b.onclick = function () { var out = b.parentNode.querySelector('.em-group-result'); b.disabled = true; out.textContent = 'Sending…';
+      api('gchat_test', { group_id: b.getAttribute('data-id') }).then(function (j) { out.textContent = j.result; }).catch(function (e) { out.textContent = e.message; }).then(function () { b.disabled = false; }); }; });
+  }
+
   /* ---------- Settings: Google Chat test ---------- */
   if (PAGE === 'settings' && $('#em-gchat-test')) {
     $('#em-gchat-test').onclick = function () { var b = this; b.disabled = true; $('#em-gchat-result').textContent = 'Sending…';

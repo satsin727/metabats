@@ -63,8 +63,8 @@ function em_process_one_due_message(?string $only = null): string
             $st->execute([$ch]);
             if ((int)$st->fetchColumn() >= $hourLimit) { $reasons[] = "$label: hourly limit reached"; continue; }
             if ($ch === 'chat') {
-                if (empty($settings['gchat_enabled']) || empty($settings['gchat_webhook_enc'])) {
-                    $reasons[] = 'Google Chat is disabled or has no webhook (SMTP & Google Chat settings)';
+                if (!em_gchat_ready($settings)) {
+                    $reasons[] = 'Google Chat is disabled or has no active group (SMTP & Google Chat / Chat Groups)';
                     continue;
                 }
             } else {
@@ -88,10 +88,11 @@ function em_process_one_due_message(?string $only = null): string
         if (!$q->rowCount()) return "Message already claimed by another worker";
         try {
             if ($isChat) {
-                em_gchat_post(em_decrypt($settings['gchat_webhook_enc']), (string)$item['body']);
+                [$hook] = em_group_webhook($item['chat_group_id'] !== null ? (int)$item['chat_group_id'] : null);
+                em_gchat_post($hook, (string)$item['body']);
                 $db->prepare("UPDATE em_messages SET status='sent',sent_at=UTC_TIMESTAMP(),locked_at=NULL,last_error=NULL,chat_status='posted',chat_error=NULL WHERE id=?")->execute([$item['id']]);
-                em_log('gchat_posted', 'Google Chat only message posted for requirement ' . $item['reqid'], (int)$item['id'], (int)$item['campaign_id']);
-                return "Google Chat message #" . $item['id'] . " posted";
+                em_log('gchat_posted', 'Google Chat message posted to ' . $item['list_name'] . ($item['reqid'] ? ' for requirement ' . $item['reqid'] : ''), (int)$item['id'], (int)$item['campaign_id']);
+                return "Google Chat message #" . $item['id'] . " posted to " . $item['list_name'];
             }
             $rc = json_decode($item['recipients_json'], true, 512, JSON_THROW_ON_ERROR);
             $mail = new PHPMailer(true);

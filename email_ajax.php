@@ -44,7 +44,7 @@ case 'status':
 
 case 'today_queue':
     [$start, $end, $label] = em_period('today');
-    $s = $db->prepare("SELECT m.id,m.campaign_id,m.reqid,r.job_title,m.list_name,m.recipient_count,m.status,m.attempts,m.available_at,m.sent_at,m.last_error,m.chat_status,m.channel,c.created_by,u.name AS created_name
+    $s = $db->prepare("SELECT m.id,m.campaign_id,m.reqid,r.job_title,m.list_name,m.subject,m.recipient_count,m.status,m.attempts,m.available_at,m.sent_at,m.last_error,m.chat_status,m.channel,c.created_by,u.name AS created_name
         FROM em_messages m JOIN em_campaigns c ON c.id=m.campaign_id LEFT JOIN users u ON u.uid=c.created_by LEFT JOIN req r ON r.reqid=m.reqid
         WHERE (m.created_at >= ? AND m.created_at < ?) OR (m.available_at >= ? AND m.available_at < ?) OR m.status IN ('scheduled','processing')
         ORDER BY FIELD(m.status,'processing','scheduled','failed','sent','cancelled'), m.available_at, m.id LIMIT 1000");
@@ -57,14 +57,14 @@ case 'today_queue':
         $chn = $m['channel'] === 'chat' ? 'chat' : 'email';
         $byCh[$chn][$m['status']] = ($byCh[$chn][$m['status']] ?? 0) + 1;
         $rows[] = ['id' => (int)$m['id'], 'campaign_id' => (int)$m['campaign_id'], 'reqid' => (int)$m['reqid'], 'job_title' => (string)$m['job_title'],
-            'list_name' => (string)$m['list_name'], 'channel' => (string)$m['channel'], 'recipients' => (int)$m['recipient_count'], 'status' => $m['status'], 'attempts' => (int)$m['attempts'],
+            'list_name' => (string)$m['list_name'], 'subject' => (string)$m['subject'], 'channel' => (string)$m['channel'], 'recipients' => (int)$m['recipient_count'], 'status' => $m['status'], 'attempts' => (int)$m['attempts'],
             'scheduled' => em_local($m['available_at']), 'sent' => em_local($m['sent_at']), 'error' => (string)$m['last_error'], 'chat' => (string)$m['chat_status'],
             'by' => (string)$m['created_name'],
             'can_cancel' => $m['status'] === 'scheduled' && ((int)$u['level'] === 1 || (int)$m['created_by'] === (int)$u['uid'])];
     }
     $settings = em_settings();
     ea_out(['ok' => true, 'label' => $label, 'now' => (new DateTimeImmutable('now', em_tz()))->format('m/d/Y g:i:s A'), 'rows' => $rows, 'stats' => $stats,
-            'by_channel' => $byCh, 'chat_ready' => !empty($settings['gchat_enabled']) && !empty($settings['gchat_webhook_enc']),
+            'by_channel' => $byCh, 'chat_ready' => em_gchat_ready($settings),
             'chat_gap' => (int)($settings['chat_min_gap_seconds'] ?? 2), 'chat_hourly' => (int)($settings['chat_hourly_limit'] ?? 60), 'email_gap' => (int)$settings['min_gap_seconds'],
             'paused' => (int)$settings['queue_paused'] === 1, 'hourly' => (int)$settings['hourly_limit'], 'daily' => (int)$settings['daily_recipient_limit']]);
 
@@ -115,13 +115,14 @@ case 'run_chat':   // "Send Google Chat Now": posts the due Google Chat messages
 
 case 'summary_preview':
     if (!in_array((int)$u['level'], [1, 2], true)) throw new RuntimeException('Only admins and managers can send the daily summary');
-    [$parts, $total, $counts] = em_build_summary((string)($_REQUEST['day'] ?? ''));
-    ea_out(['ok' => true, 'parts' => $parts, 'total' => $total, 'skills' => $counts]);
+    $type = ($_REQUEST['type'] ?? '') === 'sent' ? 'sent' : 'posted';
+    [$parts, $total, $counts, $emails] = em_build_summary((string)($_REQUEST['day'] ?? ''), null, $type);
+    ea_out(['ok' => true, 'parts' => $parts, 'total' => $total, 'skills' => $counts, 'emails' => $emails, 'type' => $type]);
 
 case 'summary_queue':
     if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
     if (!in_array((int)$u['level'], [1, 2], true)) throw new RuntimeException('Only admins and managers can send the daily summary');
-    $r = em_queue_summary($u, (string)($_POST['day'] ?? ''));
+    $r = em_queue_summary($u, (string)($_POST['day'] ?? ''), ($_POST['type'] ?? '') === 'sent' ? 'sent' : 'posted', (array)($_POST['chat_groups'] ?? []));
     $result = '';
     if (!empty($_POST['send_now']) && (int)$u['level'] === 1) {
         if (session_status() === PHP_SESSION_ACTIVE) session_write_close();
@@ -134,13 +135,13 @@ case 'gchat_test':
     if (!$isPost) ea_out(['ok' => false, 'error' => 'POST required'], 405);
     em_admin($u);
     $s = em_settings();
-    if (empty($s['gchat_webhook_enc'])) throw new RuntimeException('Save a Google Chat webhook URL first');
+    [$hook, $gname] = em_group_webhook((int)($_POST['group_id'] ?? 0) ?: null);
     $sample = $db->query("SELECT reqid FROM req WHERE status=1 AND emp_type='C2C' ORDER BY reqid DESC LIMIT 1")->fetchColumn();
     $req = $sample ? em_req((int)$sample) : null;
     $req = $req ?: ['reqid' => 0, 'job_title' => 'Sample Job Title', 'rlocation' => 'Dallas, TX', 'emp_type' => 'C2C', 'companyname' => 'Sample Client', 'rend_client' => 'Sample End Client', 'domain' => 'example.com', 'remail' => 'recruiter@example.com', 'rdesc' => 'Sample job description'];
-    em_gchat_post(em_decrypt($s['gchat_webhook_enc']), "[TEST from BATS]\n" . em_gchat_text((string)$s['gchat_template'], $req, 'Test group'));
-    em_log('gchat_test', 'Test message posted to Google Chat', null, null, (int)$u['uid']);
-    ea_out(['ok' => true, 'result' => 'Test message posted to Google Chat']);
+    em_gchat_post($hook, "[TEST from BATS]\n" . em_gchat_text((string)$s['gchat_template'], $req, $gname));
+    em_log('gchat_test', 'Test message posted to Google Chat group ' . $gname, null, null, (int)$u['uid']);
+    ea_out(['ok' => true, 'result' => 'Test message posted to "' . $gname . '"']);
 
 default:
     ea_out(['ok' => false, 'error' => 'Unknown action'], 400);
