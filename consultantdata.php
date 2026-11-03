@@ -1,6 +1,7 @@
 <?php
 require( "config.php" );
 require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -159,95 +160,95 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                                     <?php 
                                         $dapp = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and `status` = 1"))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&appcd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $dapp; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&appcd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $dapp; ?></button></center></a></td>
                                     <?php 
                                         $drc = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&rccd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $drc; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&rccd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $drc; ?></button></center></a></td>
                                     <?php 
                                         $dsub = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `subdone` = 1 and `rcdone` = 1 and appdate >= DATE(" . bats_q("$curdate") . ") AND appdate < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(appdate) = DATE(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&subcd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $dsub; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&subcd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $dsub; ?></button></center></a></td>
                                     <?php 
                                         $deci = $conn->query(("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($cid) . " and B.eci_date >= DATE(" . bats_q("$curdate") . ") AND B.eci_date < DATE(" . bats_q("$curdate") . ") + INTERVAL 1 DAY AND DATE(B.eci_date) = DATE(" . bats_q("$curdate") . ") and A.status = 1"))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&ecicd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $deci; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&ecicd_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $deci; ?></button></center></a></td>
                                 </tr>
                                 <tr>
                                     <td>Weekly</td>
                                     <?php 
                                         $wapp = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&appcw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wapp; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&appcw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wapp; ?></button></center></a></td>
                                     <?php 
                                         $wrc = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&rccw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wrc; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&rccw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wrc; ?></button></center></a></td>
                                     <?php 
                                         $wsub = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `subdone` = 1 and `rcdone` = 1 and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(appdate) = WEEK(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&subcw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wsub; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&subcw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $wsub; ?></button></center></a></td>
                                     <?php 
                                         $weci = $conn->query(("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($cid) . " and B.eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), DATE(" . bats_q("$curdate") . ") - INTERVAL 6 DAY) AND B.eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), DATE(" . bats_q("$curdate") . ") + INTERVAL 7 DAY) AND WEEK(B.eci_date) = WEEK(" . bats_q("$curdate") . ") and YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&ecicw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $weci; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&ecicw_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $weci; ?></button></center></a></td>
                                 </tr>
                                 <tr>
                                     <td>Monthly</td>
                                     <?php 
                                         $mapp = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&appcm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $mapp; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&appcm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $mapp; ?></button></center></a></td>
                                     <?php 
                                         $mrc = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&rccm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $mrc; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&rccm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $mrc; ?></button></center></a></td>
                                     <?php 
                                         $msub = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `subdone` = 1 and `rcdone` = 1 and appdate >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND appdate < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(appdate) = MONTH(" . bats_q("$curdate") . ") and YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&subcm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $msub; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&subcm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $msub; ?></button></center></a></td>
                                     <?php 
                                         $meci = $conn->query(("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($cid) . " and B.eci_date >= GREATEST(MAKEDATE(YEAR(" . bats_q("$curdate") . "),1), LAST_DAY(" . bats_q("$curdate") . ") - INTERVAL 1 MONTH + INTERVAL 1 DAY) AND B.eci_date < LEAST(MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1), LAST_DAY(" . bats_q("$curdate") . ") + INTERVAL 1 DAY) AND MONTH(B.eci_date) = MONTH(" . bats_q("$curdate") . ") and YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&ecicm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $meci; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&ecicm_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $meci; ?></button></center></a></td>
                                 </tr>
                                 <tr>
                                     <td>Yearly</td>
                                     <?php 
                                         $yapp = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&appcy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yapp; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&appcy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yapp; ?></button></center></a></td>
                                     <?php 
                                         $yrc = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&rccy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yrc; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&rccy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yrc; ?></button></center></a></td>
                                     <?php 
                                         $ysub = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `subdone` = 1 and `rcdone` = 1 and appdate >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND appdate < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(appdate) = YEAR(" . bats_q("$curdate") . ") and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&subcy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $ysub; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&subcy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $ysub; ?></button></center></a></td>
                                     <?php 
                                         $yeci = $conn->query(("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($cid) . " and B.eci_date >= MAKEDATE(YEAR(" . bats_q("$curdate") . "),1) AND B.eci_date < MAKEDATE(YEAR(" . bats_q("$curdate") . ")+1,1) AND YEAR(B.eci_date) = YEAR(" . bats_q("$curdate") . ") and A.status = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&ecicy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yeci; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&ecicy_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $yeci; ?></button></center></a></td>
                                 </tr>
                                 <tr>
                                     <td>Total till date</td>
                                     <?php 
                                         $capp = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&appcall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $capp; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&appcall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $capp; ?></button></center></a></td>
                                     <?php 
                                         $crc = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `rcdone` = 1 and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&rccall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $crc; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&rccall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $crc; ?></button></center></a></td>
                                     <?php 
                                         $csub = $conn->query(("SELECT COUNT(*) FROM `app_data` WHERE `consultant_id`= " . bats_q($cid) . " and `subdone` = 1 and `rcdone` = 1 and `status` = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&subcall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $csub; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&subcall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $csub; ?></button></center></a></td>
                                     <?php 
                                         $ceci = $conn->query(("SELECT COUNT(DISTINCT A.reqid) FROM `app_data` as A INNER JOIN `eci` as B ON A.app_id = B.app_id WHERE A.hasinterview = 1 and B.eci_round= 3 and B.eci_happened = 1 and A.consultant_id=" . bats_q($cid) . "  and A.status = 1 "))->fetchColumn();
                                     ?>
-                                    <td><a href="consultanttracker.php?do=getdata&ecicall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $ceci; ?></button></center></a></td>
+                                    <td><a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getdata&ecicall_id=<?php echo $cid; ?>" target="_blank"><center><button><?php echo $ceci; ?></button></center></a></td>
                                 </tr>
                                     
                                     
@@ -255,8 +256,8 @@ if(isset($_SESSION['username']) && $dta['sess']==$_SESSION['username'])
                             </td>
                         <tr>
                             <td>
-                                <a href="consultanttracker.php?do=getissues&allissues=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Submission Issues</button></a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                <a href="consultanttracker.php?do=getnotes&noteid=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Highlighted Notes</button></a>
+                                <a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getissues&allissues=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Submission Issues</button></a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                <a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getnotes&noteid=<?php echo $cid; ?>" target="_blank"><button class="bootbutton">Highlighted Notes</button></a>
 
                             </td>
                         </tr>

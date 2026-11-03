@@ -1,4 +1,5 @@
 <?php
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -49,7 +50,7 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-          <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
+          <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
           <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
           <div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="false" data-sort-name="name" data-sort-order="asc">
@@ -269,20 +270,20 @@ $cdate = date('Y-m-d H:i:s',$cdate);
                                                 
                                                 ?>
 
-                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="trackercmd.php?appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
-                                                <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
-                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
-                                                <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
+                                                <td data-search="<?php echo $dapp_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcd_id=<?php echo $cid; ?>"><?php echo $dapp_num; ?></a></td>
+                                                <td data-search="<?php echo $drc_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccd_id=<?php echo $cid; ?>"><?php echo $drc_num; ?></a></td> 
+                                                <td data-search="<?php echo $dsub_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>subcd_id=<?php echo $cid; ?>"><?php echo $dsub_num; ?></a></td>
+                                                <td data-search="<?php echo $deci_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicd_id=<?php echo $cid; ?>"><?php echo $deci_num; ?></a></td>
 
-                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
-                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $wapp_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcw_id=<?php echo $cid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td data-search="<?php echo $wrc_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccw_id=<?php echo $cid; ?>"><?php echo $wrc_num; ?></a></td> 
                                                 <td data-search="<?php echo $wsub_num; ?>"> <a href=trackercmd.php?subcw_id=<?php echo $cid; ?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td data-search="<?php echo $weci_num; ?>"> <a href="trackercmd.php?ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
+                                                <td data-search="<?php echo $weci_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicw_id=<?php echo $cid; ?>"><?php echo $weci_num; ?></a></td> 
 
-                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="trackercmd.php?appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
-                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
-                                                <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
-                                                <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
+                                                <td data-search="<?php echo $mapp_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcm_id=<?php echo $cid; ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td data-search="<?php echo $mrc_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccm_id=<?php echo $cid; ?>"><?php echo $mrc_num; ?></a></td> 
+                                                <td data-search="<?php echo $msub_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>subcm_id=<?php echo $cid; ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td data-search="<?php echo $meci_num; ?>"> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicm_id=<?php echo $cid; ?>"><?php echo $meci_num; ?></a></td> 
                                              
                                             </tr>
                                                     <?php
@@ -435,21 +436,21 @@ $cdate = date('Y-m-d H:i:s',$cdate);
 
 ?> 
                                                 
-                                                <td> <a href="trackercmd.php?appcdt_id=1"><?php echo $dtapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccdt_id=1"><?php echo $dtrc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcdt_id=1"><?php echo $dtsub_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?ecicdt_id=1"><?php echo $dteci_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcdt_id=1"><?php echo $dtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccdt_id=1"><?php echo $dtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>subcdt_id=1"><?php echo $dtsub_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicdt_id=1"><?php echo $dteci_num; ?></a></td>
 
-                                                <td> <a href="trackercmd.php?appcwt_id=1"><?php echo $wtapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccwt_id=1"><?php echo $wtrc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcwt_id=1"><?php echo $wtsub_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?ecicwt_id=1"><?php echo $wteci_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcwt_id=1"><?php echo $wtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccwt_id=1"><?php echo $wtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>subcwt_id=1"><?php echo $wtsub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicwt_id=1"><?php echo $wteci_num; ?></a></td> 
 
                                                 
-                                                <td> <a href="trackercmd.php?appcmt_id=1"><?php echo $mtapp_num; ?></a></td>
-                                                <td> <a href="trackercmd.php?rccmt_id=1"><?php echo $mtrc_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?subcmt_id=1"><?php echo $mtsub_num; ?></a></td> 
-                                                <td> <a href="trackercmd.php?ecicmt_id=1"><?php echo $mteci_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>appcmt_id=1"><?php echo $mtapp_num; ?></a></td>
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>rccmt_id=1"><?php echo $mtrc_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>subcmt_id=1"><?php echo $mtsub_num; ?></a></td> 
+                                                <td> <a href="trackercmd.php?<?php echo bats_dateq(); ?>ecicmt_id=1"><?php echo $mteci_num; ?></a></td> 
 
                                       </tr> -->
                                               </table>

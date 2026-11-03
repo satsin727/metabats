@@ -1,4 +1,5 @@
 <?php
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -63,7 +64,7 @@ else
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-        <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
+        <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div>
         <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($curdate)); ?> </div>
     
         <div class="panel-body">
@@ -260,25 +261,25 @@ else
                                                 
                                                 ?>
 
-                                                <td> <a href="trackersmcmd.php?appsd_id=<?php echo $uid; ?>"><?php echo $dapp_num; ?> </a></td>
-                                                <td> <a href="trackersmcmd.php?rcsd_id=<?php echo $uid; ?>"><?php echo $drc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsd_id=<?php echo $uid; ?>"><?php echo $dsub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecisd_id=<?php echo $uid?>"><?php echo $deci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>appsd_id=<?php echo $uid; ?>"><?php echo $dapp_num; ?> </a></td>
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>rcsd_id=<?php echo $uid; ?>"><?php echo $drc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>subsd_id=<?php echo $uid; ?>"><?php echo $dsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>ecisd_id=<?php echo $uid?>"><?php echo $deci_num; ?></a></td> 
 
-                                                <td> <a href="trackersmcmd.php?appsw_id=<?php echo $uid; ?>"><?php echo $wapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsw_id=<?php echo $uid; ?>"><?php echo $wrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsw_id=<?php echo $uid; ?>"><?php echo $wsub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecisw_id=<?php echo $uid; ?>"><?php echo $weci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>appsw_id=<?php echo $uid; ?>"><?php echo $wapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>rcsw_id=<?php echo $uid; ?>"><?php echo $wrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>subsw_id=<?php echo $uid; ?>"><?php echo $wsub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>ecisw_id=<?php echo $uid; ?>"><?php echo $weci_num; ?></a></td> 
                                                 
-                                                <td> <a href="trackersmcmd.php?appsm_id=<?php echo $uid; ?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $mapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsm_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $mrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsm_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $msub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecism_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $meci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>appsm_id=<?php echo $uid; ?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $mapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>rcsm_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $mrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>subsm_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $msub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>ecism_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $meci_num; ?></a></td> 
                                                 
-                                                <td> <a href="trackersmcmd.php?appsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yapp_num; ?></a></td>
-                                                <td> <a href="trackersmcmd.php?rcsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yrc_num; ?></a></td> 
-                                               <td> <a href="trackersmcmd.php?subsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $ysub_num; ?></a></td> 
-                                                <td> <a href="trackersmcmd.php?ecisy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yeci_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>appsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yapp_num; ?></a></td>
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>rcsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yrc_num; ?></a></td> 
+                                               <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>subsy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $ysub_num; ?></a></td> 
+                                                <td> <a href="trackersmcmd.php?<?php echo bats_dateq(); ?>ecisy_id=<?php echo $uid;?><?php if($olddate==1) { ?>&date=<?php echo $curdate; ?>" <?php } ?>"><?php echo $yeci_num; ?></a></td> 
 
                                             </tr>
                                                     <?php

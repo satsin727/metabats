@@ -1,6 +1,7 @@
 <?php
 require( "config.php" );
 require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -68,6 +69,12 @@ if(isset($_GET['m']) && isset($_GET['y']))
         }
    
     }
+    elseif(isset($_GET['eci']))
+    {
+        // ECI (interviews, round 3 happened) in the selected month - this link had no list before
+        $skillCond = isset($_GET['s']) ? " and E.skill_id = " . bats_q($_GET['s']) : "";
+        $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.app_id IN (select E.app_id from eci E where E.eci_happened = 1 and E.eci_round = 3 and E.status = 1" . $skillCond . " and MONTH(E.eci_date) = " . bats_q($m) . " and YEAR(E.eci_date) = " . bats_q($y) . ") order by A.appdate asc";
+    }
 }
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -92,8 +99,8 @@ $data = $ins->fetchAll();
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-                <div class="panel-heading"> <a href="admin.php?action=showmtddata"><button name="back" class="btn btn-primary">Back</button></a>
-               <?php if(isset($download) && $dta['level'] == 1 ) { ?> <a href="trackerdownload.php?download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
+                <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showmtddata"><button name="back" class="btn btn-primary">Back</button></a>
+               <?php if(isset($download) && $dta['level'] == 1 ) { ?> <a href="trackerdownload.php?<?php echo bats_dateq(); ?>download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>

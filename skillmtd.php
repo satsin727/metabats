@@ -1,5 +1,5 @@
 <?php
-
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 //MTD Skill wise Data - test mode
 
 //MTD consultant wise Data
@@ -58,7 +58,7 @@ require("includes/header.php");
 <div class="row">
 			<div class="col-lg-12">
 			<div class="panel panel-default">
-            <!-- <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div> -->
+            <!-- <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showreports"><button name="back" class="btn btn-primary">Back</button></a></div> -->
             <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></td> <td> Current date: <?php echo date("m/d/y",strtotime($cdate)); ?> </div>
             <div class="panel-body">
 
@@ -107,10 +107,10 @@ foreach( $data as $row)
         ?>
         <tr>
                     <td><?php echo $row['skillname']; ?></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
         </tr>
         <?php 
 
@@ -138,10 +138,10 @@ foreach( $data as $row)
 ?>
         <tr>
                     <td>Total:</td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
         </tr>
 
 
@@ -205,10 +205,10 @@ foreach( $data as $row)
                     
                     <td><?php echo $reqs; ?></a></td>
                     <td><?php echo $worked; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
         </tr>
         <?php 
 
@@ -241,10 +241,10 @@ foreach( $data as $row)
                     <td>Total:</td>
                     <td><?php echo $treqs; ?></a></td>
                     <td><?php echo $tworked; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
         </tr>
 
 
@@ -300,10 +300,10 @@ foreach( $data as $row)
         ?>
         <tr>
                     <td><?php echo $row['skillname']; ?></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&app=1"><?php echo $app; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&rc=1"><?php echo $rc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&sub=1"><?php echo $sub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&s=<?php echo $skill; ?>&eci=1"><?php echo $eci; ?></a></td>
         </tr>
         <?php 
 
@@ -331,10 +331,10 @@ foreach( $data as $row)
 ?>
         <tr>
                     <td>Total:</td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
-                    <td><a href="fetchdata.php?m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&app=1"><?php echo $mtapp; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&rc=1"><?php echo $mtrc; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&sub=1"><?php echo $mtsub; ?></a></td>
+                    <td><a href="fetchdata.php?<?php echo bats_dateq(); ?>m=<?php echo $m; ?>&y=<?php echo $y; ?>&eci=1"><?php echo $mteci; ?></a></td>
         </tr>
 
 

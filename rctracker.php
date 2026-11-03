@@ -1,6 +1,7 @@
 <?php
 require( "config.php" );
 require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -496,9 +497,9 @@ $reqid = bats_col('app_data', 'app_id', $eciid, 'reqid'); */
 			<div class="col-lg-12">
 				<div class="panel panel-default">
                 <div class="panel-heading"> <td width="90%" align="left" valign="top"> <form action="" method="post"><input name="date" id="datepicker"> <button name="submit" class="btn btn-primary">Submit</button></form></td>  </div>
-                <div class="panel-heading"> <a href="admin.php?action=showreports"><button name="back" class="btn btn-primary">Back</button></a>
-               <?php if(isset($download) && ($dta['level'] == 1 || $dta['level'] == 2) ) { ?> <a href="trackerdownload.php?download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
-               <div class="panel-heading"> <td width="90%" align="left" valign="top">  <a href="rctracker.php?rccwt_id=1"> <button name="weekly" class="btn btn-primary">Weekly</button></a></td>  <td width="90%" align="left" valign="top">  <a href="rctracker.php?rccmt_id=1"> <button name="monthly" class="btn btn-primary">Monthly</button></a></td> </div>
+                <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showreports"><button name="back" class="btn btn-primary">Back</button></a>
+               <?php if(isset($download) && ($dta['level'] == 1 || $dta['level'] == 2) ) { ?> <a href="trackerdownload.php?<?php echo bats_dateq(); ?>download=<?php echo $download; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
+               <div class="panel-heading"> <td width="90%" align="left" valign="top">  <a href="rctracker.php?<?php echo bats_dateq(); ?>rccwt_id=1"> <button name="weekly" class="btn btn-primary">Weekly</button></a></td>  <td width="90%" align="left" valign="top">  <a href="rctracker.php?<?php echo bats_dateq(); ?>rccmt_id=1"> <button name="monthly" class="btn btn-primary">Monthly</button></a></td> </div>
 					<div class="panel-body">
 						<table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
 						    <thead>

@@ -1,6 +1,7 @@
 <?php
 require( "config.php" );
 require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -247,8 +248,8 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
         <div class="row">
                     <div class="col-lg-12">
                         <div class="panel panel-default">
-                        <div class="panel-heading"> <a href="admin.php?action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a>
-                    <?php if($dta['level'] == 1 || $dta['level'] == 2) { ?> <a href="ctrackerdownload.php?download=<?php echo $download; ?>&cid=<?php echo $consultantid; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
+                        <div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showdailydata"><button name="back" class="btn btn-primary">Back</button></a>
+                    <?php if($dta['level'] == 1 || $dta['level'] == 2) { ?> <a href="ctrackerdownload.php?<?php echo bats_dateq(); ?>download=<?php echo $download; ?>&cid=<?php echo $consultantid; ?>"><button name="download" class="btn btn-primary">Download</button></a></div> <?php } ?>
                             <div class="panel-body">
                                 <table data-toggle="table"  data-show-refresh="true" data-show-toggle="true" data-show-columns="true" data-search="true" data-select-item-name="toolbar1" data-pagination="true" data-sort-name="uid" data-sort-order="asc">
                                     <thead>
@@ -497,7 +498,7 @@ if($dta['level'] == 1 || $dta['level'] == 2 || $dta['level'] == 3)
 <div class="row">
 	<div class="col-lg-12">
 		<div class="panel panel-default">
-			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?><br> <a href="consultanttracker.php?do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">ECI issues</button></a>&nbsp;&nbsp;&nbsp;<br><br>
+			<div class="panel-heading"> <?php echo $cfname." ".$cmname." ".$clname." feedback/comments on applications"; ?><br> <a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getissues&appissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">App issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getissues&rcissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">RC issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getissues&subissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">Sub issues</button></a>&nbsp;&nbsp;&nbsp;<a href="consultanttracker.php?<?php echo bats_dateq(); ?>do=getissues&eciissues=<?php echo $consultantid; ?>" target="_blank"><button class="btn btn-primary">ECI issues</button></a>&nbsp;&nbsp;&nbsp;<br><br>
             </div>
 			<div class="panel-body">
 

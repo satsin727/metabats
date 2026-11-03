@@ -101,3 +101,38 @@ if (!function_exists('bats_db')) {
         return bats_db()->quote((string)$v);
     }
 }
+
+/*
+ * Report date carry-over (2026-11).
+ * Report pages read the chosen date from the date-picker (POST). Links from those pages
+ * (the counts, Download buttons, Weekly/Monthly views) now carry ?date=YYYY-MM-DD, and
+ * bats_carry_date() lets the pages accept that date from the link too.
+ */
+if (!function_exists('bats_carry_date')) {
+    function bats_carry_date()
+    {
+        if (isset($_POST['date']) && trim((string)$_POST['date']) === '') {
+            unset($_POST['date']);              // empty picker = "today" (was 01/01/1970)
+        }
+        if (!isset($_POST['date']) && isset($_GET['date']) && bats_sel_date() !== '') {
+            $_POST['date'] = bats_sel_date();
+        }
+    }
+    /** The date the user picked (POST) or that came in the link (GET), as Y-m-d; '' when none. */
+    function bats_sel_date()
+    {
+        foreach (array($_POST['date'] ?? null, $_GET['date'] ?? null) as $raw) {
+            $raw = trim((string)$raw);
+            if ($raw === '') continue;
+            $t = strtotime($raw);
+            if ($t !== false && $t > 0) return date('Y-m-d', $t);
+        }
+        return '';
+    }
+    /** "date=YYYY-MM-DD&" to put right after "?" in a link, or '' when no date was chosen. */
+    function bats_dateq()
+    {
+        $d = bats_sel_date();
+        return $d === '' ? '' : 'date=' . $d . '&amp;';
+    }
+}

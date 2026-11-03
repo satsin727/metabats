@@ -1,6 +1,7 @@
 <?php
 require( "config.php" );
 require_once __DIR__ . '/db_helpers.php'; // shared DB helpers (also loaded by config.php)
+if (function_exists("bats_carry_date")) bats_carry_date(); // accept ?date= from report links
 if($_SESSION['id'])
 {
 $sessid = $_SESSION['id'];
@@ -269,8 +270,8 @@ $reqid = bats_col('app_data', 'app_id', $eciid, 'reqid'); */
 <div class="row">
 			<div class="col-lg-12">
 				<div class="panel panel-default">
-					<div class="panel-heading"> <a href="admin.php?action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a> &nbsp;&nbsp;&nbsp;
-                    <a target ="_blank" href="trackersmdownload.php?download=<?php 
+					<div class="panel-heading"> <a href="admin.php?<?php echo bats_dateq(); ?>action=showsmdata"><button name="back" class="btn btn-primary">Back</button></a> &nbsp;&nbsp;&nbsp;
+                    <a target ="_blank" href="trackersmdownload.php?<?php echo bats_dateq(); ?>download=<?php 
                     
                     echo $download."&smid=".$sm_id;
 
