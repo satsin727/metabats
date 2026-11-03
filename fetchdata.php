@@ -35,46 +35,45 @@ $uid = $sessid;
 
 $conn = bats_db();
 $skill=0;
-if(isset($_GET['m']) && isset($_GET['y']))
-{
-    $m = $_GET['m'];
-    $y = $_GET['y'];
-    if(isset($_GET['s']))
-    {
-        $skill = $_GET['s'];
+// Which list was clicked on the Skill MTD report (these flags were never set before, so the page showed nothing useful)
+$app = isset($_GET['app']) ? 1 : 0;
+$rc  = isset($_GET['rc'])  ? 1 : 0;
+$sub = isset($_GET['sub']) ? 1 : 0;
+$eci = isset($_GET['eci']) ? 1 : 0;
+$total = (isset($_GET['s']) && $_GET['s'] !== '') ? 0 : 1;   // no skill = "all skills" row
+$skill = $total ? 0 : (int)$_GET['s'];
+$m = isset($_GET['m']) ? max(1, min(12, (int)$_GET['m'])) : (int)date('m');
+$y = isset($_GET['y']) ? (int)$_GET['y'] : (int)date('Y');
+$monthStart = sprintf('%04d-%02d-01', $y, $m);
+$monthEnd = date('Y-m-d', strtotime($monthStart . ' +1 month'));
+// Daily / Weekly links from the Skill MTD report narrow the month to that day / week
+foreach (array('day', 'wk') as $pk) {
+    if (!empty($_GET[$pk]) && preg_match('/^\d{4}-\d{2}-\d{2}$/', $_GET[$pk]) && strtotime($_GET[$pk])) {
+        $d0 = date('Y-m-d', strtotime($_GET[$pk]));
+        if ($pk === 'day') { $s0 = $d0; $e0 = date('Y-m-d', strtotime($d0 . ' +1 day')); }
+        else { // the report counts app/RC/sub by Sunday-Saturday week and ECI by Monday-Sunday week
+            $back = isset($_GET['eci']) ? date('N', strtotime($d0)) - 1 : date('w', strtotime($d0));
+            $s0 = date('Y-m-d', strtotime($d0 . ' -' . $back . ' days')); $e0 = date('Y-m-d', strtotime($s0 . ' +7 days')); }
+        $monthStart = max($monthStart, $s0);
+        $monthEnd = min($monthEnd, $e0);
+        break;
     }
-    
-    if(isset($_GET['app'])==1)
-    {
-        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        if($skill=0)
-        {
-            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        }
-    }
-    elseif(isset($_GET['rc'])==1)
-    {
-        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        if($skill=0)
-        {
-            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        }
-    }
-    elseif(isset($_GET['sub'])==1)
-    {
-        $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where B.skill = " . bats_q($skill) . " and A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        if($skill=0)
-        {
-            $query = ("select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1 and rcdone = 1 and subdone = 1 and ( MONTH(A.appdate) = " . bats_q($m) . " AND YEAR(A.appdate) = " . bats_q($y) . " ) order by A.appdate asc");
-        }
-   
-    }
-    elseif(isset($_GET['eci']))
-    {
-        // ECI (interviews, round 3 happened) in the selected month - this link had no list before
-        $skillCond = isset($_GET['s']) ? " and E.skill_id = " . bats_q($_GET['s']) : "";
-        $query = "select * from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.app_id IN (select E.app_id from eci E where E.eci_happened = 1 and E.eci_round = 3 and E.status = 1" . $skillCond . " and MONTH(E.eci_date) = " . bats_q($m) . " and YEAR(E.eci_date) = " . bats_q($y) . ") order by A.appdate asc";
-    }
+}
+$skillCond = $total ? '' : ' and B.skill = ' . $skill;
+$base = "select A.*, B.cfname, B.cmname, B.clname, B.skill from app_data AS A LEFT JOIN consultants AS B ON A.consultant_id = B.cid where A.status = 1" . $skillCond;
+// Same rules as the counts on the Skill MTD report:
+//   Applications = appdate in the month; RC = rcdone + rcdate in the month; Submissions = rcdone + subdone + rcdate in the month
+if ($rc) {
+    $query = $base . " and A.rcdone = 1 and A.rcdate >= '$monthStart' and A.rcdate < '$monthEnd' order by A.rcdate asc";
+} elseif ($sub) {
+    $query = $base . " and A.rcdone = 1 and A.subdone = 1 and A.rcdate >= '$monthStart' and A.rcdate < '$monthEnd' order by A.rcdate asc";
+} elseif ($eci) {
+    // ECI (round 3 happened) in the month
+    $eciSkill = $total ? '' : ' and E.skill_id = ' . $skill;
+    $query = "select E.* from eci E where E.eci_happened = 1 and E.eci_round = 3 and E.status = 1" . $eciSkill . " and E.eci_date >= '$monthStart' and E.eci_date < '$monthEnd' order by E.eci_date asc, E.eci_id asc";
+} else {
+    $app = 1;
+    $query = $base . " and A.appdate >= '$monthStart' and A.appdate < '$monthEnd' order by A.appdate asc";
 }
 $ins= $conn->prepare($query);
 $ins->execute();
@@ -134,7 +133,7 @@ $data = $ins->fetchAll();
 $i=1;
 foreach( $data as $row) { 
 $consultantid = $row['consultant_id'];
-    if($total==1)
+    // consultant + skill names for every row (before: only on the "all skills" list, so skill lists showed blanks)
 {
     $skillid = bats_col('consultants', 'cid', $consultantid, 'skill');
     $skill = bats_col('skill', 'sid', $skillid, 'skillname');
