@@ -64,6 +64,11 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
                 <a href="admin.php?action=clientassignment"><svg class="glyph stroked calendar"><use xlink:href="#stroked-calendar"></use></svg> Client Call Schedule</a>
             </li>
 
+            <!-- Open Tasks (Kanban board, comments, activity log) -->
+            <li class="<?php echo ($selected == "opentasks") ? "active" : "parent"; ?>">
+                <a href="admin.php?action=opentasks"><svg class="glyph stroked clipboard-with-paper"><use xlink:href="#stroked-clipboard-with-paper"></use></svg> Open Tasks</a>
+            </li>
+
             <!-- ========================================== -->
             <!-- CORE WORKFLOW (Quick Access, Zero Extra Clicks) -->
             <!-- ========================================== -->

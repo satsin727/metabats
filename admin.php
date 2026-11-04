@@ -51,6 +51,8 @@ switch ( $action) {
     break;
     case 'emaildistribution': require 'email_distribution.php';
     break;
+    case 'opentasks': require 'tasks.php';
+    break;
     case 'showallreqs': showallreqs();
     break;
     case 'showapplications': showapplications();
