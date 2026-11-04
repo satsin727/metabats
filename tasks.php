@@ -7,7 +7,8 @@ require_once __DIR__ . '/tasks_lib.php';
 $u = tk_user();
 tk_schema();
 $csrf = tk_csrf();
-$view = in_array($_GET['view'] ?? '', ['board', 'list', 'activity', 'settings'], true) ? $_GET['view'] : 'board';
+$view = in_array($_GET['view'] ?? '', ['board', 'list', 'activity', 'settings', 'checklists'], true) ? $_GET['view'] : 'board';
+if ($view === 'checklists' && !tk_is_mgr($u)) $view = 'board';
 if ($view === 'settings' && !tk_is_admin($u)) $view = 'board';
 $users = array_values(array_map(fn($x) => ['uid' => $x['uid'], 'name' => $x['name'], 'level' => $x['level']], tk_users(true)));
 $boot = [
@@ -110,6 +111,27 @@ require __DIR__ . '/includes/menu.php';
 .tk-pbox.chat { background: #f0f7f4; }
 .tk-savebar { position: sticky; bottom: 0; z-index: 5; background: #fff; border: 1px solid #d0d5dd; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; box-shadow: 0 -4px 12px rgba(16,24,40,.08); }
 .tk-table code { font-size: 11px; }
+.tk-prog { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; }
+.tk-prog-b { flex: 1; height: 8px; background: #eaecf0; border-radius: 5px; overflow: hidden; }
+.tk-prog-b span { display: block; height: 100%; background: #12b76a; }
+.tk-sl { list-style: none; padding: 0; margin: 0; }
+.tk-si { border: 1px solid #eaecf0; border-radius: 8px; margin-bottom: 6px; background: #fff; }
+.tk-si-row { display: flex; align-items: flex-start; gap: 8px; padding: 7px 9px; }
+.tk-si-cb { margin-top: 3px !important; width: 16px; height: 16px; cursor: pointer; flex: 0 0 auto; }
+.tk-si-main { flex: 1; min-width: 0; }
+.tk-si-t { color: #101828; font-weight: 600; cursor: pointer; text-decoration: none; word-break: break-word; }
+.tk-si.done .tk-si-t { text-decoration: line-through; color: #667085; } .tk-si.na .tk-si-t { color: #98a2b3; text-decoration: line-through; }
+.tk-si-c { font-size: 12px; color: #475467; cursor: pointer; white-space: nowrap; text-decoration: none; }
+.tk-si-tools { white-space: nowrap; } .tk-si-tools .btn-xs { padding: 0 4px; }
+.tk-si-x { border-top: 1px dashed #eaecf0; padding: 8px 10px 10px 33px; background: #fcfcfd; border-radius: 0 0 8px 8px; }
+.tk-sadd { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+.tk-sadd .form-control { width: auto; flex: 1 1 140px; }
+.tk-sadd input[type=date] { flex: 0 0 140px; }
+.tk-cp { font-weight: 600; color: #475467; } .tk-cp.all { color: #067647; }
+.tk-tplgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.tk-tplgrid .tk-panel { margin: 0; }
+.tk-tl2 { padding-left: 20px; margin: 0 0 6px; } .tk-tl2 li { padding: 3px 0; border-bottom: 1px solid #f2f4f7; }
+.tk-tl2 .tk-si-tools { float: right; }
 @media (max-width: 767px) {
   .tk-main { float: none; width: 100%; margin-left: 0; }
   .tk-grid { grid-template-columns: 1fr; }
@@ -129,6 +151,7 @@ require __DIR__ . '/includes/menu.php';
       <a href="admin.php?action=opentasks&amp;view=board" class="<?php echo $view === 'board' ? 'on' : ''; ?>">Board</a>
       <a href="admin.php?action=opentasks&amp;view=list" class="<?php echo $view === 'list' ? 'on' : ''; ?>">List</a>
       <a href="admin.php?action=opentasks&amp;view=activity" class="<?php echo $view === 'activity' ? 'on' : ''; ?>">Activity Log</a>
+      <?php if (tk_is_mgr($u)) { ?><a href="admin.php?action=opentasks&amp;view=checklists" class="<?php echo $view === 'checklists' ? 'on' : ''; ?>">Checklists</a><?php } ?>
       <?php if (tk_is_admin($u)) { ?><a href="admin.php?action=opentasks&amp;view=settings" class="<?php echo $view === 'settings' ? 'on' : ''; ?>">Notifications</a><?php } ?>
       <?php if ($u['level'] !== 5) { ?><button type="button" class="btn btn-success" id="tk-new">+ New Task</button><?php } ?>
     </div>
@@ -177,7 +200,7 @@ require __DIR__ . '/includes/menu.php';
     <select class="form-control" name="event">
       <option value="">Any action</option><option value="created">Created</option><option value="status">Stage changed</option><option value="assigned">Assignee changed</option>
       <option value="manager">Manager changed</option><option value="priority">Priority changed</option><option value="due_date">Due date changed</option>
-      <option value="title">Renamed</option><option value="description">Description edited</option><option value="category">Category changed</option><option value="comment">Comment</option><option value="deleted">Deleted</option>
+      <option value="title">Renamed</option><option value="description">Description edited</option><option value="category">Category changed</option><option value="comment">Comment</option><option value="checklist">Checklist added</option><option value="sub_added">Sub-task added</option><option value="sub_done">Sub-task done</option><option value="sub_na">Sub-task N/A</option><option value="sub_reopened">Sub-task reopened</option><option value="sub_edited">Sub-task edited</option><option value="sub_deleted">Sub-task removed</option><option value="deleted">Deleted</option>
     </select>
     <input type="search" class="form-control" name="task" placeholder="Task # (TSK-0001)">
     <button type="button" class="btn btn-primary btn-sm" id="tk-arun">Apply</button>
@@ -189,6 +212,11 @@ require __DIR__ . '/includes/menu.php';
     <tbody><tr><td colspan="5" class="tk-empty">Loading…</td></tr></tbody>
   </table></div>
   <div class="tk-pager" id="tk-apager"></div>
+<?php } elseif ($view === 'checklists') { ?>
+  <div class="tk-panel"><h4>Checklist templates by category</h4>
+    <p class="tk-sub" style="margin:0">When a task is created (or its category is changed), the items of its category are added to the task as sub-tasks.
+    <b>Required</b> items must be Done, or marked N/A with a reason, before the task can go to In Review or Completed. Changing a template does not change tasks that already have the checklist.</p></div>
+  <div class="tk-tplgrid" id="tk-tpl"><div class="tk-empty">Loading…</div></div>
 <?php } else { ?>
   <div id="tk-ns"><div class="tk-empty">Loading notification settings…</div></div>
 <?php } ?>
@@ -293,6 +321,7 @@ require __DIR__ . '/includes/menu.php';
 
   /* ---------- board / list ---------- */
   function load() {
+    if (B.view === 'checklists') { return get('stats').then(function (j) { stats(j.stats); }).catch(function () {}); }
     if (B.view === 'settings') { get('stats').then(function (j) { stats(j.stats); }).catch(function () {}); return loadSettings(); }
     if (B.view === 'activity') { get('stats').then(function (j) { stats(j.stats); }).catch(function () {}); return loadActivity(1); }
     var p = filters(); p.view = B.view;
@@ -311,6 +340,7 @@ require __DIR__ . '/includes/menu.php';
     return '<div class="tk-card pr-' + esc(t.priority) + '" data-id="' + t.id + '"' + drag + ' tabindex="0">' +
       '<div class="k">' + esc(t.key) + ' &middot; ' + esc(t.category) + '</div><div class="t">' + esc(t.title) + '</div>' +
       '<div class="m"><span class="tk-pill p-' + esc(t.priority) + '">' + esc(B.priorities[t.priority] || t.priority) + '</span>' + dueHtml(t) +
+      (t.check && t.check[1] ? '<span class="tk-cp' + (t.check[0] === t.check[1] ? ' all' : '') + '" title="Checklist: ' + t.check[0] + ' of ' + t.check[1] + ' done">☑ ' + t.check[0] + '/' + t.check[1] + '</span>' : '') +
       (t.comments ? '<span title="Comments">💬 ' + t.comments + '</span>' : '') +
       (t.status === 'on_hold' && t.hold_reason ? '<span title="' + esc(t.hold_reason) + '">⏸ on hold</span>' : '') +
       '<span style="margin-left:auto" title="Assignee: ' + esc(t.assignee_name || 'Unassigned') + (t.manager_name ? ' | Manager: ' + esc(t.manager_name) : '') + '">' +
@@ -420,9 +450,11 @@ require __DIR__ . '/includes/menu.php';
 
   function newTask() {
     $('#tk-m-title').textContent = 'New Task';
-    $('#tk-m-body').innerHTML = formHtml(null) + '<p class="tk-sub">A task with an assignee starts in <b>To Do</b>; without one it starts in <b>New</b>. If a manager is set, the manager approves the work in <b>In Review</b> before it is Completed.</p>';
+    $('#tk-m-body').innerHTML = formHtml(null) + '<p class="tk-sub" id="tk-cl-hint"></p><p class="tk-sub">A task with an assignee starts in <b>To Do</b>; without one it starts in <b>New</b>. If a manager is set, the manager approves the work in <b>In Review</b> before it is Completed.</p>';
     $('#tk-m-foot').innerHTML = '<button type="button" class="btn btn-default" data-close>Cancel</button><button type="button" class="btn btn-success" id="tk-save">Create Task</button>';
     openModal('#tk-m'); setTimeout(function () { $('#tk-form [name=title]').focus(); }, 50);
+    var hint = function () { var c = $('#tk-form [name=category]').value, n = (TPL[c] || []).length; $('#tk-cl-hint').innerHTML = n ? '☑ The <b>' + esc(c) + '</b> checklist (' + n + ' item' + (n > 1 ? 's' : '') + ') will be added as sub-tasks.' : ''; };
+    $('#tk-form [name=category]').onchange = hint; hint();
     $('#tk-save').onclick = function () {
       var d = formData(); if (!d.title.trim()) { toast('Title is required.', true); return; }
       this.disabled = true; var b = this;
@@ -458,13 +490,16 @@ require __DIR__ . '/includes/menu.php';
         '<dt>Last updated</dt><dd>' + esc(t.updated) + '</dd><dt>Age</dt><dd>' + t.age_days + ' day(s)</dd></dl>';
       var notes = (t.status === 'on_hold' && t.hold_reason ? '<div class="tk-note hold"><b>On hold:</b> ' + esc(t.hold_reason) + '</div>' : '') +
         (t.status === 'completed' && t.resolution ? '<div class="tk-note res"><b>Resolution:</b> ' + esc(t.resolution) + '</div>' : '');
-      var cm = j.comments.length ? j.comments.map(function (c) { return '<div class="tk-cmt"><div class="h"><b>' + esc(c.by) + '</b> · ' + esc(c.at) + '</div><div class="b">' + esc(c.body) + '</div></div>'; }).join('') : '<div class="tk-empty">No comments yet.</div>';
+      var cm = j.comments.length ? j.comments.map(function (c) { return '<div class="tk-cmt"><div class="h"><b>' + esc(c.by) + '</b> · ' + esc(c.at) + (c.subtask ? ' · <span class="tk-pill">☑ ' + esc(c.subtask) + '</span>' : '') + '</div><div class="b">' + esc(c.body) + '</div></div>'; }).join('') : '<div class="tk-empty">No comments yet.</div>';
+      var about = j.subtasks.length ? '<select class="form-control input-sm" id="tk-cabout" style="margin-bottom:6px"><option value="">About: the whole task</option>' + j.subtasks.map(function (x) { return '<option value="' + x.id + '">About sub-task: ' + esc(x.title) + '</option>'; }).join('') + '</select>' : '';
+      var ck = t.check || [0, 0];
       var tl = '<ul class="tk-tl">' + j.activity.map(function (a) { return '<li class="ev-' + esc(a.event) + '"><b>' + esc(a.by) + '</b> ' + esc(a.text) + ' <span class="w">' + esc(a.at) + '</span>' + (a.detail && a.event !== 'created' ? '<div class="d">' + esc(a.detail) + '</div>' : '') + '</li>'; }).join('') + '</ul>';
       $('#tk-m-body').innerHTML = stepsHtml(t) + notes + '<div class="tk-grid"><div>' +
         (flow ? '<div class="tk-flowbtns">' + flow + '</div>' : '') + waiting +
-        '<div class="tk-itabs"><a data-tab="details" class="on">Details</a><a data-tab="comments">Comments (' + j.comments.length + ')</a><a data-tab="activity">Activity (' + j.activity.length + ')</a></div>' +
-        '<div data-pane="details">' + formHtml(t) + '</div>' +
-        '<div data-pane="comments" style="display:none">' + cm + '<textarea class="form-control" id="tk-cbody" rows="3" maxlength="5000" placeholder="Write a comment… (visible to everyone on this task)"></textarea><div style="margin-top:6px;text-align:right"><button type="button" class="btn btn-primary btn-sm" id="tk-cadd">Add Comment</button></div></div>' +
+        '<div class="tk-itabs"><a data-tab="checklist" class="on">Checklist (' + ck[0] + '/' + ck[1] + ')</a><a data-tab="details">Details</a><a data-tab="comments">Comments (' + j.comments.length + ')</a><a data-tab="activity">Activity (' + j.activity.length + ')</a></div>' +
+        '<div data-pane="checklist">' + checklistHtml(t, j) + '</div>' +
+        '<div data-pane="details" style="display:none">' + formHtml(t) + '</div>' +
+        '<div data-pane="comments" style="display:none">' + cm + about + '<textarea class="form-control" id="tk-cbody" rows="3" maxlength="5000" placeholder="Write a comment… (visible to everyone on this task)"></textarea><div style="margin-top:6px;text-align:right"><button type="button" class="btn btn-primary btn-sm" id="tk-cadd">Add Comment</button></div></div>' +
         '<div data-pane="activity" style="display:none">' + tl + '</div>' +
         '</div><div>' + side + '</div></div>';
       $('#tk-m-foot').innerHTML = (t.can_delete ? '<button type="button" class="btn btn-link text-danger" id="tk-del" style="margin-right:auto;color:#b42318">Delete task</button>' : '') +
@@ -472,11 +507,12 @@ require __DIR__ . '/includes/menu.php';
       $$('#tk-m-body .tk-itabs a').forEach(function (a) { a.onclick = function () { showTab(a.getAttribute('data-tab')); }; });
       function showTab(name) { $$('#tk-m-body .tk-itabs a').forEach(function (x) { x.classList.toggle('on', x.getAttribute('data-tab') === name); }); $$('#tk-m-body [data-pane]').forEach(function (p) { p.style.display = p.getAttribute('data-pane') === name ? '' : 'none'; }); }
       if (tab) showTab(tab);
+      bindChecklist(t, j);
       $$('#tk-m-body [data-to]').forEach(function (b) { b.onclick = function () { moveTask(t, b.getAttribute('data-to'), function () { openTask(t.id); }); }; });
       $('#tk-cadd').onclick = function () {
         var body = $('#tk-cbody').value.trim(); if (!body) { toast('Write a comment first.', true); return; }
         this.disabled = true;
-        post('comment', { id: t.id, body: body }).then(function () { toast('Comment added'); openTask(t.id, 'comments'); load(); }).catch(fail);
+        post('comment', { id: t.id, body: body, subtask_id: $('#tk-cabout') ? $('#tk-cabout').value : '' }).then(function () { toast('Comment added'); openTask(t.id, 'comments'); load(); }).catch(fail);
       };
       if ($('#tk-save')) $('#tk-save').onclick = function () {
         var d = formData(); d.id = t.id; d.version = t.version; if (!d.title.trim()) { toast('Title is required.', true); return; }
@@ -489,6 +525,126 @@ require __DIR__ . '/includes/menu.php';
       };
       openModal('#tk-m');
     }).catch(function (e) { fail(e); clearTaskUrl(); });
+  }
+
+
+  /* ---------- checklist / sub-tasks (inside a task) ---------- */
+  var TPL = {}, openSub = null;
+  get('tpl_list').then(function (j) { TPL = j.templates; if (B.view === 'checklists') renderTpl(j); }).catch(function () {});
+  function checklistHtml(t, j) {
+    var subs = j.subtasks, ck = t.check || [0, 0], pct = ck[1] ? Math.round(ck[0] * 100 / ck[1]) : 0;
+    var h = ck[1] ? '<div class="tk-prog"><div class="tk-prog-b"><span style="width:' + pct + '%"></span></div><b>' + ck[0] + ' of ' + ck[1] + ' done</b> <span class="tk-sub">(' + pct + '%)</span></div>' : '';
+    if (j.tpl_missing && j.can_add_sub) h += '<div class="tk-note" style="background:#eff8ff;border:1px solid #b2ddff">The <b>' + esc(t.category) + '</b> checklist has ' + j.tpl_missing + ' item(s) not on this task. <button type="button" class="btn btn-xs btn-primary" id="tk-cl-apply">Add them</button></div>';
+    h += subs.length ? '<ul class="tk-sl">' + subs.map(function (x, i) {
+      var cls = x.status === 'done' ? ' done' : x.status === 'na' ? ' na' : '';
+      var meta = [];
+      if (x.assignee_name) meta.push('👤 ' + esc(x.assignee_name));
+      if (x.due) meta.push('<span class="tk-due' + (x.overdue ? ' over' : '') + '">📅 ' + esc(x.due) + '</span>');
+      if (x.status === 'done') meta.push('✔ ' + esc(x.done_by) + ', ' + esc(x.done_at));
+      if (x.status === 'na') meta.push('N/A by ' + esc(x.done_by) + ': ' + esc(x.note));
+      var tools = x.can_edit ? '<button type="button" class="btn btn-link btn-xs" data-sedit="' + x.id + '" title="Edit">Edit</button>' +
+          (x.status === 'open' ? '<button type="button" class="btn btn-link btn-xs" data-sna="' + x.id + '" title="Not applicable">N/A</button>' : '') +
+          (i > 0 ? '<button type="button" class="btn btn-link btn-xs" data-sup="' + x.id + '" title="Move up">↑</button>' : '') +
+          (i < subs.length - 1 ? '<button type="button" class="btn btn-link btn-xs" data-sdown="' + x.id + '" title="Move down">↓</button>' : '') : '';
+      if (x.can_delete) tools += '<button type="button" class="btn btn-link btn-xs" data-sdel="' + x.id + '" title="Remove" style="color:#b42318">✕</button>';
+      var cms = j.comments.filter(function (c) { return c.subtask_id === x.id; });
+      var acts = j.activity.filter(function (a) { return a.subtask_id === x.id && a.event !== 'comment'; });
+      return '<li class="tk-si' + cls + '" data-sid="' + x.id + '"><div class="tk-si-row">' +
+        '<input type="checkbox" class="tk-si-cb" data-scb="' + x.id + '"' + (x.status !== 'open' ? ' checked' : '') + (x.can_edit ? '' : ' disabled') + ' title="' + (x.status === 'open' ? 'Mark done' : 'Reopen') + '">' +
+        '<div class="tk-si-main"><a class="tk-si-t" data-sopen="' + x.id + '">' + esc(x.title) + '</a>' + (x.required ? ' <span class="tk-pill p-high">Required</span>' : '') + (x.status === 'na' ? ' <span class="tk-pill">N/A</span>' : '') +
+        (meta.length ? '<div class="tk-sub">' + meta.join(' &middot; ') + '</div>' : '') + '</div>' +
+        '<a class="tk-si-c" data-sopen="' + x.id + '" title="Notes & comments">💬 ' + x.comments + '</a><span class="tk-si-tools">' + tools + '</span></div>' +
+        '<div class="tk-si-x" style="' + (openSub === x.id ? '' : 'display:none') + '">' +
+        (cms.length ? cms.map(function (c) { return '<div class="tk-cmt"><div class="h"><b>' + esc(c.by) + '</b> · ' + esc(c.at) + '</div><div class="b">' + esc(c.body) + '</div></div>'; }).join('') : '<div class="tk-sub" style="margin-bottom:6px">No notes yet — record what was done for this step.</div>') +
+        (acts.length ? '<ul class="tk-tl" style="margin:6px 0 8px">' + acts.map(function (a) { return '<li class="ev-status"><b>' + esc(a.by) + '</b> ' + esc(a.text) + ' <span class="w">' + esc(a.at) + '</span>' + (a.detail ? '<div class="d">' + esc(a.detail) + '</div>' : '') + '</li>'; }).join('') + '</ul>' : '') +
+        '<textarea class="form-control input-sm" rows="2" maxlength="5000" data-scmt="' + x.id + '" placeholder="Add a note / comment about this sub-task…"></textarea>' +
+        '<div style="text-align:right;margin-top:4px"><button type="button" class="btn btn-primary btn-xs" data-scadd="' + x.id + '">Add Note</button></div></div></li>';
+    }).join('') + '</ul>' : '<div class="tk-empty">No sub-tasks yet. Add the steps needed to finish this task.</div>';
+    if (j.can_add_sub) h += '<div class="tk-sadd"><input class="form-control input-sm" id="tk-snew" maxlength="250" placeholder="Add a sub-task / activity…">' +
+      selectHtml('s_assignee', userLabel, '', 'uid', 'label', 'Assignee (optional)').replace('class="form-control"', 'class="form-control input-sm" id="tk-sassignee"') +
+      '<input type="date" class="form-control input-sm" id="tk-sdue" title="Due date (optional)">' +
+      (t.can_manage ? '<label class="tk-chk"><input type="checkbox" id="tk-sreq"> Required</label>' : '') +
+      '<button type="button" class="btn btn-success btn-sm" id="tk-sadd">Add</button></div>';
+    else if (t.status === 'completed' || t.status === 'cancelled') h += '<p class="tk-sub" style="margin-top:8px">The task is ' + esc(t.status_label) + ' — reopen it to change the checklist.</p>';
+    return h;
+  }
+  function bindChecklist(t, j) {
+    var body = $('#tk-m-body'), again = function (msg) { if (msg) toast(msg); openTask(t.id, 'checklist'); load(); };
+    var subById = {}; j.subtasks.forEach(function (x) { subById[x.id] = x; });
+    $$('[data-scb]', body).forEach(function (cb) { cb.onchange = function () {
+      var x = subById[+cb.getAttribute('data-scb')];
+      post('sub_status', { sub_id: x.id, status: x.status === 'open' ? 'done' : 'open' }).then(function () { again(x.status === 'open' ? '"' + x.title + '" done' : '"' + x.title + '" reopened'); }).catch(function (e) { fail(e); cb.checked = !cb.checked; });
+    }; });
+    $$('[data-sopen]', body).forEach(function (a) { a.onclick = function () { var id = +a.getAttribute('data-sopen'), li = $('li[data-sid="' + id + '"] .tk-si-x', body), show = li.style.display === 'none'; li.style.display = show ? '' : 'none'; openSub = show ? id : null; if (show) $('textarea', li).focus(); }; });
+    $$('[data-scadd]', body).forEach(function (b) { b.onclick = function () {
+      var id = +b.getAttribute('data-scadd'), ta = $('[data-scmt="' + id + '"]', body), txt = ta.value.trim(); if (!txt) { toast('Write a note first.', true); return; }
+      b.disabled = true; openSub = id; post('comment', { id: t.id, subtask_id: id, body: txt }).then(function () { again('Note added'); }).catch(function (e) { fail(e); b.disabled = false; });
+    }; });
+    $$('[data-sna]', body).forEach(function (b) { b.onclick = function () {
+      var x = subById[+b.getAttribute('data-sna')];
+      askReason('Mark "' + x.title + '" as N/A', 'Why is this step not applicable? (required — saved in the activity log)', 'Mark N/A', true, function (r) { return post('sub_status', { sub_id: x.id, status: 'na', note: r }).then(function () { again('Marked N/A'); }); });
+    }; });
+    $$('[data-sdel]', body).forEach(function (b) { b.onclick = function () { var x = subById[+b.getAttribute('data-sdel')]; if (!window.confirm('Remove sub-task "' + x.title + '"? (The activity log keeps the record.)')) return; post('sub_delete', { sub_id: x.id }).then(function () { again('Sub-task removed'); }).catch(fail); }; });
+    $$('[data-sup],[data-sdown]', body).forEach(function (b) { b.onclick = function () { var up = b.hasAttribute('data-sup'); post('sub_move', { sub_id: b.getAttribute(up ? 'data-sup' : 'data-sdown'), dir: up ? 'up' : 'down' }).then(function () { again(); }).catch(fail); }; });
+    $$('[data-sedit]', body).forEach(function (b) { b.onclick = function () {
+      var x = subById[+b.getAttribute('data-sedit')], row = $('li[data-sid="' + x.id + '"] .tk-si-row', body);
+      row.innerHTML = '<div class="tk-sadd" style="margin:0;flex:1"><input class="form-control input-sm" name="e_title" maxlength="250" value="' + esc(x.title) + '">' +
+        selectHtml('e_assignee', userLabel, x.assignee_uid, 'uid', 'label', 'No assignee').replace('class="form-control"', 'class="form-control input-sm"') +
+        '<input type="date" class="form-control input-sm" name="e_due" value="' + esc(x.due_date) + '">' + (t.can_manage ? '<label class="tk-chk"><input type="checkbox" name="e_req"' + (x.required ? ' checked' : '') + '> Required</label>' : '') +
+        '<button type="button" class="btn btn-primary btn-sm" data-esave>Save</button><button type="button" class="btn btn-default btn-sm" data-ecancel>Cancel</button></div>';
+      $('[data-ecancel]', row).onclick = function () { again(); };
+      $('[data-esave]', row).onclick = function () {
+        var d = { sub_id: x.id, title: $('[name=e_title]', row).value, assignee_uid: $('[name=e_assignee]', row).value, due_date: $('[name=e_due]', row).value };
+        if ($('[name=e_req]', row)) d.required = $('[name=e_req]', row).checked ? 1 : 0;
+        post('sub_update', d).then(function () { again('Sub-task updated'); }).catch(fail);
+      };
+    }; });
+    if ($('#tk-sadd')) {
+      var add = function () {
+        var title = $('#tk-snew').value.trim(); if (!title) { toast('Type the sub-task first.', true); return; }
+        $('#tk-sadd').disabled = true;
+        post('sub_add', { id: t.id, title: title, assignee_uid: $('#tk-sassignee').value, due_date: $('#tk-sdue').value, required: $('#tk-sreq') && $('#tk-sreq').checked ? 1 : 0 })
+          .then(function () { again('Sub-task added'); setTimeout(function () { if ($('#tk-snew')) $('#tk-snew').focus(); }, 300); }).catch(function (e) { fail(e); $('#tk-sadd').disabled = false; });
+      };
+      $('#tk-sadd').onclick = add; $('#tk-snew').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); add(); } };
+    }
+    if ($('#tk-cl-apply')) $('#tk-cl-apply').onclick = function () { post('checklist_apply', { id: t.id }).then(function (r) { again(r.added + ' checklist item(s) added'); }).catch(fail); };
+  }
+  /** Small reason dialog (reuses the move dialog). fn(reason) must return a promise. */
+  function askReason(title, text, okLabel, required, fn) {
+    $('#tk-r-title').textContent = title; $('#tk-r-text').textContent = text; $('#tk-r-reason').value = ''; $('#tk-r-ok').textContent = okLabel;
+    openModal('#tk-r'); setTimeout(function () { $('#tk-r-reason').focus(); }, 50);
+    $('#tk-r-ok').onclick = function () { var r = $('#tk-r-reason').value.trim(); if (required && !r) { toast('Please enter a reason.', true); return; } fn(r).then(function () { closeModal('#tk-r'); }).catch(fail); };
+  }
+
+  /* ---------- checklist templates page ---------- */
+  function renderTpl(j) {
+    var box = $('#tk-tpl'); if (!box) return;
+    box.innerHTML = Object.keys(j.templates).map(function (cat) {
+      var items = j.templates[cat];
+      return '<div class="tk-panel" data-cat="' + esc(cat) + '"><h4>' + esc(cat) + ' <span class="tk-sub">(' + items.length + ')</span></h4>' +
+        (items.length ? '<ol class="tk-tl2">' + items.map(function (x, i) {
+          return '<li data-tid="' + x.id + '"><span class="tk-tt">' + esc(x.title) + '</span>' + (x.required ? ' <span class="tk-pill p-high">Required</span>' : '') +
+            '<span class="tk-si-tools">' + (i > 0 ? '<button type="button" class="btn btn-link btn-xs" data-tup="' + x.id + '">↑</button>' : '') + (i < items.length - 1 ? '<button type="button" class="btn btn-link btn-xs" data-tdown="' + x.id + '">↓</button>' : '') +
+            '<button type="button" class="btn btn-link btn-xs" data-tedit="' + x.id + '">Edit</button><button type="button" class="btn btn-link btn-xs" data-tdel="' + x.id + '" style="color:#b42318">✕</button></span></li>';
+        }).join('') + '</ol>' : '<div class="tk-sub" style="margin-bottom:8px">No checklist for this category yet.</div>') +
+        '<div class="tk-sadd"><input class="form-control input-sm" maxlength="250" data-tnew placeholder="Add a checklist item…"><label class="tk-chk"><input type="checkbox" data-treq> Required</label><button type="button" class="btn btn-success btn-sm" data-tadd>Add</button></div></div>';
+    }).join('');
+    var reload = function (msg) { if (msg) toast(msg); get('tpl_list').then(function (r) { TPL = r.templates; renderTpl(r); }).catch(fail); };
+    var find = function (id) { var f = null; Object.keys(j.templates).forEach(function (c) { j.templates[c].forEach(function (x) { if (x.id === id) f = x; }); }); return f; };
+    $$('[data-tadd]', box).forEach(function (b) {
+      var p = b.closest('[data-cat]'), inp = $('[data-tnew]', p);
+      var go = function () { var v = inp.value.trim(); if (!v) { toast('Type the checklist item first.', true); return; } post('tpl_save', { category: p.getAttribute('data-cat'), title: v, required: $('[data-treq]', p).checked ? 1 : 0 }).then(function () { reload('Item added'); }).catch(fail); };
+      b.onclick = go; inp.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    });
+    $$('[data-tdel]', box).forEach(function (b) { b.onclick = function () { var x = find(+b.getAttribute('data-tdel')); if (!window.confirm('Remove "' + x.title + '" from the template? Existing tasks keep their copy.')) return; post('tpl_delete', { tpl_id: x.id }).then(function () { reload('Item removed'); }).catch(fail); }; });
+    $$('[data-tup],[data-tdown]', box).forEach(function (b) { b.onclick = function () { var up = b.hasAttribute('data-tup'); post('tpl_move', { tpl_id: b.getAttribute(up ? 'data-tup' : 'data-tdown'), dir: up ? 'up' : 'down' }).then(function () { reload(); }).catch(fail); }; });
+    $$('[data-tedit]', box).forEach(function (b) { b.onclick = function () {
+      var x = find(+b.getAttribute('data-tedit')), li = b.closest('li');
+      li.innerHTML = '<div class="tk-sadd" style="margin:0"><input class="form-control input-sm" maxlength="250" value="' + esc(x.title) + '"><label class="tk-chk"><input type="checkbox"' + (x.required ? ' checked' : '') + '> Required</label><button type="button" class="btn btn-primary btn-sm">Save</button><button type="button" class="btn btn-default btn-sm">Cancel</button></div>';
+      var bt = $$('button', li); bt[1].onclick = function () { reload(); };
+      bt[0].onclick = function () { post('tpl_save', { tpl_id: x.id, title: $('input.form-control', li).value, required: $('input[type=checkbox]', li).checked ? 1 : 0 }).then(function () { reload('Item updated'); }).catch(fail); };
+    }; });
   }
 
   /* ---------- activity log ---------- */
@@ -620,7 +776,7 @@ require __DIR__ . '/includes/menu.php';
 
   load();
   if (B.openId) openTask(B.openId);
-  setInterval(function () { if (!document.hidden && !$('.tk-modal-bg.tk-open') && B.view !== 'activity' && B.view !== 'settings') load(); }, 60000);   // keep the board fresh
+  setInterval(function () { if ((B.view === 'board' || B.view === 'list') && !document.hidden && !$('.tk-modal-bg.tk-open')) load(); }, 60000);   // keep the board fresh
 })();
 </script>
 <?php require __DIR__ . '/includes/footer.php';

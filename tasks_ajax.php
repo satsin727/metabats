@@ -5,6 +5,7 @@
  */
 require_once __DIR__ . '/tasks_lib.php';
 require_once __DIR__ . '/tasks_notify.php';
+require_once __DIR__ . '/tasks_checklist.php';
 header('Cache-Control: no-store');
 
 function tk_out(array $d, int $code = 200): void {
@@ -23,6 +24,7 @@ set_exception_handler(function ($e) {
 
 $u = tk_user();
 tk_schema();
+tk_checklist_schema();
 $db = tk_db();
 $op = (string)($_REQUEST['op'] ?? '');
 $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
@@ -110,7 +112,8 @@ switch ($op) {
 
 case 'board':
     $rows = tk_find($u, $_GET, ($_GET['view'] ?? 'board') !== 'list');
-    tk_out(['ok' => true, 'tasks' => array_map(fn($t) => tk_public($t, $u), $rows), 'stats' => tk_stats($u), 'now' => date('m/d/Y g:i A')]);
+    $pm = tk_progress_map(array_column($rows, 'id'));
+    tk_out(['ok' => true, 'tasks' => array_map(function ($t) use ($u, $pm) { $p = tk_public($t, $u); $p['check'] = $pm[(int)$t['id']] ?? [0, 0]; return $p; }, $rows), 'stats' => tk_stats($u), 'now' => date('m/d/Y g:i A')]);
 
 case 'stats':
     tk_out(['ok' => true, 'stats' => tk_stats($u)]);
@@ -119,11 +122,19 @@ case 'get':
     $t = tk_load_for($u, (int)($_GET['id'] ?? 0));
     $c = $db->prepare('SELECT * FROM tk_comments WHERE task_id = ? ORDER BY id');
     $c->execute([(int)$t['id']]);
-    $comments = array_map(fn($r) => ['id' => (int)$r['id'], 'by' => tk_uname($r['uid']), 'uid' => (int)$r['uid'], 'body' => (string)$r['body'], 'at' => tk_fmt($r['created_at'])], $c->fetchAll());
+    $subs = tk_subtasks((int)$t['id']);
+    $subTitle = [];
+    foreach ($subs as $sb) $subTitle[(int)$sb['id']] = $sb['title'];
+    $comments = array_map(fn($r) => ['id' => (int)$r['id'], 'by' => tk_uname($r['uid']), 'uid' => (int)$r['uid'], 'body' => (string)$r['body'], 'at' => tk_fmt($r['created_at']),
+        'subtask_id' => $r['subtask_id'] ? (int)$r['subtask_id'] : null, 'subtask' => $r['subtask_id'] ? ($subTitle[(int)$r['subtask_id']] ?? '(removed sub-task)') : ''], $c->fetchAll());
     $a = $db->prepare('SELECT * FROM tk_activity WHERE task_id = ? ORDER BY id DESC');
     $a->execute([(int)$t['id']]);
-    $acts = array_map(fn($r) => ['by' => tk_uname($r['uid']), 'event' => $r['event'], 'text' => tk_activity_text($r), 'detail' => (string)$r['detail'], 'at' => tk_fmt($r['created_at'])], $a->fetchAll());
-    tk_out(['ok' => true, 'task' => tk_public($t, $u), 'comments' => $comments, 'activity' => $acts]);
+    $acts = array_map(fn($r) => ['by' => tk_uname($r['uid']), 'event' => $r['event'], 'subtask_id' => $r['subtask_id'] ? (int)$r['subtask_id'] : null, 'text' => tk_activity_text($r), 'detail' => (string)$r['detail'], 'at' => tk_fmt($r['created_at'])], $a->fetchAll());
+    [$pd, $pt] = tk_progress((int)$t['id']);
+    $pub = tk_public($t, $u); $pub['check'] = [$pd, $pt];
+    tk_out(['ok' => true, 'task' => $pub, 'comments' => $comments, 'activity' => $acts,
+        'subtasks' => array_map(fn($x) => tk_sub_public($x, $u, $t), $subs), 'can_add_sub' => tk_can_sub($u, $t),
+        'tpl_missing' => count(array_filter(tk_tpl_list($t['category']), fn($x) => !in_array((int)$x['id'], array_map('intval', array_column($subs, 'tpl_id')), true)))]);
 
 case 'create':
     tk_need_post($isPost);
@@ -148,6 +159,7 @@ case 'create':
     tk_log($id, $u['uid'], 'created', null, $status, $title);
     if ($assignee) tk_log($id, $u['uid'], 'assigned', '', tk_uname($assignee));
     if ($manager) tk_log($id, $u['uid'], 'manager', '', tk_uname($manager));
+    if (($_POST['apply_checklist'] ?? '1') !== '0') tk_apply_checklist($id, $cat, $u['uid']);
     $db->commit();
     $nq = tk_notify('task_created', $id, $u['uid']);
     tk_out(['ok' => true, 'task' => tk_public(tk_get($id), $u), 'notify' => $nq]);
@@ -181,7 +193,7 @@ case 'update':
     $id = (int)$t['id'];
     if ($new['title'] !== $t['title']) tk_log($id, $u['uid'], 'title', $t['title'], $new['title']);
     if ($new['description'] !== (string)$t['description']) tk_log($id, $u['uid'], 'description');
-    if ($new['category'] !== $t['category']) tk_log($id, $u['uid'], 'category', $t['category'], $new['category']);
+    if ($new['category'] !== $t['category']) { tk_log($id, $u['uid'], 'category', $t['category'], $new['category']); tk_apply_checklist($id, $new['category'], $u['uid']); }
     if ($new['priority'] !== $t['priority']) tk_log($id, $u['uid'], 'priority', $t['priority'], $new['priority']);
     if ((string)$new['due_date'] !== (string)$t['due_date']) tk_log($id, $u['uid'], 'due_date', $t['due_date'] ? date('m/d/Y', strtotime($t['due_date'])) : '', $new['due_date'] ? date('m/d/Y', strtotime($new['due_date'])) : '');
     if ((int)$new['assignee_uid'] !== (int)$t['assignee_uid']) tk_log($id, $u['uid'], 'assigned', tk_uname($t['assignee_uid']), tk_uname($new['assignee_uid']));
@@ -202,6 +214,10 @@ case 'move':
         throw new RuntimeException('A task in ' . tk_stage_label($t['status']) . ' cannot be moved to ' . tk_stage_label($to) . ' by you. '
             . ($allowed ? 'Allowed: ' . implode(', ', $allowed) . '.' : 'You are not the assignee or an owner of this task.')
             . ($to === 'completed' && $t['manager_uid'] ? ' Move it to In Review so ' . tk_uname($t['manager_uid']) . ' can approve it.' : ''));
+    }
+    if (in_array($to, ['in_review', 'completed'], true)) {
+        [, , $openReq] = tk_progress((int)$t['id']);
+        if ($openReq) throw new RuntimeException('These required checklist items are still open: ' . implode('; ', array_slice($openReq, 0, 8)) . (count($openReq) > 8 ? ' …' : '') . '. Mark them Done (or N/A with a reason) first.');
     }
     $reason = trim((string)($_POST['reason'] ?? ''));
     if (tk_reason_needed($t['status'], $to) && $reason === '') throw new RuntimeException('Please give a reason for moving this task to ' . tk_stage_label($to) . '.');
@@ -231,11 +247,16 @@ case 'comment':
     $t = tk_load_for($u, (int)($_POST['id'] ?? 0));
     $body = trim((string)($_POST['body'] ?? ''));
     if ($body === '' || mb_strlen($body) > 5000) throw new RuntimeException('Comment cannot be empty (max 5000 characters).');
+    $sub = null;
+    if ((int)($_POST['subtask_id'] ?? 0) > 0) {
+        $sub = tk_sub_get((int)$_POST['subtask_id']);
+        if (!$sub || (int)$sub['task_id'] !== (int)$t['id']) throw new RuntimeException('Sub-task not found.');
+    }
     $now = tk_now();
     $db->beginTransaction();
-    $db->prepare('INSERT INTO tk_comments(task_id, uid, body, created_at) VALUES(?,?,?,?)')->execute([(int)$t['id'], $u['uid'], $body, $now]);
+    $db->prepare('INSERT INTO tk_comments(task_id, subtask_id, uid, body, created_at) VALUES(?,?,?,?,?)')->execute([(int)$t['id'], $sub ? (int)$sub['id'] : null, $u['uid'], $body, $now]);
     $db->prepare('UPDATE tk_tasks SET updated_at = ? WHERE id = ?')->execute([$now, (int)$t['id']]);
-    tk_log((int)$t['id'], $u['uid'], 'comment', null, null, mb_substr($body, 0, 300));
+    tk_log_sub((int)$t['id'], $sub ? (int)$sub['id'] : null, $u['uid'], 'comment', null, $sub ? $sub['title'] : null, mb_substr($body, 0, 300));
     $db->commit();
     $nq = tk_notify('task_comment', (int)$t['id'], $u['uid'], ['comment' => $body]);
     tk_out(['ok' => true, 'notify' => $nq]);
@@ -286,13 +307,165 @@ case 'export':   // task list as CSV (same filters as the list view)
     header('Content-Disposition: attachment; filename="open_tasks_' . date('Y-m-d') . '.csv"');
     $o = fopen('php://output', 'w');
     fwrite($o, "\xEF\xBB\xBF");
-    fputcsv($o, ['Task', 'Title', 'Stage', 'Priority', 'Category', 'Assignee', 'Manager', 'Created By', 'Created', 'Due', 'Overdue', 'Started', 'Completed', 'Completed By', 'Resolution / Reason', 'Description']);
+    $pm = tk_progress_map(array_column($rows, 'id'));
+    fputcsv($o, ['Task', 'Title', 'Stage', 'Checklist', 'Priority', 'Category', 'Assignee', 'Manager', 'Created By', 'Created', 'Due', 'Overdue', 'Started', 'Completed', 'Completed By', 'Resolution / Reason', 'Description']);
     foreach ($rows as $t) {
         $p = tk_public($t, $u);
-        fputcsv($o, [$p['key'], $p['title'], $p['status_label'], TK_PRIORITIES[$p['priority']] ?? $p['priority'], $p['category'], $p['assignee_name'], $p['manager_name'], $p['created_name'],
+        $pc = $pm[(int)$t['id']] ?? [0, 0];
+        fputcsv($o, [$p['key'], $p['title'], $p['status_label'], $pc[1] ? $pc[0] . '/' . $pc[1] : '', TK_PRIORITIES[$p['priority']] ?? $p['priority'], $p['category'], $p['assignee_name'], $p['manager_name'], $p['created_name'],
             $p['created'], $p['due'], $p['overdue'] ? 'Yes' : '', $p['started'], $p['completed'], $p['completed_by'], $p['resolution'] ?: $p['hold_reason'], $p['description']]);
     }
     exit;
+
+/* ---------- checklist / sub-tasks ---------- */
+case 'sub_add':
+    tk_need_post($isPost);
+    $t = tk_load_for($u, (int)($_POST['id'] ?? 0));
+    if (!tk_can_sub($u, $t)) throw new RuntimeException(in_array($t['status'], ['completed', 'cancelled'], true) ? 'Reopen the task to change its checklist.' : 'Only the assignee or the task owners can add sub-tasks.');
+    $title = trim((string)($_POST['title'] ?? ''));
+    if ($title === '' || mb_strlen($title) > 250) throw new RuntimeException('Sub-task title is required (max 250 characters).');
+    $assignee = tk_valid_user($_POST['assignee_uid'] ?? null);
+    $due = tk_valid_date($_POST['due_date'] ?? '');
+    $req = !empty($_POST['required']) && tk_can_manage($u, $t) ? 1 : 0;
+    $now = tk_now();
+    $mx = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM tk_subtasks WHERE task_id = ?'); $mx->execute([(int)$t['id']]);
+    $db->beginTransaction();
+    $db->prepare('INSERT INTO tk_subtasks(task_id, title, is_required, assignee_uid, due_date, sort_order, created_by, created_at, updated_at) VALUES(?,?,?,?,?,?,?,?,?)')
+       ->execute([(int)$t['id'], $title, $req, $assignee, $due, (int)$mx->fetchColumn(), $u['uid'], $now, $now]);
+    $sid = (int)$db->lastInsertId();
+    tk_log_sub((int)$t['id'], $sid, $u['uid'], 'sub_added', null, $title, trim(($assignee ? 'Assigned to ' . tk_uname($assignee) . '. ' : '') . ($due ? 'Due ' . date('m/d/Y', strtotime($due)) . '.' : '') . ($req ? ' Required.' : '')));
+    $db->prepare('UPDATE tk_tasks SET updated_at = ? WHERE id = ?')->execute([$now, (int)$t['id']]);
+    $db->commit();
+    tk_out(['ok' => true]);
+
+case 'sub_status':   // open / done / na
+    tk_need_post($isPost);
+    $sub = tk_sub_get((int)($_POST['sub_id'] ?? 0));
+    if (!$sub) throw new RuntimeException('Sub-task not found.');
+    $t = tk_load_for($u, (int)$sub['task_id']);
+    if (!tk_can_sub($u, $t, $sub)) throw new RuntimeException(in_array($t['status'], ['completed', 'cancelled'], true) ? 'Reopen the task to change its checklist.' : 'You cannot update this sub-task.');
+    $to = (string)($_POST['status'] ?? '');
+    if (!in_array($to, ['open', 'done', 'na'], true) || $to === $sub['status']) tk_out(['ok' => true]);
+    $note = trim((string)($_POST['note'] ?? ''));
+    if ($to === 'na' && $note === '') throw new RuntimeException('Give a reason for marking this item N/A.');
+    if ($to === 'na' && (int)$sub['is_required'] === 1 && !tk_can_manage($u, $t)) throw new RuntimeException('Only the task manager can mark a required item N/A.');
+    $now = tk_now();
+    $db->beginTransaction();
+    $db->prepare('UPDATE tk_subtasks SET status = ?, note = ?, done_by = ?, done_at = ?, updated_at = ? WHERE id = ?')
+       ->execute([$to, $to === 'na' ? mb_substr($note, 0, 500) : ($to === 'done' && $note !== '' ? mb_substr($note, 0, 500) : null), $to === 'open' ? null : $u['uid'], $to === 'open' ? null : $now, $now, (int)$sub['id']]);
+    tk_log_sub((int)$t['id'], (int)$sub['id'], $u['uid'], $to === 'done' ? 'sub_done' : ($to === 'na' ? 'sub_na' : 'sub_reopened'), $sub['status'], $sub['title'], $note);
+    $db->prepare('UPDATE tk_tasks SET updated_at = ? WHERE id = ?')->execute([$now, (int)$t['id']]);
+    $db->commit();
+    [$pd, $pt] = tk_progress((int)$t['id']);
+    tk_out(['ok' => true, 'check' => [$pd, $pt]]);
+
+case 'sub_update':
+    tk_need_post($isPost);
+    $sub = tk_sub_get((int)($_POST['sub_id'] ?? 0));
+    if (!$sub) throw new RuntimeException('Sub-task not found.');
+    $t = tk_load_for($u, (int)$sub['task_id']);
+    if (!tk_can_sub($u, $t, $sub)) throw new RuntimeException('You cannot edit this sub-task.');
+    $title = trim((string)($_POST['title'] ?? $sub['title']));
+    if ($title === '' || mb_strlen($title) > 250) throw new RuntimeException('Sub-task title is required (max 250 characters).');
+    $assignee = array_key_exists('assignee_uid', $_POST) ? tk_valid_user($_POST['assignee_uid']) : ($sub['assignee_uid'] ? (int)$sub['assignee_uid'] : null);
+    $due = array_key_exists('due_date', $_POST) ? tk_valid_date($_POST['due_date']) : $sub['due_date'];
+    $req = tk_can_manage($u, $t) && array_key_exists('required', $_POST) ? (!empty($_POST['required']) ? 1 : 0) : (int)$sub['is_required'];
+    $ch = [];
+    if ($title !== $sub['title']) $ch[] = 'Renamed from "' . $sub['title'] . '"';
+    if ((int)$assignee !== (int)$sub['assignee_uid']) $ch[] = 'Assignee: ' . (tk_uname($sub['assignee_uid']) ?: 'none') . ' -> ' . (tk_uname($assignee) ?: 'none');
+    if ((string)$due !== (string)$sub['due_date']) $ch[] = 'Due: ' . ($sub['due_date'] ? date('m/d/Y', strtotime($sub['due_date'])) : 'none') . ' -> ' . ($due ? date('m/d/Y', strtotime($due)) : 'none');
+    if ($req !== (int)$sub['is_required']) $ch[] = $req ? 'Marked required' : 'No longer required';
+    if (!$ch) tk_out(['ok' => true]);
+    $now = tk_now();
+    $db->beginTransaction();
+    $db->prepare('UPDATE tk_subtasks SET title = ?, assignee_uid = ?, due_date = ?, is_required = ?, updated_at = ? WHERE id = ?')->execute([$title, $assignee, $due, $req, $now, (int)$sub['id']]);
+    tk_log_sub((int)$t['id'], (int)$sub['id'], $u['uid'], 'sub_edited', null, $title, implode('. ', $ch));
+    $db->commit();
+    tk_out(['ok' => true]);
+
+case 'sub_delete':
+    tk_need_post($isPost);
+    $sub = tk_sub_get((int)($_POST['sub_id'] ?? 0));
+    if (!$sub) throw new RuntimeException('Sub-task not found.');
+    $t = tk_load_for($u, (int)$sub['task_id']);
+    if (!tk_can_manage($u, $t) || in_array($t['status'], ['completed', 'cancelled'], true)) throw new RuntimeException('Only the task owners can remove sub-tasks (and only while the task is open).');
+    $db->beginTransaction();
+    $db->prepare('UPDATE tk_subtasks SET is_deleted = 1, updated_at = ? WHERE id = ?')->execute([tk_now(), (int)$sub['id']]);
+    tk_log_sub((int)$t['id'], (int)$sub['id'], $u['uid'], 'sub_deleted', $sub['status'], $sub['title']);
+    $db->commit();
+    tk_out(['ok' => true]);
+
+case 'sub_move':   // up / down
+    tk_need_post($isPost);
+    $sub = tk_sub_get((int)($_POST['sub_id'] ?? 0));
+    if (!$sub) throw new RuntimeException('Sub-task not found.');
+    $t = tk_load_for($u, (int)$sub['task_id']);
+    if (!tk_can_sub($u, $t)) throw new RuntimeException('You cannot reorder this checklist.');
+    $list = array_map(fn($x) => (int)$x['id'], tk_subtasks((int)$t['id']));
+    $i = array_search((int)$sub['id'], $list, true);
+    $j = ($_POST['dir'] ?? '') === 'up' ? $i - 1 : $i + 1;
+    if ($i !== false && isset($list[$j])) {
+        [$list[$i], $list[$j]] = [$list[$j], $list[$i]];
+        $st = $db->prepare('UPDATE tk_subtasks SET sort_order = ? WHERE id = ?');
+        foreach ($list as $k => $sid) $st->execute([$k + 1, $sid]);
+    }
+    tk_out(['ok' => true]);
+
+case 'checklist_apply':
+    tk_need_post($isPost);
+    $t = tk_load_for($u, (int)($_POST['id'] ?? 0));
+    if (!tk_can_sub($u, $t)) throw new RuntimeException('You cannot change this checklist.');
+    $db->beginTransaction();
+    $n = tk_apply_checklist((int)$t['id'], (string)$t['category'], $u['uid']);
+    $db->commit();
+    tk_out(['ok' => true, 'added' => $n]);
+
+/* ---------- checklist templates (admins & managers) ---------- */
+case 'tpl_list':
+    $rows = tk_tpl_list(null, true);
+    $by = [];
+    foreach (TK_CATEGORIES as $c) $by[$c] = [];
+    foreach ($rows as $r) $by[$r['category']][] = ['id' => (int)$r['id'], 'title' => (string)$r['title'], 'required' => (int)$r['is_required'] === 1];
+    tk_out(['ok' => true, 'templates' => $by, 'can_edit' => tk_is_mgr($u)]);
+
+case 'tpl_save':
+    tk_need_post($isPost);
+    if (!tk_is_mgr($u)) throw new RuntimeException('Only admins and managers can edit checklist templates.');
+    $title = trim((string)($_POST['title'] ?? ''));
+    if ($title === '' || mb_strlen($title) > 250) throw new RuntimeException('Checklist item is required (max 250 characters).');
+    $req = !empty($_POST['required']) ? 1 : 0;
+    if ((int)($_POST['tpl_id'] ?? 0) > 0) {
+        $db->prepare('UPDATE tk_checklist_tpl SET title = ?, is_required = ?, updated_at = ? WHERE id = ? AND active = 1')->execute([$title, $req, tk_now(), (int)$_POST['tpl_id']]);
+    } else {
+        $cat = (string)($_POST['category'] ?? '');
+        if (!in_array($cat, TK_CATEGORIES, true)) throw new RuntimeException('Unknown category.');
+        $mx = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) + 1 FROM tk_checklist_tpl WHERE category = ?'); $mx->execute([$cat]);
+        $db->prepare('INSERT INTO tk_checklist_tpl(category, title, is_required, sort_order, created_by, created_at) VALUES(?,?,?,?,?,?)')->execute([$cat, $title, $req, (int)$mx->fetchColumn(), $u['uid'], tk_now()]);
+    }
+    tk_out(['ok' => true]);
+
+case 'tpl_delete':
+    tk_need_post($isPost);
+    if (!tk_is_mgr($u)) throw new RuntimeException('Only admins and managers can edit checklist templates.');
+    $db->prepare('UPDATE tk_checklist_tpl SET active = 0, updated_at = ? WHERE id = ?')->execute([tk_now(), (int)($_POST['tpl_id'] ?? 0)]);
+    tk_out(['ok' => true]);
+
+case 'tpl_move':
+    tk_need_post($isPost);
+    if (!tk_is_mgr($u)) throw new RuntimeException('Only admins and managers can edit checklist templates.');
+    $q = $db->prepare('SELECT category FROM tk_checklist_tpl WHERE id = ? AND active = 1'); $q->execute([(int)($_POST['tpl_id'] ?? 0)]);
+    $cat = $q->fetchColumn();
+    if ($cat !== false) {
+        $list = array_map(fn($x) => (int)$x['id'], tk_tpl_list($cat));
+        $i = array_search((int)$_POST['tpl_id'], $list, true);
+        $j = ($_POST['dir'] ?? '') === 'up' ? $i - 1 : $i + 1;
+        if ($i !== false && isset($list[$j])) {
+            [$list[$i], $list[$j]] = [$list[$j], $list[$i]];
+            $st = $db->prepare('UPDATE tk_checklist_tpl SET sort_order = ? WHERE id = ?');
+            foreach ($list as $k => $id) $st->execute([$k + 1, $id]);
+        }
+    }
+    tk_out(['ok' => true]);
 
 /* ---------- notifications ---------- */
 case 'notify_run':   // called by the board right after an action; sends what is due

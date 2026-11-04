@@ -157,13 +157,16 @@ function tk_scope_sql(array $u, array &$params): string {
     $ids = [$u['uid']];
     if ($u['level'] === 2) $ids = array_merge($ids, tk_team($u));
     $in = implode(',', array_map('intval', $ids));
-    $params[] = $u['uid']; $params[] = $u['uid'];
-    return "(T.created_by = ? OR T.manager_uid = ? OR T.assignee_uid IN ($in))";
+    $params[] = $u['uid']; $params[] = $u['uid']; $params[] = $u['uid'];
+    // people with a sub-task on the task can see that task too
+    return "(T.created_by = ? OR T.manager_uid = ? OR T.assignee_uid IN ($in) OR EXISTS (SELECT 1 FROM tk_subtasks S WHERE S.task_id = T.id AND S.assignee_uid = ? AND S.is_deleted = 0))";
 }
 function tk_can_view(array $u, array $t): bool {
     if (tk_is_admin($u)) return true;
     if (in_array($u['uid'], [(int)$t['created_by'], (int)$t['manager_uid'], (int)$t['assignee_uid']], true)) return true;
-    return $u['level'] === 2 && $t['assignee_uid'] && in_array((int)$t['assignee_uid'], tk_team($u), true);
+    if ($u['level'] === 2 && $t['assignee_uid'] && in_array((int)$t['assignee_uid'], tk_team($u), true)) return true;
+    $q = tk_db()->prepare('SELECT COUNT(*) FROM tk_subtasks WHERE task_id = ? AND assignee_uid = ? AND is_deleted = 0');
+    try { $q->execute([(int)$t['id'], $u['uid']]); return (int)$q->fetchColumn() > 0; } catch (Throwable $e) { return false; }
 }
 /** Edit details / assign / reassign: admin, the task's manager, the creator, or the assignee's reporting manager. */
 function tk_can_manage(array $u, array $t): bool {
@@ -247,7 +250,14 @@ function tk_activity_text(array $a): string {
         case 'title':     return 'renamed the task';
         case 'description': return 'updated the description';
         case 'category':  return 'changed category from ' . $f . ' to ' . $t;
-        case 'comment':   return 'commented';
+        case 'comment':   return $t !== '' ? 'commented on sub-task "' . $t . '"' : 'commented';
+        case 'sub_added':    return 'added sub-task "' . $t . '"';
+        case 'sub_done':     return 'completed sub-task "' . $t . '"';
+        case 'sub_na':       return 'marked sub-task "' . $t . '" as N/A';
+        case 'sub_reopened': return 'reopened sub-task "' . $t . '"';
+        case 'sub_edited':   return 'updated sub-task "' . $t . '"';
+        case 'sub_deleted':  return 'removed sub-task "' . $t . '"';
+        case 'checklist':    return 'added the checklist (' . $t . ' item' . ($t === '1' ? '' : 's') . ')';
         case 'deleted':   return 'deleted the task';
         default:          return (string)$a['event'];
     }
