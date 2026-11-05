@@ -80,6 +80,18 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
 .dw-grip:hover { color: #1570ef; }
 .dw-step { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 11px; background: #f2f4f7; color: #475467; font-size: 11px; font-weight: 700; flex: 0 0 auto; margin-top: 1px; }
 .dw-dragging { opacity: .45; outline: 2px dashed #2e90fa; }
+.dw-subs { margin-top: 8px; padding: 6px 10px; background: #f9fafb; border-radius: 6px; }
+.dw-subi { display: flex; align-items: center; gap: 6px; font-weight: normal; margin: 2px 0; cursor: pointer; }
+.dw-subi input { margin: 0 !important; width: 15px; height: 15px; }
+.dw-subi.done span:first-of-type { text-decoration: line-through; color: #667085; }
+.dw-links { margin-top: 6px; font-size: 12px; } .dw-links a { cursor: pointer; }
+.dw-thread { margin-top: 6px; border-top: 1px dashed #eaecf0; padding-top: 6px; }
+.dw-cm { background: #fff; border: 1px solid #eaecf0; border-radius: 6px; padding: 5px 8px; margin-bottom: 5px; font-size: 13px; } .dw-cm div { white-space: pre-wrap; word-break: break-word; }
+.dw-cadd { display: flex; gap: 6px; align-items: flex-end; } .dw-cadd .form-control { flex: 1; }
+.dw-sublist { margin: 4px 0 0; padding-left: 18px; font-size: 12px; color: #475467; }
+.dw-subedit { padding-left: 22px; } .dw-subedit li { margin-bottom: 4px; } .dw-subedit li > div { display: flex; align-items: center; gap: 2px; }
+.dw-subedit .form-control { flex: 1; width: auto; }
+.dw-sp { display: inline-block; width: 26px; flex: 0 0 26px; } .dw-subedit .btn-xs { width: 26px; flex: 0 0 26px; padding: 1px 0; }
 @media (max-width: 767px) {
   .dw-main { float: none; width: 100%; margin-left: 0; }
   .dw-sum { grid-template-columns: 1fr; }
@@ -135,7 +147,7 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
   function openM(title, body, foot) { $('#dw-m-title').textContent = title; $('#dw-m-body').innerHTML = body; $('#dw-m-foot').innerHTML = foot; $('#dw-m').classList.add('dw-open'); }
   function closeM() { $('#dw-m').classList.remove('dw-open'); }
   $('#dw-m').addEventListener('click', function (e) { if (e.target.id === 'dw-m' || e.target.hasAttribute('data-close')) closeM(); });
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeM(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { closeM(); if (typeof subsAfter === 'function') { var f = subsAfter; subsAfter = null; f(); } } });
 
   /**
    * Drag & drop ordering. Items are dragged by their ⠿ handle; onDrop(id, afterId, beforeId) gets the
@@ -175,6 +187,67 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
     });
     box.addEventListener('drop', function (e) { if (drag) e.preventDefault(); });
   }
+
+  /* ---------- sub-activities & comments on a day item ---------- */
+  var openC = {};   // activity ids whose comment thread is open
+  function subsHtml(it, j) {
+    if (!it.subs.length) return '';
+    var d = it.subs.filter(function (s) { return s.done; }).length;
+    return '<div class="dw-subs"><div class="dw-sub" style="margin-bottom:3px"><b>Sub-activities ' + d + '/' + it.subs.length + '</b></div>' + it.subs.map(function (s) {
+      return '<label class="dw-subi' + (s.done ? ' done' : '') + '"><input type="checkbox" data-sub="' + s.id + '"' + (s.done ? ' checked' : '') + (j.can_check ? '' : ' disabled') + '> <span>' + esc(s.title) + '</span>' + (s.done ? ' <span class="dw-sub">✔ ' + esc(s.at) + '</span>' : '') + '</label>';
+    }).join('') + '</div>';
+  }
+  function extraHtml(it, j) {
+    var n = it.comments.length, open = !!openC[it.id];
+    var links = '<div class="dw-links"><a href="#" data-ctog="' + it.id + '">💬 Comments' + (n ? ' (' + n + ')' : '') + '</a>' +
+      (j.can_manage ? ' &middot; <a href="#" data-msubs="' + it.id + '">☰ ' + (it.subs.length ? 'Edit sub-activities' : 'Add sub-activities') + '</a>' : '') + '</div>';
+    var thread = '<div class="dw-thread" style="' + (open ? '' : 'display:none') + '">' +
+      (n ? it.comments.map(function (c) { return '<div class="dw-cm"><b>' + esc(c.by) + '</b> <span class="dw-sub">' + esc(c.at) + '</span><div>' + esc(c.body) + '</div></div>'; }).join('') : '<div class="dw-sub" style="margin-bottom:6px">No comments for this day yet.</div>') +
+      '<div class="dw-cadd"><textarea class="form-control input-sm" rows="2" maxlength="3000" data-cbody="' + it.id + '" placeholder="Add a comment for this day…"></textarea><button type="button" class="btn btn-primary btn-xs" data-cadd="' + it.id + '">Comment</button></div></div>';
+    return links + thread;
+  }
+  function bindExtras(j, reload) {
+    $$('[data-sub]', V).forEach(function (cb) { cb.onchange = function () {
+      post('sub_check', { sub_id: cb.getAttribute('data-sub'), date: j.date, done: cb.checked ? 1 : 0 }).then(function (r) { toast(r.completed ? 'All sub-activities done — activity completed ✔' : (cb.checked ? 'Sub-activity done' : 'Un-ticked')); reload(); }).catch(function (e) { fail(e); cb.checked = !cb.checked; });
+    }; });
+    $$('[data-ctog]', V).forEach(function (a) { a.onclick = function (e) {
+      e.preventDefault(); var id = +a.getAttribute('data-ctog'), th = a.closest('.dw-body').querySelector('.dw-thread'), show = th.style.display === 'none';
+      th.style.display = show ? '' : 'none'; openC[id] = show; if (show) th.querySelector('textarea').focus();
+    }; });
+    $$('[data-cadd]', V).forEach(function (b) { b.onclick = function () {
+      var id = +b.getAttribute('data-cadd'), ta = $('[data-cbody="' + id + '"]', V), txt = ta.value.trim();
+      if (!txt) { toast('Write a comment first.', true); return; }
+      b.disabled = true; openC[id] = true;
+      post('comment', { activity_id: id, date: j.date, body: txt }).then(function () { toast('Comment added'); reload(); }).catch(function (e) { fail(e); b.disabled = false; });
+    }; });
+    $$('[data-msubs]', V).forEach(function (a) { a.onclick = function (e) { e.preventDefault(); manageSubs(+a.getAttribute('data-msubs'), reload); }; });
+  }
+  /** Dialog to add / rename / reorder / remove an activity's sub-activities (admins & managers). */
+  var subsAfter = null;
+  function manageSubs(actId, after) {
+    get('subs', { id: actId }).then(function (j) {
+      var rows = j.subs.map(function (s, i) {
+        return '<li data-sid="' + s.id + '"><div><input class="form-control input-sm" value="' + esc(s.title) + '" maxlength="250" data-sren="' + s.id + '">' +
+          (i > 0 ? '<button type="button" class="btn btn-link btn-xs" data-sup="' + s.id + '" title="Move up">↑</button>' : '<span class="dw-sp"></span>') +
+          (i < j.subs.length - 1 ? '<button type="button" class="btn btn-link btn-xs" data-sdn="' + s.id + '" title="Move down">↓</button>' : '<span class="dw-sp"></span>') +
+          '<button type="button" class="btn btn-link btn-xs" data-srm="' + s.id + '" style="color:#b42318" title="Remove">✕</button></div></li>';
+      }).join('');
+      openM('Sub-activities — ' + j.activity.title,
+        '<p class="dw-sub">For <b>' + esc(j.activity.owner) + '</b>. Sub-activities are optional steps ticked one by one each day; when all are ticked, the activity is marked done. Changes apply from today; past days keep what was ticked.</p>' +
+        (rows ? '<ol class="dw-subedit">' + rows + '</ol>' : '<p class="dw-sub"><i>No sub-activities yet.</i></p>') +
+        '<div class="dw-cadd" style="margin-top:8px"><input class="form-control input-sm" id="dw-snew" maxlength="250" placeholder="Add a sub-activity…"><button type="button" class="btn btn-success btn-sm" id="dw-sadd">Add</button></div>',
+        '<button type="button" class="btn btn-primary" data-close>Done</button>');
+      subsAfter = after;
+      var again = function () { manageSubs(actId, after); };
+      var add = function () { var v = $('#dw-snew').value.trim(); if (!v) { toast('Type the sub-activity first.', true); return; } post('sub_add', { activity_id: actId, title: v }).then(function () { again(); setTimeout(function () { if ($('#dw-snew')) $('#dw-snew').focus(); }, 250); }).catch(fail); };
+      $('#dw-sadd').onclick = add; $('#dw-snew').onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); add(); } };
+      $$('[data-sren]').forEach(function (inp) { inp.onchange = function () { post('sub_rename', { sub_id: inp.getAttribute('data-sren'), title: inp.value }).then(function () { toast('Renamed'); }).catch(fail); }; });
+      $$('[data-srm]').forEach(function (b) { b.onclick = function () { post('sub_remove', { sub_id: b.getAttribute('data-srm') }).then(again).catch(fail); }; });
+      $$('[data-sup],[data-sdn]').forEach(function (b) { b.onclick = function () { var up = b.hasAttribute('data-sup'); post('sub_move', { sub_id: b.getAttribute(up ? 'data-sup' : 'data-sdn'), dir: up ? 'up' : 'down' }).then(again).catch(fail); }; });
+    }).catch(fail);
+  }
+  // when the sub-activities dialog closes, refresh the page behind it
+  $('#dw-m').addEventListener('click', function (e) { if ((e.target.id === 'dw-m' || e.target.hasAttribute('data-close')) && subsAfter) { var f = subsAfter; subsAfter = null; f(); } });
 
   /* ================= My Day ================= */
   var S = { uid: B.uid, date: B.date };
@@ -227,12 +300,14 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
           (j.can_manage ? '<span class="dw-grip" title="Drag to change the order">⠿</span>' : '') + '<span class="dw-step">' + step + '</span>' +
           '<input type="checkbox" class="dw-cb" data-cb="' + it.id + '"' + (it.status === 'done' ? ' checked' : '') + (j.can_check && it.status !== 'skipped' ? '' : ' disabled') + ' aria-label="Done: ' + esc(it.title) + '">' +
           '<div class="dw-body"><div class="dw-t">' + esc(it.title) + '</div>' + (it.details ? '<div class="dw-d">' + esc(it.details) + '</div>' : '') +
-          (meta.length ? '<div class="dw-m">' + meta.join(' ') + '</div>' : '') + (it.note ? '<div class="dw-note">📝 ' + esc(it.note) + '</div>' : '') + '</div>' +
+          (meta.length ? '<div class="dw-m">' + meta.join(' ') + '</div>' : '') + (it.note ? '<div class="dw-note">📝 ' + esc(it.note) + '</div>' : '') +
+          subsHtml(it, j) + extraHtml(it, j) + '</div>' +
           (acts ? '<div class="dw-acts">' + acts + '</div>' : '') + '</div>';
       });
     }
     V.innerHTML = bar + banner + sum + '<div id="dw-list">' + list + '</div>';
     var items = {}; j.items.forEach(function (x) { items[x.id] = x; });
+    bindExtras(j, loadDay);
     if (j.can_manage && j.items.length > 1) sortable($('#dw-list'), '.dw-item', function (id, afterId, beforeId) {
       post('act_reorder', { id: id, after_id: afterId, before_id: beforeId }).then(function (r) { toast('Order saved' + (r.section !== items[id].section ? ' — moved to ' + r.section : '')); loadDay(); }).catch(function (e) { fail(e); loadDay(); });
     });
@@ -309,7 +384,9 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
       var person = B.people.filter(function (p) { return p.uid === AU; })[0] || {};
       var n = 0;
       var rows = j.acts.map(function (a) {
-        return '<tr class="dw-actrow' + (a.active ? '' : ' stopped') + '" data-aid="' + a.id + '"><td style="white-space:nowrap">' + (a.can_manage ? '<span class="dw-grip" title="Drag to change the order">⠿</span>' : '') + '<span class="dw-step">' + (++n) + '</span></td><td>' + esc(a.section) + '</td><td><b>' + esc(a.title) + '</b>' + (a.details ? '<div class="dw-sub" style="white-space:pre-wrap">' + esc(a.details) + '</div>' : '') + '</td>' +
+        return '<tr class="dw-actrow' + (a.active ? '' : ' stopped') + '" data-aid="' + a.id + '"><td style="white-space:nowrap">' + (a.can_manage ? '<span class="dw-grip" title="Drag to change the order">⠿</span>' : '') + '<span class="dw-step">' + (++n) + '</span></td><td>' + esc(a.section) + '</td><td><b>' + esc(a.title) + '</b>' + (a.details ? '<div class="dw-sub" style="white-space:pre-wrap">' + esc(a.details) + '</div>' : '') +
+          (a.subs.length ? '<ol class="dw-sublist">' + a.subs.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' : '') +
+          (a.can_manage ? '<button type="button" class="btn btn-link btn-xs" data-msubs="' + a.id + '" style="padding-left:0">☰ ' + (a.subs.length ? 'Edit sub-activities (' + a.subs.length + ')' : '+ Add sub-activities') + '</button>' : '') + '</td>' +
           '<td>' + esc(a.days_label) + '</td><td>' + esc(a.due_label || '—') + '</td><td>' + (a.target || '—') + '</td>' +
           '<td>' + (a.active ? '<span class="dw-pill green">Active</span>' : '<span class="dw-pill">Stopped ' + esc(a.end) + '</span>') + '<div class="dw-sub">since ' + esc(a.start) + ' · by ' + esc(a.created_by) + '</div></td>' +
           '<td style="white-space:nowrap">' + (a.can_manage ? (a.active ? '<button type="button" class="btn btn-link btn-xs" data-up="' + a.id + '">↑</button><button type="button" class="btn btn-link btn-xs" data-down="' + a.id + '">↓</button><button type="button" class="btn btn-default btn-xs" data-edit="' + a.id + '">Edit</button> <button type="button" class="btn btn-default btn-xs" data-stop="' + a.id + '" style="color:#b42318">Stop</button>'
@@ -330,6 +407,7 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
       if ($('#dw-copy')) $('#dw-copy').onclick = function () { copyForm(AU); };
       $$('[data-edit]').forEach(function (b) { b.onclick = function () { actForm(acts[+b.getAttribute('data-edit')], AU); }; });
       $$('[data-stop]').forEach(function (b) { b.onclick = function () { var a = acts[+b.getAttribute('data-stop')]; if (!window.confirm('Stop "' + a.title + '" for ' + a.owner + '? It will no longer appear from tomorrow (history is kept).')) return; post('act_stop', { id: a.id }).then(function () { toast('Stopped'); loadActs(); }).catch(fail); }; });
+      $$('[data-msubs]').forEach(function (b) { b.onclick = function () { manageSubs(+b.getAttribute('data-msubs'), loadActs); }; });
       $$('[data-resume]').forEach(function (b) { b.onclick = function () { post('act_resume', { id: b.getAttribute('data-resume') }).then(function () { toast('Restarted'); loadActs(); }).catch(fail); }; });
       $$('[data-up],[data-down]').forEach(function (b) { b.onclick = function () { var up = b.hasAttribute('data-up'); post('act_move', { id: b.getAttribute(up ? 'data-up' : 'data-down'), dir: up ? 'up' : 'down' }).then(loadActs).catch(fail); }; });
     }).catch(fail);
@@ -343,17 +421,19 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
       '<div class="col-sm-4 form-group"><label>Due by (time)</label><input type="time" class="form-control" id="dw-fdue" value="' + esc(a ? a.due_time : '') + '"></div>' +
       '<div class="col-sm-3 form-group"><label>Daily target</label><input type="number" min="1" class="form-control" id="dw-ftarget" value="' + esc(a && a.target ? a.target : '') + '" placeholder="e.g. 10"></div></div>' +
       '<div class="form-group dw-days"><label style="display:block">Repeat on</label>' + Object.keys(B.days).map(function (k) { return '<label><input type="checkbox" name="dw-day" value="' + k + '"' + (days.indexOf(+k) >= 0 ? ' checked' : '') + '> ' + B.days[k] + '</label>'; }).join('') + '</div>' +
-      (a ? '<p class="dw-sub">For: <b>' + esc(a.owner) + '</b></p>' :
+      (a ? '<p class="dw-sub">For: <b>' + esc(a.owner) + '</b> &middot; <a href="#" id="dw-fsubs">☰ Sub-activities…</a></p>' :
+        '<div class="form-group"><label>Sub-activities <span class="dw-sub">(optional — one per line, ticked one by one each day)</span></label><textarea class="form-control" id="dw-fsublist" rows="3" placeholder="e.g.&#10;Check Dice&#10;Check LinkedIn&#10;Share with team"></textarea></div>' +
         '<div class="form-group"><label>Assign to (one copy per person)</label><div class="dw-people">' + manageable.map(function (p) { return '<label><input type="checkbox" name="dw-who" value="' + p.uid + '"' + (p.uid === forUid ? ' checked' : '') + '> ' + esc(p.name) + (p.role ? ' <span class="dw-sub">' + esc(p.role) + '</span>' : '') + '</label>'; }).join('') + '</div>' +
         '<label class="dw-sub" style="font-weight:normal;margin-top:4px"><input type="checkbox" id="dw-fall"> Select everyone</label></div>' +
         '<div class="form-group"><label>Start from</label><input type="date" class="form-control" id="dw-fstart" value="' + B.today + '" style="max-width:180px"></div>');
     openM(a ? 'Edit daily activity' : 'Add daily activity', body, '<button type="button" class="btn btn-default" data-close>Cancel</button><button type="button" class="btn btn-primary" id="dw-fsave">' + (a ? 'Save' : 'Add Activity') + '</button>');
+    if ($('#dw-fsubs')) $('#dw-fsubs').onclick = function (e) { e.preventDefault(); manageSubs(a.id, refresh); };
     if ($('#dw-fall')) $('#dw-fall').onchange = function () { var on = this.checked; $$('[name=dw-who]').forEach(function (c) { c.checked = on; }); };
     setTimeout(function () { $('#dw-ftitle').focus(); }, 50);
     $('#dw-fsave').onclick = function () {
       var d = { title: $('#dw-ftitle').value, details: $('#dw-fdetails').value, section: $('#dw-fsection').value, due_time: $('#dw-fdue').value, target: $('#dw-ftarget').value,
         days: $$('[name=dw-day]:checked').map(function (c) { return c.value; }) };
-      if (a) d.id = a.id; else { d.uids = $$('[name=dw-who]:checked').map(function (c) { return c.value; }); d.start_date = $('#dw-fstart').value; }
+      if (a) d.id = a.id; else { d.uids = $$('[name=dw-who]:checked').map(function (c) { return c.value; }); d.start_date = $('#dw-fstart').value; d.subs = $('#dw-fsublist').value; }
       if (!d.title.trim()) { toast('Activity name is required.', true); return; }
       var b = this; b.disabled = true;
       post('act_save', d).then(function (r) { closeM(); toast(a ? 'Activity saved' : 'Added for ' + r.saved + ' person(s)'); refresh(); }).catch(function (e) { fail(e); b.disabled = false; });

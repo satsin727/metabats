@@ -127,10 +127,12 @@ case 'report':   // per user per day, date range; JSON or CSV
         header('Content-Disposition: attachment; filename="daily_workflow_' . $from . '_to_' . $to . '.csv"');
         $o = fopen('php://output', 'w');
         fwrite($o, "\xEF\xBB\xBF");
-        fputcsv($o, ['Date', 'Day', 'User', 'Section', 'Activity', 'Due by', 'Target', 'Status', 'Count', 'Checked at', 'Late', 'Note']);
+        fputcsv($o, ['Date', 'Day', 'User', 'Section', 'Activity', 'Due by', 'Target', 'Status', 'Count', 'Checked at', 'Late', 'Note', 'Sub-activities done', 'Comments']);
         foreach ($uids as $id) for ($d = $from; $d <= $to; $d = date('Y-m-d', strtotime($d . ' +1 day'))) {
             foreach (dw_day($id, $d) as $it) fputcsv($o, [date('m/d/Y', strtotime($d)), date('D', strtotime($d)), tk_uname($id), $it['section'], $it['title'], $it['due_time'],
-                $it['target'], $it['status'] === 'open' ? ($d < $today ? 'Missed' : 'Open') : ucfirst($it['status']), $it['count_done'], $it['checked_at'], $it['late'] ? 'Yes' : '', $it['note']]);
+                $it['target'], $it['status'] === 'open' ? ($d < $today ? 'Missed' : 'Open') : ucfirst($it['status']), $it['count_done'], $it['checked_at'], $it['late'] ? 'Yes' : '', $it['note'],
+                $it['subs'] ? count(array_filter($it['subs'], fn($s) => $s['done'])) . '/' . count($it['subs']) . ': ' . implode('; ', array_map(fn($s) => ($s['done'] ? '[x] ' : '[ ] ') . $s['title'], $it['subs'])) : '',
+                implode(' | ', array_map(fn($c) => $c['by'] . ' (' . $c['at'] . '): ' . $c['body'], $it['comments']))]);
         }
         exit;
     }
@@ -158,7 +160,7 @@ case 'acts':   // activity definitions the user can manage (or their own, read-o
             'due_time' => $a['due_time'] ? substr($a['due_time'], 0, 5) : '', 'due_label' => $a['due_time'] ? date('g:i A', strtotime($a['due_time'])) : '',
             'target' => $a['target'] !== null ? (int)$a['target'] : null, 'active' => (int)$a['active'] === 1, 'start' => date('m/d/Y', strtotime($a['start_date'])),
             'end' => $a['end_date'] ? date('m/d/Y', strtotime($a['end_date'])) : '', 'created_by' => tk_uname($a['created_by']), 'created' => tk_fmt($a['created_at']),
-            'can_manage' => dw_can_manage($u, (int)$a['uid'])];
+            'can_manage' => dw_can_manage($u, (int)$a['uid']), 'subs' => array_column(dw_subs_of((int)$a['id']), 'title')];
     }
     dw_out(['ok' => true, 'acts' => $rows]);
 
@@ -196,7 +198,9 @@ case 'act_save':
     foreach ($uids as $id2) {
         $mx->execute([$id2]);
         $ins->execute([$id2, $title, $details, $section, $days, $due ?: null, $target, (int)$mx->fetchColumn(), $start, $u['uid'], tk_now()]);
-        dw_log((int)$db->lastInsertId(), $id2, $u['uid'], 'added', $title . ' (' . dw_days_label($days) . ($due ? ', by ' . $due : '') . ($target ? ', target ' . $target : '') . ')');
+        $newId = (int)$db->lastInsertId();
+        dw_log($newId, $id2, $u['uid'], 'added', $title . ' (' . dw_days_label($days) . ($due ? ', by ' . $due : '') . ($target ? ', target ' . $target : '') . ')');
+        dw_add_subs($newId, $id2, $u['uid'], preg_split('/\r\n|\r|\n/', (string)($_POST['subs'] ?? '')));
     }
     $db->commit();
     dw_out(['ok' => true, 'saved' => count($uids)]);
@@ -239,6 +243,79 @@ case 'act_reorder':   // drag & drop: after_id / before_id = the activities righ
     $db->commit();
     dw_out(['ok' => true, 'section' => $sec]);
 
+/* ---------- sub-activities ---------- */
+case 'subs':        // list for the manage dialog
+    $a = dw_act((int)($_GET['id'] ?? 0));
+    if (!dw_can_view($u, (int)$a['uid'])) throw new RuntimeException('Not allowed.');
+    dw_out(['ok' => true, 'activity' => ['id' => (int)$a['id'], 'title' => (string)$a['title'], 'owner' => tk_uname($a['uid'])], 'can_manage' => dw_can_manage($u, (int)$a['uid']),
+        'subs' => array_map(fn($s) => ['id' => (int)$s['id'], 'title' => (string)$s['title']], dw_subs_of((int)$a['id']))]);
+
+case 'sub_add':
+case 'sub_rename':
+case 'sub_remove':
+case 'sub_move':
+    dw_need_post($isPost);
+    if ($op === 'sub_add') { $a = dw_act((int)($_POST['activity_id'] ?? 0)); $s = null; }
+    else {
+        $q = $db->prepare('SELECT * FROM dw_subs WHERE id = ? AND active = 1'); $q->execute([(int)($_POST['sub_id'] ?? 0)]);
+        $s = $q->fetch(); if (!$s) throw new RuntimeException('Sub-activity not found.');
+        $a = dw_act((int)$s['activity_id']);
+    }
+    if (!dw_can_manage($u, (int)$a['uid'])) throw new RuntimeException('Only admins and managers can change sub-activities.');
+    $title = mb_substr(trim((string)($_POST['title'] ?? '')), 0, 250);
+    if (in_array($op, ['sub_add', 'sub_rename'], true) && $title === '') throw new RuntimeException('Type the sub-activity first.');
+    if ($op === 'sub_add') dw_add_subs((int)$a['id'], (int)$a['uid'], $u['uid'], [$title]);
+    elseif ($op === 'sub_rename') { if ($title !== $s['title']) { $db->prepare('UPDATE dw_subs SET title = ? WHERE id = ?')->execute([$title, (int)$s['id']]); dw_log((int)$a['id'], (int)$a['uid'], $u['uid'], 'sub_edited', $s['title'] . ' -> ' . $title); } }
+    elseif ($op === 'sub_remove') { $db->prepare('UPDATE dw_subs SET active = 0 WHERE id = ?')->execute([(int)$s['id']]); dw_log((int)$a['id'], (int)$a['uid'], $u['uid'], 'sub_removed', $s['title']); }
+    else {
+        $list = array_map(fn($x) => (int)$x['id'], dw_subs_of((int)$a['id']));
+        $i = array_search((int)$s['id'], $list, true); $j = ($_POST['dir'] ?? '') === 'up' ? $i - 1 : $i + 1;
+        if ($i !== false && isset($list[$j])) { [$list[$i], $list[$j]] = [$list[$j], $list[$i]]; $st = $db->prepare('UPDATE dw_subs SET sort_order = ? WHERE id = ?'); foreach ($list as $k => $id) $st->execute([$k + 1, $id]); }
+    }
+    dw_out(['ok' => true]);
+
+case 'sub_check':   // owner ticks / un-ticks a sub-activity for a day; ticking the last one completes the activity
+    dw_need_post($isPost);
+    $q = $db->prepare('SELECT * FROM dw_subs WHERE id = ?'); $q->execute([(int)($_POST['sub_id'] ?? 0)]);
+    $s = $q->fetch(); if (!$s) throw new RuntimeException('Sub-activity not found.');
+    $a = dw_act((int)$s['activity_id']);
+    if ((int)$a['uid'] !== $u['uid']) throw new RuntimeException('Only ' . tk_uname($a['uid']) . ' can tick their own activities.');
+    $date = dw_date($_POST['date'] ?? '');
+    if ($date > $today) throw new RuntimeException('You cannot tick an activity for a future day.');
+    if ($date < date('Y-m-d', strtotime('-' . DW_BACKFILL_DAYS . ' days'))) throw new RuntimeException('Activities older than ' . DW_BACKFILL_DAYS . ' days can no longer be changed.');
+    $done = !empty($_POST['done']);
+    $completed = false;
+    $db->beginTransaction();
+    if ($done) {
+        $db->prepare('INSERT IGNORE INTO dw_sub_checks(sub_id, activity_id, uid, work_date, checked_at) VALUES(?,?,?,?,?)')->execute([(int)$s['id'], (int)$a['id'], $u['uid'], $date, tk_now()]);
+        dw_log((int)$a['id'], $u['uid'], $u['uid'], 'sub_done', $a['title'] . ' > ' . $s['title'], $date);
+        // all steps ticked -> the activity is done
+        $left = $db->prepare('SELECT COUNT(*) FROM dw_subs S LEFT JOIN dw_sub_checks SC ON SC.sub_id = S.id AND SC.work_date = ? WHERE S.activity_id = ? AND S.active = 1 AND SC.id IS NULL');
+        $left->execute([$date, (int)$a['id']]);
+        $cur = $db->prepare('SELECT status FROM dw_checks WHERE activity_id = ? AND work_date = ?'); $cur->execute([(int)$a['id'], $date]);
+        if ((int)$left->fetchColumn() === 0 && !$cur->fetchColumn()) {
+            $db->prepare('INSERT INTO dw_checks(activity_id, uid, work_date, status, checked_at) VALUES(?,?,?,?,?)')->execute([(int)$a['id'], $u['uid'], $date, 'done', tk_now()]);
+            dw_log((int)$a['id'], $u['uid'], $u['uid'], 'done', $a['title'] . ' (all sub-activities done)', $date);
+            $completed = true;
+        }
+    } else {
+        $db->prepare('DELETE FROM dw_sub_checks WHERE sub_id = ? AND work_date = ?')->execute([(int)$s['id'], $date]);
+        dw_log((int)$a['id'], $u['uid'], $u['uid'], 'sub_undone', $a['title'] . ' > ' . $s['title'], $date);
+    }
+    $db->commit();
+    dw_out(['ok' => true, 'completed' => $completed]);
+
+case 'comment':     // comment on an activity for a day (the owner, or a manager / admin who can see it)
+    dw_need_post($isPost);
+    $a = dw_act((int)($_POST['activity_id'] ?? 0));
+    if (!dw_can_view($u, (int)$a['uid'])) throw new RuntimeException('Not allowed.');
+    $body = trim((string)($_POST['body'] ?? ''));
+    if ($body === '' || mb_strlen($body) > 3000) throw new RuntimeException('Comment cannot be empty (max 3000 characters).');
+    $date = dw_date($_POST['date'] ?? '');
+    $db->prepare('INSERT INTO dw_comments(activity_id, work_date, uid, body, created_at) VALUES(?,?,?,?,?)')->execute([(int)$a['id'], $date, $u['uid'], $body, tk_now()]);
+    dw_log((int)$a['id'], (int)$a['uid'], $u['uid'], 'comment', $a['title'] . ': ' . mb_substr($body, 0, 300), $date);
+    dw_out(['ok' => true]);
+
 case 'act_copy':   // copy one person's active routine to other people
     dw_need_post($isPost);
     $from = (int)($_POST['from_uid'] ?? 0);
@@ -260,7 +337,9 @@ case 'act_copy':   // copy one person's active routine to other people
         $have->execute([$id2, $a['title']]);
         if ((int)$have->fetchColumn() > 0) continue;   // already has it
         $ins->execute([$id2, $a['title'], $a['details'], $a['section'], $a['days'], $a['due_time'], $a['target'], $base + $k + 1, $today, $u['uid'], tk_now()]);
-        dw_log((int)$db->lastInsertId(), $id2, $u['uid'], 'added', $a['title'] . ' (copied from ' . tk_uname($from) . ')');
+        $newId = (int)$db->lastInsertId();
+        dw_log($newId, $id2, $u['uid'], 'added', $a['title'] . ' (copied from ' . tk_uname($from) . ')');
+        dw_add_subs($newId, $id2, $u['uid'], array_column(dw_subs_of((int)$a['id']), 'title'));
         $n++;
     }
     $db->commit();

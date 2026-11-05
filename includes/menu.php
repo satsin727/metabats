@@ -65,16 +65,18 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
             </li>
 
             <!-- Daily Workflow (each user's daily routine, ticked every day) -->
-			<?php if ($dta['level'] == 1) { ?>
+			<?php if ($dta['level'] == 1 || $dta['level'] == 2) { ?>
             <li class="<?php echo ($selected == "dailyworkflow") ? "active" : "parent"; ?>">
                 <a href="admin.php?action=dailyworkflow"><svg class="glyph stroked checkmark"><use xlink:href="#stroked-checkmark"></use></svg> Daily Workflow</a>
             </li>
 			<?php } ?>
 
             <!-- Open Tasks (Kanban board, comments, activity log) -->
+			<?php if ($dta['level'] == 1 || $dta['level'] == 2) { ?>
             <li class="<?php echo ($selected == "opentasks") ? "active" : "parent"; ?>">
                 <a href="admin.php?action=opentasks"><svg class="glyph stroked clipboard-with-paper"><use xlink:href="#stroked-clipboard-with-paper"></use></svg> Open Tasks</a>
             </li>
+			<?php } ?>
 
             <!-- ========================================== -->
             <!-- CORE WORKFLOW (Quick Access, Zero Extra Clicks) -->

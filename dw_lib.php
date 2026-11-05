@@ -65,6 +65,36 @@ function dw_schema(): void {
         KEY idx_dwl_owner (owner_uid, created_at),
         KEY idx_dwl_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    // optional sub-activities (steps) of an activity, ticked per day, and comments per activity per day
+    $db->exec("CREATE TABLE IF NOT EXISTS dw_subs (
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        activity_id INT NOT NULL,
+        title VARCHAR(250) NOT NULL,
+        sort_order INT NOT NULL DEFAULT 0,
+        active TINYINT(1) NOT NULL DEFAULT 1,
+        created_by INT NOT NULL,
+        created_at DATETIME NOT NULL,
+        KEY idx_dws_act (activity_id, active, sort_order)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $db->exec("CREATE TABLE IF NOT EXISTS dw_sub_checks (
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        sub_id INT NOT NULL,
+        activity_id INT NOT NULL,
+        uid INT NOT NULL,
+        work_date DATE NOT NULL,
+        checked_at DATETIME NOT NULL,
+        UNIQUE KEY uq_dwsc (sub_id, work_date),
+        KEY idx_dwsc_act (activity_id, work_date)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $db->exec("CREATE TABLE IF NOT EXISTS dw_comments (
+        id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+        activity_id INT NOT NULL,
+        work_date DATE NOT NULL,
+        uid INT NOT NULL,
+        body TEXT NOT NULL,
+        created_at DATETIME NOT NULL,
+        KEY idx_dwcm_act (activity_id, work_date, id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     $db->exec("CREATE TABLE IF NOT EXISTS dw_meta (k VARCHAR(40) NOT NULL PRIMARY KEY, v VARCHAR(255) NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
     // 2026-11: activities are now shown in one order set by drag & drop (sort_order).
     // Once, number every person's activities in the order they were shown before (section, then order added).
@@ -137,8 +167,22 @@ function dw_day(int $uid, string $date): array {
     $q->execute([$date, $uid, $date, $date, (string)$dow]);
     $today = date('Y-m-d');
     $now = date('H:i:s');
+    $rows = $q->fetchAll();
+    $ids = array_map(fn($r) => (int)$r['id'], $rows);
+    $subs = []; $cmts = [];
+    if ($ids) {
+        $in = implode(',', $ids);
+        // steps: active ones, plus stopped ones that were ticked that day
+        $sq = $db->prepare("SELECT S.id, S.activity_id, S.title, S.active, SC.checked_at FROM dw_subs S LEFT JOIN dw_sub_checks SC ON SC.sub_id = S.id AND SC.work_date = ?
+            WHERE S.activity_id IN ($in) AND (S.active = 1 OR SC.id IS NOT NULL) ORDER BY S.sort_order, S.id");
+        $sq->execute([$date]);
+        foreach ($sq as $s) $subs[(int)$s['activity_id']][] = ['id' => (int)$s['id'], 'title' => (string)$s['title'], 'done' => $s['checked_at'] !== null, 'at' => tk_fmt($s['checked_at'], 'g:i A'), 'active' => (int)$s['active'] === 1];
+        $cq = $db->prepare("SELECT * FROM dw_comments WHERE activity_id IN ($in) AND work_date = ? ORDER BY id");
+        $cq->execute([$date]);
+        foreach ($cq as $c) $cmts[(int)$c['activity_id']][] = ['id' => (int)$c['id'], 'by' => tk_uname($c['uid']), 'uid' => (int)$c['uid'], 'body' => (string)$c['body'], 'at' => tk_fmt($c['created_at'])];
+    }
     $out = [];
-    foreach ($q as $r) {
+    foreach ($rows as $r) {
         $st = $r['c_status'] ?: 'open';
         $late = false;
         if ($st === 'done' && $r['due_time'] && $r['checked_at']) $late = $r['checked_at'] > $date . ' ' . $r['due_time'];
@@ -148,9 +192,32 @@ function dw_day(int $uid, string $date): array {
             'due_time' => $r['due_time'] ? date('g:i A', strtotime($r['due_time'])) : '', 'due_raw' => $r['due_time'] ? substr($r['due_time'], 0, 5) : '',
             'target' => $r['target'] !== null ? (int)$r['target'] : null, 'count_done' => $r['count_done'] !== null ? (int)$r['count_done'] : null,
             'status' => $st, 'note' => (string)$r['c_note'], 'checked_at' => tk_fmt($r['checked_at']), 'late' => $late, 'overdue' => $overdue,
-            'active' => (int)$r['active'] === 1, 'days' => array_map('intval', explode(',', (string)$r['days'])), 'owner' => tk_uname($r['uid'])];
+            'active' => (int)$r['active'] === 1, 'days' => array_map('intval', explode(',', (string)$r['days'])), 'owner' => tk_uname($r['uid']),
+            'subs' => $subs[(int)$r['id']] ?? [], 'comments' => $cmts[(int)$r['id']] ?? []];
     }
     return $out;
+}
+/** Active sub-activities of an activity, in order. */
+function dw_subs_of(int $actId): array {
+    $q = tk_db()->prepare('SELECT * FROM dw_subs WHERE activity_id = ? AND active = 1 ORDER BY sort_order, id');
+    $q->execute([$actId]);
+    return $q->fetchAll();
+}
+/** Add sub-activities (titles) at the end of an activity's list. */
+function dw_add_subs(int $actId, int $owner, int $actor, array $titles): int {
+    $db = tk_db();
+    $mx = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) FROM dw_subs WHERE activity_id = ?');
+    $mx->execute([$actId]);
+    $o = (int)$mx->fetchColumn(); $n = 0;
+    $ins = $db->prepare('INSERT INTO dw_subs(activity_id, title, sort_order, created_by, created_at) VALUES(?,?,?,?,?)');
+    foreach ($titles as $t) {
+        $t = mb_substr(trim((string)$t), 0, 250);
+        if ($t === '') continue;
+        $ins->execute([$actId, $t, ++$o, $actor, tk_now()]);
+        dw_log($actId, $owner, $actor, 'sub_added', $t);
+        $n++;
+    }
+    return $n;
 }
 /** [done, skipped, total] per uid per date for a date range (scheduled activities only + ticks). */
 function dw_summary(array $uids, string $from, string $to): array {
@@ -189,6 +256,12 @@ function dw_log_text(array $r): string {
         case 'skipped':  return 'skipped it';
         case 'note':     return 'updated the note';
         case 'reordered': return 'changed the order';
+        case 'sub_added':   return 'added a sub-activity';
+        case 'sub_edited':  return 'renamed a sub-activity';
+        case 'sub_removed': return 'removed a sub-activity';
+        case 'sub_done':    return 'ticked a sub-activity';
+        case 'sub_undone':  return 'un-ticked a sub-activity';
+        case 'comment':     return 'commented';
         default:         return (string)$r['event'];
     }
 }
