@@ -65,9 +65,11 @@ $selected = isset($_GET['action']) ? $_GET['action'] : '';
             </li>
 
             <!-- Daily Workflow (each user's daily routine, ticked every day) -->
+			<?php if ($dta['level'] == 1) { ?>
             <li class="<?php echo ($selected == "dailyworkflow") ? "active" : "parent"; ?>">
                 <a href="admin.php?action=dailyworkflow"><svg class="glyph stroked checkmark"><use xlink:href="#stroked-checkmark"></use></svg> Daily Workflow</a>
             </li>
+			<?php } ?>
 
             <!-- Open Tasks (Kanban board, comments, activity log) -->
             <li class="<?php echo ($selected == "opentasks") ? "active" : "parent"; ?>">
