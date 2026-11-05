@@ -53,6 +53,8 @@ switch ( $action) {
     break;
     case 'opentasks': require 'tasks.php';
     break;
+    case 'dailyworkflow': require 'dailyworkflow.php';
+    break;
     case 'showallreqs': showallreqs();
     break;
     case 'showapplications': showapplications();
