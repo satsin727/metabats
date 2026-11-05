@@ -31,6 +31,8 @@ const TK_FLOW = [
     'completed'   => ['in_progress'],
     'cancelled'   => ['new'],
 ];
+/** Default order inside a column when no manual order was set (used after sort_order). */
+const TK_ORDER = "FIELD(T.priority,'critical','high','medium','low'), (T.due_date IS NULL), T.due_date, T.id DESC";
 const TK_PRIORITIES = ['low' => 'Low', 'medium' => 'Medium', 'high' => 'High', 'critical' => 'Critical'];
 const TK_CATEGORIES = ['General', 'Recruiting', 'Requirement', 'Client', 'Consultant', 'Onboarding', 'Admin / HR', 'IT / Support', 'Finance', 'Other'];
 const TK_LEVELS = [1 => 'Admin', 2 => 'Manager', 3 => 'Recruiter', 4 => 'Sales', 5 => 'Viewer'];
@@ -173,6 +175,8 @@ function tk_can_manage(array $u, array $t): bool {
     if (tk_is_admin($u) || (int)$t['manager_uid'] === $u['uid'] || (int)$t['created_by'] === $u['uid']) return true;
     return $u['level'] === 2 && $t['assignee_uid'] && in_array((int)$t['assignee_uid'], tk_team($u), true);
 }
+/** Change the order of cards on the board (the order is shared by everyone). */
+function tk_can_reorder(array $u, array $t): bool { return tk_is_mgr($u) || tk_can_manage($u, $t); }
 /** Can approve (In Review -> Completed, or complete a task that has a manager). */
 function tk_can_approve(array $u, array $t): bool {
     if (tk_is_admin($u)) return true;
@@ -232,7 +236,7 @@ function tk_public(array $t, array $u): array {
         'completed_by' => tk_uname($t['completed_by']), 'cancelled' => tk_fmt($t['cancelled_at']),
         'age_days' => (int)floor((time() - strtotime($t['created_at'])) / 86400),
         'comments' => isset($t['ncomments']) ? (int)$t['ncomments'] : null,
-        'can_manage' => tk_can_manage($u, $t), 'can_delete' => tk_is_admin($u),
+        'can_manage' => tk_can_manage($u, $t), 'can_reorder' => tk_can_reorder($u, $t), 'can_delete' => tk_is_admin($u),
         'next' => tk_next_stages($u, $t),
     ];
 }
@@ -250,6 +254,7 @@ function tk_activity_text(array $a): string {
         case 'title':     return 'renamed the task';
         case 'description': return 'updated the description';
         case 'category':  return 'changed category from ' . $f . ' to ' . $t;
+        case 'reorder':   return 'changed its position in the ' . tk_stage_label($t) . ' column';
         case 'comment':   return $t !== '' ? 'commented on sub-task "' . $t . '"' : 'commented';
         case 'sub_added':    return 'added sub-task "' . $t . '"';
         case 'sub_done':     return 'completed sub-task "' . $t . '"';

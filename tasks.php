@@ -45,6 +45,7 @@ require __DIR__ . '/includes/menu.php';
 .tk-col-h .n { margin-left: auto; background: #fff; border-radius: 10px; padding: 0 8px; font-size: 12px; color: #475467; }
 .tk-col-b { padding: 6px 8px 10px; overflow-y: auto; flex: 1; min-height: 60px; }
 .tk-col.drop-ok .tk-col-b { background: #e0eaff; border-radius: 0 0 10px 10px; }
+.tk-ph { height: 46px; border: 2px dashed #2e90fa; border-radius: 8px; background: #f5faff; margin-bottom: 8px; }
 .tk-col.drop-no { opacity: .45; }
 .tk-card { background: #fff; border: 1px solid #eaecf0; border-left: 4px solid #d0d5dd; border-radius: 8px; padding: 9px 10px; margin-bottom: 8px; cursor: pointer; box-shadow: 0 1px 2px rgba(16,24,40,.05); }
 .tk-card:hover { border-color: #84adff; }
@@ -145,7 +146,7 @@ require __DIR__ . '/includes/menu.php';
   <div class="tk-head">
     <div>
       <h2>Open Tasks</h2>
-      <div class="tk-sub">Track every task from New to Completed &middot; drag cards between stages &middot; every change is logged</div>
+      <div class="tk-sub">Track every task from New to Completed &middot; drag cards between stages, or up / down to set the order &middot; every change is logged</div>
     </div>
     <div class="tk-tabs">
       <a href="admin.php?action=opentasks&amp;view=board" class="<?php echo $view === 'board' ? 'on' : ''; ?>">Board</a>
@@ -336,7 +337,7 @@ require __DIR__ . '/includes/menu.php';
     return '<span class="tk-due' + (t.overdue ? ' over' : t.due_today ? ' today' : '') + '" title="Due date">' + (t.overdue ? '⚠ ' : '') + esc(t.due) + '</span>';
   }
   function card(t) {
-    var drag = t.next.length ? ' draggable="true"' : '';
+    var drag = (t.next.length || t.can_reorder) ? ' draggable="true"' : '';
     return '<div class="tk-card pr-' + esc(t.priority) + '" data-id="' + t.id + '"' + drag + ' tabindex="0">' +
       '<div class="k">' + esc(t.key) + ' &middot; ' + esc(t.category) + '</div><div class="t">' + esc(t.title) + '</div>' +
       '<div class="m"><span class="tk-pill p-' + esc(t.priority) + '">' + esc(B.priorities[t.priority] || t.priority) + '</span>' + dueHtml(t) +
@@ -356,6 +357,14 @@ require __DIR__ . '/includes/menu.php';
     bindBoard();
   }
   var dragId = null;
+  /** drop placeholder: dropPh(columnBody, cardToInsertBefore) shows it, dropPh(null) removes it */
+  function dropPh(body, ref) {
+    var ph = $('.tk-ph');
+    if (!body) { if (ph) ph.remove(); return; }
+    if (!ph) { ph = document.createElement('div'); ph.className = 'tk-ph'; }
+    var empty = $('.tk-empty', body); if (empty) empty.style.display = 'none';
+    if (ref) { if (ph.nextElementSibling !== ref) body.insertBefore(ph, ref); } else if (ph.parentNode !== body || ph.nextElementSibling) body.appendChild(ph);
+  }
   function bindBoard() {
     $$('.tk-card').forEach(function (c) {
       c.onclick = function () { openTask(+c.getAttribute('data-id')); };
@@ -363,18 +372,50 @@ require __DIR__ . '/includes/menu.php';
       c.addEventListener('dragstart', function (e) {
         dragId = +c.getAttribute('data-id'); c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragId));
         var t = cache[dragId];
-        $$('.tk-col').forEach(function (col) { var s = col.getAttribute('data-stage'); if (s !== t.status) col.classList.add(t.next.indexOf(s) >= 0 ? 'drop-target' : 'drop-no'); });
+        $$('.tk-col').forEach(function (col) {
+          var s = col.getAttribute('data-stage');
+          if (s === t.status) { if (t.can_reorder) col.classList.add('drop-target'); }
+          else col.classList.add(t.next.indexOf(s) >= 0 ? 'drop-target' : 'drop-no');
+        });
       });
-      c.addEventListener('dragend', function () { c.classList.remove('dragging'); dragId = null; $$('.tk-col').forEach(function (col) { col.classList.remove('drop-ok', 'drop-no', 'drop-target'); }); });
+      c.addEventListener('dragend', function () { c.classList.remove('dragging'); dragId = null; dropPh(null); $$('.tk-col').forEach(function (col) { col.classList.remove('drop-ok', 'drop-no', 'drop-target'); }); });
     });
     $$('.tk-col').forEach(function (col) {
-      col.addEventListener('dragover', function (e) { if (dragId && col.classList.contains('drop-target')) { e.preventDefault(); col.classList.add('drop-ok'); } });
-      col.addEventListener('dragleave', function (e) { if (!col.contains(e.relatedTarget)) col.classList.remove('drop-ok'); });
+      var body = $('.tk-col-b', col);
+      col.addEventListener('dragover', function (e) {
+        if (!dragId || !col.classList.contains('drop-target')) return;
+        e.preventDefault(); col.classList.add('drop-ok');
+        // show where the card will land: before the first card whose middle is below the pointer
+        var cards = $$('.tk-card', body).filter(function (x) { return +x.getAttribute('data-id') !== dragId; }), ref = null;
+        for (var i = 0; i < cards.length; i++) { var r = cards[i].getBoundingClientRect(); if (e.clientY < r.top + r.height / 2) { ref = cards[i]; break; } }
+        dropPh(body, ref);
+      });
+      col.addEventListener('dragleave', function (e) { if (!col.contains(e.relatedTarget)) { col.classList.remove('drop-ok'); dropPh(null); } });
       col.addEventListener('drop', function (e) {
         e.preventDefault(); var id = dragId || +e.dataTransfer.getData('text/plain'); var to = col.getAttribute('data-stage');
-        col.classList.remove('drop-ok'); if (!id || !cache[id] || cache[id].status === to) return;
-        if (cache[id].next.indexOf(to) < 0) { toast('A task in ' + cache[id].status_label + ' cannot be moved to ' + B.stages[to].label + '.', true); return; }
-        moveTask(cache[id], to);
+        col.classList.remove('drop-ok');
+        var ph = $('.tk-ph', body), pos = { after_id: 0, before_id: 0 };
+        if (ph) {
+          var p = ph.previousElementSibling, n = ph.nextElementSibling;
+          while (p && (!p.classList.contains('tk-card') || +p.getAttribute('data-id') === id)) p = p.previousElementSibling;
+          while (n && (!n.classList.contains('tk-card') || +n.getAttribute('data-id') === id)) n = n.nextElementSibling;
+          pos.after_id = p ? +p.getAttribute('data-id') : 0; pos.before_id = n ? +n.getAttribute('data-id') : 0;
+        }
+        var card = $('.tk-card[data-id="' + id + '"]');
+        if (!id || !cache[id]) { dropPh(null); return; }
+        var t = cache[id];
+        if (t.status === to) {   // re-order inside the column
+          if (!t.can_reorder) { dropPh(null); return; }
+          var cur = card.previousElementSibling, curN = card.nextElementSibling;
+          if ((ph && (ph === cur || ph === curN))) { dropPh(null); return; }   // dropped where it already was
+          if (ph && card) body.insertBefore(card, ph);   // move it on screen right away
+          dropPh(null);
+          post('reorder', { id: id, status: to, after_id: pos.after_id, before_id: pos.before_id }).then(function () { load(); }).catch(function (e2) { fail(e2); load(); });
+          return;
+        }
+        dropPh(null);
+        if (t.next.indexOf(to) < 0) { toast('A task in ' + t.status_label + ' cannot be moved to ' + B.stages[to].label + '.', true); return; }
+        moveTask(t, to, null, pos);
       });
     });
   }
@@ -405,10 +446,10 @@ require __DIR__ . '/includes/menu.php';
     if (to === 'cancelled') return 'Cancel Task';
     return B.stages[to].label;
   }
-  function moveTask(t, to, after) {
+  function moveTask(t, to, after, pos) {
     var req = needsReason(t.status, to), optional = to === 'completed';
     var go = function (reason) {
-      post('move', { id: t.id, version: t.version, to: to, reason: reason || '' }).then(function (j) {
+      post('move', { id: t.id, version: t.version, to: to, reason: reason || '', after_id: pos ? pos.after_id : 0, before_id: pos ? pos.before_id : 0 }).then(function (j) {
         toast(j.task.key + ' moved to ' + j.task.status_label); closeModal('#tk-r'); load(); if (after) after(j.task);
       }).catch(function (e) { fail(e); if (after && e.conflict) openTask(t.id); });
     };

@@ -84,7 +84,7 @@ function tk_find(array $u, array $f, bool $board): array {
         $params[] = date('Y-m-d H:i:s', strtotime("-$days days"));
     }
     $sql = 'SELECT T.*, (SELECT COUNT(*) FROM tk_comments C WHERE C.task_id = T.id) AS ncomments FROM tk_tasks T WHERE ' . implode(' AND ', $w)
-         . " ORDER BY FIELD(T.priority,'critical','high','medium','low'), (T.due_date IS NULL), T.due_date, T.id DESC LIMIT 2000";
+         . ' ORDER BY ' . ($board ? 'T.sort_order, ' : '') . TK_ORDER . ' LIMIT 2000';
     $s = tk_db()->prepare($sql);
     $s->execute($params);
     return $s->fetchAll();
@@ -105,6 +105,34 @@ function tk_stats(array $u): array {
         FROM tk_tasks T WHERE T.is_deleted = 0 AND $scope");
     $s->execute(array_merge([$today, $today, date('Y-m-d H:i:s', strtotime('-7 days')), $u['uid']], $params));
     return array_map('intval', $s->fetch() ?: []);
+}
+
+/**
+ * Put a task at a position inside its board column (manual order, shared by everyone).
+ * $afterId / $beforeId are the cards right above / below the drop point (0 = none). No neighbours = top of the column.
+ */
+function tk_place(int $id, string $status, int $afterId = 0, int $beforeId = 0): void {
+    $db = tk_db();
+    $q = $db->prepare("SELECT T.id, T.sort_order FROM tk_tasks T WHERE T.status = ? AND T.is_deleted = 0 AND T.id <> ? ORDER BY T.sort_order, " . TK_ORDER);
+    $q->execute([$status, $id]);
+    $list = $q->fetchAll(PDO::FETCH_KEY_PAIR);           // id => sort_order, in board order
+    $ids = array_map('intval', array_keys($list));
+    $idx = 0;
+    if ($beforeId && ($p = array_search($beforeId, $ids, true)) !== false) $idx = $p;
+    elseif ($afterId && ($p = array_search($afterId, $ids, true)) !== false) $idx = $p + 1;
+    $prev = $idx > 0 ? (int)$list[$ids[$idx - 1]] : null;
+    $next = $idx < count($ids) ? (int)$list[$ids[$idx]] : null;
+    if ($prev === null && $next === null) $val = 0;
+    elseif ($prev === null) $val = $next - 1000;
+    elseif ($next === null) $val = $prev + 1000;
+    elseif ($next - $prev >= 2) $val = intdiv($prev + $next, 2);
+    else {   // no room between the neighbours: renumber the whole column (1000, 2000, ...) with the task in its new place
+        array_splice($ids, $idx, 0, [$id]);
+        $st = $db->prepare('UPDATE tk_tasks SET sort_order = ? WHERE id = ?');
+        foreach ($ids as $k => $tid) $st->execute([($k + 1) * 1000, $tid]);
+        return;
+    }
+    $db->prepare('UPDATE tk_tasks SET sort_order = ? WHERE id = ?')->execute([$val, $id]);
 }
 
 /* ---------- operations ---------- */
@@ -160,6 +188,7 @@ case 'create':
     if ($assignee) tk_log($id, $u['uid'], 'assigned', '', tk_uname($assignee));
     if ($manager) tk_log($id, $u['uid'], 'manager', '', tk_uname($manager));
     if (($_POST['apply_checklist'] ?? '1') !== '0') tk_apply_checklist($id, $cat, $u['uid']);
+    tk_place($id, $status);   // new tasks go to the top of their column
     $db->commit();
     $nq = tk_notify('task_created', $id, $u['uid']);
     tk_out(['ok' => true, 'task' => tk_public(tk_get($id), $u), 'notify' => $nq]);
@@ -238,9 +267,22 @@ case 'move':
     if ($s->rowCount() !== 1) { $db->rollBack(); throw new TkConflict('This task was changed by someone else a moment ago. The board has been refreshed.'); }
     $label = in_array($t['status'], ['completed', 'cancelled'], true) ? 'Reopened: ' : '';
     tk_log((int)$t['id'], $u['uid'], 'status', $t['status'], $to, $label . $reason);
+    tk_place((int)$t['id'], $to, (int)($_POST['after_id'] ?? 0), (int)($_POST['before_id'] ?? 0));   // where it was dropped (top if moved by button)
     $db->commit();
     $nq = tk_notify(tk_move_event($t['status'], $to), (int)$t['id'], $u['uid'], ['from' => $t['status'], 'reason' => $reason]);
     tk_out(['ok' => true, 'task' => tk_public(tk_get((int)$t['id']), $u), 'notify' => $nq]);
+
+case 'reorder':   // drag a card up / down inside its column
+    tk_need_post($isPost);
+    $t = tk_load_for($u, (int)($_POST['id'] ?? 0));
+    if (!tk_can_reorder($u, $t)) throw new RuntimeException('Only managers, admins and the task owners can change the order of the board.');
+    if ((string)($_POST['status'] ?? '') !== $t['status']) throw new TkConflict('This task has moved to ' . tk_stage_label($t['status']) . '. The board has been refreshed.');
+    $db->beginTransaction();
+    tk_place((int)$t['id'], $t['status'], (int)($_POST['after_id'] ?? 0), (int)($_POST['before_id'] ?? 0));
+    $near = (int)($_POST['before_id'] ?? 0) ? 'above ' . tk_key((int)$_POST['before_id']) : ((int)($_POST['after_id'] ?? 0) ? 'below ' . tk_key((int)$_POST['after_id']) : 'to the top');
+    tk_log((int)$t['id'], $u['uid'], 'reorder', null, $t['status'], 'Moved ' . $near);
+    $db->commit();
+    tk_out(['ok' => true]);
 
 case 'comment':
     tk_need_post($isPost);
