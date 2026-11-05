@@ -152,7 +152,7 @@ case 'acts':   // activity definitions the user can manage (or their own, read-o
     foreach ($uids as $id) if (!dw_can_view($u, $id)) throw new RuntimeException('Not allowed.');
     $in = implode(',', array_map('intval', $uids));
     $rows = [];
-    foreach ($db->query("SELECT * FROM dw_activities WHERE uid IN ($in) ORDER BY active DESC, uid, FIELD(section, '" . implode("','", DW_SECTIONS) . "'), sort_order, id") as $a) {
+    foreach ($db->query("SELECT * FROM dw_activities WHERE uid IN ($in) ORDER BY active DESC, uid, sort_order, id") as $a) {
         $rows[] = ['id' => (int)$a['id'], 'uid' => (int)$a['uid'], 'owner' => tk_uname($a['uid']), 'title' => (string)$a['title'], 'details' => (string)$a['details'],
             'section' => (string)$a['section'], 'days' => array_map('intval', explode(',', $a['days'])), 'days_label' => dw_days_label($a['days']),
             'due_time' => $a['due_time'] ? substr($a['due_time'], 0, 5) : '', 'due_label' => $a['due_time'] ? date('g:i A', strtotime($a['due_time'])) : '',
@@ -216,21 +216,28 @@ case 'act_resume':
     }
     dw_out(['ok' => true]);
 
-case 'act_move':
+case 'act_move':      // ↑ / ↓ buttons: swap with the previous / next active activity
+case 'act_reorder':   // drag & drop: after_id / before_id = the activities right above / below the drop point
     dw_need_post($isPost);
     $a = dw_act((int)($_POST['id'] ?? 0));
-    if (!dw_can_manage($u, (int)$a['uid'])) throw new RuntimeException('You cannot change this person\'s activities.');
-    $q = $db->prepare('SELECT id FROM dw_activities WHERE uid = ? AND section = ? AND active = 1 ORDER BY sort_order, id');
-    $q->execute([(int)$a['uid'], $a['section']]);
-    $list = array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN));
-    $i = array_search((int)$a['id'], $list, true);
-    $j = ($_POST['dir'] ?? '') === 'up' ? $i - 1 : $i + 1;
-    if ($i !== false && isset($list[$j])) {
-        [$list[$i], $list[$j]] = [$list[$j], $list[$i]];
-        $st = $db->prepare('UPDATE dw_activities SET sort_order = ? WHERE id = ?');
-        foreach ($list as $k => $id) $st->execute([$k + 1, $id]);
+    if (!dw_can_manage($u, (int)$a['uid'])) throw new RuntimeException('Only admins and managers can change the order of activities.');
+    $after = (int)($_POST['after_id'] ?? 0); $before = (int)($_POST['before_id'] ?? 0);
+    if ($op === 'act_move') {
+        $q = $db->prepare('SELECT id FROM dw_activities WHERE uid = ? AND active = 1 ORDER BY sort_order, id');
+        $q->execute([(int)$a['uid']]);
+        $list = array_map('intval', $q->fetchAll(PDO::FETCH_COLUMN));
+        $i = array_search((int)$a['id'], $list, true);
+        if ($i === false) dw_out(['ok' => true]);
+        if (($_POST['dir'] ?? '') === 'up') { if ($i === 0) dw_out(['ok' => true]); $before = $list[$i - 1]; $after = $list[$i - 2] ?? 0; }
+        else { if (!isset($list[$i + 1])) dw_out(['ok' => true]); $after = $list[$i + 1]; $before = $list[$i + 2] ?? 0; }
     }
-    dw_out(['ok' => true]);
+    foreach ([$after, $before] as $nid) if ($nid) { $n = dw_act($nid); if ((int)$n['uid'] !== (int)$a['uid']) throw new RuntimeException('Activities belong to different people.'); }
+    $db->beginTransaction();
+    $sec = dw_reorder($a, $after, $before);
+    $where = $before ? 'before "' . dw_act($before)['title'] . '"' : ($after ? 'after "' . dw_act($after)['title'] . '"' : 'to the top');
+    dw_log((int)$a['id'], (int)$a['uid'], $u['uid'], 'reordered', $a['title'] . ': moved ' . $where . ($sec !== $a['section'] ? ' (section: ' . $a['section'] . ' -> ' . $sec . ')' : ''));
+    $db->commit();
+    dw_out(['ok' => true, 'section' => $sec]);
 
 case 'act_copy':   // copy one person's active routine to other people
     dw_need_post($isPost);
@@ -244,13 +251,15 @@ case 'act_copy':   // copy one person's active routine to other people
     $src = $src->fetchAll();
     if (!$src) throw new RuntimeException(tk_uname($from) . ' has no active activities to copy.');
     $have = $db->prepare('SELECT COUNT(*) FROM dw_activities WHERE uid = ? AND active = 1 AND title = ?');
+    $mxc = $db->prepare('SELECT COALESCE(MAX(sort_order), 0) FROM dw_activities WHERE uid = ?');
     $ins = $db->prepare('INSERT INTO dw_activities(uid, title, details, section, days, due_time, target, sort_order, start_date, created_by, created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)');
     $n = 0;
     $db->beginTransaction();
     foreach ($to as $id2) foreach ($src as $k => $a) {
+        if ($k === 0) { $mxc->execute([$id2]); $base = (int)$mxc->fetchColumn(); }   // copied steps go after their own, in the same order
         $have->execute([$id2, $a['title']]);
         if ((int)$have->fetchColumn() > 0) continue;   // already has it
-        $ins->execute([$id2, $a['title'], $a['details'], $a['section'], $a['days'], $a['due_time'], $a['target'], $k + 1, $today, $u['uid'], tk_now()]);
+        $ins->execute([$id2, $a['title'], $a['details'], $a['section'], $a['days'], $a['due_time'], $a['target'], $base + $k + 1, $today, $u['uid'], tk_now()]);
         dw_log((int)$db->lastInsertId(), $id2, $u['uid'], 'added', $a['title'] . ' (copied from ' . tk_uname($from) . ')');
         $n++;
     }

@@ -65,6 +65,41 @@ function dw_schema(): void {
         KEY idx_dwl_owner (owner_uid, created_at),
         KEY idx_dwl_created (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    $db->exec("CREATE TABLE IF NOT EXISTS dw_meta (k VARCHAR(40) NOT NULL PRIMARY KEY, v VARCHAR(255) NULL) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    // 2026-11: activities are now shown in one order set by drag & drop (sort_order).
+    // Once, number every person's activities in the order they were shown before (section, then order added).
+    if (!$db->query("SELECT COUNT(*) FROM dw_meta WHERE k = 'order_v2'")->fetchColumn()) {
+        $st = $db->prepare('UPDATE dw_activities SET sort_order = ? WHERE id = ?');
+        $n = []; 
+        foreach ($db->query("SELECT id, uid FROM dw_activities ORDER BY uid, FIELD(section, '" . implode("','", DW_SECTIONS) . "'), sort_order, id")->fetchAll() as $r) {
+            $n[$r['uid']] = ($n[$r['uid']] ?? 0) + 1;
+            $st->execute([$n[$r['uid']], $r['id']]);
+        }
+        $db->exec("INSERT IGNORE INTO dw_meta(k, v) VALUES('order_v2', NOW())");
+    }
+}
+/**
+ * Move an activity in its owner's workflow order: right after $afterId / right before $beforeId (0 = none -> top).
+ * If it is dropped between two activities of another section, it joins that section. Returns the new section.
+ */
+function dw_reorder(array $a, int $afterId, int $beforeId): string {
+    $db = tk_db();
+    $q = $db->prepare('SELECT id, section FROM dw_activities WHERE uid = ? AND id <> ? ORDER BY sort_order, id');
+    $q->execute([(int)$a['uid'], (int)$a['id']]);
+    $list = $q->fetchAll(PDO::FETCH_KEY_PAIR);
+    $ids = array_map('intval', array_keys($list));
+    $idx = 0;
+    if ($beforeId && ($p = array_search($beforeId, $ids, true)) !== false) $idx = $p;
+    elseif ($afterId && ($p = array_search($afterId, $ids, true)) !== false) $idx = $p + 1;
+    $section = (string)$a['section'];
+    $prevS = $afterId && isset($list[$afterId]) ? $list[$afterId] : null;
+    $nextS = $beforeId && isset($list[$beforeId]) ? $list[$beforeId] : null;
+    if ($prevS !== null && $prevS === $nextS && $prevS !== $section) $section = $prevS;
+    array_splice($ids, $idx, 0, [(int)$a['id']]);
+    $st = $db->prepare('UPDATE dw_activities SET sort_order = ? WHERE id = ?');
+    foreach ($ids as $k => $id) $st->execute([$k + 1, $id]);
+    if ($section !== $a['section']) $db->prepare('UPDATE dw_activities SET section = ? WHERE id = ?')->execute([$section, (int)$a['id']]);
+    return $section;
 }
 function dw_log(?int $act, int $owner, int $actor, string $event, string $detail = '', ?string $date = null): void {
     tk_db()->prepare('INSERT INTO dw_log(activity_id, owner_uid, actor_uid, work_date, event, detail, ip, created_at) VALUES(?,?,?,?,?,?,?,?)')
@@ -98,7 +133,7 @@ function dw_day(int $uid, string $date): array {
     $q = $db->prepare("SELECT A.*, C.status AS c_status, C.note AS c_note, C.checked_at, C.count_done
         FROM dw_activities A LEFT JOIN dw_checks C ON C.activity_id = A.id AND C.work_date = ?
         WHERE A.uid = ? AND (C.id IS NOT NULL OR (A.start_date <= ? AND (A.end_date IS NULL OR A.end_date >= ?) AND FIND_IN_SET(?, A.days) > 0))
-        ORDER BY FIELD(A.section, '" . implode("','", DW_SECTIONS) . "'), A.sort_order, A.id");
+        ORDER BY A.sort_order, A.id");
     $q->execute([$date, $uid, $date, $date, (string)$dow]);
     $today = date('Y-m-d');
     $now = date('H:i:s');
@@ -113,7 +148,7 @@ function dw_day(int $uid, string $date): array {
             'due_time' => $r['due_time'] ? date('g:i A', strtotime($r['due_time'])) : '', 'due_raw' => $r['due_time'] ? substr($r['due_time'], 0, 5) : '',
             'target' => $r['target'] !== null ? (int)$r['target'] : null, 'count_done' => $r['count_done'] !== null ? (int)$r['count_done'] : null,
             'status' => $st, 'note' => (string)$r['c_note'], 'checked_at' => tk_fmt($r['checked_at']), 'late' => $late, 'overdue' => $overdue,
-            'active' => (int)$r['active'] === 1];
+            'active' => (int)$r['active'] === 1, 'days' => array_map('intval', explode(',', (string)$r['days'])), 'owner' => tk_uname($r['uid'])];
     }
     return $out;
 }
@@ -153,6 +188,7 @@ function dw_log_text(array $r): string {
         case 'undone':   return 'un-ticked it';
         case 'skipped':  return 'skipped it';
         case 'note':     return 'updated the note';
+        case 'reordered': return 'changed the order';
         default:         return (string)$r['event'];
     }
 }

@@ -76,6 +76,10 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
 .dw-toast { position: fixed; right: 18px; bottom: 18px; z-index: 10050; background: #101828; color: #fff; padding: 10px 14px; border-radius: 8px; max-width: 420px; display: none; }
 .dw-toast.err { background: #b42318; }
 .dw-actrow.stopped td { color: #98a2b3; }
+.dw-grip { cursor: grab; color: #98a2b3; font-size: 18px; line-height: 1; padding: 2px 4px 2px 0; user-select: none; flex: 0 0 auto; }
+.dw-grip:hover { color: #1570ef; }
+.dw-step { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 11px; background: #f2f4f7; color: #475467; font-size: 11px; font-weight: 700; flex: 0 0 auto; margin-top: 1px; }
+.dw-dragging { opacity: .45; outline: 2px dashed #2e90fa; }
 @media (max-width: 767px) {
   .dw-main { float: none; width: 100%; margin-left: 0; }
   .dw-sum { grid-template-columns: 1fr; }
@@ -133,6 +137,45 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
   $('#dw-m').addEventListener('click', function (e) { if (e.target.id === 'dw-m' || e.target.hasAttribute('data-close')) closeM(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeM(); });
 
+  /**
+   * Drag & drop ordering. Items are dragged by their ⠿ handle; onDrop(id, afterId, beforeId) gets the
+   * neighbours at the drop point (0 = none) and is only called when the position really changed.
+   */
+  function sortable(box, sel, onDrop) {
+    var drag = null, before = null;
+    var ids = function (el) {
+      var p = el.previousElementSibling, n = el.nextElementSibling;
+      while (p && !p.matches(sel)) p = p.previousElementSibling;
+      while (n && !n.matches(sel)) n = n.nextElementSibling;
+      return [p ? +p.getAttribute('data-aid') : 0, n ? +n.getAttribute('data-aid') : 0];
+    };
+    $$(sel + ' .dw-grip', box).forEach(function (g) {
+      var el = g.closest(sel);
+      g.addEventListener('mousedown', function () { el.setAttribute('draggable', 'true'); });
+      g.addEventListener('touchstart', function () { el.setAttribute('draggable', 'true'); }, { passive: true });
+      el.addEventListener('dragstart', function (e) {
+        if (el.getAttribute('draggable') !== 'true') return;
+        drag = el; before = ids(el); el.classList.add('dw-dragging'); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', el.getAttribute('data-aid'));
+      });
+      el.addEventListener('dragend', function () {
+        el.removeAttribute('draggable'); el.classList.remove('dw-dragging');
+        if (drag !== el) return;
+        var now = ids(el); drag = null;
+        if (now[0] !== before[0] || now[1] !== before[1]) onDrop(+el.getAttribute('data-aid'), now[0], now[1]);
+      });
+    });
+    box.addEventListener('dragover', function (e) {
+      if (!drag) return;
+      e.preventDefault();
+      var t = e.target.closest ? e.target.closest(sel) : null;
+      if (!t || t === drag || !box.contains(t)) return;
+      var r = t.getBoundingClientRect();
+      if (e.clientY < r.top + r.height / 2) { if (t.previousElementSibling !== drag) t.parentNode.insertBefore(drag, t); }
+      else if (t.nextElementSibling !== drag) t.parentNode.insertBefore(drag, t.nextElementSibling);
+    });
+    box.addEventListener('drop', function (e) { if (drag) e.preventDefault(); });
+  }
+
   /* ================= My Day ================= */
   var S = { uid: B.uid, date: B.date };
   function loadDay() {
@@ -146,7 +189,7 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
       '<button type="button" class="btn btn-default btn-sm" id="dw-next">Next day ›</button>' + (j.is_today ? '' : '<button type="button" class="btn btn-primary btn-sm" id="dw-today">Today</button>') +
       '<span class="dw-sub" style="margin-left:auto">' + esc(j.label) + '</span></div>';
     var banner = '';
-    if (!j.own) banner = '<div class="dw-banner">You are viewing <b>' + esc(j.name) + '</b>\'s day (read-only — only they can tick their activities).' + (j.can_manage ? ' <a href="admin.php?action=dailyworkflow&amp;view=activities&amp;uid=' + j.uid + '">Manage their activities</a>' : '') + '</div>';
+    if (!j.own) banner = '<div class="dw-banner">You are viewing <b>' + esc(j.name) + '</b>\'s day. Only they can tick their activities' + (j.can_manage ? ' — you can <b>✎ Edit</b> or <b>Stop</b> any activity below, or <a href="admin.php?action=dailyworkflow&amp;view=activities&amp;uid=' + j.uid + '">manage all their activities</a>.' : '.') + '</div>';
     else if (j.future) banner = '<div class="dw-banner">This day has not started yet — you can tick these activities on the day.</div>';
     else if (j.too_old) banner = '<div class="dw-banner warn">This day is more than 7 days ago and can no longer be changed.</div>';
     else if (!j.is_today) banner = '<div class="dw-banner warn">You are updating a past day — ticks made now are marked <b>late</b>.</div>';
@@ -161,8 +204,9 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
     var list = '';
     if (!j.items.length) list = '<div class="dw-panel dw-empty">No daily activities ' + (j.own ? 'for you' : 'for ' + esc(j.name)) + ' on this day.' + (j.can_manage ? '<br><br><button type="button" class="btn btn-success btn-sm" id="dw-add2">+ Add an activity</button>' : (j.own ? '<br>Your manager adds the activities for your daily workflow.' : '')) + '</div>';
     else {
-      var sec = null;
+      var sec = null, step = 0;
       j.items.forEach(function (it) {
+        step++;
         if (it.section !== sec) { sec = it.section; list += '<div class="dw-sec">' + esc(sec) + '</div>'; }
         var meta = [];
         if (it.due_time) meta.push('<span class="dw-pill ' + (it.overdue ? 'red' : 'blue') + '">' + (it.overdue ? '⚠ overdue · ' : '') + 'by ' + esc(it.due_time) + '</span>');
@@ -172,21 +216,26 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
         if (it.status === 'skipped') meta.push('<span class="dw-pill amber">Skipped ' + esc(it.checked_at) + '</span>');
         if (!it.active) meta.push('<span class="dw-pill">stopped</span>');
         var acts = '';
+        if (j.can_manage) acts += '<button type="button" class="btn btn-default btn-xs" data-aedit="' + it.id + '" title="Edit this activity">✎ Edit</button>' + (it.active ? '<button type="button" class="btn btn-link btn-xs" data-astop="' + it.id + '" style="color:#b42318" title="Stop this activity from tomorrow">Stop</button>' : '');
         if (j.can_check) {
           if (it.target && it.status !== 'skipped') acts += '<input type="number" min="0" class="form-control input-sm" data-count="' + it.id + '" placeholder="Count" value="' + (it.count_done != null ? it.count_done : '') + '" title="How many did you do?">';
           acts += '<button type="button" class="btn btn-link btn-xs" data-note="' + it.id + '">' + (it.note ? 'Edit note' : 'Add note') + '</button>';
           if (it.status === 'open') acts += '<button type="button" class="btn btn-link btn-xs" data-skip="' + it.id + '" style="color:#b54708">Skip</button>';
           if (it.status === 'skipped') acts += '<button type="button" class="btn btn-link btn-xs" data-reopen="' + it.id + '">Undo skip</button>';
         }
-        list += '<div class="dw-item ' + (it.status !== 'open' ? it.status : (it.overdue ? 'overdue' : '')) + '">' +
+        list += '<div class="dw-item ' + (it.status !== 'open' ? it.status : (it.overdue ? 'overdue' : '')) + '" data-aid="' + it.id + '">' +
+          (j.can_manage ? '<span class="dw-grip" title="Drag to change the order">⠿</span>' : '') + '<span class="dw-step">' + step + '</span>' +
           '<input type="checkbox" class="dw-cb" data-cb="' + it.id + '"' + (it.status === 'done' ? ' checked' : '') + (j.can_check && it.status !== 'skipped' ? '' : ' disabled') + ' aria-label="Done: ' + esc(it.title) + '">' +
           '<div class="dw-body"><div class="dw-t">' + esc(it.title) + '</div>' + (it.details ? '<div class="dw-d">' + esc(it.details) + '</div>' : '') +
           (meta.length ? '<div class="dw-m">' + meta.join(' ') + '</div>' : '') + (it.note ? '<div class="dw-note">📝 ' + esc(it.note) + '</div>' : '') + '</div>' +
           (acts ? '<div class="dw-acts">' + acts + '</div>' : '') + '</div>';
       });
     }
-    V.innerHTML = bar + banner + sum + list;
+    V.innerHTML = bar + banner + sum + '<div id="dw-list">' + list + '</div>';
     var items = {}; j.items.forEach(function (x) { items[x.id] = x; });
+    if (j.can_manage && j.items.length > 1) sortable($('#dw-list'), '.dw-item', function (id, afterId, beforeId) {
+      post('act_reorder', { id: id, after_id: afterId, before_id: beforeId }).then(function (r) { toast('Order saved' + (r.section !== items[id].section ? ' — moved to ' + r.section : '')); loadDay(); }).catch(function (e) { fail(e); loadDay(); });
+    });
     var go = function (d) { S.date = d; loadDay(); };
     $('#dw-prev').onclick = function () { go(addDays(j.date, -1)); };
     $('#dw-next').onclick = function () { go(addDays(j.date, 1)); };
@@ -216,6 +265,15 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
         '<button type="button" class="btn btn-default" data-close>Cancel</button><button type="button" class="btn btn-warning" id="dw-ssave">Skip activity</button>');
       $('#dw-ssave').onclick = function () { var r = $('#dw-stext').value.trim(); if (!r) { toast('Please give a reason.', true); return; } send(it.id, 'skipped', r).then(function () { closeM(); toast('Skipped'); }).catch(fail); };
     }; });
+    $$('[data-aedit]').forEach(function (b) { b.onclick = function () {
+      var it = items[+b.getAttribute('data-aedit')];
+      actForm({ id: it.id, title: it.title, details: it.details, section: it.section, due_time: it.due_raw, target: it.target, days: it.days, owner: it.owner }, j.uid);
+    }; });
+    $$('[data-astop]').forEach(function (b) { b.onclick = function () {
+      var it = items[+b.getAttribute('data-astop')];
+      if (!window.confirm('Stop "' + it.title + '" for ' + it.owner + '? It will no longer appear from tomorrow (history is kept).')) return;
+      post('act_stop', { id: it.id }).then(function () { toast('Stopped'); loadDay(); }).catch(fail);
+    }; });
     $$('[data-reopen]').forEach(function (b) { b.onclick = function () { send(+b.getAttribute('data-reopen'), 'open', '').then(function () { toast('Back to open'); }).catch(fail); }; });
   }
 
@@ -229,7 +287,7 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
           '<td><span class="dw-cell ' + cls + '">' + (r.total ? r.done + '/' + r.total : '—') + '</span></td><td>' + (r.skipped || '') + '</td><td>' + (r.total ? (r.open ? '<span style="color:#b42318;font-weight:600">' + r.open + '</span>' : '0') : '') + '</td>' +
           '<td>' + (pct != null ? '<span class="dw-meter"><span style="width:' + pct + '%"></span></span>' + pct + '%' : '') + '</td>' +
           '<td>' + (r.week_pct != null ? r.week_pct + '% <span class="dw-sub">(' + r.week_done + '/' + r.week_total + ')</span>' : '—') + '</td><td>' + r.activities + '</td>' +
-          '<td style="white-space:nowrap"><a class="btn btn-default btn-xs" href="admin.php?action=dailyworkflow&amp;view=day&amp;uid=' + r.uid + '&amp;date=' + j.date + '">View day</a> <a class="btn btn-default btn-xs" href="admin.php?action=dailyworkflow&amp;view=activities&amp;uid=' + r.uid + '">Activities</a></td></tr>';
+          '<td style="white-space:nowrap"><a class="btn btn-default btn-xs" href="admin.php?action=dailyworkflow&amp;view=day&amp;uid=' + r.uid + '&amp;date=' + j.date + '">View day</a> <a class="btn btn-default btn-xs" href="admin.php?action=dailyworkflow&amp;view=activities&amp;uid=' + r.uid + '">Edit activities</a></td></tr>';
       }).join('');
       V.innerHTML = '<div class="dw-bar"><button type="button" class="btn btn-default btn-sm" id="dw-tprev">‹</button><input type="date" class="form-control" id="dw-tdate" value="' + j.date + '"><button type="button" class="btn btn-default btn-sm" id="dw-tnext">›</button>' +
         '<span class="dw-sub" style="margin-left:auto">' + esc(j.label) + '</span></div>' +
@@ -249,20 +307,24 @@ $tab = function ($v, $label) use ($view) { return '<a href="admin.php?action=dai
     setUrl({ view: 'activities', uid: AU });
     return get('acts', { uid: AU }).then(function (j) {
       var person = B.people.filter(function (p) { return p.uid === AU; })[0] || {};
+      var n = 0;
       var rows = j.acts.map(function (a) {
-        return '<tr class="dw-actrow' + (a.active ? '' : ' stopped') + '"><td>' + esc(a.section) + '</td><td><b>' + esc(a.title) + '</b>' + (a.details ? '<div class="dw-sub" style="white-space:pre-wrap">' + esc(a.details) + '</div>' : '') + '</td>' +
+        return '<tr class="dw-actrow' + (a.active ? '' : ' stopped') + '" data-aid="' + a.id + '"><td style="white-space:nowrap">' + (a.can_manage ? '<span class="dw-grip" title="Drag to change the order">⠿</span>' : '') + '<span class="dw-step">' + (++n) + '</span></td><td>' + esc(a.section) + '</td><td><b>' + esc(a.title) + '</b>' + (a.details ? '<div class="dw-sub" style="white-space:pre-wrap">' + esc(a.details) + '</div>' : '') + '</td>' +
           '<td>' + esc(a.days_label) + '</td><td>' + esc(a.due_label || '—') + '</td><td>' + (a.target || '—') + '</td>' +
           '<td>' + (a.active ? '<span class="dw-pill green">Active</span>' : '<span class="dw-pill">Stopped ' + esc(a.end) + '</span>') + '<div class="dw-sub">since ' + esc(a.start) + ' · by ' + esc(a.created_by) + '</div></td>' +
           '<td style="white-space:nowrap">' + (a.can_manage ? (a.active ? '<button type="button" class="btn btn-link btn-xs" data-up="' + a.id + '">↑</button><button type="button" class="btn btn-link btn-xs" data-down="' + a.id + '">↓</button><button type="button" class="btn btn-default btn-xs" data-edit="' + a.id + '">Edit</button> <button type="button" class="btn btn-default btn-xs" data-stop="' + a.id + '" style="color:#b42318">Stop</button>'
-            : '<button type="button" class="btn btn-default btn-xs" data-resume="' + a.id + '">Restart</button>') : '') + '</td></tr>';
+            : '<button type="button" class="btn btn-default btn-xs" data-edit="' + a.id + '">Edit</button> <button type="button" class="btn btn-default btn-xs" data-resume="' + a.id + '">Restart</button>') : '') + '</td></tr>';
       }).join('');
       V.innerHTML = '<div class="dw-bar"><label>Person</label>' + peopleSelect('dw-auser', AU) +
         (person.manage ? '<button type="button" class="btn btn-success btn-sm" id="dw-aadd">+ Add activity for ' + esc((person.name || '').replace(' (me)', '')) + '</button><button type="button" class="btn btn-default btn-sm" id="dw-copy">Copy this routine to…</button>' : '') +
         '<a class="btn btn-default btn-sm" style="margin-left:auto" href="admin.php?action=dailyworkflow&amp;view=day&amp;uid=' + AU + '">View their day</a></div>' +
-        '<div class="table-responsive"><table class="table table-bordered dw-table"><thead><tr><th>Section</th><th>Activity</th><th>Days</th><th>Due by</th><th>Target</th><th>Status</th><th></th></tr></thead><tbody>' +
-        (rows || '<tr><td colspan="7" class="dw-empty">No activities yet.</td></tr>') + '</tbody></table></div>' +
-        '<p class="dw-sub">Stopping an activity keeps its history; it stops appearing from tomorrow. Edits apply to today and future days.</p>';
+        '<div class="table-responsive"><table class="table table-bordered dw-table"><thead><tr><th style="width:1%">Order</th><th>Section</th><th>Activity</th><th>Days</th><th>Due by</th><th>Target</th><th>Status</th><th></th></tr></thead><tbody id="dw-abody">' +
+        (rows || '<tr><td colspan="8" class="dw-empty">No activities yet.</td></tr>') + '</tbody></table></div>' +
+        '<p class="dw-sub">Drag <b>⠿</b> to set the order the activities must be done in (it is the order shown on everyone\'s day). Dropping an activity between two of another section moves it into that section. Stopping an activity keeps its history; it stops appearing from tomorrow.</p>';
       var acts = {}; j.acts.forEach(function (a) { acts[a.id] = a; });
+      if (j.acts.length > 1) sortable($('#dw-abody'), 'tr[data-aid]', function (id, afterId, beforeId) {
+        post('act_reorder', { id: id, after_id: afterId, before_id: beforeId }).then(function (r) { toast('Order saved' + (r.section !== acts[id].section ? ' — moved to ' + r.section : '')); loadActs(); }).catch(function (e) { fail(e); loadActs(); });
+      });
       $('#dw-auser').onchange = function () { AU = +this.value; loadActs(); };
       if ($('#dw-aadd')) $('#dw-aadd').onclick = function () { actForm(null, AU); };
       if ($('#dw-copy')) $('#dw-copy').onclick = function () { copyForm(AU); };
